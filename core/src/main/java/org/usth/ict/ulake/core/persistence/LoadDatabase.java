@@ -14,7 +14,7 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(GroupRepository repository) {
         return args -> {
-            log.info("Preloading " + repository.save(new GroupObject("Whatevar.")));
+            //log.info("Preloading " + repository.save(new GroupObject("Whatevar.")));
         };
     }
 }
