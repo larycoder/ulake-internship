@@ -1,22 +1,30 @@
 package org.usth.ict.ulake.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class StorageObject {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
-    public void setId(Integer id) {
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private GroupObject group;
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    @Id
-    public Integer getId() {
+    public Long getId() {
         return id;
+    }
+
+    public GroupObject getGroup() {
+        return group;
+    }
+
+    public void setGroup(GroupObject group) {
+        this.group = group;
     }
 }

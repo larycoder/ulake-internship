@@ -1,27 +1,44 @@
 package org.usth.ict.ulake.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-public class Dataset {
+public class GroupObject {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Integer id;
-    private String name;        // dataset name
-    private String description; // dataset description
-    private String source;      // url of the source
-    private String licence;     // which?
-    private String tags;        // comma-separated tags
+    private Long id;
+    private String cid;
+    private String name;
+    private String description;
+    private String source;
+    private String licence;
+    private String tags;
 
-    public void setId(Integer id) {
+    @OneToMany(mappedBy = "group")
+    private List<StorageObject> objects;
+
+    public GroupObject(String name) {
+        this.name = name;
+    }
+
+    public GroupObject() {
+    }
+
+    public String getCid() {
+        return cid;
+    }
+
+    public void setCid(String cid) {
+        this.cid = cid;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    @Id
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -63,5 +80,13 @@ public class Dataset {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public List<StorageObject> getObjects() {
+        return objects;
+    }
+
+    public void setObjects(List<StorageObject> objects) {
+        this.objects = objects;
     }
 }
