@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.usth.ict.ulake.core.model.GroupObject;
+import org.usth.ict.ulake.core.model.Group;
+import org.usth.ict.ulake.core.model.StorageObject;
+
+import java.util.ArrayList;
 
 @Configuration
 public class LoadDatabase {
@@ -14,7 +17,12 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(GroupRepository repository) {
         return args -> {
-            //log.info("Preloading " + repository.save(new GroupObject("Whatevar.")));
+            ArrayList<StorageObject> objects = new ArrayList<>();
+            objects.add(new StorageObject("this-is-a-cid"));
+            Group g = new Group("Whatevar.");
+            g.setObjects(objects);
+
+            log.info("Preloading " + repository.save(g));
         };
     }
 }

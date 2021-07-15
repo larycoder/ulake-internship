@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class GroupObject {
+public class Group {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
-    private String cid;
+    private Integer id;
     private String name;
     private String description;
     private String source;
@@ -19,26 +18,18 @@ public class GroupObject {
     @OneToMany(mappedBy = "group")
     private List<StorageObject> objects;
 
-    public GroupObject(String name) {
+    public Group(String name) {
         this.name = name;
     }
 
-    public GroupObject() {
+    public Group() {
     }
 
-    public String getCid() {
-        return cid;
-    }
-
-    public void setCid(String cid) {
-        this.cid = cid;
-    }
-
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
