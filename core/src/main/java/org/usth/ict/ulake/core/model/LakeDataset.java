@@ -1,14 +1,12 @@
 package org.usth.ict.ulake.core.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "groups")
-public class Group {
+public class LakeDataset {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
     private String description;
@@ -16,21 +14,22 @@ public class Group {
     private String licence;
     private String tags;
 
-    @OneToMany(mappedBy = "group")
-    private List<StorageObject> objects;
+    @OneToMany(mappedBy = "dataset")
+    private List<LakeGroup> groups;
 
-    public Group(String name) {
-        this.name = name;
+    public LakeDataset() {
     }
 
-    public Group() {}
-
-    public void setId(Integer id) {
-        this.id = id;
+    public LakeDataset(String name) {
+        this.name = name;
     }
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -73,11 +72,11 @@ public class Group {
         this.tags = tags;
     }
 
-    public List<StorageObject> getObjects() {
-        return objects;
+    public List<LakeGroup> getGroups() {
+        return groups;
     }
 
-    public void setObjects(List<StorageObject> objects) {
-        this.objects = objects;
+    public void setGroups(List<LakeGroup> groups) {
+        this.groups = groups;
     }
 }

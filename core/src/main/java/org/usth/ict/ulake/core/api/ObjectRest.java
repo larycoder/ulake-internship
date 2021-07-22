@@ -3,7 +3,7 @@ package org.usth.ict.ulake.core.api;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.usth.ict.ulake.core.model.StorageObject;
+import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 @RestController
@@ -15,7 +15,7 @@ public class ObjectRest {
     }
 
     @GetMapping("/object/{id}")
-    StorageObject one(@PathVariable Integer id) {
+    LakeObject one(@PathVariable Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException(id));
     }

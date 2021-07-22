@@ -4,22 +4,22 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class StorageObject {
+public class LakeObject {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
+    private Long parentId;
     private String cid;
     private Date createTime;
     private Date accessTime; // ?
 
     @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn
+    private LakeGroup group;
 
-    public StorageObject() {
-    }
+    public LakeObject() { }
 
-    public StorageObject(String cid) {
+    public LakeObject(String cid) {
         this.cid = cid;
     }
 
@@ -31,12 +31,12 @@ public class StorageObject {
         return id;
     }
 
-    public Group getGroup() {
-        return group;
+    public Long getParentId() {
+        return parentId;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public String getCid() {
@@ -62,4 +62,14 @@ public class StorageObject {
     public void setAccessTime(Date accessTime) {
         this.accessTime = accessTime;
     }
+
+    public LakeGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(LakeGroup group) {
+        this.group = group;
+    }
+
+
 }
