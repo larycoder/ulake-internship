@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "groups")
 public class Group {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -22,8 +23,7 @@ public class Group {
         this.name = name;
     }
 
-    public Group() {
-    }
+    public Group() {}
 
     public void setId(Integer id) {
         this.id = id;
