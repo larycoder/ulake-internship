@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "openio.core.endpoint",
+      "type": "java.lang.String",
+      "description": "Description for openio.core.endpoint."
+  }
+] }

@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.core.backend.impl;
 
 import org.hibernate.jpa.QueryHints;
+import org.usth.ict.ulake.core.misc.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JpaUtils {
-    private static final String PERSISTENCE_UNIT_NAME = "voiceviet";
+    private static final String PERSISTENCE_UNIT_NAME = "org.usth.ict.ulake.core";
     private static EntityManagerFactory factory;
 
     public static EntityManagerFactory getFactory() {
