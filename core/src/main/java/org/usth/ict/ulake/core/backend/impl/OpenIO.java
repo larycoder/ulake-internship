@@ -1,20 +1,37 @@
 package org.usth.ict.ulake.core.backend.impl;
 
+import io.openio.sds.Client;
+import io.openio.sds.ClientBuilder;
+import io.openio.sds.models.ContainerInfo;
+import io.openio.sds.models.OioUrl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.usth.ict.ulake.core.backend.FileSystem;
 
 import java.io.InputStream;
 import java.util.List;
 
+@Component
 public class OpenIO implements FileSystem {
-    @Value("${openio.core.endpoint")
+    @Value("${openio.core.endpoint}")
     private String endPointUrl;
 
-    @Value("${openio.core.key-id")
-    private String keyId;
+    @Value("${openio.core.namespace}")
+    private String namespace;
 
-    @Value("${openio.core.access-key")
-    private String accessKey;
+    @Value("${openio.core.account}")
+    private String account;
+
+    private Client client;
+
+    public Client getClient() {
+        if (client == null) {
+            client = ClientBuilder.newClient(namespace, endPointUrl);
+        }
+        return client;
+    }
 
     @Override
     public String create(InputStream is) {
@@ -38,32 +55,10 @@ public class OpenIO implements FileSystem {
 
     @Override
     public String mkdir(String name) {
-        return null;
-    }
-
-    // getters, setters
-
-    public String getEndPointUrl() {
-        return endPointUrl;
-    }
-
-    public void setEndPointUrl(String endPointUrl) {
-        this.endPointUrl = endPointUrl;
-    }
-
-    public String getKeyId() {
-        return keyId;
-    }
-
-    public void setKeyId(String keyId) {
-        this.keyId = keyId;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+        System.out.println(account);
+        OioUrl url = OioUrl.url(account, name);
+        ContainerInfo ci = getClient().createContainer(url);
+        System.out.println("Container is is " + ci);
+        return ci.name();
     }
 }
