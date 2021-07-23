@@ -4,17 +4,22 @@ import io.openio.sds.Client;
 import io.openio.sds.ClientBuilder;
 import io.openio.sds.models.ContainerInfo;
 import io.openio.sds.models.OioUrl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.usth.ict.ulake.core.backend.FileSystem;
+import org.usth.ict.ulake.core.persistence.LoadDatabase;
 
 import java.io.InputStream;
 import java.util.List;
 
 @Component
 public class OpenIO implements FileSystem {
+    private static final Logger log = LoggerFactory.getLogger(OpenIO.class);
+
     @Value("${openio.core.endpoint}")
     private String endPointUrl;
 
@@ -58,7 +63,7 @@ public class OpenIO implements FileSystem {
         System.out.println(account);
         OioUrl url = OioUrl.url(account, name);
         ContainerInfo ci = getClient().createContainer(url);
-        System.out.println("Container is is " + ci);
+        log.info("Created container {}", ci);
         return ci.name();
     }
 }
