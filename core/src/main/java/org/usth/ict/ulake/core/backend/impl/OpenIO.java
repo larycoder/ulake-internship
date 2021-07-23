@@ -3,6 +3,8 @@ package org.usth.ict.ulake.core.backend.impl;
 import io.openio.sds.Client;
 import io.openio.sds.ClientBuilder;
 import io.openio.sds.models.ContainerInfo;
+import io.openio.sds.models.ListOptions;
+import io.openio.sds.models.ObjectList;
 import io.openio.sds.models.OioUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,9 @@ import org.springframework.stereotype.Component;
 import org.usth.ict.ulake.core.backend.FileSystem;
 import org.usth.ict.ulake.core.persistence.LoadDatabase;
 
+import javax.swing.text.html.ObjectView;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -55,7 +59,15 @@ public class OpenIO implements FileSystem {
 
     @Override
     public List<String> ls(String dir) {
-        return null;
+        OioUrl url = OioUrl.url(account, dir);
+        ListOptions options = new ListOptions();
+        ObjectList objectList = getClient().listObjects(url, options);
+        List<ObjectList.ObjectView> list = objectList.objects();
+        ArrayList<String> ret = new ArrayList<>();
+        for (var obj: list) {
+            ret.add(obj.name());
+        }
+        return ret;
     }
 
     @Override

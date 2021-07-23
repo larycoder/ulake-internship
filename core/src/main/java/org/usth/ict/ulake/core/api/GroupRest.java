@@ -33,8 +33,15 @@ public class GroupRest {
 
     @GetMapping("/group/{id}")
     LakeGroup one(@PathVariable Integer id) {
+        fs.get(0).ls(String.valueOf(id));
         return repository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException(id));
+    }
+
+    @GetMapping("/group/list/{path}")
+    LakeGroup listByPath(@PathVariable String path) {
+        log.info("{}: {}", path, fs.get(0).ls(path));
+        return null;
     }
 
     private class GroupNotFoundException extends RuntimeException {
