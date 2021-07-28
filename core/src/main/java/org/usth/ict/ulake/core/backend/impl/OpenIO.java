@@ -44,8 +44,9 @@ public class OpenIO implements FileSystem {
 
     @Override
     public String create(InputStream is) {
-
-        return null;
+        String ret = "abcdef";
+        log.info("Created OpenIO objectfrom stream. cid={}", ret);
+        return ret;
     }
 
     @Override
