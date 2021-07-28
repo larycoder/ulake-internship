@@ -43,8 +43,10 @@ public class OpenIO implements FileSystem {
     }
 
     @Override
-    public String create(InputStream is) {
-        String ret = "abcdef";
+    public String create(String name, long length, InputStream is) {
+        String ret = "";
+        OioUrl url = OioUrl.url(account, "", name);
+        client.putObject(url, length, is);
         log.info("Created OpenIO objectfrom stream. cid={}", ret);
         return ret;
     }

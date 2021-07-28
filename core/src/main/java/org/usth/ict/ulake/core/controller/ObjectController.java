@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.core.controller;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.usth.ict.ulake.core.misc.Utils;
 import org.usth.ict.ulake.core.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.model.LakeObjectFormWrapper;
+import org.usth.ict.ulake.core.model.LakeObjectMetadata;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +22,7 @@ import java.util.List;
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
     private final ObjectRepository repository;
+    private Gson gson = new Gson();
 
     @Autowired
     private List<FileSystem> fs;
@@ -38,6 +41,7 @@ public class ObjectController {
     public String post(@ModelAttribute LakeObjectFormWrapper object) throws IOException {
         String metadata = object.getMetadata();
         log.info("POST: Prepare to create object with meta {}", metadata);
+        LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
         InputStream is = object.getFile().getInputStream();
         String cid = fs.get(0).create(is);
         log.info("POST: object storage returned cid={}", cid);

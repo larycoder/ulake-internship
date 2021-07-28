@@ -11,7 +11,7 @@ public interface FileSystem {
     String mkdir(String name);
 
     // files
-    String create(InputStream is);
+    String create(String name, long length, InputStream is);
     boolean delete(String cid);
     InputStream get(String cid);
 }
