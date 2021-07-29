@@ -43,7 +43,7 @@ public class ObjectController {
         log.info("POST: Prepare to create object with meta {}", metadata);
         LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
         InputStream is = object.getFile().getInputStream();
-        String cid = fs.get(0).create(is);
+        String cid = fs.get(0).create(meta.getName(), meta.getLength(), is);
         log.info("POST: object storage returned cid={}", cid);
         return LakeHttpResponse.toString(200);
     }

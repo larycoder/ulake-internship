@@ -2,20 +2,13 @@ package org.usth.ict.ulake.core.backend.impl;
 
 import io.openio.sds.Client;
 import io.openio.sds.ClientBuilder;
-import io.openio.sds.models.ContainerInfo;
-import io.openio.sds.models.ListOptions;
-import io.openio.sds.models.ObjectList;
-import io.openio.sds.models.OioUrl;
+import io.openio.sds.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.usth.ict.ulake.core.backend.FileSystem;
-import org.usth.ict.ulake.core.persistence.LoadDatabase;
 
-import javax.swing.text.html.ObjectView;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +26,9 @@ public class OpenIO implements FileSystem {
     @Value("${openio.core.account}")
     private String account;
 
+    @Value("${openio.core.bucket}")
+    private String bucket;
+
     private Client client;
 
     public Client getClient() {
@@ -44,11 +40,11 @@ public class OpenIO implements FileSystem {
 
     @Override
     public String create(String name, long length, InputStream is) {
-        String ret = "";
-        OioUrl url = OioUrl.url(account, "", name);
-        client.putObject(url, length, is);
-        log.info("Created OpenIO objectfrom stream. cid={}", ret);
-        return ret;
+        OioUrl url = OioUrl.url(account, bucket, name);
+        log.info("Create: target {}, prepare to putObject url={} length={}", endPointUrl, url, length);
+        ObjectInfo info = getClient().putObject(url, length, is);
+        log.info("Created OpenIO object from stream. hash={}", info.hash());
+        return info.hash();
     }
 
     @Override
