@@ -12,6 +12,7 @@ import org.usth.ict.ulake.core.backend.FileSystem;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class OpenIO implements FileSystem {
@@ -40,11 +41,12 @@ public class OpenIO implements FileSystem {
 
     @Override
     public String create(String name, long length, InputStream is) {
-        OioUrl url = OioUrl.url(account, bucket, name);
+        UUID uuid = UUID.randomUUID();
+        OioUrl url = OioUrl.url(account, bucket, uuid.toString());
         log.info("Create: target {}, prepare to putObject url={} length={}", endPointUrl, url, length);
         ObjectInfo info = getClient().putObject(url, length, is);
         log.info("Created OpenIO object from stream. hash={}", info.hash());
-        return info.hash();
+        return uuid.toString();
     }
 
     @Override

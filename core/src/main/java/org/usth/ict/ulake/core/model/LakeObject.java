@@ -10,8 +10,8 @@ public class LakeObject {
     private Long id;
     private Long parentId;
     private String cid;
-    private Date createTime;
-    private Date accessTime; // ?
+    private Long createTime;
+    private Long accessTime; // ?
 
     @ManyToOne
     @JoinColumn
@@ -47,19 +47,19 @@ public class LakeObject {
         this.cid = cid;
     }
 
-    public Date getCreateTime() {
+    public Long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(Long createTime) {
         this.createTime = createTime;
     }
 
-    public Date getAccessTime() {
+    public Long getAccessTime() {
         return accessTime;
     }
 
-    public void setAccessTime(Date accessTime) {
+    public void setAccessTime(Long accessTime) {
         this.accessTime = accessTime;
     }
 
