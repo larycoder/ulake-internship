@@ -18,3 +18,17 @@ We provide RESTful services to allow access to ULake Core. This core does not pr
 
 Please refer to [Core API specification](docs/api.md) for more detail.
 
+
+Usage
+===========
+
+Dependency: Java 11+
+
+Start the core:
+
+```bash
+./gradlew bootRun
+```
+
+Core API is available at http://localhost:8080
+
