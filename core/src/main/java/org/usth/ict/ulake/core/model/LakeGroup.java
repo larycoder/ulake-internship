@@ -7,7 +7,7 @@ import java.util.List;
 public class LakeGroup {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Integer id;
+    private Long id;
     private String name;
     private String extraJson;
     private String tags;
@@ -25,11 +25,11 @@ public class LakeGroup {
         this.name = name;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.usth.ict.ulake.core.backend.FileSystem;
 import org.usth.ict.ulake.core.misc.Utils;
-import org.usth.ict.ulake.core.model.LakeHttpResponse;
-import org.usth.ict.ulake.core.model.LakeObject;
-import org.usth.ict.ulake.core.model.LakeObjectFormWrapper;
-import org.usth.ict.ulake.core.model.LakeObjectMetadata;
+import org.usth.ict.ulake.core.model.*;
+import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,13 +23,15 @@ import java.util.List;
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
     private final ObjectRepository repository;
+    private final GroupRepository groupRepository;
     private final Gson gson = new Gson();
 
     @Autowired
     private List<FileSystem> fs;
 
-    public ObjectController(ObjectRepository repository) {
+    public ObjectController(ObjectRepository repository, GroupRepository groupRepository) {
         this.repository = repository;
+        this.groupRepository = groupRepository;
     }
 
     @GetMapping("/object")
@@ -69,10 +69,14 @@ public class ObjectController {
     @PostMapping("/object")
     public String post(@ModelAttribute LakeObjectFormWrapper objectWrapper) throws IOException {
         // extract data from POSTed multi-part form
+        InputStream is = objectWrapper.getFile().getInputStream();
         String metadata = objectWrapper.getMetadata();
         log.info("POST: Prepare to create object with meta {}", metadata);
         LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
-        InputStream is = objectWrapper.getFile().getInputStream();
+        LakeGroup group = null;
+        if (meta.getGroupId() != 0) {
+            group = groupRepository.getById(meta.getGroupId());
+        }
 
         // save to backend
         String cid = fs.get(0).create(meta.getName(), meta.getLength(), is);
@@ -85,7 +89,7 @@ public class ObjectController {
         object.setCreateTime(now);
         object.setAccessTime(now);
         object.setParentId(0L);
-        object.setGroup(null);
+        object.setGroup(group);
         repository.save(object);
 
         JsonElement element = gson.toJsonTree(object, LakeObject.class);
