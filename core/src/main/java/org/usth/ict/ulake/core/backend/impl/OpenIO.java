@@ -56,7 +56,10 @@ public class OpenIO implements FileSystem {
 
     @Override
     public InputStream get(String cid) {
-        return null;
+        OioUrl url = OioUrl.url(account, bucket, cid);
+        Client client = getClient();
+        ObjectInfo info = client.getObjectInfo(url);
+        return client.downloadObject(info);
     }
 
     @Override
