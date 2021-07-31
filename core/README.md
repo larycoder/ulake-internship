@@ -11,6 +11,10 @@ ULake Core supports three types of data:
 
 ULake requires [MariaDB](https://mariadb.org) as the persistence store for its metadata. Configuration to this database is specified in the [Application Configuration](./src/main/resources/application.properties) file.
 
+Access
+============
 
+We provide RESTful services to allow access to ULake Core. This core does not provide any authentication mechanism, since its purpose is solely abstraction of different backends. Another module should be responsible for implementing ACLs.
 
+Please refer to [Core API specification](docs/api.md) for more detail.
 
