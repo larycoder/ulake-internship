@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(indexes = @Index(columnList = "cid"))
 public class LakeObject {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

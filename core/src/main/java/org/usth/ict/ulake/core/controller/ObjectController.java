@@ -15,6 +15,7 @@ import org.usth.ict.ulake.core.model.LakeObjectMetadata;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -24,7 +25,7 @@ import java.util.List;
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
     private final ObjectRepository repository;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Autowired
     private List<FileSystem> fs;
@@ -33,10 +34,36 @@ public class ObjectController {
         this.repository = repository;
     }
 
-    @GetMapping("/object/{id}")
-    LakeObject one(@PathVariable Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException(id));
+    @GetMapping("/object")
+    public List<LakeObject> all() {
+        return repository.findAll();
+    }
+
+    @GetMapping("/object/{cid}")
+    public LakeObject one(@PathVariable String cid) {
+        return repository.findByCid(cid);
+    }
+
+    @GetMapping("/object/data/{cid}")
+    public void data(HttpServletResponse response,
+                     HttpServletRequest request,
+                     @PathVariable String cid) {
+        LakeObject object = repository.findByCid(cid);
+        if (object == null) {
+            response.setStatus(404);
+            return;
+        }
+        InputStream is = fs.get(0).get(cid);
+        if (is == null) {
+            response.setStatus(404);
+            return;
+        }
+
+        try {
+            is.transferTo(response.getOutputStream());
+        } catch (IOException e) {
+            response.setStatus(403);
+        }
     }
 
     @PostMapping("/object")
@@ -61,14 +88,7 @@ public class ObjectController {
         object.setGroup(null);
         repository.save(object);
 
-
         JsonElement element = gson.toJsonTree(object, LakeObject.class);
         return LakeHttpResponse.toString(200, null, element);
-    }
-
-    private class ObjectNotFoundException extends RuntimeException {
-        public ObjectNotFoundException(Integer id) {
-            super("Could not find object " + id);
-        }
     }
 }
