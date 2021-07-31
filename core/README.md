@@ -30,5 +30,5 @@ Start the core:
 ./gradlew bootRun
 ```
 
-Core API is available at http://localhost:8080
+Core API is available at http://localhost:8784
 
