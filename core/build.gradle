@@ -18,6 +18,7 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'io.openio.sds:openio-api:2.0.3'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
 }
 
 test {
