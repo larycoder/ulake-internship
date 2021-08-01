@@ -1,7 +1,6 @@
 package org.usth.ict.ulake.core.backend.impl;
 
-import org.hibernate.jpa.QueryHints;
-import org.usth.ict.ulake.core.misc.Utils;
+import org.usth.ict.ulake.common.misc.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

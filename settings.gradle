@@ -1,2 +1,2 @@
 rootProject.name = 'ulake'
-include 'core', 'api'
+include 'core', 'api', 'common'

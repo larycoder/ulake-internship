@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.core.misc;
+package org.usth.ict.ulake.common.misc;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

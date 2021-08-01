@@ -2,7 +2,7 @@ package org.usth.ict.ulake.core.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
-import org.usth.ict.ulake.core.misc.Utils;
+import org.usth.ict.ulake.common.misc.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
