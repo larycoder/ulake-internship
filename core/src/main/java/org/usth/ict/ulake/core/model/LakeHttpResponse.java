@@ -59,15 +59,17 @@ public class LakeHttpResponse {
     }
 
     public static String toString(int code, String msg, Object resp) {
-        JsonElement jsonElement = Utils.gsonNoExpose().toJsonTree(resp);
-        return Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, jsonElement));
+//        JsonElement jsonElement = Utils.gsonNoExpose().toJsonTree(resp);
+//        return Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, jsonElement));
+        // TODO
+        return "";
     }
 
     public static String toString(int code, String msg) {
-        return Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, null));
+        return ""; // TODO Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, null));
     }
 
     public static String toString(int code) {
-        return Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, null));
+        return ""; // TODO Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, null));
     }
 }

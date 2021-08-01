@@ -1,97 +1,104 @@
 package org.usth.ict.ulake.core.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.usth.ict.ulake.core.backend.FileSystem;
-import org.usth.ict.ulake.core.model.*;
-import org.usth.ict.ulake.core.persistence.GroupRepository;
-import org.usth.ict.ulake.core.persistence.ObjectRepository;
+import org.usth.ict.ulake.core.model.LakeGroup;
+import org.usth.ict.ulake.core.model.LakeObject;
+import org.usth.ict.ulake.core.persistence.GenericDAO;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.*;
+import java.io.*;
 import java.util.List;
 
-@RestController
+@Path("/object")
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
-    private final ObjectRepository repository;
-    private final GroupRepository groupRepository;
-    private final Gson gson = new Gson();
 
-    @Autowired
-    private List<FileSystem> fs;
+    @Inject
+    List<FileSystem> fs;
 
-    public ObjectController(ObjectRepository repository, GroupRepository groupRepository) {
-        this.repository = repository;
-        this.groupRepository = groupRepository;
+    @Inject
+    GenericDAO<LakeObject> objectDao;
+
+    @Inject
+    GenericDAO<LakeGroup> groupDao;
+
+    public ObjectController(List<FileSystem> fs, GenericDAO<LakeObject> objectDao, GenericDAO<LakeGroup> groupDao) {
+        this.fs = fs;
+        this.objectDao = objectDao;
+        this.groupDao = groupDao;
+        this.objectDao.setClazz(LakeObject.class);
+        this.groupDao.setClazz(LakeGroup.class);
     }
 
-    @GetMapping("/object")
+    @GET
     public List<LakeObject> all() {
-        return repository.findAll();
+        return objectDao.list();
     }
 
-    @GetMapping("/object/{cid}")
-    public LakeObject one(@PathVariable String cid) {
-        return repository.findByCid(cid);
+    @GET
+    @Path("/object/{cid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public LakeObject one(@PathParam("cid") String cid) {
+        return objectDao.findBy("cid", cid);
     }
 
-    @GetMapping("/object/data/{cid}")
-    public void data(HttpServletResponse response,
-                     HttpServletRequest request,
-                     @PathVariable String cid) {
-        LakeObject object = repository.findByCid(cid);
+    @GET
+    @Path("/object/data/{cid}")
+    //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
+    public Response data(@Context HttpHeaders headers,
+                         @PathParam("cid") String cid) {
+        LakeObject object = objectDao.findBy("cid", cid);
         if (object == null) {
-            response.setStatus(404);
-            return;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         InputStream is = fs.get(0).get(cid);
         if (is == null) {
-            response.setStatus(404);
-            return;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-
-        try {
-            is.transferTo(response.getOutputStream());
-        } catch (IOException e) {
-            response.setStatus(403);
-        }
+        StreamingOutput stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream os) throws IOException {
+                is.transferTo(os);
+            }
+        };
+        return Response.ok(stream).build();
     }
 
-    @PostMapping("/object")
-    public String post(@ModelAttribute LakeObjectFormWrapper objectWrapper) throws IOException {
-        // extract data from POSTed multi-part form
-        InputStream is = objectWrapper.getFile().getInputStream();
-        String metadata = objectWrapper.getMetadata();
-        log.info("POST: Prepare to create object with meta {}", metadata);
-        LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
-        LakeGroup group = null;
-        if (meta.getGroupId() != 0) {
-            group = groupRepository.getById(meta.getGroupId());
-        }
-
-        // save to backend
-        String cid = fs.get(0).create(meta.getName(), meta.getLength(), is);
-        log.info("POST: object storage returned cid={}", cid);
-
-        // save a new object to metadata RDBMS
-        LakeObject object = new LakeObject();
-        object.setCid(cid);
-        Long now = new Date().getTime();
-        object.setCreateTime(now);
-        object.setAccessTime(now);
-        object.setParentId(0L);
-        object.setGroup(group);
-        repository.save(object);
-
-        JsonElement element = gson.toJsonTree(object, LakeObject.class);
-        return LakeHttpResponse.toString(200, null, element);
-    }
+//    @POST
+//    @Path("/object")
+//    @Consumes("multipart/form-data")
+//    public String post(@FormDataParam("data") InputStream is) throws IOException {
+//        // extract data from POSTed multi-part form
+//        String metadata = objectWrapper.getMetadata();
+//        log.info("POST: Prepare to create object with meta {}", metadata);
+//        LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
+//        LakeGroup group = null;
+//        if (meta.getGroupId() != 0) {
+//            group = groupDao.findById(meta.getGroupId());
+//        }
+//
+//        // save to backend
+//        String cid = fs.get(0).create(meta.getName(), meta.getLength(), is);
+//        log.info("POST: object storage returned cid={}", cid);
+//
+//        // save a new object to metadata RDBMS
+//        LakeObject object = new LakeObject();
+//        object.setCid(cid);
+//        Long now = new Date().getTime();
+//        object.setCreateTime(now);
+//        object.setAccessTime(now);
+//        object.setParentId(0L);
+//        object.setGroup(group);
+//        objectDao.save(object);
+//
+//        JsonElement element = gson.toJsonTree(object, LakeObject.class);
+//        return LakeHttpResponse.toString(200, null, element);
+//    }
 }
