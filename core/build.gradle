@@ -26,8 +26,6 @@ dependencies {
 	testImplementation 'io.rest-assured:rest-assured'
 	runtimeOnly 'mysql:mysql-connector-java'
 	implementation 'io.openio.sds:openio-api:2.0.3'
-	implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
-	implementation project(':common')
 }
 
 test {

@@ -5,8 +5,6 @@ import io.openio.sds.ClientBuilder;
 import io.openio.sds.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.usth.ict.ulake.core.backend.FileSystem;
 
 import java.io.InputStream;
