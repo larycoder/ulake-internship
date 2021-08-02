@@ -1,16 +1,16 @@
 package org.usth.ict.ulake.core.model;
 
-import org.jboss.resteasy.reactive.PartType;
-import org.jboss.resteasy.reactive.RestForm;
-import org.jboss.resteasy.reactive.multipart.FileUpload;
+import io.vertx.ext.web.FileUpload;
+import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 
 public class LakeObjectFormWrapper {
-    @RestForm
+    @FormParam("metadata")
     private LakeObjectMetadata metadata;
 
-    @RestForm
+    @FormParam("file")
     @PartType(MediaType.APPLICATION_OCTET_STREAM)
     private FileUpload file;
 
