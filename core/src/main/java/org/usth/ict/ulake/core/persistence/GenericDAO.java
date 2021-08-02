@@ -76,7 +76,6 @@ public class GenericDAO<T> {
     public Object querySingle(String queryString) {
         Query q = em.createQuery(queryString);
         Object ret = q.getSingleResult();
-        em.close();
         return ret;
     }
 
@@ -93,14 +92,12 @@ public class GenericDAO<T> {
             q.setMaxResults(pageSize);
         }
         List<T> ret = q.getResultList();
-        em.close();
         return ret;
     }
 
     public List<Object> listSql(String sql, Class T) {
         Query q = em.createNativeQuery(sql, T);
         List<Object> ret = q.getResultList();
-        em.close();
         return ret;
     }
 

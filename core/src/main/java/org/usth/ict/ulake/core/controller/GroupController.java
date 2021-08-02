@@ -37,6 +37,7 @@ public class GroupController {
 
     @GET
     public List<LakeGroup> all() {
+        groupDao.setClazz(LakeGroup.class);
         return groupDao.list();
     }
 

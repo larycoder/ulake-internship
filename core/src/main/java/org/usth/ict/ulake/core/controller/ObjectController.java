@@ -19,7 +19,6 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
-@ApplicationScoped
 @Path("/object")
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
