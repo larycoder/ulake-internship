@@ -1,10 +1,8 @@
 package org.usth.ict.ulake.core.model;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public class LakeObjectFormWrapper {
     private String metadata;
-    private MultipartFile file;
+    //private MultipartFile file;
 
     public LakeObjectFormWrapper() {
     }
@@ -17,11 +15,11 @@ public class LakeObjectFormWrapper {
         this.metadata = metadata;
     }
 
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
-    }
+//    public MultipartFile getFile() {
+//        return file;
+//    }
+//
+//    public void setFile(MultipartFile file) {
+//        this.file = file;
+//    }
 }

@@ -1,9 +1,5 @@
 package org.usth.ict.ulake.core.model;
 
-import com.google.gson.JsonElement;
-import com.google.gson.annotations.Expose;
-import org.usth.ict.ulake.common.misc.Utils;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,9 +15,9 @@ public class LakeHttpResponse {
         codeMap.put(405, "Method Not Allowed");
     }
 
-    @Expose private int code;
-    @Expose private String msg;
-    @Expose private Object resp;
+    int code;
+    String msg;
+    Object resp;
 
     public LakeHttpResponse(int code, String msg) {
         this.code = code;

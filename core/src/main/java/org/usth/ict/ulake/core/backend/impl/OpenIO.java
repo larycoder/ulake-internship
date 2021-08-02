@@ -3,34 +3,36 @@ package org.usth.ict.ulake.core.backend.impl;
 import io.openio.sds.Client;
 import io.openio.sds.ClientBuilder;
 import io.openio.sds.models.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.FileSystem;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Component
+@ApplicationScoped
 public class OpenIO implements FileSystem {
     private static final Logger log = LoggerFactory.getLogger(OpenIO.class);
 
-    @Value("${openio.core.endpoint}")
-    private String endPointUrl;
+    @ConfigProperty(name = "openio.core.endpoint")
+    String endPointUrl;
 
-    @Value("${openio.core.namespace}")
-    private String namespace;
+    @ConfigProperty(name = "openio.core.namespace")
+    String namespace;
 
-    @Value("${openio.core.account}")
-    private String account;
+    @ConfigProperty(name = "openio.core.account")
+    String account;
 
-    @Value("${openio.core.bucket}")
-    private String bucket;
+    @ConfigProperty(name = "openio.core.bucket")
+    String bucket;
 
-    private Client client;
+    Client client;
 
-    public Client getClient() {
+    Client getClient() {
         if (client == null) {
             client = ClientBuilder.newClient(namespace, endPointUrl);
         }

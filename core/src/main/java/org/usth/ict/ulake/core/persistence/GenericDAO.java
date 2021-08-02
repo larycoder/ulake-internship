@@ -1,9 +1,7 @@
 package org.usth.ict.ulake.core.persistence;
 
-import org.springframework.stereotype.Repository;
 import org.usth.ict.ulake.common.misc.Utils;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -12,7 +10,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Dependent
-@Repository
 public class GenericDAO<T> {
     private Class<T> clazz;
 
