@@ -1,24 +1,28 @@
 package org.usth.ict.ulake.core.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.resteasy.reactive.MultipartForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.FileSystem;
-import org.usth.ict.ulake.core.model.LakeGroup;
-import org.usth.ict.ulake.core.model.LakeObject;
+import org.usth.ict.ulake.core.model.*;
 import org.usth.ict.ulake.core.persistence.GenericDAO;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 
 @Path("/object")
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
+
+    ObjectMapper mapper = new ObjectMapper();
 
     @Inject
     List<FileSystem> fs;
@@ -28,6 +32,9 @@ public class ObjectController {
 
     @Inject
     GenericDAO<LakeGroup> groupDao;
+
+    @Inject
+    LakeHttpResponse lakeResponse;
 
     public ObjectController(List<FileSystem> fs, GenericDAO<LakeObject> objectDao, GenericDAO<LakeGroup> groupDao) {
         this.fs = fs;
@@ -71,34 +78,33 @@ public class ObjectController {
         return Response.ok(stream).build();
     }
 
-//    @POST
-//    @Path("/object")
-//    @Consumes("multipart/form-data")
-//    public String post(@FormDataParam("data") InputStream is) throws IOException {
-//        // extract data from POSTed multi-part form
-//        String metadata = objectWrapper.getMetadata();
-//        log.info("POST: Prepare to create object with meta {}", metadata);
-//        LakeObjectMetadata meta = gson.fromJson(metadata, LakeObjectMetadata.class);
-//        LakeGroup group = null;
-//        if (meta.getGroupId() != 0) {
-//            group = groupDao.findById(meta.getGroupId());
-//        }
-//
-//        // save to backend
-//        String cid = fs.get(0).create(meta.getName(), meta.getLength(), is);
-//        log.info("POST: object storage returned cid={}", cid);
-//
-//        // save a new object to metadata RDBMS
-//        LakeObject object = new LakeObject();
-//        object.setCid(cid);
-//        Long now = new Date().getTime();
-//        object.setCreateTime(now);
-//        object.setAccessTime(now);
-//        object.setParentId(0L);
-//        object.setGroup(group);
-//        objectDao.save(object);
-//
-//        JsonElement element = gson.toJsonTree(object, LakeObject.class);
-//        return LakeHttpResponse.toString(200, null, element);
-//    }
+    @POST
+    @Path("/object")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public String post(@MultipartForm LakeObjectFormWrapper objectWrapper) {
+        // extract data from POSTed multi-part form
+        LakeObjectMetadata meta = objectWrapper.getMetadata();
+        log.info("POST: Prepare to create object with meta {}", meta);
+        LakeGroup group = null;
+        if (meta.getGroupId() != 0) {
+            group = groupDao.findById(meta.getGroupId());
+        }
+
+        // save to backend
+        String cid = fs.get(0).create(meta.getName(), meta.getLength(), null);
+        log.info("POST: object storage returned cid={}", cid);
+
+        // save a new object to metadata RDBMS
+        LakeObject object = new LakeObject();
+        object.setCid(cid);
+        Long now = new Date().getTime();
+        object.setCreateTime(now);
+        object.setAccessTime(now);
+        object.setParentId(0L);
+        object.setGroup(group);
+        objectDao.save(object);
+
+        JsonNode node = mapper.valueToTree(object);
+        return lakeResponse.toString(200, null, node);
+    }
 }

@@ -1,12 +1,19 @@
 package org.usth.ict.ulake.core.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
 import java.util.Map;
 
+@ApplicationScoped
 public class LakeHttpResponse {
-    public static final Map<Integer, String> codeMap;
+    ObjectMapper mapper = new ObjectMapper();
+    final Map<Integer, String> codeMap;
 
-    static {
+    {
         codeMap = new HashMap<>();
         codeMap.put(200, "OK");
         codeMap.put(400, "Bad Request");
@@ -54,18 +61,20 @@ public class LakeHttpResponse {
         this.resp = resp;
     }
 
-    public static String toString(int code, String msg, Object resp) {
-//        JsonElement jsonElement = Utils.gsonNoExpose().toJsonTree(resp);
-//        return Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, jsonElement));
-        // TODO
-        return "";
+    public String toString(int code, String msg, Object resp) {
+        JsonNode node = mapper.valueToTree(resp);
+        try {
+            return mapper.writeValueAsString(new LakeHttpResponse(code, msg, node));
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
     }
 
-    public static String toString(int code, String msg) {
-        return ""; // TODO Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, msg, null));
+    public String toString(int code, String msg) {
+        return toString(code, msg, null);
     }
 
-    public static String toString(int code) {
-        return ""; // TODO Utils.gsonNoExpose().toJson(new LakeHttpResponse(code, null));
+    public String toString(int code) {
+        return toString(code, null);
     }
 }

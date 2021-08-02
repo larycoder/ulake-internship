@@ -8,13 +8,12 @@ import org.usth.ict.ulake.core.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.persistence.GenericDAO;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Path("/group")
+@Produces(MediaType.APPLICATION_JSON)
 public class GroupController {
     private static final Logger log = LoggerFactory.getLogger(GroupController.class);
 
@@ -23,6 +22,9 @@ public class GroupController {
 
     @Inject
     GenericDAO<LakeGroup> groupDao;
+
+    @Inject
+    LakeHttpResponse lakeResponse;
 
     public GroupController(List<FileSystem> fs, GenericDAO<LakeGroup> groupDao) {
         this.fs = fs;
@@ -43,8 +45,9 @@ public class GroupController {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public String post() {
-        return LakeHttpResponse.toString(200);
+        return lakeResponse.toString(200);
     }
 
     @GET
