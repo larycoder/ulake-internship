@@ -10,4 +10,4 @@ pluginManagement {
 }
 
 rootProject.name = 'ulake'
-include 'core', 'api', 'common'
+include ':common', ':core', ':api'

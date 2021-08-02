@@ -1,11 +1,15 @@
 plugins {
-	id 'java'
 	id 'io.quarkus'
+	id 'java'
 }
 
 group = 'org.usth.ict.ulake'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
 	mavenCentral()
@@ -18,4 +22,13 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+compileJava {
+	options.encoding = 'UTF-8'
+	options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+	options.encoding = 'UTF-8'
 }
