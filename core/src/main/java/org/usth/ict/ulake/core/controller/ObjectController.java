@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.core.backend.FileSystem;
+import org.usth.ict.ulake.core.backend.impl.OpenIO;
 import org.usth.ict.ulake.core.model.*;
 import org.usth.ict.ulake.core.persistence.GenericDAO;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -18,6 +19,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
+@ApplicationScoped
 @Path("/object")
 public class ObjectController {
     private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
@@ -25,7 +27,7 @@ public class ObjectController {
     ObjectMapper mapper = new ObjectMapper();
 
     @Inject
-    List<FileSystem> fs;
+    OpenIO fs;
 
     @Inject
     GenericDAO<LakeObject> objectDao;
@@ -33,10 +35,10 @@ public class ObjectController {
     @Inject
     GenericDAO<LakeGroup> groupDao;
 
-    @Inject
-    LakeHttpResponse lakeResponse;
+    //@Inject
+    LakeHttpResponse lakeResponse = new LakeHttpResponse();
 
-    public ObjectController(List<FileSystem> fs, GenericDAO<LakeObject> objectDao, GenericDAO<LakeGroup> groupDao) {
+    public ObjectController(OpenIO fs, GenericDAO<LakeObject> objectDao, GenericDAO<LakeGroup> groupDao) {
         this.fs = fs;
         this.objectDao = objectDao;
         this.groupDao = groupDao;
@@ -65,7 +67,7 @@ public class ObjectController {
         if (object == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        InputStream is = fs.get(0).get(cid);
+        InputStream is = fs.get(cid);
         if (is == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -91,7 +93,7 @@ public class ObjectController {
         }
 
         // save to backend
-        String cid = fs.get(0).create(meta.getName(), meta.getLength(), null);
+        String cid = fs.create(meta.getName(), meta.getLength(), null);
         log.info("POST: object storage returned cid={}", cid);
 
         // save a new object to metadata RDBMS

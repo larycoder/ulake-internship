@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,13 @@ public class LakeHttpResponse {
     int code;
     String msg;
     Object resp;
+
+    public LakeHttpResponse() {
+    }
+
+    public LakeHttpResponse(int code) {
+        this(code, null);
+    }
 
     public LakeHttpResponse(int code, String msg) {
         this.code = code;
@@ -76,5 +84,9 @@ public class LakeHttpResponse {
 
     public String toString(int code) {
         return toString(code, null);
+    }
+
+    public String toString() {
+        return toString(this.code, this. msg, this.resp);
     }
 }
