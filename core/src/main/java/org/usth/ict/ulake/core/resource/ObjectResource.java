@@ -31,7 +31,8 @@ import java.util.Map;
 public class ObjectResource {
     private static final Logger log = LoggerFactory.getLogger(ObjectResource.class);
 
-    ObjectMapper mapper = new ObjectMapper();
+    @Inject
+    ObjectMapper mapper;
 
     @Inject
     OpenIO fs;
@@ -51,14 +52,14 @@ public class ObjectResource {
     }
 
     @GET
-    @Path("/object/{cid}")
+    @Path("/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
     public LakeObject one(@PathParam("cid") String cid) {
         return objectRepo.find("cid", cid).firstResult();
     }
 
     @GET
-    @Path("/object/data/{cid}")
+    @Path("/{cid}/data")
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
     public Response data(@Context HttpHeaders headers,
                          @PathParam("cid") String cid) {
@@ -68,7 +69,7 @@ public class ObjectResource {
         }
         InputStream is = fs.get(cid);
         if (is == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
         StreamingOutput stream = new StreamingOutput() {
             @Override
@@ -87,7 +88,6 @@ public class ObjectResource {
         // manual workaround to void RESTEASY007545 bug
         LakeObjectMetadata meta = null;
         InputStream is = null;
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // iterate through form data to extract metadata and file
         Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
@@ -110,7 +110,6 @@ public class ObjectResource {
         }
 
         // make a new object, if any
-        log.info("POST: Prepare to create object with meta {}", meta);
         LakeGroup group = null;
         if (meta.getGroupId() != 0) {
             group = groupRepo.findById(meta.getGroupId());
