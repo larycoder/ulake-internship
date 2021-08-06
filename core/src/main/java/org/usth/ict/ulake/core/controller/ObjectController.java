@@ -37,24 +37,16 @@ public class ObjectController {
     //@Inject
     LakeHttpResponse lakeResponse = new LakeHttpResponse();
 
-    public ObjectController(OpenIO fs, GenericDAO<LakeObject> objectDao, GenericDAO<LakeGroup> groupDao) {
-        this.fs = fs;
-        this.objectDao = objectDao;
-        this.groupDao = groupDao;
-        this.objectDao.setClazz(LakeObject.class);
-        this.groupDao.setClazz(LakeGroup.class);
-    }
-
     @GET
     public List<LakeObject> all() {
-        return objectDao.list();
+        return objectDao.list(LakeObject.class);
     }
 
     @GET
     @Path("/object/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
     public LakeObject one(@PathParam("cid") String cid) {
-        return objectDao.findBy("cid", cid);
+        return objectDao.findBy(LakeObject.class, "cid", cid);
     }
 
     @GET
@@ -62,7 +54,7 @@ public class ObjectController {
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
     public Response data(@Context HttpHeaders headers,
                          @PathParam("cid") String cid) {
-        LakeObject object = objectDao.findBy("cid", cid);
+        LakeObject object = objectDao.findBy(LakeObject.class,"cid", cid);
         if (object == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -88,7 +80,7 @@ public class ObjectController {
         log.info("POST: Prepare to create object with meta {}", meta);
         LakeGroup group = null;
         if (meta.getGroupId() != 0) {
-            group = groupDao.findById(meta.getGroupId());
+            group = groupDao.findById(LakeGroup.class, meta.getGroupId());
         }
 
         // save to backend

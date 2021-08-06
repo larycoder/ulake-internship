@@ -11,12 +11,6 @@ import java.util.List;
 
 @Dependent
 public class GenericDAO<T> {
-    private Class<T> clazz;
-
-    public void setClazz(Class<T> clazz) {
-        this.clazz = clazz;
-    }
-
     @Inject
     EntityManager em;
 
@@ -36,7 +30,7 @@ public class GenericDAO<T> {
         em.remove(o);
     }
 
-    public T findById(long id) {
+    public T findById(Class<T> clazz, long id) {
         return em.find(clazz, id);
     }
 
@@ -80,11 +74,11 @@ public class GenericDAO<T> {
     }
 
     // listing methods
-    public List<T> list() {
-        return list(0, 0);
+    public List<T> list(Class<T> clazz) {
+        return list(clazz, 0, 0);
     }
 
-    public List<T> list(int pageSize, int pageNum) {
+    public List<T> list(Class<T> clazz, int pageSize, int pageNum) {
         String queryString = "select a from " + clazz.getSimpleName() + " a";
         Query q = em.createQuery(queryString);
         if (pageSize > 0 && pageNum > 0) {
@@ -101,7 +95,7 @@ public class GenericDAO<T> {
         return ret;
     }
 
-    public T findBy(String field, String value) {
+    public T findBy(Class<T> clazz, String field, String value) {
         List<T> ret = query("select o from " + clazz.getSimpleName() + " o where o." + field + "=:value", 1, value);
         if (ret.isEmpty()) return null;
         return ret.get(0);

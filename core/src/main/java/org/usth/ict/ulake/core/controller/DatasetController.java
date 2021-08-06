@@ -23,7 +23,6 @@ public class DatasetController {
 
     public DatasetController(GenericDAO<LakeDataset> datasetDao) {
         this.datasetDao = datasetDao;
-        this.datasetDao.setClazz(LakeDataset.class);
     }
 
     @GET

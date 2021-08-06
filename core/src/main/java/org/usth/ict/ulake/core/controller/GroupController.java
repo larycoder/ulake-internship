@@ -29,23 +29,16 @@ public class GroupController {
     //@Inject
     LakeHttpResponse lakeResponse = new LakeHttpResponse();
 
-    public GroupController(OpenIO fs, GenericDAO<LakeGroup> groupDao) {
-        this.fs = fs;
-        this.groupDao = groupDao;
-        this.groupDao.setClazz(LakeGroup.class);
-    }
-
     @GET
     public List<LakeGroup> all() {
-        groupDao.setClazz(LakeGroup.class);
-        return groupDao.list();
+        return groupDao.list(LakeGroup.class);
     }
 
     @GET
     @Path("/group/{id}")
     public LakeGroup one(@PathParam("id") Long id) {
         fs.ls(String.valueOf(id));
-        return groupDao.findById(id);
+        return groupDao.findById(LakeGroup.class, id);
     }
 
     @POST
