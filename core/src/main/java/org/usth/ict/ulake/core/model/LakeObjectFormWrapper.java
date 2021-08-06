@@ -8,28 +8,13 @@ import javax.ws.rs.core.MediaType;
 
 public class LakeObjectFormWrapper {
     @FormParam("metadata")
-    private LakeObjectMetadata metadata;
+    @PartType(MediaType.TEXT_PLAIN)
+    public String metadata;
 
     @FormParam("file")
     @PartType(MediaType.APPLICATION_OCTET_STREAM)
-    private FileUpload file;
+    public FileUpload file;
 
     public LakeObjectFormWrapper() {
-    }
-
-    public LakeObjectMetadata getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(LakeObjectMetadata metadata) {
-        this.metadata = metadata;
-    }
-
-    public FileUpload getFile() {
-        return file;
-    }
-
-    public void setFile(FileUpload file) {
-        this.file = file;
     }
 }

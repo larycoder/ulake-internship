@@ -1,12 +1,18 @@
 package org.usth.ict.ulake.core.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.impl.OpenIO;
-import org.usth.ict.ulake.core.model.*;
+import org.usth.ict.ulake.core.model.LakeGroup;
+import org.usth.ict.ulake.core.model.LakeHttpResponse;
+import org.usth.ict.ulake.core.model.LakeObject;
+import org.usth.ict.ulake.core.model.LakeObjectMetadata;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
@@ -18,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Path("/object")
 public class ObjectResource {
@@ -72,11 +79,35 @@ public class ObjectResource {
     }
 
     @POST
-    @Path("/object")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String post(@MultipartForm LakeObjectFormWrapper objectWrapper) {
-        // extract data from POSTed multi-part form
-        LakeObjectMetadata meta = objectWrapper.getMetadata();
+    @Produces(MediaType.APPLICATION_JSON)
+    public String post(MultipartFormDataInput input) throws IOException {
+        // manual workaround to void RESTEASY007545 bug
+        LakeObjectMetadata meta = null;
+        InputStream is = null;
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        // iterate through form data to extract metadata and file
+        Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
+        for (var formData: formDataMap.entrySet()) {
+            log.info("POST: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
+            if (formData.getKey().equals("metadata")) {
+               try {
+                   String metaJson = formData.getValue().get(0).getBodyAsString();
+                   meta = mapper.readValue(metaJson, LakeObjectMetadata.class);
+                } catch (JsonProcessingException e) {
+                   log.info("error parsing metadata json {}", e.getMessage());
+                }
+            }
+            else if (formData.getKey().equals("file")) {
+                is = formData.getValue().get(0).getBody(InputStream.class, null);
+            }
+        }
+        if (meta == null || is == null) {
+            return lakeResponse.toString(403);
+        }
+
+        // make a new object, if any
         log.info("POST: Prepare to create object with meta {}", meta);
         LakeGroup group = null;
         if (meta.getGroupId() != 0) {
@@ -84,7 +115,7 @@ public class ObjectResource {
         }
 
         // save to backend
-        String cid = fs.create(meta.getName(), meta.getLength(), null);
+        String cid = fs.create(meta.getName(), meta.getLength(), is);
         log.info("POST: object storage returned cid={}", cid);
 
         // save a new object to metadata RDBMS
