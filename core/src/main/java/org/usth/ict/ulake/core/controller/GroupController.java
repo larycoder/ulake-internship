@@ -6,6 +6,7 @@ import org.usth.ict.ulake.core.backend.impl.OpenIO;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.persistence.GenericDAO;
+import org.usth.ict.ulake.core.persistence.GroupRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -24,21 +25,21 @@ public class GroupController {
     OpenIO fs;
 
     @Inject
-    GenericDAO<LakeGroup> groupDao;
+    GroupRepository groupRepo;
 
     //@Inject
     LakeHttpResponse lakeResponse = new LakeHttpResponse();
 
     @GET
     public List<LakeGroup> all() {
-        return groupDao.list(LakeGroup.class);
+        return groupRepo.listAll();
     }
 
     @GET
     @Path("/group/{id}")
     public LakeGroup one(@PathParam("id") Long id) {
         fs.ls(String.valueOf(id));
-        return groupDao.findById(LakeGroup.class, id);
+        return groupRepo.findById(id);
     }
 
     @POST

@@ -6,29 +6,16 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.transaction.Transactional;
 import java.util.List;
 
+/**
+ * An extra Hibernate wrapper class for more convenience
+ */
 @Dependent
 public class GenericDAO<T> {
     @Inject
     EntityManager em;
 
-    // CRUD methods
-    @Transactional
-    public void save(T o) {
-        em.persist(o);
-    }
-
-    @Transactional
-    public void update(T o) {
-        em.merge(o);
-    }
-
-    @Transactional
-    public void delete( T o) {
-        em.remove(o);
-    }
 
     public T findById(Class<T> clazz, long id) {
         return em.find(clazz, id);

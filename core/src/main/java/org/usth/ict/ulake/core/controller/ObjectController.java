@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.impl.OpenIO;
 import org.usth.ict.ulake.core.model.*;
 import org.usth.ict.ulake.core.persistence.GenericDAO;
+import org.usth.ict.ulake.core.persistence.GroupRepository;
+import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,24 +31,24 @@ public class ObjectController {
     OpenIO fs;
 
     @Inject
-    GenericDAO<LakeObject> objectDao;
+    ObjectRepository objectRepo;
 
     @Inject
-    GenericDAO<LakeGroup> groupDao;
+    GroupRepository groupRepo;
 
     //@Inject
     LakeHttpResponse lakeResponse = new LakeHttpResponse();
 
     @GET
     public List<LakeObject> all() {
-        return objectDao.list(LakeObject.class);
+        return objectRepo.listAll();
     }
 
     @GET
     @Path("/object/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
     public LakeObject one(@PathParam("cid") String cid) {
-        return objectDao.findBy(LakeObject.class, "cid", cid);
+        return objectRepo.find("cid", cid).firstResult();
     }
 
     @GET
@@ -54,7 +56,7 @@ public class ObjectController {
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
     public Response data(@Context HttpHeaders headers,
                          @PathParam("cid") String cid) {
-        LakeObject object = objectDao.findBy(LakeObject.class,"cid", cid);
+        LakeObject object = objectRepo.find("cid", cid).firstResult();
         if (object == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -80,7 +82,7 @@ public class ObjectController {
         log.info("POST: Prepare to create object with meta {}", meta);
         LakeGroup group = null;
         if (meta.getGroupId() != 0) {
-            group = groupDao.findById(LakeGroup.class, meta.getGroupId());
+            group = groupRepo.findById(meta.getGroupId());
         }
 
         // save to backend
@@ -95,7 +97,7 @@ public class ObjectController {
         object.setAccessTime(now);
         object.setParentId(0L);
         object.setGroup(group);
-        objectDao.save(object);
+        objectRepo.persist(object);
 
         JsonNode node = mapper.valueToTree(object);
         return lakeResponse.toString(200, null, node);

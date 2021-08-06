@@ -1,35 +1,33 @@
 package org.usth.ict.ulake.core.model;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(indexes = @Index(columnList = "cid"))
-public class LakeObject {
+public class LakeObject  extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
-    private Long parentId;
-    private String cid;
-    private Long createTime;
-    private Long accessTime; // ?
+    public Long id;
+    public Long parentId;
+    public String cid;
+    public Long createTime;
+    public Long accessTime; // ?
 
     @ManyToOne
     @JoinColumn
-    private LakeGroup group;
+    public LakeGroup group;
 
     public LakeObject() { }
 
-    public LakeObject(String cid) {
-        this.cid = cid;
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Long getParentId() {
@@ -71,6 +69,4 @@ public class LakeObject {
     public void setGroup(LakeGroup group) {
         this.group = group;
     }
-
-
 }
