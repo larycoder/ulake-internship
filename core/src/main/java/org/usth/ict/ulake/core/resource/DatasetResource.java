@@ -6,10 +6,9 @@ import org.usth.ict.ulake.core.model.LakeDataset;
 import org.usth.ict.ulake.core.persistence.DatasetRepository;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/dataset")
@@ -23,5 +22,11 @@ public class DatasetResource {
     @GET
     public List<LakeDataset> all() {
         return datasetRepo.listAll();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response post(LakeDataset dataset) {
+        return Response.ok().build();
     }
 }

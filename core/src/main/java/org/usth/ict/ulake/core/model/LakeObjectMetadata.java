@@ -4,7 +4,7 @@ public class LakeObjectMetadata {
     private String cid;
     private String name;
     private long length;
-    private long groupId;
+    private String groupId;
 
     public LakeObjectMetadata() {
     }
@@ -33,11 +33,11 @@ public class LakeObjectMetadata {
         this.length = length;
     }
 
-    public long getGroupId() {
+    public String getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(long groupId) {
+    public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
 }

@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.core.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ public class LakeObject  extends PanacheEntityBase {
     public Long createTime;
     public Long accessTime; // ?
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn
     public LakeGroup group;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class LakeHttpResponse {
         codeMap.put(400, "Bad Request");
         codeMap.put(401, "Unauthorized");
         codeMap.put(403, "Forbidden");
+        codeMap.put(404, "Not Found");
         codeMap.put(405, "Method Not Allowed");
     }
 
@@ -41,7 +43,12 @@ public class LakeHttpResponse {
 
     public LakeHttpResponse(int code, String msg, Object resp) {
         this.code = code;
-        this.msg = msg != null ? msg : codeMap.get(code);
+        if (msg != null && !msg.isEmpty()) {
+            this.msg = msg;
+        }
+        else {
+            this.msg = codeMap.get(code);
+        }
         this.resp = resp;
     }
 
@@ -67,6 +74,18 @@ public class LakeHttpResponse {
 
     public void setResp(Object resp) {
         this.resp = resp;
+    }
+
+    public Response build(int code, String msg, Object resp) {
+        return Response.status(code).entity(toString(code, msg, resp)).build();
+    }
+
+    public Response build(int code, String msg) {
+        return Response.status(code).entity(toString(code, msg)).build();
+    }
+
+    public Response build(int code) {
+        return Response.status(code).entity(toString(code)).build();
     }
 
     public String toString(int code, String msg, Object resp) {

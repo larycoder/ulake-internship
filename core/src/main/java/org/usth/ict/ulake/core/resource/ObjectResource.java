@@ -43,8 +43,8 @@ public class ObjectResource {
     @Inject
     GroupRepository groupRepo;
 
-    //@Inject
-    LakeHttpResponse lakeResponse = new LakeHttpResponse();
+    @Inject
+    LakeHttpResponse lakeResponse;
 
     @GET
     public List<LakeObject> all() {
@@ -54,8 +54,12 @@ public class ObjectResource {
     @GET
     @Path("/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public LakeObject one(@PathParam("cid") String cid) {
-        return objectRepo.find("cid", cid).firstResult();
+    public Response one(@PathParam("cid") String cid) {
+        LakeObject object = objectRepo.find("cid", cid).firstResult();
+        if (object == null) {
+            return lakeResponse.build(404);
+        }
+        return lakeResponse.build(200, "", object);
     }
 
     @GET
@@ -65,11 +69,11 @@ public class ObjectResource {
                          @PathParam("cid") String cid) {
         LakeObject object = objectRepo.find("cid", cid).firstResult();
         if (object == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return lakeResponse.build(404);
         }
         InputStream is = fs.get(cid);
         if (is == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return lakeResponse.build(403);
         }
         StreamingOutput stream = new StreamingOutput() {
             @Override
@@ -84,7 +88,7 @@ public class ObjectResource {
     @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public String post(MultipartFormDataInput input) throws IOException {
+    public Response post(MultipartFormDataInput input) throws IOException {
         // manual workaround to void RESTEASY007545 bug
         LakeObjectMetadata meta = null;
         InputStream is = null;
@@ -106,13 +110,13 @@ public class ObjectResource {
             }
         }
         if (meta == null || is == null) {
-            return lakeResponse.toString(403);
+            return lakeResponse.build(403);
         }
 
         // make a new object, if any
         LakeGroup group = null;
-        if (meta.getGroupId() != 0) {
-            group = groupRepo.findById(meta.getGroupId());
+        if (meta.getGroupId() != null) {
+            group = groupRepo.find("gid", meta.getGroupId()).firstResult();
         }
 
         // save to backend
@@ -130,6 +134,6 @@ public class ObjectResource {
         objectRepo.persist(object);
 
         JsonNode node = mapper.valueToTree(object);
-        return lakeResponse.toString(200, null, node);
+        return lakeResponse.build(200, null, node);
     }
 }
