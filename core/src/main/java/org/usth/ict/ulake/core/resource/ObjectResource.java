@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.core.controller;
+package org.usth.ict.ulake.core.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,11 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.impl.OpenIO;
 import org.usth.ict.ulake.core.model.*;
-import org.usth.ict.ulake.core.persistence.GenericDAO;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -22,8 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 @Path("/object")
-public class ObjectController {
-    private static final Logger log = LoggerFactory.getLogger(ObjectController.class);
+public class ObjectResource {
+    private static final Logger log = LoggerFactory.getLogger(ObjectResource.class);
 
     ObjectMapper mapper = new ObjectMapper();
 

@@ -1,14 +1,12 @@
-package org.usth.ict.ulake.core.controller;
+package org.usth.ict.ulake.core.resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.impl.OpenIO;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.model.LakeHttpResponse;
-import org.usth.ict.ulake.core.persistence.GenericDAO;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -18,8 +16,8 @@ import java.util.List;
 @Path("/group")
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class GroupController {
-    private static final Logger log = LoggerFactory.getLogger(GroupController.class);
+public class GroupResource {
+    private static final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     @Inject
     OpenIO fs;
