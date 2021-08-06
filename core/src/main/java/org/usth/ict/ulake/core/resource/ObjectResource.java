@@ -90,7 +90,7 @@ public class ObjectResource {
         // iterate through form data to extract metadata and file
         Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
         for (var formData: formDataMap.entrySet()) {
-            log.info("POST: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
+            // log.info("POST: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
             if (formData.getKey().equals("metadata")) {
                try {
                    String metaJson = formData.getValue().get(0).getBodyAsString();
