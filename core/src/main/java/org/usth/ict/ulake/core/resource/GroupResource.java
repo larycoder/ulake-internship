@@ -23,20 +23,20 @@ public class GroupResource {
     OpenIO fs;
 
     @Inject
-    GroupRepository groupRepo;
+    GroupRepository repo;
 
     @Inject
     LakeHttpResponse response;
 
     @GET
     public Response all() {
-        return response.build(200, null, groupRepo.listAll());
+        return response.build(200, null, repo.listAll());
     }
 
     @GET
     @Path("/{id}")
     public Response one(@PathParam("id") Long id) {
-        return response.build(200, null, groupRepo.findById(id));
+        return response.build(200, null, repo.findById(id));
     }
 
     @POST
@@ -44,7 +44,7 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response post(LakeGroup group) {
         group.gid = UUID.randomUUID().toString();
-        groupRepo.persist(group);
+        repo.persist(group);
         return response.build(200, "", group);
     }
 

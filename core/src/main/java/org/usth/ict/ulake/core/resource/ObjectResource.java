@@ -1,8 +1,6 @@
 package org.usth.ict.ulake.core.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -38,7 +36,7 @@ public class ObjectResource {
     OpenIO fs;
 
     @Inject
-    ObjectRepository objectRepo;
+    ObjectRepository repo;
 
     @Inject
     GroupRepository groupRepo;
@@ -48,14 +46,14 @@ public class ObjectResource {
 
     @GET
     public Response all() {
-        return lakeResponse.build(200, null, objectRepo.listAll());
+        return lakeResponse.build(200, null, repo.listAll());
     }
 
     @GET
     @Path("/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response one(@PathParam("cid") String cid) {
-        LakeObject object = objectRepo.find("cid", cid).firstResult();
+        LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return lakeResponse.build(404);
         }
@@ -67,7 +65,7 @@ public class ObjectResource {
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
     public Response data(@Context HttpHeaders headers,
                          @PathParam("cid") String cid) {
-        LakeObject object = objectRepo.find("cid", cid).firstResult();
+        LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return lakeResponse.build(404);
         }
@@ -131,7 +129,7 @@ public class ObjectResource {
         object.setAccessTime(now);
         object.setParentId(0L);
         object.setGroup(group);
-        objectRepo.persist(object);
+        repo.persist(object);
         return lakeResponse.build(200, null, object);
     }
 }

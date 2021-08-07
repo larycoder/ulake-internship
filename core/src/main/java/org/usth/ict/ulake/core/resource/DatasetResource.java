@@ -18,21 +18,21 @@ public class DatasetResource {
     private static final Logger log = LoggerFactory.getLogger(DatasetResource.class);
 
     @Inject
-    DatasetRepository datasetRepo;
+    DatasetRepository repo;
 
     @Inject
     LakeHttpResponse response;
 
     @GET
     public Response all() {
-        return response.build(200, "", datasetRepo.listAll());
+        return response.build(200, "", repo.listAll());
     }
 
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     public Response post(LakeDataset dataset) {
-        datasetRepo.persist(dataset);
+        repo.persist(dataset);
         return response.build(200, "", dataset);
     }
 }
