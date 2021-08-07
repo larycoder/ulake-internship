@@ -14,7 +14,7 @@ public class LakeGroup  extends PanacheEntityBase {
     public String name;
     public String gid;
     public String parentGid;
-    public String extraJson;
+    public String extra;
     public String tags;
 
     @JsonManagedReference

@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity
 @Table(indexes = @Index(columnList = "cid"))
-public class LakeObject  extends PanacheEntityBase {
+public class LakeObject extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;

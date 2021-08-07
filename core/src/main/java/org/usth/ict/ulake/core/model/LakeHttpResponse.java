@@ -1,11 +1,9 @@
 package org.usth.ict.ulake.core.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +26,12 @@ public class LakeHttpResponse {
     int code;
     String msg;
     Object resp;
+
+    public LakeHttpResponse(int code, String msg, Object resp) {
+        this.code = code;
+        this.msg = msg;
+        this.resp = resp;
+    }
 
     public LakeHttpResponse() { }
 
@@ -78,7 +82,7 @@ public class LakeHttpResponse {
         this.resp = mapper.valueToTree(resp);
 
         try {
-            return mapper.writeValueAsString(this);
+            return mapper.writeValueAsString(new LakeHttpResponse(code, msg, resp));
         } catch (JsonProcessingException e) {
             return "{}";
         }
