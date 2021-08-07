@@ -29,28 +29,7 @@ public class LakeHttpResponse {
     String msg;
     Object resp;
 
-    public LakeHttpResponse() {
-    }
-
-    public LakeHttpResponse(int code) {
-        this(code, null);
-    }
-
-    public LakeHttpResponse(int code, String msg) {
-        this.code = code;
-        this.msg = msg != null ? msg : codeMap.get(code);
-    }
-
-    public LakeHttpResponse(int code, String msg, Object resp) {
-        this.code = code;
-        if (msg != null && !msg.isEmpty()) {
-            this.msg = msg;
-        }
-        else {
-            this.msg = codeMap.get(code);
-        }
-        this.resp = resp;
-    }
+    public LakeHttpResponse() { }
 
     public int getCode() {
         return code;
@@ -81,31 +60,27 @@ public class LakeHttpResponse {
     }
 
     public Response build(int code, String msg) {
-        return Response.status(code).entity(toString(code, msg)).build();
+        return Response.status(code).entity(toString(code, msg, null)).build();
     }
 
     public Response build(int code) {
-        return Response.status(code).entity(toString(code)).build();
+        return Response.status(code).entity(toString(code, null, null)).build();
     }
 
     public String toString(int code, String msg, Object resp) {
-        JsonNode node = mapper.valueToTree(resp);
+        this.code = code;
+        if (msg != null && !msg.isEmpty()) {
+            this.msg = msg;
+        }
+        else {
+            this.msg = codeMap.get(code);
+        }
+        this.resp = mapper.valueToTree(resp);
+
         try {
-            return mapper.writeValueAsString(new LakeHttpResponse(code, msg, node));
+            return mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             return "{}";
         }
-    }
-
-    public String toString(int code, String msg) {
-        return toString(code, msg, null);
-    }
-
-    public String toString(int code) {
-        return toString(code, null);
-    }
-
-    public String toString() {
-        return toString(this.code, this. msg, this.resp);
     }
 }

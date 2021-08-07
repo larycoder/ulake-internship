@@ -7,13 +7,11 @@ import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.UUID;
 
 @Path("/group")
@@ -28,17 +26,17 @@ public class GroupResource {
     GroupRepository groupRepo;
 
     @Inject
-    LakeHttpResponse lakeResponse;
+    LakeHttpResponse response;
 
     @GET
-    public List<LakeGroup> all() {
-        return groupRepo.listAll();
+    public Response all() {
+        return response.build(200, null, groupRepo.listAll());
     }
 
     @GET
     @Path("/{id}")
-    public LakeGroup one(@PathParam("id") Long id) {
-        return groupRepo.findById(id);
+    public Response one(@PathParam("id") Long id) {
+        return response.build(200, null, groupRepo.findById(id));
     }
 
     @POST
@@ -47,13 +45,13 @@ public class GroupResource {
     public Response post(LakeGroup group) {
         group.gid = UUID.randomUUID().toString();
         groupRepo.persist(group);
-        return lakeResponse.build(200, "", group);
+        return response.build(200, "", group);
     }
 
     @GET
     @Path("/list/{path}")
-    public LakeGroup listByPath(@PathParam("path") String path) {
+    public Response listByPath(@PathParam("path") String path) {
         log.info("{}: {}", path, fs.ls(path));
-        return null;
+        return response.build(200, null, fs.ls(path));
     }
 }

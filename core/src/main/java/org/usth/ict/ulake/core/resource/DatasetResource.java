@@ -11,7 +11,6 @@ import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/dataset")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,11 +21,11 @@ public class DatasetResource {
     DatasetRepository datasetRepo;
 
     @Inject
-    LakeHttpResponse lakeHttpResponse;
+    LakeHttpResponse response;
 
     @GET
-    public List<LakeDataset> all() {
-        return datasetRepo.listAll();
+    public Response all() {
+        return response.build(200, "", datasetRepo.listAll());
     }
 
     @POST
@@ -34,6 +33,6 @@ public class DatasetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response post(LakeDataset dataset) {
         datasetRepo.persist(dataset);
-        return lakeHttpResponse.build(200, "", dataset);
+        return response.build(200, "", dataset);
     }
 }

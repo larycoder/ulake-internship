@@ -47,8 +47,8 @@ public class ObjectResource {
     LakeHttpResponse lakeResponse;
 
     @GET
-    public List<LakeObject> all() {
-        return objectRepo.listAll();
+    public Response all() {
+        return lakeResponse.build(200, null, objectRepo.listAll());
     }
 
     @GET
@@ -132,8 +132,6 @@ public class ObjectResource {
         object.setParentId(0L);
         object.setGroup(group);
         objectRepo.persist(object);
-
-        JsonNode node = mapper.valueToTree(object);
-        return lakeResponse.build(200, null, node);
+        return lakeResponse.build(200, null, object);
     }
 }
