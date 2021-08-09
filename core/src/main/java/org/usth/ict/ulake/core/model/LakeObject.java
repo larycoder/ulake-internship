@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(indexes = @Index(columnList = "cid"))

@@ -42,11 +42,11 @@ public class ObjectResource {
     GroupRepository groupRepo;
 
     @Inject
-    LakeHttpResponse lakeResponse;
+    LakeHttpResponse response;
 
     @GET
     public Response all() {
-        return lakeResponse.build(200, null, repo.listAll());
+        return response.build(200, null, repo.listAll());
     }
 
     @GET
@@ -55,9 +55,9 @@ public class ObjectResource {
     public Response one(@PathParam("cid") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
-            return lakeResponse.build(404);
+            return response.build(404);
         }
-        return lakeResponse.build(200, "", object);
+        return response.build(200, "", object);
     }
 
     @GET
@@ -67,11 +67,11 @@ public class ObjectResource {
                          @PathParam("cid") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
-            return lakeResponse.build(404);
+            return response.build(404);
         }
         InputStream is = fs.get(cid);
         if (is == null) {
-            return lakeResponse.build(403);
+            return response.build(403);
         }
         StreamingOutput stream = new StreamingOutput() {
             @Override
@@ -108,7 +108,7 @@ public class ObjectResource {
             }
         }
         if (meta == null || is == null) {
-            return lakeResponse.build(403);
+            return response.build(403);
         }
 
         // make a new object, if any
@@ -130,6 +130,6 @@ public class ObjectResource {
         object.setParentId(0L);
         object.setGroup(group);
         repo.persist(object);
-        return lakeResponse.build(200, null, object);
+        return response.build(200, null, object);
     }
 }
