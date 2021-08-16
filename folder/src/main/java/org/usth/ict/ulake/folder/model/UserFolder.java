@@ -12,7 +12,7 @@ import javax.persistence.Id;
  * Root directory can be mapped to a dataset
  */
 @Entity
-public class UserDirectory extends PanacheEntityBase {
+public class UserFolder extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;
