@@ -39,25 +39,25 @@ public class DatasetResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(LakeDataset dataset) {
-        repo.persist(dataset);
-        return response.build(200, "", dataset);
+    public Response post(LakeDataset entity) {
+        repo.persist(entity);
+        return response.build(200, "", entity);
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, LakeDataset newData) {
+    public Response update(@PathParam("id") Long id, LakeDataset newEntity) {
         LakeDataset entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
         }
-        if (!Utils.isEmpty(newData.description)) entity.description = newData.description;
-        if (!Utils.isEmpty(newData.name)) entity.name = newData.name;
-        if (!Utils.isEmpty(newData.source)) entity.source = newData.source;
-        if (!Utils.isEmpty(newData.licence)) entity.licence = newData.licence;
-        if (!Utils.isEmpty(newData.tags)) entity.tags = newData.tags;
+        if (!Utils.isEmpty(newEntity.description)) entity.description = newEntity.description;
+        if (!Utils.isEmpty(newEntity.name)) entity.name = newEntity.name;
+        if (!Utils.isEmpty(newEntity.source)) entity.source = newEntity.source;
+        if (!Utils.isEmpty(newEntity.licence)) entity.licence = newEntity.licence;
+        if (!Utils.isEmpty(newEntity.tags)) entity.tags = newEntity.tags;
         repo.persist(entity);
         return response.build(200);
     }

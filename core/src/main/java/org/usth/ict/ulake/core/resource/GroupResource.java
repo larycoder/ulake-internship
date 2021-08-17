@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.backend.impl.OpenIO;
-import org.usth.ict.ulake.core.model.LakeDataset;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 
@@ -44,10 +43,10 @@ public class GroupResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(LakeGroup group) {
-        group.gid = UUID.randomUUID().toString();
-        repo.persist(group);
-        return response.build(200, "", group);
+    public Response post(LakeGroup entity) {
+        entity.gid = UUID.randomUUID().toString();
+        repo.persist(entity);
+        return response.build(200, "", entity);
     }
 
     @GET
@@ -61,16 +60,16 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, LakeGroup newData) {
+    public Response update(@PathParam("id") Long id, LakeGroup newEntity) {
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
         }
-        if (!Utils.isEmpty(newData.name)) entity.name = newData.name;
-        if (!Utils.isEmpty(newData.gid)) entity.gid = newData.gid;
-        if (!Utils.isEmpty(newData.parentGid)) entity.parentGid = newData.parentGid;
-        if (!Utils.isEmpty(newData.extra)) entity.extra = newData.extra;
-        if (!Utils.isEmpty(newData.tags)) entity.tags = newData.tags;
+        if (!Utils.isEmpty(newEntity.name)) entity.name = newEntity.name;
+        if (!Utils.isEmpty(newEntity.gid)) entity.gid = newEntity.gid;
+        if (!Utils.isEmpty(newEntity.parentGid)) entity.parentGid = newEntity.parentGid;
+        if (!Utils.isEmpty(newEntity.extra)) entity.extra = newEntity.extra;
+        if (!Utils.isEmpty(newEntity.tags)) entity.tags = newEntity.tags;
         repo.persist(entity);
         return response.build(200);
     }
