@@ -1,11 +1,11 @@
-package org.usth.ict.ulake.api.model;
+package org.usth.ict.ulake.user.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Allow management of users in groups
@@ -18,4 +18,8 @@ public class UserGroup extends PanacheEntityBase {
 
     public String name;
 
+    @JsonBackReference
+    @ManyToMany
+    @JoinColumn
+    public Set<User> users = new HashSet<>();
 }

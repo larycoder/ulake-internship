@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.api.model;
+package org.usth.ict.ulake.user.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 

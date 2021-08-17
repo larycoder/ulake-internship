@@ -1,9 +1,12 @@
-package org.usth.ict.ulake.api.model;
+package org.usth.ict.ulake.user.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User extends PanacheEntityBase {
@@ -23,8 +26,7 @@ public class User extends PanacheEntityBase {
     public Department department;
 
     @JsonBackReference
-    @ManyToOne
+    @ManyToMany
     @JoinColumn
-    public UserGroup group;
-
+    public Set<UserGroup> groups = new HashSet<>();
 }
