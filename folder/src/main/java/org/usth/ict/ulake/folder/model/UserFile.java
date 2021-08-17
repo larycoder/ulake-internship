@@ -17,4 +17,5 @@ public class UserFile extends PanacheEntityBase {
     public Long id;
     public String cid;
     public String name;
+    public Long ownerId;
 }

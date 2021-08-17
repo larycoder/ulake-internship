@@ -18,4 +18,5 @@ public class UserFolder extends PanacheEntityBase {
     public Long id;
     public Long coreGroupId;
     public String name;
+    public Long ownerId;
 }

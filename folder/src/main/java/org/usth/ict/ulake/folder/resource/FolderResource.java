@@ -1,22 +1,21 @@
 package org.usth.ict.ulake.folder.resource;
 
-import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.folder.model.UserFile;
-import org.usth.ict.ulake.folder.persistence.FileRepository;
+import org.usth.ict.ulake.folder.model.UserFolder;
+import org.usth.ict.ulake.folder.persistence.FolderRepository;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/file")
 @Produces(MediaType.APPLICATION_JSON)
-public class FileResource {
+public class FolderResource {
     @Inject
-    FileRepository repo;
+    FolderRepository repo;
 
     @Inject
     LakeHttpResponse response;
@@ -35,16 +34,16 @@ public class FileResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(UserFile file) {
-        repo.persist(file);
-        return response.build(200, "", file);
+    public Response post(UserFolder folder) {
+        repo.persist(folder);
+        return response.build(200, "", folder);
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, UserFile newData) {
+    public Response update(@PathParam("id") Long id, UserFolder newData) {
         return response.build(405);
     }
 
@@ -53,7 +52,7 @@ public class FileResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("id") Long id) {
-        UserFile entity = repo.findById(id);
+        UserFolder entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
         }
