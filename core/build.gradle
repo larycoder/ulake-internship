@@ -24,6 +24,7 @@ dependencies {
 	implementation 'io.quarkus:quarkus-resteasy-jackson'
 	implementation 'io.quarkus:quarkus-resteasy-multipart'
 	implementation 'io.quarkus:quarkus-arc'
+	implementation 'io.quarkus:quarkus-smallrye-openapi'
 	testImplementation 'io.quarkus:quarkus-junit5'
 	testImplementation 'io.rest-assured:rest-assured'
 	runtimeOnly 'mysql:mysql-connector-java'
