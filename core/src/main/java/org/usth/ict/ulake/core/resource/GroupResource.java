@@ -2,9 +2,11 @@ package org.usth.ict.ulake.core.resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.core.backend.impl.OpenIO;
-import org.usth.ict.ulake.core.model.LakeGroup;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.core.backend.impl.OpenIO;
+import org.usth.ict.ulake.core.model.LakeDataset;
+import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 
 import javax.inject.Inject;
@@ -53,5 +55,36 @@ public class GroupResource {
     public Response listByPath(@PathParam("path") String path) {
         log.info("{}: {}", path, fs.ls(path));
         return response.build(200, null, fs.ls(path));
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("id") Long id, LakeGroup newData) {
+        LakeGroup entity = repo.findById(id);
+        if (entity == null) {
+            return response.build(404);
+        }
+        if (!Utils.isEmpty(newData.name)) entity.name = newData.name;
+        if (!Utils.isEmpty(newData.gid)) entity.gid = newData.gid;
+        if (!Utils.isEmpty(newData.parentGid)) entity.parentGid = newData.parentGid;
+        if (!Utils.isEmpty(newData.extra)) entity.extra = newData.extra;
+        if (!Utils.isEmpty(newData.tags)) entity.tags = newData.tags;
+        repo.persist(entity);
+        return response.build(200);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("id") Long id) {
+        LakeGroup entity = repo.findById(id);
+        if (entity == null) {
+            return response.build(404);
+        }
+        repo.delete(entity);
+        return response.build(200);
     }
 }
