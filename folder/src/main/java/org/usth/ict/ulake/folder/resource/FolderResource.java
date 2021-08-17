@@ -34,9 +34,9 @@ public class FolderResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(UserFolder folder) {
-        repo.persist(folder);
-        return response.build(200, "", folder);
+    public Response post(UserFolder entity) {
+        repo.persist(entity);
+        return response.build(200, "", entity);
     }
 
     @PUT

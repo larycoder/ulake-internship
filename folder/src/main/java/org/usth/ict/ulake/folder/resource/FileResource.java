@@ -35,16 +35,16 @@ public class FileResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(UserFile file) {
-        repo.persist(file);
-        return response.build(200, "", file);
+    public Response post(UserFile entity) {
+        repo.persist(entity);
+        return response.build(200, "", entity);
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, UserFile newData) {
+    public Response update(@PathParam("id") Long id, UserFile newEntity) {
         return response.build(405);
     }
 
