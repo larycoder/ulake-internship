@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.core.model;
+package org.usth.ict.ulake.common.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

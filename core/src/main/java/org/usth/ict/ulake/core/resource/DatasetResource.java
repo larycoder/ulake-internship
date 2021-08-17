@@ -3,7 +3,7 @@ package org.usth.ict.ulake.core.resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.model.LakeDataset;
-import org.usth.ict.ulake.core.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.persistence.DatasetRepository;
 
 import javax.inject.Inject;
