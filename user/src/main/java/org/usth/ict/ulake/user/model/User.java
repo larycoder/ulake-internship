@@ -19,7 +19,9 @@ public class User extends PanacheEntityBase {
     public String email;
     public String password;
     public Long registerTime;
+    public String accessToken;
     public String refreshToken;
+    public Long refreshTokenExpire;
 
     // @JsonBackReference("department")
     @ManyToOne
