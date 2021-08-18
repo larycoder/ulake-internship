@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.user.resource;
 
+import io.quarkus.elytron.security.common.BcryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -12,7 +13,6 @@ import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,6 +40,7 @@ public class UserResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     public Response post(User entity) {
+        entity.password = BcryptUtil.bcryptHash(entity.password);
         repo.persist(entity);
         return response.build(200, "", entity);
     }
