@@ -21,12 +21,12 @@ public class User extends PanacheEntityBase {
     public Long registerTime;
     public String refreshToken;
 
-    @JsonBackReference
+    // @JsonBackReference("department")
     @ManyToOne
     @JoinColumn
     public Department department;
 
-    @JsonBackReference
+    //@JsonBackReference("group")
     @ManyToMany
     @JoinColumn
     public Set<UserGroup> groups = new HashSet<>();

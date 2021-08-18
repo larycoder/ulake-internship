@@ -1,8 +1,10 @@
 package org.usth.ict.ulake.user.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Department {
@@ -12,10 +14,14 @@ public class Department {
     public String name;
     public String address;
 
-    @JsonBackReference
+    //@JsonBackReference("departments")
     @ManyToOne
     @JoinColumn
     public Institution institution;
+
+    //@JsonManagedReference("department")
+    @OneToMany(mappedBy = "department")
+    public List<User> users;
 
     public Department() { }
 }

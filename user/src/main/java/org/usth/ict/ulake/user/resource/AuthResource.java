@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.user.resource;
 
+import io.smallrye.jwt.build.Jwt;
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Path("/auth")
 @RequestScoped
@@ -68,16 +72,21 @@ public class AuthResource {
     }
 
     // authentication user with u/p
-    @GET
+    @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response login(LoginCredential cred) {
         User user = repo.checkLogin(cred);
         if (user == null) {
             return response.build(401);
         }
-        user.refreshToken = "something";
-        return response.build(200);
+        String token =
+                Jwt.issuer("https://sontg.net/issuer")
+                        .upn("admin@sontg.net")
+                        .groups(new HashSet<>(Arrays.asList("User", "Admin")))
+                        .claim(Claims.birthdate.name(), "2021-08-18")
+                        .sign();
+        return response.build(200, "", token);
     }
-
 }

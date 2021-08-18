@@ -13,7 +13,7 @@ public class Institution  extends PanacheEntityBase {
     public Long id;
     public String name;
 
-    @JsonManagedReference
+    // @JsonManagedReference
     @OneToMany(mappedBy = "institution")
     public List<Department> departments;
 
