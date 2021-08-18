@@ -3,6 +3,7 @@ package org.usth.ict.ulake.user.model;
 public class LoginCredential {
     private String userName;
     private String password;
+    private String refreshToken;
 
     public LoginCredential() {
     }
@@ -21,5 +22,13 @@ public class LoginCredential {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

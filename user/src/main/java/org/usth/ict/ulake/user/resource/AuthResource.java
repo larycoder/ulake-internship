@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.user.resource;
 
+import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
@@ -16,6 +17,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -85,6 +87,7 @@ public class AuthResource {
 
     // authentication user with u/p
     @POST
+    @Transactional
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -106,6 +109,22 @@ public class AuthResource {
         // while the access & refresh tokens were legally refreshed.
         user.refreshToken = randomString.nextString();
         user.refreshTokenExpire = refreshTokenExpire;
+        repo.persist(user);
         return response.build(200, user.refreshToken, user.accessToken);
+    }
+
+    // reauthentication user with refresh token
+    @POST
+    @Path("/refresh")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response refresh(LoginCredential cred) {
+        User user = repo.checkRefreshLogin(cred);
+        if (user == null) {
+            return response.build(401);
+        }
+        cred.setUserName(user.userName);
+        cred.setPassword(BcryptUtil.bcryptHash(user.password));
+        return login(cred);
     }
 }

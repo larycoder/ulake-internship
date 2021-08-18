@@ -16,7 +16,6 @@ public class UserRepository implements PanacheRepository<User> {
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
 
     public User checkLogin(LoginCredential cred) {
-        log.info("Checking login for creds {}, {}", cred.getUserName(), BcryptUtil.bcryptHash(cred.getPassword()));
         User user = find("userName", cred.getUserName()).firstResult();
         if (user == null) return null;
         try {
@@ -29,4 +28,9 @@ public class UserRepository implements PanacheRepository<User> {
             return null;
         }
     }
+
+    public User checkRefreshLogin(LoginCredential cred) {
+        return find("refreshToken", cred.getRefreshToken()).firstResult();
+    }
+
 }
