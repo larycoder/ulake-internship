@@ -10,9 +10,13 @@ import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.resource.AuthResource;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class UserRepository implements PanacheRepository<User> {
+    @Inject
+    AuthResource authResource;
+
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
 
     public User checkLogin(LoginCredential cred, boolean skipPassword) {
@@ -20,7 +24,7 @@ public class UserRepository implements PanacheRepository<User> {
         if (user == null) return null;
         if (skipPassword) return user;
         try {
-            if (Utils.verifyPassword(user.password, cred.getPassword())) {
+            if (authResource.verifyPassword(user.password, cred.getPassword())) {
                 return user;
             }
             return null;

@@ -12,6 +12,11 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.persistence.UserRepository;
+import org.wildfly.security.password.Password;
+import org.wildfly.security.password.PasswordFactory;
+import org.wildfly.security.password.WildFlyElytronPasswordProvider;
+import org.wildfly.security.password.interfaces.BCryptPassword;
+import org.wildfly.security.password.util.ModularCrypt;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -125,5 +130,14 @@ public class AuthResource {
         }
         cred.setUserName(user.userName);
         return login(cred, true);
+    }
+
+    public boolean verifyPassword(String bCryptPasswordHash, String passwordToVerify) throws Exception {
+        WildFlyElytronPasswordProvider provider = new WildFlyElytronPasswordProvider();
+        PasswordFactory passwordFactory = PasswordFactory.getInstance(BCryptPassword.ALGORITHM_BCRYPT, provider);
+        Password userPasswordDecoded = ModularCrypt.decode(bCryptPasswordHash);
+        Password userPasswordRestored = passwordFactory.translate(userPasswordDecoded);
+        return passwordFactory.verify(userPasswordRestored, passwordToVerify.toCharArray());
+
     }
 }
