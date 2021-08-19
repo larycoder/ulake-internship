@@ -3,6 +3,7 @@ package org.usth.ict.ulake.user.resource;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/user/group")
+@Tag(name = "User Groups")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserGroupResource {
     private static final Logger log = LoggerFactory.getLogger(UserGroupResource.class);
