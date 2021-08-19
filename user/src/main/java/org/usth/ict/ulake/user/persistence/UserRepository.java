@@ -15,9 +15,10 @@ import javax.enterprise.context.ApplicationScoped;
 public class UserRepository implements PanacheRepository<User> {
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
 
-    public User checkLogin(LoginCredential cred) {
+    public User checkLogin(LoginCredential cred, boolean skipPassword) {
         User user = find("userName", cred.getUserName()).firstResult();
         if (user == null) return null;
+        if (skipPassword) return user;
         try {
             if (Utils.verifyPassword(user.password, cred.getPassword())) {
                 return user;

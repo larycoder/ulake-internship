@@ -91,8 +91,8 @@ public class AuthResource {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(LoginCredential cred) {
-        User user = repo.checkLogin(cred);
+    public Response login(LoginCredential cred, boolean skipPassword) {
+        User user = repo.checkLogin(cred, skipPassword);
         if (user == null) {
             return response.build(401);
         }
@@ -121,10 +121,9 @@ public class AuthResource {
     public Response refresh(LoginCredential cred) {
         User user = repo.checkRefreshLogin(cred);
         if (user == null) {
-            return response.build(401);
+            return response.build(401, "Incorrect refresh token");
         }
         cred.setUserName(user.userName);
-        cred.setPassword(BcryptUtil.bcryptHash(user.password));
-        return login(cred);
+        return login(cred, true);
     }
 }
