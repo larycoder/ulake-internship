@@ -19,6 +19,8 @@ public class User extends PanacheEntityBase {
     public String email;
     public String password;
     public Long registerTime;
+
+    @Column(columnDefinition = "varchar(5000)")
     public String accessToken;
     public String refreshToken;
     public Long refreshTokenExpire;
