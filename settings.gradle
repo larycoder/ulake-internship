@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+
+rootProject.name = 'ulake'
+include 'core', 'user', 'folder'
