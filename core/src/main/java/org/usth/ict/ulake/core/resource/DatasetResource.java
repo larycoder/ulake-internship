@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.core.resource;
 
 import antlr.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Response;
 
 @Path("/dataset")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "[WIP] Dataset")
 public class DatasetResource {
     private static final Logger log = LoggerFactory.getLogger(DatasetResource.class);
 
