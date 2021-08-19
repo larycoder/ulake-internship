@@ -5,6 +5,11 @@ import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.RandomString;
@@ -33,6 +38,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 @Path("/auth")
+@Tag(name = "Authentication")
 @RequestScoped
 public class AuthResource {
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
@@ -58,7 +64,8 @@ public class AuthResource {
     @GET
     @PermitAll
     @Produces(MediaType.TEXT_PLAIN)
-    public String hello(@Context SecurityContext ctx) {
+    @Operation(summary = "Test")
+    public String test(@Context SecurityContext ctx) {
         return getResponseString(ctx);
     }
 
@@ -66,6 +73,7 @@ public class AuthResource {
     @Path("logout")
     @RolesAllowed({ "User", "Admin" })
     @Produces(MediaType.TEXT_PLAIN)
+    @Operation(summary = "Logout, clear all currently provided tokens")
     public String logout(@Context SecurityContext ctx) {
         return getResponseString(ctx) + ", birthdate: " + jwt.getClaim("birthdate").toString();
     }
@@ -90,13 +98,7 @@ public class AuthResource {
         return jwt.getClaimNames() != null;
     }
 
-    // authentication user with u/p
-    @POST
-    @Transactional
-    @Path("/login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response login(LoginCredential cred, boolean skipPassword) {
+    private Response privLogin(LoginCredential cred, boolean skipPassword) {
         User user = repo.checkLogin(cred, skipPassword);
         if (user == null) {
             return response.build(401);
@@ -118,18 +120,38 @@ public class AuthResource {
         return response.build(200, user.refreshToken, user.accessToken);
     }
 
+    // authentication user with u/p
+    @POST
+    @Transactional
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Authenticate user")
+    @APIResponses({
+            @APIResponse(name = "200", responseCode = "200", description = "Authentication successful. JWT is in .resp, refresh token is in .msg"),
+            @APIResponse(name = "401", responseCode = "401", description = "Authentication error")
+    })
+    public Response login(@RequestBody(description = "Username and password (not hashed) to authenticate") LoginCredential cred) {
+        return privLogin(cred, false);
+    }
+
     // reauthentication user with refresh token
     @POST
     @Path("/refresh")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response refresh(LoginCredential cred) {
+    @Operation(summary = "Get a new JWT using a refresh token")
+    @APIResponses({
+            @APIResponse(name = "200", responseCode = "200", description = "Reauthentication successful. JWT is in .resp, refresh token is in .msg"),
+            @APIResponse(name = "401", responseCode = "401", description = "Reauthentication error. Refresh token invalid")
+    })
+    public Response refresh(@RequestBody(description = "Refresh token to reauthenticate")LoginCredential cred) {
         User user = repo.checkRefreshLogin(cred);
         if (user == null) {
             return response.build(401, "Incorrect refresh token");
         }
         cred.setUserName(user.userName);
-        return login(cred, true);
+        return privLogin(cred, true);
     }
 
     public boolean verifyPassword(String bCryptPasswordHash, String passwordToVerify) throws Exception {
@@ -138,6 +160,5 @@ public class AuthResource {
         Password userPasswordDecoded = ModularCrypt.decode(bCryptPasswordHash);
         Password userPasswordRestored = passwordFactory.translate(userPasswordDecoded);
         return passwordFactory.verify(userPasswordRestored, passwordToVerify.toCharArray());
-
     }
 }
