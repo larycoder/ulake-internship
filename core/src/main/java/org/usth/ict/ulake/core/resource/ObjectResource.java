@@ -2,6 +2,10 @@ package org.usth.ict.ulake.core.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 @Path("/object")
+@Tag(name = "Object Storage")
 public class ObjectResource {
     private static final Logger log = LoggerFactory.getLogger(ObjectResource.class);
 
@@ -45,6 +50,7 @@ public class ObjectResource {
     LakeHttpResponse response;
 
     @GET
+    @Operation(summary = "List all objects")
     public Response all() {
         return response.build(200, null, repo.listAll());
     }
@@ -52,7 +58,8 @@ public class ObjectResource {
     @GET
     @Path("/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response one(@PathParam("cid") String cid) {
+    @Operation(summary = "Get one object info")
+    public Response one(@PathParam("cid") @Parameter(description = "Content id to lookup") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
@@ -63,8 +70,8 @@ public class ObjectResource {
     @GET
     @Path("/{cid}/data")
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
-    public Response data(@Context HttpHeaders headers,
-                         @PathParam("cid") String cid) {
+    @Operation(summary = "Get object binary data")
+    public Response data(@PathParam("cid") @Parameter(description = "Content id to extract") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
@@ -86,7 +93,10 @@ public class ObjectResource {
     @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response post(MultipartFormDataInput input) throws IOException {
+    @Operation(summary = "Create a new binary object")
+    public Response post(@RequestBody(description = "Multipart form data. metadata: extra json info " +
+            "{name:'original filename', gid: 'object group id', length: 'binary length'). file: binary data to save")
+                                     MultipartFormDataInput input) throws IOException {
         // manual workaround to void RESTEASY007545 bug
         LakeObjectMetadata meta = null;
         InputStream is = null;

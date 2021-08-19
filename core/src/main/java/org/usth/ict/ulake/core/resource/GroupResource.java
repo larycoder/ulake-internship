@@ -1,5 +1,9 @@
 package org.usth.ict.ulake.core.resource;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -16,6 +20,7 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 @Path("/group")
+@Tag(name = "Object Groups")
 @Produces(MediaType.APPLICATION_JSON)
 public class GroupResource {
     private static final Logger log = LoggerFactory.getLogger(GroupResource.class);
@@ -30,20 +35,23 @@ public class GroupResource {
     LakeHttpResponse response;
 
     @GET
+    @Operation(summary = "List all object groups")
     public Response all() {
         return response.build(200, null, repo.listAll());
     }
 
     @GET
     @Path("/{id}")
-    public Response one(@PathParam("id") Long id) {
+    @Operation(summary = "Get one object group info")
+    public Response one(@PathParam("id") @Parameter(description = "Object group id to search") Long id) {
         return response.build(200, null, repo.findById(id));
     }
 
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(LakeGroup entity) {
+    @Operation(summary = "Create a new object group")
+    public Response post(@RequestBody(description = "New object group info to save") LakeGroup entity) {
         entity.gid = UUID.randomUUID().toString();
         repo.persist(entity);
         return response.build(200, "", entity);
@@ -51,7 +59,8 @@ public class GroupResource {
 
     @GET
     @Path("/list/{path}")
-    public Response listByPath(@PathParam("path") String path) {
+    @Operation(summary = "[WIP] List objects in object group")
+    public Response listByPath(@PathParam("path") @Parameter(description = "Path to search") String path) {
         log.info("{}: {}", path, fs.ls(path));
         return response.build(200, null, fs.ls(path));
     }
@@ -60,7 +69,9 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, LakeGroup newEntity) {
+    @Operation(summary = "Update an existing object group")
+    public Response update(@PathParam("id") @Parameter(description = "Object group id to update") Long id,
+                           @RequestBody(description = "New object group info to update") LakeGroup newEntity) {
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
@@ -78,7 +89,8 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("id") Long id) {
+    @Operation(summary = "Update an existing object group")
+    public Response delete(@PathParam("id") @Parameter(description = "Object group id to delete") Long id) {
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
