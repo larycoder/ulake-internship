@@ -5,10 +5,16 @@ This is the USTH Data Lake.
 
 # Boot it up
 
+To build everything:
+
+```bash
+./gradlew quarkusBuild
+```
+
 To start the lake services, use
 
 ```bash
-./gradlew bootRun
+./gradlew quarkusDev
 ```
 
 # Hacking
