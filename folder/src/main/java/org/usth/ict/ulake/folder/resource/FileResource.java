@@ -1,6 +1,8 @@
 package org.usth.ict.ulake.folder.resource;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.folder.model.UserFile;
@@ -31,7 +33,7 @@ public class FileResource {
     @GET
     @Path("/{id}")
     @Operation(summary = "Get a single file info")
-    public Response one(@PathParam("id") Long id) {
+    public Response one(@PathParam("id") @Parameter(description = "File id to search") Long id) {
         return response.build(200, null, repo.findById(id));
     }
 
@@ -49,7 +51,8 @@ public class FileResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Update a file info")
-    public Response update(@PathParam("id") Long id, UserFile newEntity) {
+    public Response update(@PathParam("id") @Parameter(description = "File id to update") Long id,
+                           @RequestBody(description = "New file info to save") UserFile newEntity) {
         return response.build(405);
     }
 
@@ -58,7 +61,7 @@ public class FileResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Delete a file info")
-    public Response delete(@PathParam("id") Long id) {
+    public Response delete(@PathParam("id") @Parameter(description = "File id to delete") Long id) {
         UserFile entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
