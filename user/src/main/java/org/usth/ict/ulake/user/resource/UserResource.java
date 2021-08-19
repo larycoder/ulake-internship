@@ -1,6 +1,10 @@
 package org.usth.ict.ulake.user.resource;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -15,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/user")
+@Tag(name = "Users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
@@ -26,20 +31,23 @@ public class UserResource {
     UserRepository repo;
 
     @GET
+    @Operation(summary = "List all users")
     public Response all() {
         return response.build(200, "", repo.listAll());
     }
 
     @GET
     @Path("/{id}")
-    public Response one(@PathParam("id") Long id) {
+    @Operation(summary = "Get one user info")
+    public Response one(@PathParam("id") @Parameter(description = "User id to search") Long id) {
         return response.build(200, null, repo.findById(id));
     }
 
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post(User entity) {
+    @Operation(summary = "Create a new user")
+    public Response post(@RequestBody(description = "New user info to save") User entity) {
         entity.password = BcryptUtil.bcryptHash(entity.password);
         repo.persist(entity);
         return response.build(200, "", entity);
@@ -49,7 +57,9 @@ public class UserResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, User newEntity) {
+    @Operation(summary = "Update an existing user")
+    public Response update(@PathParam("id") @Parameter(description = "User id to update") Long id,
+                           @RequestBody(description = "New user info to update") User newEntity) {
         User entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
