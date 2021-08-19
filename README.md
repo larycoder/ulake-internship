@@ -11,11 +11,18 @@ To build everything:
 ./gradlew quarkusBuild
 ```
 
-To start the lake services, use
+To start the lake services:
 
 ```bash
-./gradlew quarkusDev
+./gradlew quarkusDev -Ddebug=false
 ```
+
+To build native binaries and start all lake services:
+
+```bash
+./gradlew build -Dquarkus.package.type=native
+```
+
 
 # Hacking
 
