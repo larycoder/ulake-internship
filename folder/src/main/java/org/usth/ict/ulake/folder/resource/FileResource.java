@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.folder.model.UserFile;
+import org.usth.ict.ulake.folder.model.UserSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
 
 import javax.inject.Inject;
@@ -35,6 +36,13 @@ public class FileResource {
     @Operation(summary = "Get a single file info")
     public Response one(@PathParam("id") @Parameter(description = "File id to search") Long id) {
         return response.build(200, null, repo.findById(id));
+    }
+
+    @POST
+    @Path("/search")
+    @Operation(summary = "Search for files")
+    public Response search(@RequestBody(description = "New file info to save") UserSearchQuery query) {
+        return response.build(200, null, repo.search(query));
     }
 
     @POST
