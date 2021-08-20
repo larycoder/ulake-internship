@@ -42,7 +42,11 @@ public class FileResource {
     @Path("/search")
     @Operation(summary = "Search for files")
     public Response search(@RequestBody(description = "New file info to save") UserSearchQuery query) {
-        return response.build(200, null, repo.search(query));
+        var results = repo.search(query);
+        if (results.isEmpty()) {
+            return response.build(404);
+        }
+        return response.build(200, null, results);
     }
 
     @POST
