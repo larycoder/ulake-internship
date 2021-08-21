@@ -7,10 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
+import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.resource.AuthResource;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class UserRepository implements PanacheRepository<User> {
@@ -36,6 +41,43 @@ public class UserRepository implements PanacheRepository<User> {
 
     public User checkRefreshLogin(LoginCredential cred) {
         return find("refreshToken", cred.getRefreshToken()).firstResult();
+    }
+
+    public List<User> search(UserSearchQuery query) {
+        ArrayList<String> conditions = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+
+        if (query.keywords != null && !query.keywords.isEmpty()) {
+            for (var keyword : query.keywords)
+                if (!Utils.isEmpty(keyword)) {
+                    conditions.add("(userName like :keyword or firstName like :keyword or lastName like :keyword or email like :keyword)");
+                    params.put("keyword", "%" + keyword + "%");
+                }
+        }
+
+        if (query.minRegisterTime > 0) {
+            conditions.add("(registerTime >= :minRegisterTime)");
+            params.put("minRegisterTime", query.minRegisterTime);
+        }
+
+        if (query.maxRegisterTime > 0) {
+            conditions.add("(registerTime <= :maxRegisterTime)");
+            params.put("maxRegisterTime", query.maxRegisterTime);
+        }
+
+
+        if (query.groups != null && !query.groups.isEmpty()) {
+            conditions.add("(groups.id in :groupIds)");
+            params.put("groupIds", query.groups);
+        }
+
+        if (query.departments != null && !query.departments.isEmpty()) {
+            conditions.add("(group.id in :departmentIds)");
+            params.put("departmentIds", query.departments);
+        }
+
+        String hql = String.join(" and ", conditions);
+        return list(hql, params);
     }
 
 }

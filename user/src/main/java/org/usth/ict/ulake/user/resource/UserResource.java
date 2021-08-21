@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.user.model.User;
+import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import javax.inject.Inject;
@@ -42,6 +43,18 @@ public class UserResource {
     public Response one(@PathParam("id") @Parameter(description = "User id to search") Long id) {
         return response.build(200, null, repo.findById(id));
     }
+
+    @POST
+    @Path("/search")
+    @Operation(summary = "Search for users")
+    public Response search(@RequestBody(description = "Query to perform search for users") UserSearchQuery query) {
+        var results = repo.search(query);
+        if (results.isEmpty()) {
+            return response.build(404);
+        }
+        return response.build(200, null, results);
+    }
+
 
     @POST
     @Transactional
