@@ -2,7 +2,7 @@ package org.usth.ict.ulake.folder.model;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-public class UserSearchQuery {
+public class UserFileSearchQuery {
     @Schema(description = "A keyword that responded filenames must contain.")
     public String keyword;
 
