@@ -11,10 +11,10 @@ To build everything:
 ./gradlew quarkusBuild
 ```
 
-To start the lake services:
+To start the lake services in dev mode:
 
 ```bash
-./gradlew quarkusDev -Ddebug=false
+./gradlew dev -Ddebug=false
 ```
 
 To build native binaries and start all lake services:
