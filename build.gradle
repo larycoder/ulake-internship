@@ -1,0 +1,21 @@
+
+allprojects {
+    // task buildJar << { task -> println "$task.project.name" }
+    // if (project.name.startsWith("other/")) {
+    //     task runBuildJar(dependsOn: buildJar) {}
+    // }
+}
+
+defaultTasks 'dev'
+
+task gitlog(type: Exec) {
+    commandLine '/bin/bash', '-c', 'git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/commits.html'
+}
+
+tasks.register('dev') {
+    dependsOn tasks.gitlog
+    dependsOn tasks.quarkusDev
+    doLast {
+        println 'Finished.'
+    }
+}
