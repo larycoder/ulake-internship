@@ -6,6 +6,8 @@ module.exports = {
   plugins: [
     "gatsby-plugin-theme-ui",
     "gatsby-theme-material-ui",
+    "gatsby-plugin-image",
+    "gatsby-plugin-sharp",
     "gatsby-transformer-remark",
     {
       resolve: "gatsby-source-filesystem",
