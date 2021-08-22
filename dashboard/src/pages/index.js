@@ -1,33 +1,46 @@
-// Step 1: Import React
 import * as React from 'react'
 import axios from 'axios'
 import Layout from "../components/layout";
 import { StaticImage } from 'gatsby-plugin-image'
+import { Link } from 'gatsby';
+import { TimelineSharp } from '@material-ui/icons';
 
 
-const loadUsers = async () => {
-    const fetchUsers = () => axios.get("http://user.ulake.sontg.net/api/user");
-    const users = await fetchUsers();
-    if (users.data.code === 200) {
-        for (const user of users.data.resp) {
-            console.log(user.userName, user.email);
+class IndexQuery extends React.Component {
+    state = {
+        users: []
+    }
+    loadUsers = async () => {;
+        const users = await axios.get("http://user.ulake.sontg.net/api/user");
+        if (users.data.code === 200) {
+            let extractUsers = users.data.resp.map(user => {return {name: user.userName, email: user.email}});
+            this.setState({users: extractUsers});
         }
     }
-}
 
-// Step 2: Define your component
-const IndexPage = () => {
-    return (
-        <Layout pageTitle="Home Page">
-            <p>I'm making this by following the Gatsby Tutorial.</p>
-            <StaticImage
-                alt="Clifford, a reddish-brown pitbull, posing on a couch and looking stoically at the camera"
-                src="../images/icon.png"
-                onClick={loadUsers}
-            />
-        </Layout>
-    )
-}
+    componentDidMount() {
+        this.loadUsers();
+    }
+
+    render() {
+        const {users} = this.state;
+        return (
+            <Layout pageTitle="Home Page">
+                <p>List of available users</p>
+                <ul>
+                {users.map(user => (
+                    <li key={user.name}>
+                        <Link to={`./user/${user.name}`}>
+                            {user.name}, {user.email}
+                        </Link>
+                    </li>
+                ))}
+                </ul>
+            </Layout>
+        )
+    }
 
 // Step 3: Export your component
-export default IndexPage
+}
+
+export default IndexQuery
