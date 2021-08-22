@@ -7,9 +7,12 @@ import { StaticImage } from 'gatsby-plugin-image'
 
 const loadUsers = async () => {
     const fetchUsers = () => axios.get("http://user.ulake.sontg.net/api/user");
-    const resp = await fetchUsers();
-    console.log(resp);
-    return "something";
+    const users = await fetchUsers();
+    if (users.data.code === 200) {
+        for (const user of users.data.resp) {
+            console.log(user.userName, user.email);
+        }
+    }
 }
 
 // Step 2: Define your component
