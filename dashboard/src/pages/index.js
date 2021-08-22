@@ -5,12 +5,10 @@ import Layout from "../components/layout";
 import { StaticImage } from 'gatsby-plugin-image'
 
 
-const fetchUsers = () => {
-    axios.get("http://user.ulake.sontg.net/api/user")
-        .then((resp) => {
-            console.log(resp);
-        })
-    console.log("abcdef");
+const loadUsers = async () => {
+    const fetchUsers = () => axios.get("http://user.ulake.sontg.net/api/user");
+    const resp = await fetchUsers();
+    console.log(resp);
     return "something";
 }
 
@@ -22,7 +20,7 @@ const IndexPage = () => {
             <StaticImage
                 alt="Clifford, a reddish-brown pitbull, posing on a couch and looking stoically at the camera"
                 src="../images/icon.png"
-                onClick={fetchUsers}
+                onClick={loadUsers}
             />
         </Layout>
     )
