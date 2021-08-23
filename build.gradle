@@ -9,7 +9,7 @@ allprojects {
 defaultTasks 'dev'
 
 task gitlog(type: Exec) {
-    commandLine '/bin/bash', '-c', 'git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/commits.html'
+    commandLine '/bin/bash', '-c', 'git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ci) %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/commits.html'
 }
 
 task runQuarkusDev() {
