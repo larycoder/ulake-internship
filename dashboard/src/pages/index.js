@@ -4,9 +4,17 @@ import Layout from "../components/layout";
 import { Link } from 'gatsby';
 import { useTable } from 'react-table';
 
+const columns = [{
+        Header: 'Name',
+        accessor: 'name',
+    },
+    {
+        Header: 'Email',
+        accessor: 'email',
+    },
+];
 
 function Table({ columns, data }) {
-    // Use the state and functions returned from useTable to build your UI
     const {
         getTableProps,
         getTableBodyProps,
@@ -18,7 +26,6 @@ function Table({ columns, data }) {
         data,
     })
 
-    // Render the UI for your table
     return (
         <table {...getTableProps()}>
             <thead>
@@ -46,25 +53,17 @@ function Table({ columns, data }) {
     )
 }
 
+async function fetchUsers(url, setUsers) {
+    const ajaxUsers = await axios.get(url);
+    if (ajaxUsers.data.code === 200) {            
+        const nameEmails = ajaxUsers.data.resp.map(user => {return {name: user.userName, email: user.email}});
+        setUsers(nameEmails);
+    }
+}
+
 function Index() {
     const [users, setUsers] = useState([]);
-    const columns = [{
-            Header: 'Name',
-            accessor: 'name',
-        },
-        {
-            Header: 'Email',
-            accessor: 'email',
-        },
-    ];
-    
-    (async function fetchUsers(url) {
-        const ajaxUsers = await axios.get(url);
-        if (ajaxUsers.data.code === 200) {            
-            const nameEmails = ajaxUsers.data.resp.map(user => {return {name: user.userName, email: user.email}});
-            setUsers(nameEmails);
-        }
-    })("http://user.ulake.sontg.net/api/user");
+    fetchUsers("http://user.ulake.sontg.net/api/user", setUsers);
 
     return (
         <Layout pageTitle="Home Page">
