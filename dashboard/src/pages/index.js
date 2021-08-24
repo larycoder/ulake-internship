@@ -24,7 +24,7 @@ function Table({ columns, data }) {
     } = useTable({
         columns,
         data,
-    })
+    });
 
     return (
         <table {...getTableProps()}>
@@ -63,8 +63,10 @@ async function fetchUsers(url, setUsers) {
 
 function Index() {
     const [users, setUsers] = useState([]);
-    fetchUsers("http://user.ulake.sontg.net/api/user", setUsers);
-
+    useEffect(() => {
+        fetchUsers("http://user.ulake.sontg.net/api/user", setUsers);
+    }, []);
+    
     return (
         <Layout pageTitle="Home Page">
             <p>List of available users</p>
@@ -77,7 +79,7 @@ function Index() {
             </ul>
             <Table columns={columns} data={users} />
         </Layout>
-    )
+    );
 }
 
 export default Index
