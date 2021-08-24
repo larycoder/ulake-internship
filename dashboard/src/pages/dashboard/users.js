@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import Layout from "../components/layout";
+import Layout from "../../components/layout";
 import { Link } from 'gatsby';
 import { useTable } from 'react-table';
 
@@ -61,7 +61,7 @@ async function fetchUsers(url, setUsers) {
     }
 }
 
-function Index() {
+function Users() {
     const [users, setUsers] = useState([]);
     useEffect(() => {
         fetchUsers("http://user.ulake.sontg.net/api/user", setUsers);
@@ -82,4 +82,4 @@ function Index() {
     );
 }
 
-export default Index
+export default Users

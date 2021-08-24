@@ -17,5 +17,9 @@ module.exports = {
       },
       __key: "pages",
     },
+    {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: { prefixes: [`/dashboard/*`] },
+    },
   ],
 };

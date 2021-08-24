@@ -19,6 +19,7 @@
     "@material-ui/icons": "^4.11.2",
     "axios": "^0.21.1",
     "gatsby": "^3.11.1",
+    "gatsby-plugin-create-client-paths": "^3.12.0",
     "gatsby-plugin-image": "^1.12.0",
     "gatsby-plugin-sharp": "^3.12.0",
     "gatsby-plugin-theme-ui": "^0.10.1",
