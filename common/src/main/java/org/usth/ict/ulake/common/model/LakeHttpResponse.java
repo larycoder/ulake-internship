@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,16 +61,30 @@ public class LakeHttpResponse {
         this.resp = resp;
     }
 
+    public Response build(int code, String msg, Object resp, Map.Entry<String, String> header) {
+        ResponseBuilder rb = Response.status(code).entity(toString(code, msg, resp));
+        rb.header(header.getKey(), header.getValue());
+        return rb.build();
+    }
+
+    public Response build(int code, String msg, Object resp, Map<String, String> headers) {
+        ResponseBuilder rb = Response.status(code).entity(toString(code, msg, resp));
+        for (var header: headers.entrySet()) {
+            rb.header(header.getKey(), header.getValue());
+        }
+        return rb.build();
+    }
+    
     public Response build(int code, String msg, Object resp) {
         return Response.status(code).entity(toString(code, msg, resp)).build();
     }
 
     public Response build(int code, String msg) {
-        return Response.status(code).entity(toString(code, msg, null)).build();
+        return build(code, msg, null);
     }
 
     public Response build(int code) {
-        return Response.status(code).entity(toString(code, null, null)).build();
+        return build(code, null);
     }
 
     public String toString(int code, String msg, Object resp) {

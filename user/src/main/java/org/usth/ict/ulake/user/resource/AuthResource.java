@@ -33,9 +33,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 
 @Path("/auth")
 @Tag(name = "Authentication")
@@ -117,7 +120,8 @@ public class AuthResource {
         user.refreshToken = randomString.nextString();
         user.refreshTokenExpire = refreshTokenExpire;
         repo.persist(user);
-        return response.build(200, user.refreshToken, user.accessToken);
+        Map.Entry<String, String> cookie = new AbstractMap.SimpleEntry<String, String>("Set-Cookie", "jwt=" + user.refreshToken + "; SameSite=strict");
+        return response.build(200, "", user.accessToken, cookie);
     }
 
     // authentication user with u/p
