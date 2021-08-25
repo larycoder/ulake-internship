@@ -1,9 +1,7 @@
 import { Router } from '@reach/router';
 import React from 'react';
-import Layout from '../components/layout';
 import Login from '../components/login';
 import PrivateRoute from '../components/privateroute';
-import Signin from './dashboard/signin';
 import Users from './dashboard/users';
 import Profile from './profile';
 
