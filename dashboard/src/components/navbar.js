@@ -19,6 +19,7 @@ const NavBar = ({ pageTitle }) => {
                     <li className={navLinkItem}><Link to="/" className={navLinkText}>Home</Link></li>
                     <li className={navLinkItem}><Link to="/dashboard/users" className={navLinkText}>Users</Link></li>
                     <li className={navLinkItem}><Link to="/about" className={navLinkText}>About</Link></li>
+                    <li className={navLinkItem}><Link to="/signin" className={navLinkText}>Sign in</Link></li>
                     {
                         (!isLoggedIn() ? (
                             <li className={navLinkItem}><Link to="/dashboard/login" className={navLinkText}>Login</Link></li>

@@ -1,9 +1,11 @@
 import * as React from "react"
-import { navigate } from "gatsby"
-
 
 const NotFoundPage = () => {
-    navigate("/");
+    return (
+        <>
+            <h2>Internal 404.</h2>
+        </>
+    );
 }
 
 export default NotFoundPage
