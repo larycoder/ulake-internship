@@ -1,11 +1,18 @@
 import React from "react"
-const Profile = () => (
-  <>
-    <h1>Your profile</h1>
-    <ul>
-      <li>Name: Your name will appear here</li>
-      <li>E-mail: And here goes the mail</li>
-    </ul>
-  </>
-)
+import Layout from "../components/layout";
+import { getUser } from "../services/auth"
+
+function Profile() {
+    const user = getUser();
+    return (
+        <Layout>
+            <h1>Your profile</h1>
+            <ul>
+                <li>Name: {user.name}</li>
+                <li>User name : {user.username}</li>
+                <li>E-mail: {user.email}</li>
+            </ul>
+        </Layout>
+    )
+}
 export default Profile
