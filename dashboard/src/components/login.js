@@ -4,10 +4,10 @@ import { handleLogin, isLoggedIn } from "../services/auth"
 import Layout from "./layout"
 
 
-function handleUpdate(event, setState) {
-    setState({
-        [event.target.name]: event.target.value,
-    });
+function handleUpdate(event, state, setState) {
+    let newState = Object.assign({}, state);
+    newState[event.target.name] = event.target.value;
+    setState(newState);
 }
 
 function handleSubmit(event, state) {
@@ -39,14 +39,14 @@ function Login() {
             >
                 <label>
                     Username
-                    <input type="text" name="username" onChange={handleUpdate} />
+                    <input type="text" name="username" onChange={(event) => {handleUpdate(event, state, setState)}} />
                 </label>
                 <label>
                     Password
                     <input
                         type="password"
                         name="password"
-                        onChange={handleUpdate}
+                        onChange={(event) => {handleUpdate(event, state, setState)}}
                     />
                 </label>
                 <input type="submit" value="Log In" />
