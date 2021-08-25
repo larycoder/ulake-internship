@@ -7,9 +7,11 @@ import {
     navLinkItem,
     navLinkText
 } from './layout.module.css'
+import { isLoggedIn } from '../services/auth'
 
 
 const NavBar = ({ pageTitle }) => {
+    let loginUrl = isLoggedIn()? "login" : "logout";
     return (
         <div className={container}>
             <title>{pageTitle}</title>
@@ -18,7 +20,7 @@ const NavBar = ({ pageTitle }) => {
                     <li className={navLinkItem}><Link to="/" className={navLinkText}>Home</Link></li>
                     <li className={navLinkItem}><Link to="/dashboard/users" className={navLinkText}>Users</Link></li>
                     <li className={navLinkItem}><Link to="/about" className={navLinkText}>About</Link></li>
-                    <li className={navLinkItem}><Link to="/dashboard/login" className={navLinkText}>Login</Link></li>
+                    <li className={navLinkItem}><Link to="/dashboard/login" className={navLinkText}>{loginUrl}</Link></li>
                 </ul>
             </nav>
             <h1 className={heading}>{pageTitle}</h1>
