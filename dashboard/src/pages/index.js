@@ -2,17 +2,37 @@ import React from 'react'
 import Layout from "../components/layout";
 import { isLoggedIn, getUser } from "../services/auth"
 import { connect } from 'react-redux'
+import PropTypes from "prop-types"
 import { obtainJwt } from '../state/jwt';
 
-const Index = ({token, dispatch}) => (
-    <Layout pageTitle="Home Page">
-        <p>Welcome back.</p>            
-        <h1>Hello {isLoggedIn() ? getUser().name : "world"}!</h1>
-        <button onClick = {() => {dispatch(obtainJwt("12345"))}}>{token}</button>
+const Counter = ({ count, increment }) => (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  )
+  
+  Counter.propTypes = {
+    count: PropTypes.number.isRequired,
+    increment: PropTypes.func.isRequired,
+  }
+  
+  const mapStateToProps = ({ count }) => {
+    return { count }
+  }
+  
+  const mapDispatchToProps = dispatch => {
+    return { increment: () => dispatch({ type: `INCREMENT` }) }
+  }
+  
+  const ConnectedCounter = connect(mapStateToProps, mapDispatchToProps)(Counter)
 
+const Index = () => (
+    <Layout pageTitle="Home Page">
+        <p>Welcome back.</p>       
+        <ConnectedCounter />     
+        <h1>Hello {isLoggedIn() ? getUser().name : "world"}!</h1>        
     </Layout>
 )
 
-export default connect(state => ({
-    token: state.jwt.token
-}), null)(Index)
+export default Index
