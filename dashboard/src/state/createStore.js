@@ -2,19 +2,31 @@
 import { createStore as reduxCreateStore } from "redux"
 
 const actions = {
-    increment: `INCREMENT`
+    increment: `INCREMENT`,
+    jwtObtained: "jwt/obtained"
 }
 
 const reducer = (state, action) => {
-    if (action.type === actions.increment) {
-        return Object.assign({}, state, {
-            count: state.count + 1,
-        })
+    switch (action.type) {
+        case actions.increment: {
+            return {...state,
+                count: state.count + 1,
+            }
+        }
+        case actions.jwtObtained: {
+            return {...state, 
+                jwt: action.item
+            }
+        }
+        default:
+            return state;
     }
-    return state
 }
 
-const initialState = { count: 0 }
+const initialState = { 
+    count: 0,
+    jwt: ""
+}
 
 const createStore = () => reduxCreateStore(reducer, initialState)
 export default createStore
