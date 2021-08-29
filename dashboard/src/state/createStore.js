@@ -15,7 +15,7 @@ const reducer = (state, action) => {
         }
         case actions.jwtObtained: {
             return {...state, 
-                jwt: action.item
+                jwt: action.payload
             }
         }
         default:

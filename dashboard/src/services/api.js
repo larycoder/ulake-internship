@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import Axios from "axios"
 
 export const backend = {
@@ -9,9 +11,15 @@ export const backend = {
 }
 
 export const get = async (server, path) => {
-    const config = {
-        headers: { Authorization: `Bearer token` }
-    };
+    const jwt = useSelector((state) => state.jwt);
+    const dispatch = useDispatch();
+    const increase = useCallback(
+        () => dispatch({type: actions.increment}),
+        [dispatch]
+    );
+    const config = jwt ? {
+        headers: { Authorization: `Bearer ${jwt}` }
+    } : {};
     
     let resp = await Axios.get( 
       `${server}${path}`,
