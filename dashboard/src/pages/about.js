@@ -1,14 +1,14 @@
 import * as React from 'react'
-import Layout from "../components/layout";
-import ConnectedCounter from '../components/counter';
+import { useSelector } from 'react-redux'
+import Layout from "../components/layout"
 
-const AboutPage = () => {
+const About = () => {
+    const count = useSelector((state) => state.count)
     return (
         <Layout pageTitle="About Me">
-            <p>Hi there! I'm the proud creator of this site, which I built with Gatsby.</p>
-            <ConnectedCounter />
+            <p>Hi there #{count} times!</p>
         </Layout>
     )
 }
-// Step 3: Export your component
-export default AboutPage
+
+export default About
