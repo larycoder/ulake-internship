@@ -1,6 +1,8 @@
+import React from 'react'
 import { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Axios from "axios"
+import { actions } from '../state/createStore'
 
 export const backend = {
     endpoint: {
@@ -10,7 +12,7 @@ export const backend = {
     }
 }
 
-export const get = async (server, path) => {
+export const GetAPI = async (server, path) => {
     const jwt = useSelector((state) => state.jwt);
     const dispatch = useDispatch();
     const increase = useCallback(

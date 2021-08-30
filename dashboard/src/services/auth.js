@@ -1,3 +1,5 @@
+import { GetAPI } from "./api"
+
 export const isBrowser = () => typeof window !== "undefined"
 
 export const getUser = () =>
@@ -8,8 +10,10 @@ export const getUser = () =>
 const setUser = user =>
     window.localStorage.setItem("gatsbyUser", JSON.stringify(user))
 
-export const handleLogin = ({ username, password }) => {
-    
+export const handleLogin = async ({ username, password }) => {
+    console.log("prepare to login");
+    const resp = await GetAPI("user", "/api/user");
+    console.log(resp);
     if (username === `john` && password === `pass`) {
         return setUser({
             username: `john`,
@@ -18,7 +22,7 @@ export const handleLogin = ({ username, password }) => {
         })
     }
 
-    return false
+    return false;
 }
 
 export const isLoggedIn = () => {

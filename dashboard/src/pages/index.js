@@ -5,7 +5,6 @@ import { isLoggedIn, getUser } from "../services/auth"
 import ConnectedCounter from '../components/counter'
 import { actions } from '../state/createStore'
 
-
 const Index = () => {
     const count = useSelector((state) => state.count);
     const dispatch = useDispatch();

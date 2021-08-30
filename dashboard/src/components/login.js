@@ -7,6 +7,7 @@ import Layout from "./layout"
 function handleUpdate(event, state, setState) {
     let newState = Object.assign({}, state);
     newState[event.target.name] = event.target.value;
+    console.log(newState);
     setState(newState);
 }
 
