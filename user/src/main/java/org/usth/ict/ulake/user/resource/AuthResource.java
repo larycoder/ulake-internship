@@ -128,6 +128,7 @@ public class AuthResource {
     @POST
     @Transactional
     @Path("/login")
+    @PermitAll
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Authenticate user")
@@ -144,6 +145,7 @@ public class AuthResource {
     @Path("/refresh")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @PermitAll
     @Operation(summary = "Get a new JWT using a refresh token")
     @APIResponses({
             @APIResponse(name = "200", responseCode = "200", description = "Reauthentication successful. JWT is in .resp, refresh token is in .msg"),

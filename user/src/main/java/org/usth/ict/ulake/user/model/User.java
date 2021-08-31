@@ -16,13 +16,18 @@ public class User extends PanacheEntityBase {
     public String userName;
     public String firstName;
     public String lastName;
+    @JsonIgnore
     public String email;
+    @JsonIgnore
     public String password;
     public Long registerTime;
 
     @Column(columnDefinition = "varchar(5000)")
+    @JsonIgnore
     public String accessToken;
+    @JsonIgnore
     public String refreshToken;
+    @JsonIgnore
     public Long refreshTokenExpire;
 
     // @JsonBackReference("department")
