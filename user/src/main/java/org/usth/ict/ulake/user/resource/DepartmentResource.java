@@ -32,6 +32,7 @@ public class DepartmentResource {
     DepartmentRepository repo;
 
     @GET
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List all department")
     public Response all() {
         return response.build(200, "", repo.listAll());
@@ -39,6 +40,7 @@ public class DepartmentResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one department info")
     public Response one(@PathParam("id") @Parameter(description = "Department id to search") Long id) {
         return response.build(200, null, repo.findById(id));
@@ -47,6 +49,7 @@ public class DepartmentResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Create a new department")
     public Response post(@RequestBody(description = "New department info to save") Department entity) {
         repo.persist(entity);
@@ -57,6 +60,7 @@ public class DepartmentResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing department")
     public Response update(@PathParam("id") @Parameter(description = "Department id to update") Long id,
                            @RequestBody(description = "New department info to update") Department newEntity) {

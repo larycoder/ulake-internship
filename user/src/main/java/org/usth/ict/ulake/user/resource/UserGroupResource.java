@@ -33,12 +33,14 @@ public class UserGroupResource {
 
     @GET
     @Operation(summary = "List all user groups")
+    @RolesAllowed({ "User", "Admin" })
     public Response all() {
         return response.build(200, "", repo.listAll());
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one user group info")
     public Response one(@PathParam("id") @Parameter(description = "User group id to search") Long id) {
         return response.build(200, null, repo.findById(id));
@@ -47,6 +49,7 @@ public class UserGroupResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Create a new user group")
     public Response post(@RequestBody(description = "New user group info to save") UserGroup entity) {
         repo.persist(entity);
@@ -57,6 +60,7 @@ public class UserGroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing user group")
     public Response update(@PathParam("id") @Parameter(description = "User id to update") Long id,
                            @RequestBody(description = "New user group info to update") UserGroup newEntity) {

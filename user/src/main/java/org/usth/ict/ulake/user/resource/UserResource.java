@@ -33,12 +33,14 @@ public class UserResource {
 
     @GET
     @Operation(summary = "List all users")
+    @RolesAllowed({ "User", "Admin" })
     public Response all() {
         return response.build(200, "", repo.listAll());
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one user info")
     public Response one(@PathParam("id") @Parameter(description = "User id to search") Long id) {
         return response.build(200, null, repo.findById(id));
@@ -46,6 +48,7 @@ public class UserResource {
 
     @POST
     @Path("/search")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Search for users")
     public Response search(@RequestBody(description = "Query to perform search for users") UserSearchQuery query) {
         var results = repo.search(query);
@@ -58,6 +61,7 @@ public class UserResource {
 
     @POST
     @Transactional
+    @RolesAllowed({ "User", "Admin" })
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Create a new user")
     public Response post(@RequestBody(description = "New user info to save") User entity) {
@@ -69,6 +73,7 @@ public class UserResource {
     @PUT
     @Path("/{id}")
     @Transactional
+    @RolesAllowed({ "User", "Admin" })
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Update an existing user")
     public Response update(@PathParam("id") @Parameter(description = "User id to update") Long id,

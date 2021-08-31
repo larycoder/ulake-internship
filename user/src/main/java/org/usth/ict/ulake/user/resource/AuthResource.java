@@ -74,8 +74,8 @@ public class AuthResource {
 
     @GET
     @Path("logout")
-    @RolesAllowed({ "User", "Admin" })
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Logout, clear all currently provided tokens")
     public String logout(@Context SecurityContext ctx) {
         return getResponseString(ctx) + ", birthdate: " + jwt.getClaim("birthdate").toString();

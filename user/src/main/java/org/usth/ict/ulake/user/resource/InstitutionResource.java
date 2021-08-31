@@ -30,6 +30,7 @@ public class InstitutionResource {
     InstitutionRepository repo;
 
     @GET
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List all institutions")
     public Response all() {
         return response.build(200, "", repo.listAll());
@@ -37,6 +38,7 @@ public class InstitutionResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one institution info")
     public Response one(@PathParam("id") @Parameter(description = "Institution id to search") Long id) {
         return response.build(200, null, repo.findById(id));
@@ -45,6 +47,7 @@ public class InstitutionResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Create a new institution")
     public Response post(@RequestBody(description = "New institution info to save") Institution entity) {
         repo.persist(entity);
@@ -55,6 +58,7 @@ public class InstitutionResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing institution")
     public Response update(@PathParam("id") @Parameter(description = "Institution id to update") Long id,
                            @RequestBody(description = "New institution info to update") Institution newEntity) {
