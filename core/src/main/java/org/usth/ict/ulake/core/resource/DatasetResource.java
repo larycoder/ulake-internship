@@ -1,19 +1,29 @@
 package org.usth.ict.ulake.core.resource;
 
-import antlr.StringUtils;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
-import org.usth.ict.ulake.core.model.LakeDataset;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.core.model.LakeDataset;
 import org.usth.ict.ulake.core.persistence.DatasetRepository;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 @Path("/dataset")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,19 +38,25 @@ public class DatasetResource {
     LakeHttpResponse response;
 
     @GET
+    @Operation(summary = "List all datasets")
+    @RolesAllowed({ "User", "Admin" })
     public Response all() {
         return response.build(200, "", repo.listAll());
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Show info of one dataset")
     public Response one(@PathParam("id") Long id) {
         return response.build(200, null, repo.findById(id));
     }
 
     @POST
     @Transactional
+    @RolesAllowed({ "User", "Admin" })
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Create a new dataset")
     public Response post(LakeDataset entity) {
         repo.persist(entity);
         return response.build(200, "", entity);
@@ -49,8 +65,11 @@ public class DatasetResource {
     @PUT
     @Path("/{id}")
     @Transactional
+    @RolesAllowed({ "User", "Admin" })
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, LakeDataset newEntity) {
+    @Operation(summary = "Update an existing dataset")
+    public Response update(@PathParam("id") @Parameter(description = "Dataset id to update") Long id, 
+                            @RequestBody(description = "New dataset info to update")LakeDataset newEntity) {
         LakeDataset entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
@@ -68,6 +87,8 @@ public class DatasetResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
+    @Operation(summary = "Delete an existing dataset")
     public Response delete(@PathParam("id") Long id) {
         LakeDataset entity = repo.findById(id);
         if (entity == null) {

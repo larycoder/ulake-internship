@@ -18,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
+import javax.annotation.security.RolesAllowed;
 
 @Path("/group")
 @Tag(name = "Object Groups")
@@ -35,6 +36,7 @@ public class GroupResource {
     LakeHttpResponse response;
 
     @GET
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List all object groups")
     public Response all() {
         return response.build(200, null, repo.listAll());
@@ -42,6 +44,7 @@ public class GroupResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one object group info")
     public Response one(@PathParam("id") @Parameter(description = "Object group id to search") Long id) {
         return response.build(200, null, repo.findById(id));
@@ -50,8 +53,10 @@ public class GroupResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Create a new object group")
     public Response post(@RequestBody(description = "New object group info to save") LakeGroup entity) {
+        // TODO: verify owner ship
         entity.gid = UUID.randomUUID().toString();
         repo.persist(entity);
         return response.build(200, "", entity);
@@ -59,6 +64,7 @@ public class GroupResource {
 
     @GET
     @Path("/list/{path}")
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "[WIP] List objects in object group")
     public Response listByPath(@PathParam("path") @Parameter(description = "Path to search") String path) {
         log.info("{}: {}", path, fs.ls(path));
@@ -69,9 +75,11 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Update an existing object group")
     public Response update(@PathParam("id") @Parameter(description = "Object group id to update") Long id,
                            @RequestBody(description = "New object group info to update") LakeGroup newEntity) {
+        // TODO: verify owner ship
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
@@ -89,8 +97,10 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing object group")
     public Response delete(@PathParam("id") @Parameter(description = "Object group id to delete") Long id) {
+        // TODO: verify owner ship
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);

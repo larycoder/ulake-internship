@@ -18,6 +18,7 @@ import org.usth.ict.ulake.core.model.LakeObjectMetadata;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
@@ -50,16 +51,20 @@ public class ObjectResource {
     LakeHttpResponse response;
 
     @GET
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List all objects")
     public Response all() {
+        // TODO: check ACL 
         return response.build(200, null, repo.listAll());
     }
 
     @GET
     @Path("/{cid}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one object info")
     public Response one(@PathParam("cid") @Parameter(description = "Content id to lookup") String cid) {
+        // TODO: check ACL
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
@@ -69,9 +74,11 @@ public class ObjectResource {
 
     @GET
     @Path("/{cid}/data")
+    @RolesAllowed({ "User", "Admin" })
     //@Produces(MediaType.APPLICATION_OCTET_STREAM_TYPE)
     @Operation(summary = "Get object binary data")
     public Response data(@PathParam("cid") @Parameter(description = "Content id to extract") String cid) {
+        // TODO: check ACL
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
@@ -93,10 +100,12 @@ public class ObjectResource {
     @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Create a new binary object")
     public Response post(@RequestBody(description = "Multipart form data. metadata: extra json info " +
             "{name:'original filename', gid: 'object group id', length: 'binary length'). file: binary data to save")
                                      MultipartFormDataInput input) throws IOException {
+        // TODO: check ACL
         // manual workaround to void RESTEASY007545 bug
         LakeObjectMetadata meta = null;
         InputStream is = null;
