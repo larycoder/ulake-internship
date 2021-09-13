@@ -79,5 +79,4 @@ public class UserRepository implements PanacheRepository<User> {
         String hql = String.join(" and ", conditions);
         return list(hql, params);
     }
-
 }

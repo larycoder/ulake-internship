@@ -74,6 +74,17 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Create a new user")
     public Response post(@RequestBody(description = "New user info to save") User entity) {
+        if (entity == null) {
+            return response.build(400, "", entity);    
+        }
+
+        // check existence
+        User exist = (User) repo.find("userName", entity.userName);
+        if (exist == null) {
+            return response.build(409, "", entity);
+        }
+
+
         log.info("POSTING new user");
         entity.password = BcryptUtil.bcryptHash(entity.password);
         repo.persist(entity);
