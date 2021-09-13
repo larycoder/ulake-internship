@@ -79,7 +79,7 @@ public class UserResource {
         }
 
         // check existence
-        User exist = (User) repo.find("userName", entity.userName);
+        var exist = repo.find("userName", entity.userName).firstResult();
         if (exist == null) {
             return response.build(409, "", entity);
         }
