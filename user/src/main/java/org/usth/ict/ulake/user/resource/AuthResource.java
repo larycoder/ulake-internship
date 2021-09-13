@@ -112,6 +112,7 @@ public class AuthResource {
                         .expiresIn(tokenExpire)
                         .groups(new HashSet<>(Arrays.asList("User", "Admin")))
                         .claim(Claims.auth_time.name(), new Date().getTime())
+                        .claim(Claims.sub.name(), String.valueOf(user.id))
                         .sign();
 
         // save access token, so we can detect abnormal cases
