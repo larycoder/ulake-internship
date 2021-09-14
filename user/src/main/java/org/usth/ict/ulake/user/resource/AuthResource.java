@@ -1,7 +1,27 @@
 package org.usth.ict.ulake.user.resource;
 
-import io.quarkus.elytron.security.common.BcryptUtil;
-import io.smallrye.jwt.build.Jwt;
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -23,22 +43,7 @@ import org.wildfly.security.password.WildFlyElytronPasswordProvider;
 import org.wildfly.security.password.interfaces.BCryptPassword;
 import org.wildfly.security.password.util.ModularCrypt;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
+import io.smallrye.jwt.build.Jwt;
 
 @Path("/auth")
 @Tag(name = "Authentication")

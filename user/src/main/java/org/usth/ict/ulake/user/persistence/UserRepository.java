@@ -1,7 +1,13 @@
 package org.usth.ict.ulake.user.persistence;
 
-import io.quarkus.elytron.security.common.BcryptUtil;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
@@ -10,12 +16,7 @@ import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.resource.AuthResource;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
 public class UserRepository implements PanacheRepository<User> {
