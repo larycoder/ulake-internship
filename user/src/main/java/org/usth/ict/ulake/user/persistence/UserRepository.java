@@ -56,12 +56,12 @@ public class UserRepository implements PanacheRepository<User> {
                 }
         }
 
-        if (query.minRegisterTime > 0) {
+        if (query.minRegisterTime != null && query.minRegisterTime > 0) {
             conditions.add("(registerTime >= :minRegisterTime)");
             params.put("minRegisterTime", query.minRegisterTime);
         }
 
-        if (query.maxRegisterTime > 0) {
+        if (query.maxRegisterTime != null && query.maxRegisterTime > 0) {
             conditions.add("(registerTime <= :maxRegisterTime)");
             params.put("maxRegisterTime", query.maxRegisterTime);
         }
