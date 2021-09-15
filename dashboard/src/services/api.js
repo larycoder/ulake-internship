@@ -35,3 +35,36 @@ export const GetAPI = async (server, path, jwt) => {
     );
     console.log(resp);
 }
+
+/*
+
+host="http://user.ulake.sontg.net";
+host="http://127.0.0.1:8785";
+fetch(`${host}/api/auth/login`, {
+	method: 'POST',
+	headers: {
+		'Content-Type': 'application/json'			
+	},
+	body: JSON.stringify({
+		userName: 'usr',
+		password: 'pass'
+	})
+})
+.then(resp => resp.json())
+.then(json => json.resp)
+.then(token => {
+	fetch(`${host}/api/user/search`, { 
+			method: 'POST',
+			body: JSON.stringify({
+				keywords: ['usr']
+			}),
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			}
+	})
+	.then(resp => resp.json())
+	.then(json => console.log(json))
+})
+
+*/
