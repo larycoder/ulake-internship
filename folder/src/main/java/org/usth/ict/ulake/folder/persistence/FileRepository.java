@@ -21,12 +21,12 @@ public class FileRepository implements PanacheRepository<UserFile> {
             params.put("keyword", "%" + query.keyword + "%");
         }
 
-        if (query.minSize > 0) {
+        if (query.minSize != null && query.minSize > 0) {
             conditions.add("(size > :minSize)");
             params.put("minSize", query.minSize);
         }
 
-        if (query.maxSize > 0) {
+        if (query.maxSize != null && query.maxSize > 0) {
             conditions.add("(size > :maxSize)");
             params.put("maxSize", query.maxSize);
         }
