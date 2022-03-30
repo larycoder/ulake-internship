@@ -5,9 +5,12 @@
 # Predefine variable
 HOST="ulake-nginx";
 PORT="80";
-BASE_DIR=$(pwd $(dirname $0));
+BASE_DIR=$(readlink -f $(dirname $0));
+ROOT_DIR=$(readlink -f $BASE_DIR/../);
 CONF="$BASE_DIR/nginx.conf";
+DATA="$ROOT_DIR/dashboard";
 
-docker run --name $HOST -p $PORT:80 \
-    -v $CONF:/etc/nginx/nginx.conf:ro\
-    -d nginx:latest
+echo "docker run --name $HOST -p $PORT:80 \
+    -v $CONF:/etc/nginx/nginx.conf:ro \
+    -v $DATA:/opt:ro \
+    -d nginx:latest"
