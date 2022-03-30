@@ -38,3 +38,6 @@ out/
 .DS_Store
 node_modules
 public
+
+### customize ###
+dashboard/commits.html
