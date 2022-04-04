@@ -4,13 +4,19 @@ Document version: 0.1.0
 
 ## Deployment components
 
-1. WebApp (nginx)       port: 80
-2. Core Service (API)   port: 8784
-3. Folder Service (API) port: 8786
-4. User Service (API)   port: 8785
-5. MySql (docker)       port: 23306
-6. OpenIO (docker)      port: 6006 -- deprecated
-7. Phpmyadmin (docker)  port: 8081
+1. WebApp (nginx)                   port: 8080
+2. Core Service (API)               port: 8784
+3. Folder Service (API)             port: 8786
+4. User Service (API)               port: 8785
+5. MySql (docker)                   port: 23306
+6. OpenIO (docker)                  port: 6006 -- deprecated
+7. Phpmyadmin (docker)              port: 8081
+
+8. Hadoop datanode (docker)
+9. Hadoop namenode (docker)         port: 9000, 9870
+10. Hadoop resourcemanager (docker)
+11. Hadoop nodemanager (docker)
+12. Hadoop historyserver (docker)
 
 ## Strategy
 
