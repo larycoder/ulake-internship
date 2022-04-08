@@ -1,6 +1,6 @@
 # Deploying ulake system (2022-03-28)
 
-Document version: 0.1.0
+Document version: 0.2.0
 
 ## Deployment components
 
@@ -53,3 +53,4 @@ Since nginx setup is pretty complex part, there is a section for setup once.
 4. Update start-phpmyadmin.sh port following start-mysql.sh
 5. Nginx in docker need to link to Machine host
 6. Need to map domain name to IP for activating service vhost
+7. Hadoop system will be updated manually basing on big-data-europe work

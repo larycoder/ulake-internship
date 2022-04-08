@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.core.backend.impl.OpenIO;
+import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 
@@ -27,7 +27,7 @@ public class GroupResource {
     private static final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     @Inject
-    OpenIO fs;
+    Hdfs fs;
 
     @Inject
     GroupRepository repo;

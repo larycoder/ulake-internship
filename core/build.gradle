@@ -31,6 +31,7 @@ dependencies {
 	testImplementation 'io.rest-assured:rest-assured'
 	runtimeOnly 'mysql:mysql-connector-java'
 	implementation 'io.openio.sds:openio-api:2.0.3'
+	implementation 'org.apache.hadoop:hadoop-client:3.2.1'
 }
 
 test {

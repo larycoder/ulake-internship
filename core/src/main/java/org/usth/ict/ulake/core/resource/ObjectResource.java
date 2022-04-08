@@ -10,7 +10,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.core.backend.impl.OpenIO;
+import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.model.LakeObject;
@@ -39,7 +39,7 @@ public class ObjectResource {
     ObjectMapper mapper;
 
     @Inject
-    OpenIO fs;
+    Hdfs fs;
 
     @Inject
     ObjectRepository repo;
