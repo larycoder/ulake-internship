@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -7,6 +8,4 @@ pluginManagement {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
     }
 }
-
-rootProject.name = 'ulake'
-include 'core', 'user', 'folder', 'acl'
+rootProject.name='acl'
