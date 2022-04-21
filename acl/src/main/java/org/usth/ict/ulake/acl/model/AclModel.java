@@ -16,6 +16,8 @@ class AclPK implements Serializable {
     public Long objectId;
     public Long userId;
     public Integer permission;
+    public String isFolder;
+    public String isGroup;
 }
 
 /**
@@ -30,7 +32,7 @@ public class AclModel {
 
     @Schema(description = "Flag to mark object is folder")
     @Column(length = 1)
-    private String isFolder;
+    private String isFolder = "0";
 
     @Id
     @Schema(description = "User / Group user id from user management service")
@@ -38,7 +40,7 @@ public class AclModel {
 
     @Schema(description = "Flag to mark user is group user")
     @Column(length = 1)
-    private String isGroup;
+    private String isGroup = "0";
 
     @Schema(description = "Permission of object for corresponding user")
     private Integer permission;

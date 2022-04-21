@@ -13,7 +13,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
 public class AclRepository implements PanacheRepository<AclModel> {
-    public Boolean hasAcl(AclModel acl) {
+    public List<AclModel> findAcl(AclModel acl) {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
@@ -27,9 +27,10 @@ public class AclRepository implements PanacheRepository<AclModel> {
         params.put("permission", acl.getPermission());
 
         String hql = String.join(" and ", conditions);
-        if(list(hql, params).isEmpty())
-            return false;
-        else
-            return true;
+        return list(hql, params);
+    }
+
+    public Boolean hasAcl(AclModel acl) {
+        return !findAcl(acl).isEmpty();
     }
 }
