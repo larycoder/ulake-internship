@@ -12,6 +12,8 @@ import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.usth.ict.ulake.acl.model.AclModel;
 import org.usth.ict.ulake.acl.persistence.AclRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -46,6 +48,10 @@ public class AclResource {
     @Transactional
     @RolesAllowed({"System", "User", "Admin"})
     @Operation(summary = "add new permission")
+    @APIResponses({
+        @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
+        @APIResponse(name = "409", responseCode = "409", description = "ACL is already existed")
+    })
     public Response post(AclModel acl) {
         // TODO: ACL for new permission granting
 
@@ -56,7 +62,7 @@ public class AclResource {
         } else if (!isBoolFlag(acl.getIsGroup())) {
             return response.build(400, "Invalid isGroup value, must in [0, 1]");
         } else if (repo.hasAcl(acl)) {
-            return response.build(400, "ACL is already existed");
+            return response.build(409, "ACL is already existed");
         } else {
             repo.persist(acl);
             return response.build(200, null, acl);
@@ -67,6 +73,9 @@ public class AclResource {
     @Path("/permission")
     @RolesAllowed({"System", "Admin"})
     @Operation(summary = "assert permission of object")
+    @APIResponses({
+        @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
+    })
     public Response permission(AclModel acl) {
         if (!PermissionModel.isPermission(acl.getPermission())) {
             return response.build(400, "Unrecognized permission");
