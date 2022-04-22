@@ -26,6 +26,12 @@ public class AclRepository implements PanacheRepository<AclModel> {
         conditions.add("(permission = :permission)");
         params.put("permission", acl.getPermission());
 
+        conditions.add("(isGroup = :isGroup)");
+        params.put("isGroup", acl.getIsGroup());
+
+        conditions.add("(isFolder = :isFolder)");
+        params.put("isFolder", acl.getIsFolder());
+
         String hql = String.join(" and ", conditions);
         return list(hql, params);
     }
