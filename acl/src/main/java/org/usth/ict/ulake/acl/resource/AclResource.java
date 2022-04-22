@@ -63,7 +63,7 @@ public class AclResource {
         }
     }
 
-    @GET
+    @POST
     @Path("/permission")
     @RolesAllowed({"System", "Admin"})
     @Operation(summary = "assert permission of object")
