@@ -3,15 +3,18 @@ package org.usth.ict.ulake.acl.resource;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.usth.ict.ulake.acl.model.AclModel;
@@ -86,6 +89,16 @@ public class AclResource {
         } else {
             return response.build(200, null, repo.hasAcl(acl));
         }
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @RolesAllowed({"System", "Admin"})
+    @Operation(summary = "delete permission of object")
+    public Response del(
+        @PathParam("id") @Parameter(description = "Permission id to delete") Long id) {
+        return response.build(200, null, repo.deleteById(id));
     }
 
     /**
