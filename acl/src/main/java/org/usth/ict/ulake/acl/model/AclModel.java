@@ -1,32 +1,24 @@
 package org.usth.ict.ulake.acl.model;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
-/**
- * Composite key of ACL
- * */
-class AclPK implements Serializable {
-    public Long objectId;
-    public Long userId;
-    public Integer permission;
-    public String isFolder;
-    public String isGroup;
-}
 
 /**
  * ACL model to link user to file with corresponding permission.
  * */
 @Entity
-@IdClass(AclPK.class)
+@Table(uniqueConstraints = {
+    @UniqueConstraint(
+    columnNames = {"objectId", "userId", "permission", "isFolder", "isGroup"})
+})
 public class AclModel {
-    @Id
     @Schema(description = "File / Folder id from file management service")
     private Long objectId;
 
@@ -34,7 +26,6 @@ public class AclModel {
     @Column(length = 1)
     private String isFolder = "0";
 
-    @Id
     @Schema(description = "User / Group user id from user management service")
     private Long userId;
 
@@ -44,6 +35,11 @@ public class AclModel {
 
     @Schema(description = "Permission of object for corresponding user")
     private Integer permission;
+
+    @Id
+    @Schema(description = "Marked ID for permission, must not included in query")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
     public Long getObjectId() {
         return objectId;
@@ -83,5 +79,13 @@ public class AclModel {
 
     public void setPermission(Integer permission) {
         this.permission = permission;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
