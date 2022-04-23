@@ -39,7 +39,7 @@ public class AclModel {
     @Id
     @Schema(description = "Marked ID for permission, must not included in query")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     public Long getObjectId() {
         return objectId;
@@ -81,11 +81,11 @@ public class AclModel {
         this.permission = permission;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 }
