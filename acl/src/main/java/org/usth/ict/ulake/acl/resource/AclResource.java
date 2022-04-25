@@ -12,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -30,9 +29,6 @@ public class AclResource {
 
     @Inject
     AclRepository repo;
-
-    @Inject
-    JsonWebToken jwt;
 
     @GET
     @Operation(summary = "health check")
@@ -78,6 +74,7 @@ public class AclResource {
     @Operation(summary = "assert permission of object")
     @APIResponses({
         @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
+        @APIResponse(name = "200", responseCode = "200", description = "OK"),
     })
     public Response permission(AclModel acl) {
         if (!PermissionModel.isPermission(acl.getPermission())) {
