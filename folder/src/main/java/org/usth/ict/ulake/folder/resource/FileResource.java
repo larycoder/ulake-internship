@@ -14,14 +14,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.usth.ict.ulake.acl.model.AclModel;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
+import org.usth.ict.ulake.folder.service.AclService;
 
 @Path("/file")
 @Tag(name = "File")
@@ -32,6 +37,13 @@ public class FileResource {
 
     @Inject
     LakeHttpResponse response;
+
+    @Inject
+    JsonWebToken jwt;
+
+    @Inject
+    @RestClient
+    AclService aclSvc;
 
     @GET
     @RolesAllowed({ "User", "Admin" })
@@ -45,7 +57,22 @@ public class FileResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get a single file info")
     public Response one(@PathParam("id") @Parameter(description = "File id to search") Long id) {
-        return response.build(200, null, repo.findById(id));
+        AclModel acl = new AclModel();
+        acl.setId(Long.parseLong(jwt.getName()));
+        acl.setObjectId(id);
+        acl.setIsGroup("0");
+        acl.setIsFolder("0");
+        acl.setPermission(PermissionModel.READ);
+        var aclRst = aclSvc.isAllowed("bearer " + jwt.getRawToken(), acl);
+
+        if (aclRst.getCode() == 200) {
+            if ((Boolean) aclRst.getResp() == true)
+                return response.build(200, null, repo.findById(id));
+            else
+                return response.build(403, "Permission fail");
+        } else {
+            return response.build(500, "Acl error", aclRst);
+        }
     }
 
     @POST
@@ -87,7 +114,7 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Delete a file info")
-    public Response delete(@PathParam("id") @Parameter(description = "File id to delete") Long id) {
+    public Response delete (@PathParam("id") @Parameter(description = "File id to delete") Long id) {
         UserFile entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
