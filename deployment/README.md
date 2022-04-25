@@ -8,9 +8,10 @@ Document version: 0.2.0
 2. Core Service (API)               port: 8784
 3. Folder Service (API)             port: 8786
 4. User Service (API)               port: 8785
-5. MySql (docker)                   port: 23306
-6. OpenIO (docker)                  port: 6006 -- deprecated
-7. Phpmyadmin (docker)              port: 8081
+5. Acl Service (API)                port: 8783
+6. MySql (docker)                   port: 23306
+7. OpenIO (docker)                  port: 6006 -- deprecated
+8. Phpmyadmin (docker)              port: 8081
 
 8. Hadoop datanode (docker)
 9. Hadoop namenode (docker)         port: 9000, 9870
