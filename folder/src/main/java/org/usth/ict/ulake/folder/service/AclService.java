@@ -11,9 +11,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.usth.ict.ulake.acl.model.AclModel;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
-// TODO: move base uri to application configuration
 @Path("/api")
-@RegisterRestClient(baseUri="http://acl.ulake.sontg.net")
+@RegisterRestClient(configKey="acl-api")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface AclService {
