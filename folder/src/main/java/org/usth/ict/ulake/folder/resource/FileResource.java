@@ -58,7 +58,7 @@ public class FileResource {
     @Operation(summary = "Get a single file info")
     public Response one(@PathParam("id") @Parameter(description = "File id to search") Long id) {
         AclModel acl = new AclModel();
-        acl.setId(Long.parseLong(jwt.getName()));
+        acl.setUserId(Long.parseLong(jwt.getName()));
         acl.setObjectId(id);
         acl.setIsGroup("0");
         acl.setIsFolder("0");
