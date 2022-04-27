@@ -37,7 +37,7 @@ public class AclResource {
     }
 
     @GET
-    @RolesAllowed({"System", "Admin"})
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "list all acl")
     public Response all() {
         return response.build(200, null, repo.findAll());
@@ -45,7 +45,7 @@ public class AclResource {
 
     @POST
     @Transactional
-    @RolesAllowed({"System", "User", "Admin"})
+    @RolesAllowed({"User", "User", "Admin"})
     @Operation(summary = "add new permission")
     @APIResponses({
         @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
@@ -70,7 +70,7 @@ public class AclResource {
 
     @POST
     @Path("/permission")
-    @RolesAllowed({"System", "Admin"})
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "assert permission of object")
     @APIResponses({
         @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
@@ -91,7 +91,7 @@ public class AclResource {
     @DELETE
     @Transactional
     @Path("/{id}")
-    @RolesAllowed({"System", "Admin"})
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "delete permission of object")
     public Response del(
         @PathParam("id") @Parameter(description = "Permission id to delete") Long id) {
