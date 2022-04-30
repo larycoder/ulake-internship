@@ -25,7 +25,8 @@ public class User extends PanacheEntityBase {
     public String userName;
     public String firstName;
     public String lastName;
-    
+    public Long failedLogins;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String email;
     

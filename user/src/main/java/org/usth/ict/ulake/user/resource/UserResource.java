@@ -28,6 +28,8 @@ import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 
+import java.util.HashMap;
+
 @Path("/user")
 @Tag(name = "Users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -112,5 +114,15 @@ public class UserResource {
         // TODO: allow update department, group
         repo.persist(entity);
         return response.build(200);
+    }
+
+    @GET
+    @Path("/stats")
+    @Operation(summary = "Some statistics")
+    @RolesAllowed({ "User", "Admin" })
+    public Response stats() {
+        HashMap<String, Integer> ret = new HashMap<>();
+        ret.put("users", (int) repo.count());
+        return response.build(200, "", ret);
     }
 }

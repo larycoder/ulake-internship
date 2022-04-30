@@ -29,3 +29,52 @@ function getToken() {
 function setToken(token) {
     sessionStorage.setItem("jwt", token);
 }
+
+function getUid() {
+    if (jwt_decode) {
+        try {
+            const jwt = jwt_decode(getToken());
+            if (jwt.sub) {
+                return jwt.sub;
+            }
+        }
+        catch (e) {
+        }
+    }
+    return -1;
+}
+
+ajax = function (param){
+    let headers;
+    if (param.headers) {
+        headers = param.headers;
+    }
+    else {
+        headers = {};
+    }
+    // headers["Authorization-Key"] = apiKey;
+    let token = getToken()
+    if (token) {
+        headers.Authorization = "Bearer " + token;
+    }
+    let oldSuccess = param.success;
+    param.headers = headers;
+    if (!param.method) {
+        param.method = "GET";
+    }
+    param.success = function (data) {
+        if (!data) {
+            window.alert("No response from server.");
+            return;
+        }
+        if (data.code === 400) {
+            window.alert(data.msg);
+            return;
+        }
+        oldSuccess(data);
+    };
+    param.error = function (error) {
+        window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
+    };
+    return $.ajax(param);
+};
