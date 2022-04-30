@@ -1,0 +1,22 @@
+# Script for fast running
+
+There are many setup scripts which is difficult to remember. This file propose
+some of them.
+
+1. Quarkus generation.
+```text
+mvn io.quarkus.platform:quarkus-maven-plugin:{VER}:create \
+    -DprojectGroupId={GROUP} \
+    -DprojectArtifactId={ARTIFACT} \
+    -DclassName="{CLASSNAME}" \
+    -Dversion="{PROJECTVERSION}"
+    -Dpath="{SERVICEPATH}" \
+    -DbuildTool=gradle
+
+=========
+
+VER: 2.6.2.Final
+CLASSNAME: org.acme.getting.started.GreetingResource
+SERVICEPATH: /hello
+PROJECTVERSION: 0.0.1 +2
+```

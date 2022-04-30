@@ -1,0 +1,35 @@
+# version 0.0.1 +1
+
+1. Back-end query API
+2. Back-end list data services
+
+# version 0.1.0
+
+1. Back-end query interface and method
+2. Back-end user query
+3. Back-end query for object
+4. Front-end query site
+
+# version 0.1.0 +1
+
+1. Fix missing jsdocs of method
+
+# version 0.1.1
+
+1. Add loading bar for IO process
+2. Update filter from string to optional choice
+3. Fix refresh problem in Query Page
+
+# version 0.1.2
+
+1. Add handler for null data exception in back-end
+2. Add handler for back-end error return in front-end
+3. Replace loading bar by spinner
+
+# version 0.2.2
+
+1. Add features download and folder to backend API
+2. Extend front-end for downloading object by clicking into object.
+3. Extend front-end for file-like interface.
+4. Refactor front-end for easier development
+

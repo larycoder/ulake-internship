@@ -1,0 +1,27 @@
+<!-- main script should load in bottom of data -->
+<script src="/js/pages/query.js"></script>
+<script src="/js/common/global.js"></script>
+<script src="/js/model/ulake_model.js"></script>
+<script src="/js/common/controller.js"></script>
+<script src="/js/common/login.js"></script>
+<script src="/js/ulake/ulake_query.js"></script>
+
+<!-- auto-load script -->
+<script>
+    updateLoginInfo(); // update login icon depending token
+
+    // singleton chip controller for filter data
+    var filterChip = new ChipController("filter-list-chips");
+
+    // data table
+    var resultTable = new TableController("query-data-list-result");
+
+    // load filter option
+    let selection = document.getElementById("query-data-list");
+    for (let type of globalObject.dataType) {
+        let opt = document.createElement('option');
+        opt.value = type;
+        opt.innerHTML = type;
+        selection.appendChild(opt);
+    }
+</script>
