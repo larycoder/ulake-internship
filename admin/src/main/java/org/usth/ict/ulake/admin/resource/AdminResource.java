@@ -13,6 +13,7 @@ import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,5 +29,16 @@ public class AdminResource {
     @Operation(summary = "Nothing yet.")
     public Response all() {
         return response.build(200, null, new Date());
+    }
+
+    @GET
+    @Path("/users/stats")
+    @Operation(summary = "Statistics about users")
+    @RolesAllowed({ "User", "Admin" })
+    public Response userStats() {
+        // get requests from other service
+        HashMap<String, Integer> ret = new HashMap<>();
+        ret.put("users", (int) repo.count());
+        return response.build(200, "", ret);
     }
 }
