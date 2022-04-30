@@ -66,7 +66,7 @@ public class FileResource {
         var aclRst = aclSvc.isAllowed("bearer " + jwt.getRawToken(), acl);
 
         if (aclRst.getCode() == 200) {
-            if ((Boolean) aclRst.getResp() == true)
+            if ((Boolean) aclRst.getResp())
                 return response.build(200, null, repo.findById(id));
             else
                 return response.build(403, "Permission fail");
