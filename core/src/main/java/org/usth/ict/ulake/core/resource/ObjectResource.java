@@ -15,6 +15,7 @@ import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.model.LakeObjectMetadata;
+import org.usth.ict.ulake.core.model.LakeObjectSearchQuery;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
@@ -52,9 +53,10 @@ public class ObjectResource {
 
     @GET
     @RolesAllowed({ "User", "Admin" })
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "List all objects")
     public Response all() {
-        // TODO: check ACL 
+        // TODO: check ACL
         return response.build(200, null, repo.listAll());
     }
 
@@ -103,8 +105,8 @@ public class ObjectResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Create a new binary object")
     public Response post(@RequestBody(description = "Multipart form data. metadata: extra json info " +
-            "{name:'original filename', gid: 'object group id', length: 'binary length'). file: binary data to save")
-                                     MultipartFormDataInput input) throws IOException {
+                                      "{name:'original filename', gid: 'object group id', length: 'binary length'). file: binary data to save")
+                         MultipartFormDataInput input) throws IOException {
         // TODO: check ACL
         // manual workaround to void RESTEASY007545 bug
         LakeObjectMetadata meta = null;
@@ -112,17 +114,16 @@ public class ObjectResource {
 
         // iterate through form data to extract metadata and file
         Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
-        for (var formData: formDataMap.entrySet()) {
+        for (var formData : formDataMap.entrySet()) {
             // log.info("POST: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
             if (formData.getKey().equals("metadata")) {
-               try {
-                   String metaJson = formData.getValue().get(0).getBodyAsString();
-                   meta = mapper.readValue(metaJson, LakeObjectMetadata.class);
+                try {
+                    String metaJson = formData.getValue().get(0).getBodyAsString();
+                    meta = mapper.readValue(metaJson, LakeObjectMetadata.class);
                 } catch (JsonProcessingException e) {
-                   log.info("error parsing metadata json {}", e.getMessage());
+                    log.info("error parsing metadata json {}", e.getMessage());
                 }
-            }
-            else if (formData.getKey().equals("file")) {
+            } else if (formData.getKey().equals("file")) {
                 is = formData.getValue().get(0).getBody(InputStream.class, null);
             }
         }
@@ -150,5 +151,22 @@ public class ObjectResource {
         object.setGroup(group);
         repo.persist(object);
         return response.build(200, null, object);
+    }
+
+    @POST
+    @Path("/search")
+    @RolesAllowed({"User", "Admin"})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Search for object")
+    public Response search(
+        @RequestBody(description = "Query to perform search for objects")
+        LakeObjectSearchQuery query) {
+        var result = repo.seasrch(query);
+
+        if (result.isEmpty())
+            return response.build(404);
+        else
+            return response.build(200, null, result);
     }
 }
