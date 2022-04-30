@@ -24,6 +24,8 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.user.model.UserGroup;
 import org.usth.ict.ulake.user.persistence.UserGroupRepository;
 
+import java.util.HashMap;
+
 @Path("/user/group")
 @Tag(name = "User Groups")
 @Produces(MediaType.APPLICATION_JSON)
@@ -78,5 +80,15 @@ public class UserGroupResource {
         // TODO: allow update department, group
         repo.persist(entity);
         return response.build(200);
+    }
+
+    @GET
+    @Path("/stats")
+    @Operation(summary = "Some statistics")
+    @RolesAllowed({ "User", "Admin" })
+    public Response stats() {
+        HashMap<String, Integer> ret = new HashMap<>();
+        ret.put("groups", (int) repo.count());
+        return response.build(200, "", ret);
     }
 }

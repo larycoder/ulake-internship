@@ -24,6 +24,8 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.user.model.Department;
 import org.usth.ict.ulake.user.persistence.DepartmentRepository;
 
+import java.util.HashMap;
+
 @Path("/department")
 @Tag(name = "Departments")
 @Produces(MediaType.APPLICATION_JSON)
@@ -78,5 +80,15 @@ public class DepartmentResource {
         // TODO: allow update institution
         repo.persist(entity);
         return response.build(200);
+    }
+
+    @GET
+    @Path("/stats")
+    @Operation(summary = "Some statistics")
+    @RolesAllowed({ "User", "Admin" })
+    public Response stats() {
+        HashMap<String, Integer> ret = new HashMap<>();
+        ret.put("departments", (int) repo.count());
+        return response.build(200, "", ret);
     }
 }
