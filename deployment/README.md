@@ -12,6 +12,8 @@ Document version: 0.2.0
 6. MySql (docker)                   port: 23306
 7. OpenIO (docker)                  port: 6006 -- deprecated
 8. Phpmyadmin (docker)              port: 8081
+9. Dashboard Service (API)          port: 8782
+10. Search Service (API)            port: 8787
 
 8. Hadoop datanode (docker)
 9. Hadoop namenode (docker)         port: 9000, 9870
