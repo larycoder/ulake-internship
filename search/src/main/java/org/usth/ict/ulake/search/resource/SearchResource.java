@@ -1,6 +1,8 @@
 package org.usth.ict.ulake.search.resource;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -17,14 +19,17 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
+import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.search.model.FilterModel;
 import org.usth.ict.ulake.search.service.SearchService;
 import org.usth.ict.ulake.search.service.ext.FolderService;
 import org.usth.ict.ulake.search.service.ext.UserService;
 import org.usth.ict.ulake.user.model.User;
+import org.usth.ict.ulake.user.model.UserSearchQuery;
 
 @Path("/search")
 @Produces(MediaType.APPLICATION_JSON)
@@ -52,19 +57,29 @@ public class SearchResource {
      * @param <Q> query type
      * @param svc SearchService implementation
      * @param query query model
+     * @param respType type of response
      * @return list of response data if success else null
      */
     @SuppressWarnings("unchecked")
-    private <R, Q> List<R> queryFunc(SearchService<Q> svc, Q query) {
+    private <R, Q> List<R> queryFunc(
+        SearchService<Q> svc, Q query, Class<R> respType) {
         try {
             String token = "bearer " + jwt.getRawToken();
             var resp = svc.search(token, query);
-            return (List<R>) resp.getResp();
+
+            // convert response to list of data
+            var arrayType = Array.newInstance(respType, 0).getClass();
+            var array = (R[]) Utils.convert(resp.getResp(), arrayType);
+            var list = Arrays.asList(array);
+            return (List<R>) list;
         } catch (LakeServiceNotFoundException e) {
             log.error("Not found error ({})", svc, e);
             return new ArrayList<R>();
         } catch (LakeServiceException e) {
             log.error("Unknown error ({})", svc, e);
+            return null;
+        } catch (IllegalArgumentException e) {
+            log.error("Fail to parse data ({})", svc, e);
             return null;
         }
     }
@@ -73,7 +88,26 @@ public class SearchResource {
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "Search user information")
     public Response user(FilterModel filter) {
-        List<User> users = queryFunc(userSvc, filter.userQuery);
+        if (filter.userQuery == null)
+            filter.userQuery = new UserSearchQuery();
+
+        // file query
+        if (filter.fileQuery != null) {
+            if (filter.userQuery.ids == null)
+                filter.userQuery.ids = new ArrayList<Long>();
+
+            var files = queryFunc(folderSvc, filter.fileQuery, UserFile.class);
+            if (files != null && !files.isEmpty()) {
+                for (var file : files) {
+                    if (file.ownerId != null) {
+                        filter.userQuery.ids.add(file.ownerId);
+                    }
+                }
+            }
+        }
+
+        // main user query
+        var users = queryFunc(userSvc, filter.userQuery, User.class);
         if (users == null) {
             return response.build(500, "internal error");
         } else if (users.isEmpty()) {
