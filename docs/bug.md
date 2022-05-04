@@ -8,4 +8,11 @@ Similar problem on stackoverflow: https://stackoverflow.com/questions/5346147/hi
 Remember to check also another object id
 ```
 
+2. [2022-05-04] users query with multiple keywords
+
+```
+It seam like there are something wrong in logic for user query in UserRepository
+of user service.
+```
+
 
