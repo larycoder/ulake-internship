@@ -5,6 +5,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import java.util.List;
 
 public class UserSearchQuery {
+    @Schema(description = "List of user ids allowed")
+    public List<Long> ids;
+
     @Schema(description = "List of keywords in user name or email or first name, last name")
     public List<String> keywords;
 

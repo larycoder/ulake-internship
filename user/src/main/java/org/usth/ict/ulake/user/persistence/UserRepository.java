@@ -48,6 +48,12 @@ public class UserRepository implements PanacheRepository<User> {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
+        if(query.ids != null && !query.ids.isEmpty()) {
+            conditions.add("(id in (:ids))");
+            params.put("ids", query.ids);
+        }
+
+        // TODO: Bug in filtering multiple keywords
         if (query.keywords != null && !query.keywords.isEmpty()) {
             for (var keyword : query.keywords)
                 if (!Utils.isEmpty(keyword)) {
