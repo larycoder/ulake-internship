@@ -1,11 +1,13 @@
 package org.usth.ict.ulake.common.misc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Utils {
     public static boolean isNumeric(String str) {
         try {
             Double.parseDouble(str);
             return true;
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
     }
@@ -15,5 +17,11 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static Object convert(Object obj, Class<?> type)
+    throws IllegalArgumentException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.convertValue(obj, type);
     }
 }
