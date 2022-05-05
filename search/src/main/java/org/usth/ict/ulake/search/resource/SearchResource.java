@@ -24,6 +24,7 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
 import org.usth.ict.ulake.folder.model.UserFile;
+import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.search.model.FilterModel;
 import org.usth.ict.ulake.search.service.SearchService;
 import org.usth.ict.ulake.search.service.ext.FolderService;
@@ -85,6 +86,7 @@ public class SearchResource {
     }
 
     @POST
+    @Path("/user")
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "Search user information")
     public Response user(FilterModel filter) {
@@ -99,7 +101,8 @@ public class SearchResource {
             var files = queryFunc(folderSvc, filter.fileQuery, UserFile.class);
             if (files != null && !files.isEmpty()) {
                 for (var file : files) {
-                    if (file.ownerId != null) {
+                    if (file.ownerId != null &&
+                            !filter.userQuery.ids.contains(file.ownerId)) {
                         filter.userQuery.ids.add(file.ownerId);
                     }
                 }
@@ -114,6 +117,41 @@ public class SearchResource {
             return response.build(404, "not found error");
         } else {
             return response.build(200, null, users);
+        }
+    }
+
+    @POST
+    @Path("/file")
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "Search file information")
+    public Response file(FilterModel filter) {
+        if (filter.fileQuery == null)
+            filter.fileQuery = new UserFileSearchQuery();
+
+        // user query
+        if (filter.userQuery != null) {
+            if (filter.fileQuery.ownerIds == null)
+                filter.fileQuery.ownerIds = new ArrayList<Long>();
+
+            var users = queryFunc(userSvc, filter.userQuery, User.class);
+            if (users != null && !users.isEmpty()) {
+                for (var user : users) {
+                    if (user.id != null &&
+                            !filter.fileQuery.ownerIds.contains(user.id)) {
+                        filter.fileQuery.ownerIds.add(user.id);
+                    }
+                }
+            }
+        }
+
+        // main file query
+        var files = queryFunc(folderSvc, filter.fileQuery, UserFile.class);
+        if (files == null) {
+            return response.build(500, "internal error");
+        } else if (files.isEmpty()) {
+            return response.build(404, "not found error");
+        } else {
+            return response.build(200, null, files);
         }
     }
 }
