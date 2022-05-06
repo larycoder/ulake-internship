@@ -9,4 +9,4 @@ pluginManagement {
 }
 
 rootProject.name = 'ulake'
-include 'core', 'user', 'folder', 'acl', 'dashboard', 'search'
+include 'common', 'core', 'user', 'folder', 'acl', 'dashboard', 'search', 'admin'
