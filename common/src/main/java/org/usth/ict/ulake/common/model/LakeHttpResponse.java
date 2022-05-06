@@ -70,12 +70,12 @@ public class LakeHttpResponse {
 
     public Response build(int code, String msg, Object resp, Map<String, String> headers) {
         ResponseBuilder rb = Response.status(code).entity(toString(code, msg, resp));
-        for (var header: headers.entrySet()) {
+        for (var header : headers.entrySet()) {
             rb.header(header.getKey(), header.getValue());
         }
         return rb.build();
     }
-    
+
     public Response build(int code, String msg, Object resp) {
         return Response.status(code).entity(toString(code, msg, resp)).build();
     }
@@ -92,8 +92,7 @@ public class LakeHttpResponse {
         this.code = code;
         if (msg != null && !msg.isEmpty()) {
             this.msg = msg;
-        }
-        else {
+        } else {
             this.msg = codeMap.get(code);
         }
         this.resp = mapper.valueToTree(resp);
