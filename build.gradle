@@ -13,7 +13,11 @@ task gitlog(type: Exec) {
 }
 
 task runQuarkusDev() {
-    subprojects.each { dependsOn("${it.name}:quarkusDev") }
+    subprojects.each {
+        if ("${it.name}" != "common") {
+            dependsOn("${it.name}:quarkusDev")
+        }
+    }
 }
 
 tasks.register('dev') {
