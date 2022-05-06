@@ -3,7 +3,7 @@ plugins {
     id 'io.quarkus'
 }
 
-group 'org.usth.ict.ulake'
+group 'org.usth.ict.ulake.search'
 version '1.0.0-SNAPSHOT'
 
 java {
@@ -30,9 +30,11 @@ dependencies {
     implementation 'io.quarkus:quarkus-smallrye-jwt-build'
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-rest-client-jackson'
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
-    runtimeOnly 'mysql:mysql-connector-java'
+
+    implementation project(':common')
 }
 
 compileJava {

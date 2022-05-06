@@ -8,11 +8,14 @@ repositories {
     mavenLocal()
 }
 
+group 'org.usth.ict.ulake.folder'
+version '1.0.0-SNAPSHOT'
+
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-jdbc-mariadb'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-resteasy-jackson'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
@@ -20,12 +23,12 @@ dependencies {
     implementation 'io.quarkus:quarkus-smallrye-jwt-build'
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-rest-client-jackson'
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
-}
 
-group 'org.usth.ict.ulake.folder'
-version '1.0.0-SNAPSHOT'
+    implementation project(':common')
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

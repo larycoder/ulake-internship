@@ -1,48 +1,48 @@
 plugins {
-	id 'io.quarkus'
-	id 'java'
+    id 'io.quarkus'
+    id 'java'
 }
 
-group = 'org.usth.ict.ulake'
-version = '0.0.1-SNAPSHOT'
+group = 'org.usth.ict.ulake.user'
+version = '1.0.0-SNAPSHOT'
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_11
-	targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-	implementation 'io.quarkus:quarkus-hibernate-orm'
-	implementation 'io.quarkus:quarkus-hibernate-orm-panache'
-	implementation 'io.quarkus:quarkus-jdbc-mariadb'
-	implementation 'io.quarkus:quarkus-resteasy'
-	implementation 'io.quarkus:quarkus-resteasy-jackson'
-	implementation 'io.quarkus:quarkus-smallrye-openapi'
-	implementation 'io.quarkus:quarkus-smallrye-jwt'
-	implementation 'io.quarkus:quarkus-smallrye-jwt-build'
-	implementation 'io.quarkus:quarkus-security-jpa'
-	implementation 'io.quarkus:quarkus-arc'
-	implementation 'io.quarkus:quarkus-rest-client'
-	implementation 'io.quarkus:quarkus-rest-client-jackson'
-	testImplementation 'io.quarkus:quarkus-junit5'
-	testImplementation 'io.rest-assured:rest-assured'
-	runtimeOnly 'mysql:mysql-connector-java'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-hibernate-orm'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-jdbc-mariadb'
+    implementation 'io.quarkus:quarkus-resteasy'
+    implementation 'io.quarkus:quarkus-resteasy-jackson'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'io.quarkus:quarkus-smallrye-jwt-build'
+    implementation 'io.quarkus:quarkus-security-jpa'
+    implementation 'io.quarkus:quarkus-arc'
+
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+
+    implementation project(':common')
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 compileJava {
-	options.encoding = 'UTF-8'
-	options.compilerArgs << '-parameters'
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
 }
 
 compileTestJava {
-	options.encoding = 'UTF-8'
+    options.encoding = 'UTF-8'
 }
