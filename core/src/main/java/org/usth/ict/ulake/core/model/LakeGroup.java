@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.core.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
@@ -17,9 +18,18 @@ public class LakeGroup  extends PanacheEntityBase {
     public String extra;
     public String tags;
 
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn
+    public LakeGroup group;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "group")
     public List<LakeObject> objects;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "group")
+    public List<LakeGroup> groups;
 
     @ManyToOne
     @JoinColumn

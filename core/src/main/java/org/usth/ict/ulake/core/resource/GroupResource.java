@@ -1,5 +1,21 @@
 package org.usth.ict.ulake.core.resource;
 
+import java.util.UUID;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -10,15 +26,9 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
+import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.UUID;
-import javax.annotation.security.RolesAllowed;
+import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
 @Path("/group")
 @Tag(name = "Object Groups")
@@ -31,6 +41,9 @@ public class GroupResource {
 
     @Inject
     GroupRepository repo;
+
+    @Inject
+    ObjectRepository objRepo;
 
     @Inject
     LakeHttpResponse response;
@@ -89,8 +102,33 @@ public class GroupResource {
         if (!Utils.isEmpty(newEntity.parentGid)) entity.parentGid = newEntity.parentGid;
         if (!Utils.isEmpty(newEntity.extra)) entity.extra = newEntity.extra;
         if (!Utils.isEmpty(newEntity.tags)) entity.tags = newEntity.tags;
+
+        if (!Utils.isEmpty(newEntity.objects)) {
+            LakeObject newObj = null;
+            for (LakeObject obj : newEntity.objects) {
+                if (obj.id != null &&
+                        (newObj = objRepo.findById(obj.id)) != null &&
+                        !entity.objects.contains(newObj)) {
+                    newObj.group = entity;
+                    entity.objects.add(newObj);
+                }
+            }
+        }
+
+        if (!Utils.isEmpty(newEntity.groups)) {
+            LakeGroup newGroup = null;
+            for (LakeGroup group : newEntity.groups) {
+                if (group.id != null && !group.id.equals(entity.id) &&
+                        (newGroup = repo.findById(group.id)) != null &&
+                        !entity.groups.contains(newGroup)) {
+                    newGroup.group = entity;
+                    entity.groups.add(newGroup);
+                }
+            }
+        }
+
         repo.persist(entity);
-        return response.build(200);
+        return response.build(200, null, entity);
     }
 
     @DELETE
@@ -99,7 +137,7 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing object group")
-    public Response delete(@PathParam("id") @Parameter(description = "Object group id to delete") Long id) {
+    public Response delete (@PathParam("id") @Parameter(description = "Object group id to delete") Long id) {
         // TODO: verify owner ship
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
