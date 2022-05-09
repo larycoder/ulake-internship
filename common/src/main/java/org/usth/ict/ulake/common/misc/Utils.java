@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.common.misc;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Utils {
@@ -17,6 +19,10 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static boolean isEmpty(List<?> lst) {
+        return (lst == null || lst.isEmpty());
     }
 
     public static Object convert(Object obj, Class<?> type)
