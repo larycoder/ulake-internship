@@ -1,18 +1,18 @@
-package org.usth.ict.ulake.admin.service;
+package org.usth.ict.ulake.common.service;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+
+import java.util.HashMap;
 
 @Path("/api")
-@RegisterRestClient(configKey = "folder-api")
+@RegisterRestClient(configKey = "user-api")
 @Produces(MediaType.APPLICATION_JSON)
-public interface FolderService {
+public interface UserService {
     @GET
-    @Path("/file")
-    // nothing yet.
-    public List<String> getListFile(
+    @Path("/user/stats")
+    public HashMap<String, Integer> getStats(
             @HeaderParam("Authorization") String bearer);
 }

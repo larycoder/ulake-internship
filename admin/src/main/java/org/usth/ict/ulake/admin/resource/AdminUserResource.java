@@ -14,24 +14,38 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.service.UserService;
 
 
-@Path("/admin")
+@Path("/admin/users")
 @Produces(MediaType.APPLICATION_JSON)
-public class AdminResource {
+public class AdminUserResource {
     @Inject
     LakeHttpResponse response;
 
     @Inject
     AdminRepository repo;
 
+    @Inject
+    @RestClient
+    UserService userService;
+
     @GET
-    @Path("/stats")
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "Nothing yet.")
-    public Response stats() {
+    public Response all() {
+        // TODO: list all users from user.
+        return response.build(200, null, new Date());
+    }
+
+    @GET
+    @Path("/stats")
+    @Operation(summary = "Statistics about users")
+    @RolesAllowed({ "User", "Admin" })
+    public Response userStats() {
         // get requests from other service
         HashMap<String, Integer> ret = new HashMap<>();
         ret.put("users", (int) repo.count());
@@ -40,7 +54,6 @@ public class AdminResource {
         long uptime = bean.getUptime();
         ret.put("uptime", (int) uptime);
 
-        return response.build(200, "", ret);        
+        return response.build(200, "", ret);
     }
-
 }
