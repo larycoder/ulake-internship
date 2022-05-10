@@ -20,13 +20,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.dashboard.extension.CoreService;
 import org.usth.ict.ulake.dashboard.model.ObjectModel;
 import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 import org.usth.ict.ulake.dashboard.model.query.FilterModel;
 
-@Path("/api")
+@Path("/object")
+@Tag(name = "Object")
 public class ObjectResource {
 
     @GET
@@ -41,7 +43,6 @@ public class ObjectResource {
     CoreService coreSvc;
 
     @GET
-    @Path("/object")
     @Produces(MediaType.APPLICATION_JSON)
     public ExtensionModel<List<ObjectModel>> object(
         @QueryParam("filter") List<String> filterStr,
@@ -66,7 +67,7 @@ public class ObjectResource {
     }
 
     @GET
-    @Path("/object/{cid}/data")
+    @Path("/{cid}/data")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response objectData(
         @PathParam("cid") String cid,

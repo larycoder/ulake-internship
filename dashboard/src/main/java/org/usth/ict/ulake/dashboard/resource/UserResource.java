@@ -7,12 +7,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.dashboard.extension.UserService;
 import org.usth.ict.ulake.dashboard.model.AuthModel;
 import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 
-@Path("/api")
+@Path("/user")
+@Tag(name = "User")
 public class UserResource {
 
     @Inject
@@ -20,7 +22,7 @@ public class UserResource {
     UserService userSvc;
 
     @POST
-    @Path("/user/login")
+    @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ExtensionModel<String> login(AuthModel auth) {

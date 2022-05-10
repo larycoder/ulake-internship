@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.dashboard.extension.CoreService;
 import org.usth.ict.ulake.dashboard.extension.FileService;
@@ -20,7 +21,8 @@ import org.usth.ict.ulake.dashboard.model.FileModel;
 import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 import org.usth.ict.ulake.dashboard.model.query.FilterModel;
 
-@Path("/api")
+@Path("/file")
+@Tag(name = "File")
 public class FileResource {
 
     @Inject
@@ -32,7 +34,6 @@ public class FileResource {
     CoreService coreSvc;
 
     @GET
-    @Path("/file")
     @Produces(MediaType.APPLICATION_JSON)
     public ExtensionModel<List<FileModel>> file(
         @QueryParam("filter") List<String> filterStr,
@@ -57,7 +58,7 @@ public class FileResource {
     }
 
     @GET
-    @Path("/file/{fileId}")
+    @Path("/{fileId}")
     @Produces(MediaType.APPLICATION_JSON)
     public ExtensionModel<FileModel> fileInfo(
         @PathParam("fileId") Long fileId,
