@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.dashboard.resource;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -26,6 +27,7 @@ public class UserResource {
     @POST
     @Path("/login")
     @Operation(summary = "Login to dashboard")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ExtensionModel<String> login(AuthModel auth) {

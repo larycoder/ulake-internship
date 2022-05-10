@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -34,6 +35,7 @@ public class ObjectResource {
 
     @GET
     @Path("/health")
+    @PermitAll
     @Produces(MediaType.TEXT_PLAIN)
     public String health() {
         return "OK";
