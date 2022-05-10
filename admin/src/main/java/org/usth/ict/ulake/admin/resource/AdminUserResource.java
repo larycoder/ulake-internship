@@ -8,6 +8,7 @@ import java.util.HashMap;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -45,7 +46,7 @@ public class AdminUserResource {
     @Path("/stats")
     @Operation(summary = "Statistics about users")
     @RolesAllowed({ "User", "Admin" })
-    public Response userStats() {
+    public Response userStats(@HeaderParam("Authorization") String bearer) {
         // get requests from other service
         HashMap<String, Integer> ret = new HashMap<>();
         ret.put("users", (int) repo.count());
@@ -53,6 +54,10 @@ public class AdminUserResource {
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         long uptime = bean.getUptime();
         ret.put("uptime", (int) uptime);
+
+        var info = userService.getStats(bearer);
+        ret.put("userInfoCode", info.getCode());
+
 
         return response.build(200, "", ret);
     }
