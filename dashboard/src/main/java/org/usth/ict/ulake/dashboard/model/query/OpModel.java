@@ -1,4 +1,4 @@
-package org.usth.ict.query.model.query;
+package org.usth.ict.ulake.dashboard.model.query;
 
 public class OpModel {
     private String opName;

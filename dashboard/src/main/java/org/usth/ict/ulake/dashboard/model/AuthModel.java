@@ -1,4 +1,4 @@
-package org.usth.ict.query.model;
+package org.usth.ict.ulake.dashboard.model;
 
 public class AuthModel {
     private String userName;

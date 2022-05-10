@@ -1,4 +1,4 @@
-package org.usth.ict.query.resource;
+package org.usth.ict.ulake.dashboard.resource;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -8,9 +8,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.usth.ict.query.extension.UserService;
-import org.usth.ict.query.model.AuthModel;
-import org.usth.ict.query.model.extension.ExtensionModel;
+import org.usth.ict.ulake.dashboard.extension.UserService;
+import org.usth.ict.ulake.dashboard.model.AuthModel;
+import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 
 @Path("/api")
 public class UserResource {

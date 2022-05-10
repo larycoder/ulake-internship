@@ -1,4 +1,4 @@
-package org.usth.ict.query.model.extension;
+package org.usth.ict.ulake.dashboard.model.extension;
 
 public class ExtensionModel<T> {
     private Integer code;

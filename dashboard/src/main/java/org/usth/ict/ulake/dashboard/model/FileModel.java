@@ -1,8 +1,8 @@
-package org.usth.ict.query.model;
+package org.usth.ict.ulake.dashboard.model;
 
-import org.usth.ict.query.model.query.OpModel;
-import org.usth.ict.query.model.query.QueryException;
-import org.usth.ict.query.model.query.Queryable;
+import org.usth.ict.ulake.dashboard.model.query.OpModel;
+import org.usth.ict.ulake.dashboard.model.query.QueryException;
+import org.usth.ict.ulake.dashboard.model.query.Queryable;
 
 public class FileModel implements Queryable {
     private ObjectModel object;

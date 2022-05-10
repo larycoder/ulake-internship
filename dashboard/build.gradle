@@ -12,19 +12,15 @@ dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-resteasy'
-
-    // https://mvnrepository.com/artifact/io.quarkus/quarkus-smallrye-openapi
-    implementation 'io.quarkus:quarkus-smallrye-openapi:2.6.2.Final'
-    // https://mvnrepository.com/artifact/io.quarkus/quarkus-rest-client
-    implementation 'io.quarkus:quarkus-rest-client:2.6.2.Final'
-    // https://mvnrepository.com/artifact/io.quarkus/quarkus-rest-client-jackson
-    implementation 'io.quarkus:quarkus-rest-client-jackson:2.6.2.Final'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-rest-client'
+    implementation 'io.quarkus:quarkus-rest-client-jackson'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
 
-group 'org.usth.ict.query'
+group 'org.usth.ict.ulake.dashboard'
 version '0.2.2'
 
 java {

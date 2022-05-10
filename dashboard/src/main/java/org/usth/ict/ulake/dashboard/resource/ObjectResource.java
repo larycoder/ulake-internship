@@ -1,4 +1,4 @@
-package org.usth.ict.query.resource;
+package org.usth.ict.ulake.dashboard.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,10 +21,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.usth.ict.query.extension.CoreService;
-import org.usth.ict.query.model.ObjectModel;
-import org.usth.ict.query.model.extension.ExtensionModel;
-import org.usth.ict.query.model.query.FilterModel;
+import org.usth.ict.ulake.dashboard.extension.CoreService;
+import org.usth.ict.ulake.dashboard.model.ObjectModel;
+import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
+import org.usth.ict.ulake.dashboard.model.query.FilterModel;
 
 @Path("/api")
 public class ObjectResource {

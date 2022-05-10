@@ -1,4 +1,4 @@
-package org.usth.ict.query.extension;
+package org.usth.ict.ulake.dashboard.extension;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.usth.ict.query.model.FileModel;
-import org.usth.ict.query.model.extension.ExtensionModel;
+import org.usth.ict.ulake.dashboard.model.FileModel;
+import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 
 @Path("/api")
 @RegisterRestClient(configKey = "folder-api")
