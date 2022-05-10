@@ -12,8 +12,11 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.Date;
 import java.util.HashMap;
+
 
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +42,12 @@ public class AdminResource {
         // get requests from other service
         HashMap<String, Integer> ret = new HashMap<>();
         ret.put("users", (int) repo.count());
+
+
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        long uptime = bean.getUptime();
+        ret.put("uptime", (int) uptime);
+
         return response.build(200, "", ret);
     }
 }
