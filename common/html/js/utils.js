@@ -1,5 +1,5 @@
 function getBaseDomain() {
-    let host = window.location.host;
+    let host = window.location.hostname;
     let parts = host.split(".");
     if (parts.length <= 3) {
         // level 3 domains, such as ulake.sontg.net

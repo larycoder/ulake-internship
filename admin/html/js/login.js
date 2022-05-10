@@ -15,6 +15,9 @@ function login() {
                 setToken(data.resp);
             }
             window.location = "/";
+        },
+        error: (e) => {
+            window.alert(`Login error: ${JSON.stringify(e)}`);
         }
     });
 }
