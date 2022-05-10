@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -23,9 +22,11 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.dashboard.extension.CoreService;
+import org.usth.ict.ulake.dashboard.filter.FilterModel;
+import org.usth.ict.ulake.dashboard.filter.QueryException;
+import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
 import org.usth.ict.ulake.dashboard.model.ObjectModel;
 import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
-import org.usth.ict.ulake.dashboard.model.query.FilterModel;
 
 @Path("/object")
 @Tag(name = "Object")
@@ -51,19 +52,25 @@ public class ObjectResource {
     public ExtensionModel<List<ObjectModel>> object(
         @QueryParam("filter") List<String> filterStr) {
         String bearer = "bearer " + jwt.getRawToken();
+
+        // collect filters
         var filters = new ArrayList<FilterModel>();
         for (String f : filterStr) {
             filters.add(new FilterModel(f));
         }
+
+        // apply filters
+        var filterSvc = new FilterServiceImpl<ObjectModel>();
         var objects =  coreSvc.getListObject(bearer);
         if (objects.getCode() == 200) {
-            for (var filter : filters) {
-                objects.setResp(
-                    objects.getResp()
-                    .stream()
-                    .filter(o -> filter.filter(o))
-                    .collect(Collectors.toList())
-                );
+            try {
+                for (FilterModel filter : filters) {
+                    objects.setResp(filterSvc.filter(objects.getResp(), filter));
+                }
+            } catch (QueryException e) {
+                objects.setCode(400);
+                objects.setMsg(e.toString());
+                objects.setResp(null);
             }
         }
         return objects;

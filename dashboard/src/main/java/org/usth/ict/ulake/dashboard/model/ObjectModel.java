@@ -1,10 +1,6 @@
 package org.usth.ict.ulake.dashboard.model;
 
-import org.usth.ict.ulake.dashboard.model.query.OpModel;
-import org.usth.ict.ulake.dashboard.model.query.QueryException;
-import org.usth.ict.ulake.dashboard.model.query.Queryable;
-
-public class ObjectModel implements Queryable {
+public class ObjectModel {
     private Long id;
     private Long parentId;
     private Long accessTime;
@@ -50,26 +46,5 @@ public class ObjectModel implements Queryable {
     }
     public void setCid(String cid) {
         this.cid = cid;
-    }
-
-    @Override
-    public Boolean filter(String property, String value, OpModel op) {
-        try {
-            if (property.equals("id")) {
-                return op.verify(id, value);
-            } else if (property.equals("parentId")) {
-                return op.verify(parentId, value);
-            } else if (property.equals("createTime")) {
-                return op.verify(createTime, value);
-            } else if (property.equals("accessTime")) {
-                return op.verify(accessTime, value);
-            } else if (property.equals("cid")) {
-                return op.verify(cid, value);
-            }
-        } catch (QueryException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 }

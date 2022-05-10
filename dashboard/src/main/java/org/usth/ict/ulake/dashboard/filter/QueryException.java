@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.dashboard.model.query;
+package org.usth.ict.ulake.dashboard.filter;
 
 public class QueryException extends Exception {
     public QueryException(String msg) {
