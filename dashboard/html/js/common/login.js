@@ -20,24 +20,9 @@ function login() {
         loadGlobal();
 
         loginProcess.end();
-
-        document.getElementById("login-modal-close").click();
-        document.getElementById("navbar-login-refresh").text = "Refresh";
+        hideModal("login-modal");
     });
 
     /* done progressing */
     loginProcess.waitUntilEnd();
-}
-
-/**
- * this script allow update login icons depending on token
- */
-function updateLoginInfo() {
-    loginNavbar = document.getElementById("navbar-login-refresh");
-    if (loginNavbar != undefined) {
-        let token = globalObject.token;
-        if (token != undefined && token.length > 0) {
-            loginNavbar.text = "Refresh";
-        }
-    }
 }
