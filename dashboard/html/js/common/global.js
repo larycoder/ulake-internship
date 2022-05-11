@@ -22,5 +22,25 @@ function loadGlobal() {
         document.cookie = "Authorization=" + token + ";path=/;";
     }
 }
-
 loadGlobal();
+
+/**
+ * open modal
+ */
+function openModal(modalId) {
+    $("#" + modalId).modal("show");
+}
+
+/**
+ * trigger modal
+ */
+function toggleModal(modalId) {
+    $("#" + modalId).modal("toggle");
+}
+
+/**
+ * hide modal
+ */
+function closeModal(modalId) {
+    $("#" + modalId).modal("hide");
+}

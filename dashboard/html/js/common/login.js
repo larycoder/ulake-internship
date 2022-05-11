@@ -4,7 +4,6 @@
 
 /**
  * login method compatible to login-modal and navigation bar login (home.html)
- * @param 
  */
 function login() {
     let loginProcess = new ProgressController("progress-modal-button");

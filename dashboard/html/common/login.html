@@ -1,10 +1,13 @@
-<div id="login-modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<div id="login-modal" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <!-- header -->
             <div class="modal-header">
-                <h5 class="modal-title" id="login-modal-title">Login Form</h5>
-                <button id="login-modal-close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Login Form</h5>
+                <button class="btn-close" onclick="closeModal('login-modal')"></button>
             </div>
+
+            <!-- body -->
             <div class="modal-body">
                 <div>
                     <div class="mb-3">
@@ -16,7 +19,7 @@
                         <input type="password" class="form-control" id="login-modal-password" placeholder="Password" />
                     </div>
                     <div class="modal-footer d-block">
-                        <button type="submit" class="btn btn-dark float-end" onclick="login();">Submit</button>
+                        <button class="btn btn-dark float-end" onclick="login();">Submit</button>
                     </div>
                 </div>
             </div>
