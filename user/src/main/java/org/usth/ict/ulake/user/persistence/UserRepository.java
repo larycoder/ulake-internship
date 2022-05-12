@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.user.persistence;
 
+import java.math.BigInteger;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,10 +9,12 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
+import org.usth.ict.ulake.common.model.StatsByDate;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.model.UserSearchQuery;
@@ -22,6 +26,8 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 public class UserRepository implements PanacheRepository<User> {
     @Inject
     AuthResource authResource;
+
+    @Inject EntityManager em;
 
     private static final Logger log = LoggerFactory.getLogger(AuthResource.class);
 
@@ -86,4 +92,16 @@ public class UserRepository implements PanacheRepository<User> {
         String hql = String.join(" and ", conditions);
         return list(hql, params);
     }
+
+
+    public List<StatsByDate> getUserRegistrationByDate() {
+        List<Object[]> counts = em.createNativeQuery("SELECT count(userName) as count, DATE(FROM_UNIXTIME(`registerTime`)) as date FROM User GROUP BY date;").getResultList();
+        List<StatsByDate> ret = new ArrayList<>();
+        for (var count: counts) {
+            StatsByDate stat = new StatsByDate((Date) count[1], ((BigInteger) count[0]).intValue());
+            ret.add(stat);
+        }
+        return ret;
+    }
+
 }

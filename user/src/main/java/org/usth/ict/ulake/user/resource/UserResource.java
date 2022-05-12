@@ -28,6 +28,9 @@ import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 @Path("/user")
@@ -89,6 +92,7 @@ public class UserResource {
 
         log.info("POSTING new user");
         entity.password = BcryptUtil.bcryptHash(entity.password);
+        entity.registerTime = new Date().getTime();
         repo.persist(entity);
         return response.build(200, "", entity);
     }
@@ -122,7 +126,13 @@ public class UserResource {
     @RolesAllowed({ "User", "Admin" })
     public Response stats() {
         HashMap<String, Integer> ret = new HashMap<>();
-        ret.put("users", (int) repo.count());
+        var stats = repo.getUserRegistrationByDate();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");          
+        for (var stat: stats) {
+            String text = df.format(stat.getDate());
+            ret.put(text, stat.getCount());
+        }
+        
         return response.build(200, "", ret);
     }
 }
