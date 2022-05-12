@@ -36,11 +36,11 @@ function decorateColumn(column) {
  */
 function decorateRow(row, data) {
     let cids = $(row).find("#cid");
-    for(let cid of cids) {
+    for (let cid of cids) {
         // build download file name
         let file = "";
-        if("name" in data) file += "_" + data.name;
-        if("mime" in data) file += "." + data.mime;
+        if ("name" in data) file += "_" + data.name;
+        if ("mime" in data) file += "." + data.mime;
         file = data.cid + file;
 
         cid.download = file;
@@ -53,7 +53,7 @@ function decorateRow(row, data) {
  */
 function search() {
     let ulake = new ULakeQueryClient();
-    let progressBar = new ProgressController("progress-modal-button");
+    let progressBar = new ProgressController("progress-modal");
     let option = document.getElementById("query-data-list").value;
 
     // collect user filter

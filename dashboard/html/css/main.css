@@ -1,7 +1,22 @@
+/* main footer */
 footer {
   bottom: 0;
   width: 100%;
   position: fixed;
   color: white;
   left: 0;
+}
+
+/* progress spin */
+#progress-modal .modal-dialog {
+  display: table;
+  position: relative;
+  margin: 0 auto;
+  top: calc(50% - 24px);
+}
+
+/* progress spin */
+#progress-modal .modal-dialog .modal-content {
+  background-color: transparent;
+  border: none;
 }

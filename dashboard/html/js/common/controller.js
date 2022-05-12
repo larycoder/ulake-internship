@@ -173,28 +173,27 @@ class ChipController {
 class ProgressController {
     /**
      * constructor use DOM Id to detect progress spinner instance
+     * @param {String} modalId - Id of modal progress bar
      * @param {String} modalButtonId - Id of progress modal toggle button
      */
-    constructor(modalButtonId) {
-        this.button = document.getElementById(modalButtonId);
-        this.state = "down";
+    constructor(modalId) {
+        this.modalId = modalId;
+        this.isRun = false;
     }
 
     /**
      * start spinner
      */
     start() {
-        this.button.click();
-        this.button.innerText = "Loading...";
-        this.state = "up";
+        openModal(this.modalId);
+        this.isRun = true;
     }
 
     /**
      * stop spinner
      */
     end() {
-        this.button.innerText = "Done";
-        this.state = "down";
+        this.isRun = false;
     }
 
     /**
@@ -202,10 +201,13 @@ class ProgressController {
      */
     waitUntilEnd() {
         setTimeout(() => {
-            if (this.state != "down") this.waitUntilEnd();
-            else setTimeout(() => {
-                this.button.click();
-            }, 100);
+            if (this.isRun == true) {
+                this.waitUntilEnd();
+            } else {
+                setTimeout(() => {
+                    closeModal(this.modalId);
+                }, 100);
+            }
         }, 500);
     }
 }
