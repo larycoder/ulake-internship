@@ -93,6 +93,7 @@ class ULakeQueryClient {
      * @param {Function} callback - handle function for returned data
      */
     login(user, callback) {
+        delToken();
         let body = {
             "userName": user.getUsername(),
             "password": user.getPassword()

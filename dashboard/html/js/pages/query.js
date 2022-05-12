@@ -107,7 +107,7 @@ function addFilterChip() {
     let value = document.getElementById("filter-modal-value").value;
     let filterString = property + " " + operator + " " + value;
     filterChip.addChip(filterString);
-    document.getElementById("filter-modal-close").click();
+    closeModal("filter-modal");
 }
 
 /**
@@ -138,4 +138,6 @@ function loadFilterOptions() {
         opt.innerHTML = value;
         property.appendChild(opt);
     }
+
+    openModal("filter-modal");
 }

@@ -14,7 +14,9 @@ var globalObject = {
     "operators": ["=", "<", ">", "like"] // filter operators
 }
 
-// load token from storage
+/**
+ * load token from storage
+ */
 function loadGlobal() {
     let token = localStorage.getItem(globalObject.tokenId);
     if (token != undefined && token.length > 0) {
@@ -23,6 +25,14 @@ function loadGlobal() {
     }
 }
 loadGlobal();
+
+/**
+ * delete token from storage
+ */
+function delToken() {
+    localStorage.removeItem(globalObject.tokenId);
+    delete globalObject.token;
+}
 
 /**
  * open modal

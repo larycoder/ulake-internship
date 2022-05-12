@@ -20,7 +20,7 @@ function login() {
         loadGlobal();
 
         loginProcess.end();
-        hideModal("login-modal");
+        closeModal("login-modal");
     });
 
     /* done progressing */
