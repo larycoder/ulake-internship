@@ -9,12 +9,24 @@ class ULakeQueryClient {
      * @param {Object} body - JSON object passing to API
      */
     async #callMethod(api, method, body) {
+        let headers = {
+            "accept": "application/json",
+            "content-type": "application/json"
+        }
+        return this.#callMethodWithHead(api, method, body, headers);
+    }
+
+    /**
+     * private method to perform API call
+     * @param {String} api - relative path to API
+     * @param {String} method - http method
+     * @param {Object} body - JSON object passing to API
+     * @param {Object} headers - JSON object holding headers
+     */
+    async #callMethodWithHead(api, method, body, headers) {
         let args = {
             method: method,
-            headers: {
-                "accept": "application/json",
-                "content-type": "application/json"
-            }
+            headers: headers,
         }
 
         // load authentication
@@ -112,7 +124,19 @@ class ULakeQueryClient {
      * @param {String} cid content id of object
      * @returns hyperlink for data stream
      */
-    static getDownloadLink(cid) {
-        return "/api/object/" + cid + "/data";
+    getObjectData(cid) {
+        let api = "/api/object/" + cid + "/data";
+        let headers = {
+            "accept": "*/*"
+        }
+
+        this.#callMethodWithHead(api, "GET", null, headers)
+            .then((resp) => resp.blob())
+            .then((data) => {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(data);
+                link.download = cid;
+                link.click();
+            }).catch(console.error);
     }
 }

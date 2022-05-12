@@ -11,22 +11,20 @@ function decorateColumn(column) {
     return {
         data: column,
         render: (data) => {
-            let cid = ULakeQueryClient.getDownloadLink(data);
-            let rst;
+            if (column === "action") { // download action
+                let btn = document.createElement("button");
 
-            if (column == "cid") {
-                rst = document.createElement("a");
-                rst.href = cid;
+                btn.setAttribute("class", "btn btn-dark");
+                btn.setAttribute("id", "download");
+                btn.innerHTML = "Button";
+
+                return btn.outerHTML;
             } else {
-                rst = document.createElement("div");
+                return data;
             }
-
-            rst.innerHTML = data;
-            rst.id = column;
-            return rst.outerHTML;
-        }
+        },
+        defaultContent: undefined
     };
-
 }
 
 /**
@@ -35,17 +33,19 @@ function decorateColumn(column) {
  * @param {Object} data original data passed to row
  */
 function decorateRow(row, data) {
-    let cids = $(row).find("#cid");
-    for (let cid of cids) {
-        // build download file name
-        let file = "";
-        if ("name" in data) file += "_" + data.name;
-        if ("mime" in data) file += "." + data.mime;
-        file = data.cid + file;
-
-        cid.download = file;
-    }
+    let downloadBtn = $(row).find("#download")[0];
+    let func = "downloadFile(\"" + data.cid + "\")";
+    downloadBtn.setAttribute("onclick", func);
 }
+
+/**
+ * download file function
+ * @param {String} cid id of file object
+ */
+function downloadFile(cid) {
+    let client = new ULakeQueryClient();
+    client.getObjectData(cid);
+};
 
 /**
  * query data from server and return back to query-table-result
@@ -68,6 +68,9 @@ function searchData(table) {
             for (let head of data.getHead()) {
                 headers.push(decorateColumn(head));
             }
+
+            // action column
+            headers.push(decorateColumn("action"));
 
             table.writeHead(headers, decorateRow);
             table.addData(data.getAllData());
