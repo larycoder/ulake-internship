@@ -51,7 +51,7 @@ function decorateRow(row, data) {
  * query data from server and return back to query-table-result
  * compatible to query_page.html
  */
-function search() {
+function searchData(table) {
     let ulake = new ULakeQueryClient();
     let progressBar = new ProgressController("progress-modal");
     let option = document.getElementById("query-data-list").value;
@@ -61,7 +61,7 @@ function search() {
 
     let dataRepr = (data) => {
         if (data.getCode() == 200) {
-            resultTable.clear();
+            table.clear();
 
             // decorate head
             headers = [];
@@ -69,12 +69,12 @@ function search() {
                 headers.push(decorateColumn(head));
             }
 
-            resultTable.writeHead(headers, decorateRow);
-            resultTable.addData(data.getAllData());
+            table.writeHead(headers, decorateRow);
+            table.addData(data.getAllData());
         } else {
             console.log("error resp: ");
             console.log(data);
-            resultTable.clear();
+            table.clear();
         }
         progressBar.end();
     };
@@ -88,7 +88,7 @@ function search() {
         ulake.getFileList(dataRepr, filterList);
     else {
         console.log(option + " data type is not supported");
-        resultTable.clear();
+        table.clear();
         progressBar.end();
     }
 

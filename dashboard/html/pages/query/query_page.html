@@ -11,51 +11,10 @@
     <!--# include file="/common/navigation.html" -->
     <!--# include file="/common/progress_spin.html" -->
     <!--# include file="/common/login.html" -->
-
-    <!-- modal query filter part -->
-    <div id="filter-modal" class="modal fade">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <!-- header -->
-                <div class="modal-header">
-                    <h5 class="modal-title">Filter Form</h5>
-                    <button class="btn-close" onclick="closeModal('filter-modal')"></button>
-                </div>
-
-                <!-- body -->
-                <div class="modal-body">
-                    <div>
-                        <div class="mb-3">
-                            <label class="form-label">Property</label>
-                            <select id="filter-modal-property" class="form-select">
-                                <!-- load options from globalObject -->
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Operator</label>
-                            <select id="filter-modal-operator" class="form-select">
-                                <!-- load options from globalObject -->
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Value</label>
-                            <input type="text" class="form-control" id="filter-modal-value" placeholder="Value" />
-                        </div>
-
-                        <div class="modal-footer d-block">
-                            <button class="btn btn-dark float-end" onclick="addFilterChip()">Add</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
+    <!--# include file="filter.html" -->
 
     <!-- storage part -->
-    <div class="container">
+    <div class="container main-body">
 
         <!-- 1 search -->
         <div class="row">
