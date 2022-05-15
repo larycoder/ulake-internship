@@ -121,12 +121,13 @@ public class ObjectResource {
                     String metaJson = formData.getValue().get(0).getBodyAsString();
                     meta = mapper.readValue(metaJson, LakeObjectMetadata.class);
                 } catch (JsonProcessingException e) {
-                    log.info("error parsing metadata json {}", e.getMessage());
+                    log.error("error parsing metadata json {}", e.getMessage());
                 }
             } else if (formData.getKey().equals("file")) {
                 is = formData.getValue().get(0).getBody(InputStream.class, null);
             }
         }
+
         if (meta == null || is == null) {
             return response.build(403);
         }
