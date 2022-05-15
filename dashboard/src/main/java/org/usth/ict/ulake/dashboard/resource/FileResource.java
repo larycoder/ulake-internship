@@ -109,7 +109,6 @@ public class FileResource {
         String bearer = "bearer " + jwt.getRawToken();
         var resp = new ExtensionModel<String>();
 
-
         FileModel fileInfo = input.fileInfo;
         var output = new ObjectFormModel();
         output.is = input.is;
