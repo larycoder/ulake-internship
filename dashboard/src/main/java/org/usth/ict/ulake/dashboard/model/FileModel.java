@@ -1,7 +1,6 @@
 package org.usth.ict.ulake.dashboard.model;
 
 public class FileModel {
-    public ObjectModel object;
     public String cid;
     public Long id;
     public String mime;
@@ -9,17 +8,22 @@ public class FileModel {
     public Long ownerId;
     public Long size;
 
-    public FileModel (
-        ObjectModel object, String cid,
-        Long id, String mime, String name,
-        Long ownerId, Long size
-    ) {
-        this.object = object;
+    public FileModel (String cid, Long id, String mime,
+                      String name, Long ownerId, Long size) {
         this.cid = cid;
         this.id = id;
         this.mime = mime;
         this.name = name;
         this.ownerId = ownerId;
         this.size = size;
+    }
+
+    public FileModel () {
+        this.cid = null;
+        this.id = null;
+        this.mime = null;
+        this.name = null;
+        this.ownerId = null;
+        this.size = null;
     }
 }

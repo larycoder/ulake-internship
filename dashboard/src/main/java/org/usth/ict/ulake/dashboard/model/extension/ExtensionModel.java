@@ -11,6 +11,12 @@ public class ExtensionModel<T> {
         this.resp = resp;
     }
 
+    public ExtensionModel() {
+        this.code = null;
+        this.msg = null;
+        this.resp = null;
+    }
+
     public Integer getCode() {
         return code;
     }

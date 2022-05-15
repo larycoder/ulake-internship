@@ -25,10 +25,10 @@ public class UserResource {
 
     @POST
     @Path("/login")
-    @Operation(summary = "Login to dashboard")
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Login to dashboard")
     public ExtensionModel<String> login(AuthModel auth) {
         return userSvc.getToken(auth);
     }

@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.dashboard.extension.CoreService;
@@ -34,14 +35,6 @@ public class ObjectResource {
     @Inject
     JsonWebToken jwt;
 
-    @GET
-    @Path("/health")
-    @PermitAll
-    @Produces(MediaType.TEXT_PLAIN)
-    public String health() {
-        return "OK";
-    }
-
     @Inject
     @RestClient
     CoreService coreSvc;
@@ -49,6 +42,7 @@ public class ObjectResource {
     @GET
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "list objects of user")
     public ExtensionModel<List<ObjectModel>> object(
         @QueryParam("filter") List<String> filterStr) {
         String bearer = "bearer " + jwt.getRawToken();
@@ -80,6 +74,7 @@ public class ObjectResource {
     @Path("/{cid}/data")
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Operation(summary = "get object data")
     public Response objectData(@PathParam("cid") String cid) {
         String bearer = "Bearer " + jwt.getRawToken();
         InputStream is = coreSvc.getObjectData(cid, bearer);
