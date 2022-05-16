@@ -12,13 +12,7 @@ function decorateColumn(column) {
         data: column,
         render: (data) => {
             if (column === "action") { // download action
-                let btn = document.createElement("button");
-
-                btn.setAttribute("class", "btn btn-dark");
-                btn.setAttribute("id", "download");
-                btn.innerHTML = "Button";
-
-                return btn.outerHTML;
+                return createActionColumn();
             } else {
                 return data;
             }
@@ -33,6 +27,7 @@ function decorateColumn(column) {
  * @param {Object} data original data passed to row
  */
 function decorateRow(row, data) {
+    // download
     let downloadBtn = $(row).find("#download")[0];
     let func = "downloadFile(\"" + data.cid + "\")";
     downloadBtn.setAttribute("onclick", func);
@@ -46,6 +41,38 @@ function downloadFile(cid) {
     let client = new ULakeQueryClient();
     client.getObjectData(cid);
 };
+
+/**
+ * upload file to lake
+ * @param {Object} event on change event
+ */
+function uploadFile(event) {
+    let file = event.target.files[0];
+    let fileInfo = new FileModel();
+    fileInfo.name = file.name;
+    fileInfo.mime = file.type;
+    fileInfo.size = file.size;
+
+    let client = new ULakeQueryClient();
+    client.uploadFile(fileInfo, file, (resp) => console.log(resp));
+}
+
+/**
+ * list of action button
+ */
+function createActionColumn() {
+    // container
+    let container = document.createElement("div");
+
+    // download
+    let downBtn = document.createElement("button");
+    downBtn.setAttribute("class", "btn btn-dark");
+    downBtn.setAttribute("id", "download");
+    downBtn.innerHTML = "Download";
+    container.appendChild(downBtn);
+
+    return container.outerHTML;
+}
 
 /**
  * query data from server and return back to query-table-result

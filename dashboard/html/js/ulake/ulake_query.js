@@ -35,11 +35,28 @@ class ULakeQueryClient {
         }
 
         if (method == "POST") {
-            let bodyString = JSON.stringify(body);
-            args.body = bodyString;
+            if (body instanceof FormData) {
+                args.body = body;
+            } else {
+                let bodyString = JSON.stringify(body);
+                args.body = bodyString;
+            }
         }
 
         return await fetch(api, args);
+    }
+
+    /**
+     * call a multipart request
+     * @param {String} api - request endpoint
+     * @param {Object} body - blob content of request parts
+     */
+    async #callMultipart(api, body) {
+        let formData = new FormData();
+        for (let key in body) {
+            formData.append(key, body[key]);
+        }
+        return this.#callMethodWithHead(api, "POST", formData, {});
     }
 
     /**
@@ -138,5 +155,26 @@ class ULakeQueryClient {
                 link.download = cid;
                 link.click();
             }).catch(console.error);
+    }
+
+    /**
+     * Upload new file to lake
+     * @param {FileModel} fileInfo - information of file upload
+     * @param {Blob} file - file data
+     * @param {Function} callback - action on json response of request
+     */
+    uploadFile(fileInfo, file, callback) {
+        let api = "/api/file";
+        let body = {
+            fileInfo: new Blob([JSON.stringify(fileInfo)], {
+                type: "application/json"
+            }),
+            file: new File([file], {
+                type: "application/octet-stream"
+            })
+        }
+        this.#callMultipart(api, body)
+            .then((resp) => resp.json())
+            .then((fileResp) => callback(fileResp));
     }
 }

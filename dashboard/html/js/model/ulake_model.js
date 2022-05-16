@@ -35,6 +35,21 @@ class UserModel {
 
 
 /**
+ * file model
+ * */
+class FileModel {
+    constructor() {
+        this.cid = undefined;
+        this.id = undefined;
+        this.mime = undefined;
+        this.name = undefined;
+        this.ownerId = undefined;
+        this.size = undefined;
+    }
+}
+
+
+/**
  * Hold response data of ulake
  * @param {Object} resp response objects from lake
  */

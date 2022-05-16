@@ -15,7 +15,6 @@
 
     <!-- storage part -->
     <div class="container main-body">
-
         <!-- 1 search -->
         <div class="row">
             <!-- drop down query option -->
@@ -31,6 +30,12 @@
 
             <div class="col-1 my-4">
                 <button class="btn btn-dark" onclick="loadFilterOptions()">Filter</button>
+            </div>
+
+            <div class="col-1 my-4">
+                <label class="btn btn-dark">
+                    Upload <input hidden type="file" onchange="uploadFile(event)">
+                </label>
             </div>
         </div>
 
