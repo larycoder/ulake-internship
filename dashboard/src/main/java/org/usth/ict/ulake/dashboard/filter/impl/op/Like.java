@@ -12,7 +12,9 @@ public class Like implements Operator<Map<String, Object>, String, Object> {
     ) throws QueryException {
         var prop = data.get(property);
 
-        if (prop instanceof String) {
+        if (prop == null) {
+            return false;
+        } else if (prop instanceof String) {
             return ((String) prop).matches(value.toString());
         } else {
             throw new QueryException("data type is not supported");

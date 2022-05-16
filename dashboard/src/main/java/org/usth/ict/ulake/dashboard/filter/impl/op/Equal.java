@@ -11,7 +11,9 @@ public class Equal implements Operator<Map<String, Object>, String, Object> {
         Map<String, Object> data, String property, Object value
     ) throws QueryException {
         var prop = data.get(property);
-        if (prop instanceof String) {
+        if (prop == null) {
+            return false;
+        } else if (prop instanceof String) {
             return ((String) prop).equals(value);
         } else if (prop instanceof Long) {
             return ((Long) prop).equals(Long.parseLong(value.toString()));
