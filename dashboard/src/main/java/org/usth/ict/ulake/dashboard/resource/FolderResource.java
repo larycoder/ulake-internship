@@ -7,6 +7,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -119,5 +120,42 @@ public class FolderResource {
         folder.coreGroupId = objGroup.id;
         var folderResp = fileSvc.newFolder(bearer, folder);
         return resp.build(200, null, folderResp.getResp());
+    }
+
+    @GET
+    @Path("/{id}/group")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "get group information of folder")
+    public Response list(@PathParam("id") Long id) {
+        String bearer = "Bearer " + jwt.getRawToken();
+
+        var folderResp = fileSvc.folderInfo(bearer, id);
+        var folder = mapper.convertValue(
+                         folderResp.getResp(), FolderModel.class);
+
+        var groupResp = coreSvc.groupInfo(folder.coreGroupId, bearer);
+        var group = mapper.convertValue(
+                        groupResp.getResp(), GroupObjectModel.class);
+
+        return resp.build(200, null, group);
+    }
+
+    @PUT
+    @Path("/{id}/group")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "update group of folder")
+    public Response add(
+        @PathParam("id") Long id,
+        @RequestBody  GroupObjectModel group) {
+        String bearer = "Bearer " + jwt.getRawToken();
+
+        var folderResp = fileSvc.folderInfo(bearer, id);
+        var folder = mapper.convertValue(
+                         folderResp.getResp(), FolderModel.class);
+
+        var updateResp = coreSvc.updateGroup(folder.coreGroupId, group, bearer);
+        return resp.build(200, null, updateResp.getResp());
     }
 }
