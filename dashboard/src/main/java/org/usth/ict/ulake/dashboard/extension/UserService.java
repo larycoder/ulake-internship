@@ -6,8 +6,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.dashboard.model.AuthModel;
-import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 
 @Path("/api")
 @RegisterRestClient(configKey = "user-api")
@@ -15,5 +15,5 @@ import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 public interface UserService {
     @POST
     @Path("/auth/login")
-    public ExtensionModel<String> getToken(AuthModel auth);
+    public LakeHttpResponse getToken(AuthModel auth);
 }

@@ -1,7 +1,5 @@
 package org.usth.ict.ulake.dashboard.extension;
 
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -12,8 +10,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.dashboard.model.FileModel;
-import org.usth.ict.ulake.dashboard.model.extension.ExtensionModel;
 
 @Path("/api")
 @RegisterRestClient(configKey = "folder-api")
@@ -22,19 +20,19 @@ public interface FileService {
     @GET
     @Path("/file")
     @Schema(description = "get list of files")
-    public ExtensionModel<List<FileModel>> getListFile(
+    public LakeHttpResponse fileList(
         @HeaderParam("Authorization") String bearer);
 
     @GET
     @Path("/file/{fileId}")
     @Schema(description = "get file information")
-    public ExtensionModel<FileModel> getFileInfo(
+    public LakeHttpResponse fileInfo(
         @PathParam("fileId") Long fileId,
         @HeaderParam("Authorization") String bearer);
 
     @POST
     @Path("/file")
     @Schema(description = "create new file")
-    public ExtensionModel<FileModel> newFile(
+    public LakeHttpResponse newFile(
         @HeaderParam("Authorization") String bearer, FileModel file);
 }
