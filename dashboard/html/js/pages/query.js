@@ -47,14 +47,20 @@ function downloadFile(cid) {
  * @param {Object} event on change event
  */
 function uploadFile(event) {
+    let progressBar = new ProgressController("progress-modal");
     let file = event.target.files[0];
     let fileInfo = new FileModel();
     fileInfo.name = file.name;
     fileInfo.mime = file.type;
     fileInfo.size = file.size;
 
+    progressBar.start();
     let client = new ULakeQueryClient();
-    client.uploadFile(fileInfo, file, (resp) => console.log(resp));
+    client.uploadFile(fileInfo, file, (resp) => {
+        console.log(resp);
+        progressBar.end();
+    });
+    progressBar.waitUntilEnd();
 }
 
 /**

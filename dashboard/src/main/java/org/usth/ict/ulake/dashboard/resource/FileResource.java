@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -115,6 +116,7 @@ public class FileResource {
         String bearer = "bearer " + jwt.getRawToken();
 
         FileModel fileInfo = input.fileInfo;
+        fileInfo.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
         var output = new ObjectFormModel();
         output.is = input.is;
 
