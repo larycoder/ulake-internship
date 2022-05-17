@@ -27,7 +27,7 @@ dependencies {
 }
 
 group 'org.usth.ict.ulake.dashboard'
-version '0.2.2'
+version '1.0.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
