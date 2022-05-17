@@ -7,6 +7,8 @@ public class ObjectModel {
     public Long createTime;
     public String cid;
 
+    public ObjectModel() {}
+
     public ObjectModel(
         Long id, Long parentId, Long accessTime, Long createTime, String cid
     ) {
