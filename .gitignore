@@ -40,5 +40,5 @@ node_modules
 public
 
 ### customize ###
-dashboard/commits.html
+dashboard/html/pages/commits/commits.html
 deployment/data
