@@ -28,16 +28,16 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.dashboard.extension.CoreService;
-import org.usth.ict.ulake.dashboard.extension.FileService;
+import org.usth.ict.ulake.common.model.core.ObjectFormModel;
+import org.usth.ict.ulake.common.model.core.ObjectModel;
+import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.service.CoreService;
+import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
-import org.usth.ict.ulake.dashboard.model.FileModel;
-import org.usth.ict.ulake.dashboard.model.FileObjectFormModel;
-import org.usth.ict.ulake.dashboard.model.ObjectFormModel;
+import org.usth.ict.ulake.dashboard.model.FileFormModel;
 import org.usth.ict.ulake.dashboard.model.ObjectMeta;
-import org.usth.ict.ulake.dashboard.model.ObjectModel;
 
 @Path("/file")
 @Tag(name = "File")
@@ -111,7 +111,7 @@ public class FileResource {
     @Operation(summary = "upload new file")
     public Response post(
         @RequestBody(description = "multipart information for upload file to lake")
-        @MultipartForm FileObjectFormModel input) {
+        @MultipartForm FileFormModel input) {
         String bearer = "bearer " + jwt.getRawToken();
 
         FileModel fileInfo = input.fileInfo;

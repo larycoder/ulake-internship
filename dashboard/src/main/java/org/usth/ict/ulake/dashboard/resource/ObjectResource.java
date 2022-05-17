@@ -25,11 +25,11 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.dashboard.extension.CoreService;
+import org.usth.ict.ulake.common.model.core.ObjectModel;
+import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
-import org.usth.ict.ulake.dashboard.model.ObjectModel;
 
 @Path("/object")
 @Tag(name = "Object")

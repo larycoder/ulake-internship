@@ -13,8 +13,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.dashboard.extension.UserService;
-import org.usth.ict.ulake.dashboard.model.AuthModel;
+import org.usth.ict.ulake.common.model.user.AuthModel;
+import org.usth.ict.ulake.common.service.UserService;
 
 @Path("/user")
 @Tag(name = "User")

@@ -6,8 +6,9 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
+import org.usth.ict.ulake.common.model.folder.FileModel;
 
-public class FileObjectFormModel {
+public class FileFormModel {
     @FormParam("fileInfo")
     @PartType(MediaType.APPLICATION_JSON)
     public FileModel fileInfo;
