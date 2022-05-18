@@ -50,6 +50,14 @@ public class FolderResource {
         return response.build(200, null, repo.findById(id));
     }
 
+    @GET
+    @Path("/root")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "List root folders")
+    public Response root() {
+        return response.build(200, null, repo.listRoot());
+    }
+
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
@@ -75,10 +83,10 @@ public class FolderResource {
         UserFolder data) {
         UserFolder entity = repo.findById(id);
 
-        if(!Utils.isEmpty(data.name)) entity.name = data.name;
-        if(data.ownerId != null) entity.ownerId = data.ownerId;
+        if (!Utils.isEmpty(data.name)) entity.name = data.name;
+        if (data.ownerId != null) entity.ownerId = data.ownerId;
 
-        if(data.parent != null && data.parent.id != null) {
+        if (data.parent != null && data.parent.id != null) {
             entity.parent = repo.findById(data.parent.id);
         }
 
