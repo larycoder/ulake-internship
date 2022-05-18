@@ -1,17 +1,24 @@
 package org.usth.ict.ulake.common.model.folder;
 
+import java.util.List;
+
 public class FolderModel {
     public Long id;
-    public Long coreGroupId;
     public String name;
     public Long ownerId;
 
+    public List<FolderModel> subFolders;
+    public List<FileModel> files;
+
     public FolderModel() {}
 
-    public FolderModel(Long id, Long coreGroupId, String name, Long ownerId) {
+    public FolderModel(Long id, String name, Long ownerId,
+                       List<FolderModel> subFolders,
+                       List<FileModel> files) {
         this.id = id;
-        this.coreGroupId = coreGroupId;
         this.name = name;
         this.ownerId = ownerId;
+        this.subFolders = subFolders;
+        this.files = files;
     }
 }
