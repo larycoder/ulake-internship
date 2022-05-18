@@ -15,14 +15,31 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
 public class FileRepository implements PanacheRepository<UserFile> {
+    public List<UserFile> load(List<UserFile> detach) {
+        UserFile attach;
+
+        if (detach == null || detach.isEmpty())
+            return null;
+
+        var result = new ArrayList<UserFile>();
+        for (var file : detach) {
+            if (file.id != null) {
+                attach = findById(file.id);
+                if (attach != null) result.add(attach);
+            }
+        }
+
+        return result;
+    }
+
     public List<UserFile> search(UserFileSearchQuery query) {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
-        if(query.ownerIds != null && !query.ownerIds.isEmpty()) {
+        if (query.ownerIds != null && !query.ownerIds.isEmpty()) {
             var ownerIds = new ArrayList<Long>();
-            for(var ownerId : query.ownerIds) {
-                if(ownerId >= 0)
+            for (var ownerId : query.ownerIds) {
+                if (ownerId >= 0)
                     ownerIds.add(ownerId);
             }
             conditions.add("(ownerId in (:ownerIds))");

@@ -21,6 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.folder.model.UserFolder;
+import org.usth.ict.ulake.folder.persistence.FileRepository;
 import org.usth.ict.ulake.folder.persistence.FolderRepository;
 
 @Path("/folder")
@@ -29,6 +30,9 @@ import org.usth.ict.ulake.folder.persistence.FolderRepository;
 public class FolderResource {
     @Inject
     FolderRepository repo;
+
+    @Inject
+    FileRepository fileRepo;
 
     @Inject
     LakeHttpResponse response;
@@ -83,12 +87,24 @@ public class FolderResource {
         UserFolder data) {
         UserFolder entity = repo.findById(id);
 
-        if (!Utils.isEmpty(data.name)) entity.name = data.name;
-        if (data.ownerId != null) entity.ownerId = data.ownerId;
-
-        if (data.parent != null && data.parent.id != null) {
-            entity.parent = repo.findById(data.parent.id);
+        if (!Utils.isEmpty(data.subFolders)) {
+            entity.subFolders = repo.load(data.subFolders);
+            for (var subFolder : entity.subFolders)
+                subFolder.parent = entity;
         }
+
+        if (!Utils.isEmpty(data.files)) {
+            entity.files = fileRepo.load(data.files);
+            for (var file : entity.files)
+                file.parent = entity;
+        }
+
+        if (!Utils.isEmpty(data.name))
+            entity.name = data.name;
+        if (data.ownerId != null)
+            entity.ownerId = data.ownerId;
+        if (data.parent != null && data.parent.id != null)
+            entity.parent = repo.findById(data.parent.id);
 
         repo.persist(entity);
         return response.build(200, null, entity);
