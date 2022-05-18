@@ -26,7 +26,6 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
-import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
 
@@ -59,7 +58,9 @@ public class GroupResource {
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one object group info")
-    public Response one(@PathParam("id") @Parameter(description = "Object group id to search") Long id) {
+    public Response one(
+        @PathParam("id")
+        @Parameter(description = "Object group id to search") Long id) {
         return response.build(200, null, repo.findById(id));
     }
 
@@ -68,20 +69,13 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Create a new object group")
-    public Response post(@RequestBody(description = "New object group info to save") LakeGroup entity) {
+    public Response post(
+        @RequestBody(description = "New object group info to save")
+        LakeGroup entity) {
         // TODO: verify owner ship
         entity.gid = UUID.randomUUID().toString();
         repo.persist(entity);
         return response.build(200, "", entity);
-    }
-
-    @GET
-    @Path("/list/{path}")
-    @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "[WIP] List objects in object group")
-    public Response listByPath(@PathParam("path") @Parameter(description = "Path to search") String path) {
-        log.info("{}: {}", path, fs.ls(path));
-        return response.build(200, null, fs.ls(path));
     }
 
     @PUT
@@ -90,8 +84,11 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Update an existing object group")
-    public Response update(@PathParam("id") @Parameter(description = "Object group id to update") Long id,
-                           @RequestBody(description = "New object group info to update") LakeGroup newEntity) {
+    public Response update(
+        @PathParam("id")
+        @Parameter(description = "Object group id to update") Long id,
+        @RequestBody(description = "New object group info to update")
+        LakeGroup newEntity) {
         // TODO: verify owner ship
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
@@ -102,31 +99,6 @@ public class GroupResource {
         if (!Utils.isEmpty(newEntity.parentGid)) entity.parentGid = newEntity.parentGid;
         if (!Utils.isEmpty(newEntity.extra)) entity.extra = newEntity.extra;
         if (!Utils.isEmpty(newEntity.tags)) entity.tags = newEntity.tags;
-
-        if (!Utils.isEmpty(newEntity.objects)) {
-            LakeObject newObj = null;
-            for (LakeObject obj : newEntity.objects) {
-                if (obj.id != null &&
-                        (newObj = objRepo.findById(obj.id)) != null &&
-                        !entity.objects.contains(newObj)) {
-                    newObj.group = entity;
-                    entity.objects.add(newObj);
-                }
-            }
-        }
-
-        if (!Utils.isEmpty(newEntity.groups)) {
-            LakeGroup newGroup = null;
-            for (LakeGroup group : newEntity.groups) {
-                if (group.id != null && !group.id.equals(entity.id) &&
-                        (newGroup = repo.findById(group.id)) != null &&
-                        !entity.groups.contains(newGroup)) {
-                    newGroup.group = entity;
-                    entity.groups.add(newGroup);
-                }
-            }
-        }
-
         repo.persist(entity);
         return response.build(200, null, entity);
     }
@@ -137,7 +109,10 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Update an existing object group")
-    public Response delete (@PathParam("id") @Parameter(description = "Object group id to delete") Long id) {
+    public Response delete (
+        @PathParam("id")
+        @Parameter(description = "Object group id to delete")
+        Long id) {
         // TODO: verify owner ship
         LakeGroup entity = repo.findById(id);
         if (entity == null) {
