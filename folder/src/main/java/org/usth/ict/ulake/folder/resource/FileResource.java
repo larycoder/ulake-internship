@@ -21,11 +21,13 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.acl.model.AclModel;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
+import org.usth.ict.ulake.folder.persistence.FolderRepository;
 import org.usth.ict.ulake.folder.service.AclService;
 
 @Path("/file")
@@ -34,6 +36,9 @@ import org.usth.ict.ulake.folder.service.AclService;
 public class FileResource {
     @Inject
     FileRepository repo;
+
+    @Inject
+    FolderRepository folderRepo;
 
     @Inject
     LakeHttpResponse response;
@@ -56,7 +61,9 @@ public class FileResource {
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get a single file info")
-    public Response one(@PathParam("id") @Parameter(description = "File id to search") Long id) {
+    public Response one(
+        @PathParam("id")
+        @Parameter(description = "File id to search") Long id) {
         AclModel acl = new AclModel();
         acl.setUserId(Long.parseLong(jwt.getName()));
         acl.setObjectId(id);
@@ -79,7 +86,9 @@ public class FileResource {
     @Path("/search")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Search for files")
-    public Response search(@RequestBody(description = "Query to perform search for user files") UserFileSearchQuery query) {
+    public Response search(
+        @RequestBody(description = "Query to perform search for user files")
+        UserFileSearchQuery query) {
         var results = repo.search(query);
         if (results.isEmpty()) {
             return response.build(404);
@@ -103,9 +112,30 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Update a file info")
-    public Response update(@PathParam("id") @Parameter(description = "File id to update") Long id,
-                           @RequestBody(description = "New file info to save") UserFile newEntity) {
-        return response.build(405);
+    public Response update(
+        @PathParam("id")
+        @Parameter(description = "File id to update")
+        Long id,
+        @RequestBody(description = "New file info to save")
+        UserFile data) {
+
+        UserFile file = repo.findById(id);
+
+        if (!Utils.isEmpty(data.cid) && data.size != null) {
+            file.cid = data.cid;
+            file.size = data.size;
+        }
+
+        if (!Utils.isEmpty(data.mime)) file.mime = data.mime;
+        if (!Utils.isEmpty(data.name)) file.name = data.name;
+        if (data.ownerId != null) file.ownerId = data.ownerId;
+
+        if (data.parent != null && data.parent.id != null) {
+            file.parent = folderRepo.findById(data.parent.id);
+        }
+
+        repo.persist(file);
+        return response.build(200, null, file);
     }
 
     @DELETE
@@ -114,7 +144,10 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Delete a file info")
-    public Response delete (@PathParam("id") @Parameter(description = "File id to delete") Long id) {
+    public Response delete (
+        @PathParam("id")
+        @Parameter(description = "File id to delete")
+        Long id) {
         UserFile entity = repo.findById(id);
         if (entity == null) {
             return response.build(404);
