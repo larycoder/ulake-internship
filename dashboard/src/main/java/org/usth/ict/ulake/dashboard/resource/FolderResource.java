@@ -27,13 +27,14 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.core.GroupObjectModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
+import org.usth.ict.ulake.dashboard.model.FolderEntry;
+import org.usth.ict.ulake.dashboard.model.FolderInfo;
 
 @Path("/folder")
 @Tag(name = "Folder")
@@ -61,7 +62,7 @@ public class FolderResource {
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "list all folder of user")
-    public Response folder(
+    public Response list(
         @QueryParam("filter") List<String> filterStr) {
         String bearer = "bearer " + jwt.getRawToken();
 
@@ -73,9 +74,9 @@ public class FolderResource {
 
         // filter data
         var folderResp = fileSvc.folderList(bearer);
-        var type = new TypeReference<List<FolderModel>>() {};
+        var type = new TypeReference<List<FolderInfo>>() {};
         var folders = mapper.convertValue(folderResp.getResp(), type);
-        var filterSvc = new FilterServiceImpl<FolderModel>();
+        var filterSvc = new FilterServiceImpl<FolderInfo>();
 
         try {
             for (FilterModel filter : filters) {
@@ -93,11 +94,54 @@ public class FolderResource {
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "get folder detail")
-    public Response folderInfo(
+    public Response info(
         @PathParam("folderId") Long folderId) {
         String bearer = "bearer " + jwt.getRawToken();
         var folder = fileSvc.folderInfo(bearer, folderId).getResp();
-        return resp.build(200, null, folder);
+        var folderInfo = mapper.convertValue(folder, FolderInfo.class);
+        return resp.build(200, null, folderInfo);
+    }
+
+    @GET
+    @Path("/{folderId}/entries")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "list of folder entries")
+    public Response subList(
+        @PathParam("folderId") Long folderId) {
+        String bearer = "bearer " + jwt.getRawToken();
+        var folderResp = fileSvc.folderInfo(bearer, folderId).getResp();
+        var folderEntry = mapper.convertValue(folderResp, FolderEntry.class);
+        return resp.build(200, null, folderEntry);
+    }
+
+    @PUT
+    @Path("/{folderId}")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "update folder info")
+    public Response update(
+        @PathParam("folderId") Long folderId,
+        @RequestBody FolderInfo data) {
+        String bearer = "bearer " + jwt.getRawToken();
+        data.id = folderId;
+        var folder = mapper.convertValue(data, FolderModel.class);
+        var update = fileSvc.updateFolder(bearer, folderId, folder).getResp();
+        return resp.build(200, null, update);
+    }
+
+    @PUT
+    @Path("/{folderId}/entries")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "update folder entries")
+    public Response entries(
+        @PathParam("folderId") Long folderId,
+        @RequestBody FolderEntry data) {
+        String bearer = "bearer " + jwt.getRawToken();
+        var folder = mapper.convertValue(data, FolderModel.class);
+        var update = fileSvc.updateFolder(bearer, folderId, folder).getResp();
+        return resp.build(200, null, update);
     }
 
     @POST
@@ -109,53 +153,7 @@ public class FolderResource {
         FolderModel folder) {
         String bearer = "bearer " + jwt.getRawToken();
         folder.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
-
-        var objGroup = new GroupObjectModel();
-        objGroup.name = folder.name;
-
-        var objGroupResp = coreSvc.newGroup(objGroup, bearer);
-        objGroup = mapper.convertValue(
-                       objGroupResp.getResp(), GroupObjectModel.class);
-
-        folder.coreGroupId = objGroup.id;
         var folderResp = fileSvc.newFolder(bearer, folder);
         return resp.build(200, null, folderResp.getResp());
-    }
-
-    @GET
-    @Path("/{id}/group")
-    @RolesAllowed({"User", "Admin"})
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "get group information of folder")
-    public Response list(@PathParam("id") Long id) {
-        String bearer = "Bearer " + jwt.getRawToken();
-
-        var folderResp = fileSvc.folderInfo(bearer, id);
-        var folder = mapper.convertValue(
-                         folderResp.getResp(), FolderModel.class);
-
-        var groupResp = coreSvc.groupInfo(folder.coreGroupId, bearer);
-        var group = mapper.convertValue(
-                        groupResp.getResp(), GroupObjectModel.class);
-
-        return resp.build(200, null, group);
-    }
-
-    @PUT
-    @Path("/{id}/group")
-    @RolesAllowed({"User", "Admin"})
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "update group of folder")
-    public Response add(
-        @PathParam("id") Long id,
-        @RequestBody  GroupObjectModel group) {
-        String bearer = "Bearer " + jwt.getRawToken();
-
-        var folderResp = fileSvc.folderInfo(bearer, id);
-        var folder = mapper.convertValue(
-                         folderResp.getResp(), FolderModel.class);
-
-        var updateResp = coreSvc.updateGroup(folder.coreGroupId, group, bearer);
-        return resp.build(200, null, updateResp.getResp());
     }
 }
