@@ -14,6 +14,7 @@ Document version: 0.2.0
 8. Phpmyadmin (docker)              port: 8081
 9. Dashboard Service (API)          port: 8782
 10. Search Service (API)            port: 8787
+11. Admin Service (API)             port: 8781
 
 8. Hadoop datanode (docker)
 9. Hadoop namenode (docker)         port: 9000, 9870
