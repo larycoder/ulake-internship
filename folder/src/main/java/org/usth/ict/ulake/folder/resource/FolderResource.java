@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -28,6 +30,9 @@ import org.usth.ict.ulake.folder.persistence.FolderRepository;
 @Tag(name = "Folder")
 @Produces(MediaType.APPLICATION_JSON)
 public class FolderResource {
+    @Inject
+    JsonWebToken jwt;
+
     @Inject
     FolderRepository repo;
 
@@ -59,7 +64,9 @@ public class FolderResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List root folders")
     public Response root() {
-        return response.build(200, null, repo.listRoot());
+        var ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        // TODO: Admin should see full root
+        return response.build(200, null, repo.listRoot(ownerId));
     }
 
     @POST

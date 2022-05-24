@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.folder.persistence;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +27,10 @@ public class FolderRepository implements PanacheRepository<UserFolder> {
         }
 
         return result;
+    }
+
+    public List<UserFolder> listRoot(Long ownerId) {
+        return list("(parent = NULL) AND (ownerId = ?1)", ownerId);
     }
 
     public List<UserFolder> listRoot() {
