@@ -163,6 +163,7 @@ function searchData(table) {
                 id: sub.id,
                 name: sub.name,
                 ownerId: sub.ownerId,
+                size: "",
                 cid: "",
                 fileType: "folder"
             });
@@ -172,6 +173,7 @@ function searchData(table) {
                 id: file.id,
                 name: file.name,
                 ownerId: file.ownerId,
+                size: file.size,
                 cid: file.cid,
                 fileType: "file"
             });
