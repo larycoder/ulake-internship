@@ -58,34 +58,61 @@ public class FolderResource {
     @Inject
     JsonWebToken jwt;
 
-    @GET
-    @RolesAllowed({"User", "Admin"})
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "list all folder of user")
-    public Response list(
-        @QueryParam("filter") List<String> filterStr) {
-        String bearer = "bearer " + jwt.getRawToken();
-
+    private <T> List<T> filter(List<T> data, List<String> filterStr)
+    throws QueryException {
         // collect filters
         var filters = new ArrayList<FilterModel>();
         for (String f : filterStr) {
             filters.add(new FilterModel(f));
         }
-
         // filter data
+        var filterSvc = new FilterServiceImpl<T>();
+        for (FilterModel filter : filters) {
+            data = filterSvc.filter(data, filter);
+        }
+        return data;
+    }
+
+    @GET
+    @Path("/root")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "list all root folder of user")
+    public Response root(
+        @QueryParam("filter") List<String> filterStr) {
+        String bearer = "bearer " + jwt.getRawToken();
+
+        // data
+        var folderResp = fileSvc.rootList(bearer);
+        var type = new TypeReference<List<FolderInfo>>() {};
+        var folders = mapper.convertValue(folderResp.getResp(), type);
+
+        try {
+            folders = filter(folders, filterStr);
+        } catch (QueryException e) {
+            return resp.build(400, e.toString());
+        }
+        return resp.build(200, null, folders);
+    }
+
+    @GET
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "list all user folder of user")
+    public Response list(
+        @QueryParam("filter") List<String> filterStr) {
+        String bearer = "bearer " + jwt.getRawToken();
+
+        // data
         var folderResp = fileSvc.folderList(bearer);
         var type = new TypeReference<List<FolderInfo>>() {};
         var folders = mapper.convertValue(folderResp.getResp(), type);
-        var filterSvc = new FilterServiceImpl<FolderInfo>();
 
         try {
-            for (FilterModel filter : filters) {
-                folders = filterSvc.filter(folders, filter);
-            }
+            folders = filter(folders, filterStr);
         } catch (QueryException e) {
-            resp.build(400, e.toString());
+            return resp.build(400, e.toString());
         }
-
         return resp.build(200, null, folders);
     }
 
