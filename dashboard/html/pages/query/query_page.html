@@ -12,6 +12,7 @@
     <!--# include file="/common/progress_spin.html" -->
     <!--# include file="/common/login.html" -->
     <!--# include file="filter.html" -->
+    <!--# include file="new_folder.html" -->
 
     <!-- storage part -->
     <div class="container main-body">
@@ -23,6 +24,10 @@
 
             <div class="col-1 my-4">
                 <button class="btn btn-dark" onclick="loadFilterOptions()">Filter</button>
+            </div>
+
+            <div class="col-1 my-4">
+                <button class="btn btn-dark" onclick="openModal('new-folder-modal')">mkdir</button>
             </div>
 
             <div class="col-1 my-4">

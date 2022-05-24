@@ -264,3 +264,25 @@ function redrawFS() {
     let el = document.getElementById("file-path");
     el.innerHTML = fs.toString();
 }
+
+/**
+ * create new folder
+ */
+function makeDir() {
+    let client = new ULakeQueryClient();
+    let folderName = document.getElementById("new-folder-modal-name").value;
+
+    if (folderName !== undefined && folderName !== "") {
+        let folder = new FolderModel();
+        folder.name = folderName;
+
+        if (fs.size() > 0) {
+            folder.parent = fs.get(fs.size() - 1);
+        }
+        client.createFolder(folder, (resp) => {
+            console.log(resp);
+            searchData(table);
+        });
+    }
+    closeModal("new-folder-modal");
+}

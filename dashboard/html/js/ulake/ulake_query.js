@@ -218,4 +218,16 @@ class ULakeQueryClient {
             .then((resp) => resp.json())
             .then((fileResp) => callback(fileResp));
     }
+
+    /**
+     * Make new directory
+     * @param {FolderModel} folder - new folder information
+     * @param {Function} callback - process response
+     * */
+    createFolder(folder, callback) {
+        let api = "/api/folder";
+        this.#callMethod(api, "POST", folder)
+            .then((resp) => resp.json())
+            .then((resp) => callback(resp));
+    }
 }
