@@ -53,6 +53,12 @@ public interface FileService {
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id);
 
+    @GET
+    @Path("/folder/root")
+    @Schema(description = "list all root folder")
+    public LakeHttpResponse rootList(
+        @HeaderParam("Authorization") String bearer);
+
     @POST
     @Path("/folder")
     @Schema(description = "create new folder")
