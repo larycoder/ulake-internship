@@ -10,15 +10,19 @@ public class FolderModel {
     public List<FolderModel> subFolders;
     public List<FileModel> files;
 
+    public FolderModel parent;
+
     public FolderModel() {}
 
-    public FolderModel(Long id, String name, Long ownerId,
-                       List<FolderModel> subFolders,
-                       List<FileModel> files) {
+    public FolderModel(
+        Long id, String name, Long ownerId,
+        List<FolderModel> subFolders, List<FileModel> files,
+        FolderModel parent) {
         this.id = id;
         this.name = name;
         this.ownerId = ownerId;
         this.subFolders = subFolders;
         this.files = files;
+        this.parent = parent;
     }
 }
