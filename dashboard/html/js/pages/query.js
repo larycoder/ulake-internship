@@ -87,51 +87,61 @@ function createActionColumn() {
 }
 
 /**
+ * represent data list in table
+ * @param {TableController} table
+ * @param {Object} data data of type list
+ */
+function redrawTable(data, table) {
+    if (data.getCode() == 200) {
+        table.clear();
+
+        // decorate head
+        headers = [];
+        for (let head of data.getHead()) {
+            headers.push(decorateColumn(head));
+        }
+
+        // action column
+        headers.push(decorateColumn("action"));
+
+        table.writeHead(headers, decorateRow);
+        table.addData(data.getAllData());
+    } else {
+        console.log("error resp: ");
+        console.log(data);
+        table.clear();
+    }
+};
+
+/**
  * query data from server and return back to query-table-result
  * compatible to query_page.html
  */
 function searchData(table) {
     let ulake = new ULakeQueryClient();
     let progressBar = new ProgressController("progress-modal");
-    let option = document.getElementById("query-data-list").value;
 
     // collect user filter
     let filterList = filterChip.getChipValues();
 
-    let dataRepr = (data) => {
-        if (data.getCode() == 200) {
-            table.clear();
-
-            // decorate head
-            headers = [];
-            for (let head of data.getHead()) {
-                headers.push(decorateColumn(head));
-            }
-
-            // action column
-            headers.push(decorateColumn("action"));
-
-            table.writeHead(headers, decorateRow);
-            table.addData(data.getAllData());
-        } else {
-            console.log("error resp: ");
-            console.log(data);
-            table.clear();
-        }
+    // data represent
+    folderRepr = (folder) => {
+        redrawTable(new DataListModel(folder.subFolders), table);
         progressBar.end();
-    };
+    }
+
+    rootRepr = (root) => {
+        redrawTable(root, table);
+        progressBar.end();
+    }
 
     /* start collecting data */
     progressBar.start();
-
-    if (option == "object")
-        ulake.getObjectList(dataRepr, filterList);
-    else if (option == "file")
-        ulake.getFileList(dataRepr, filterList);
-    else {
-        console.log(option + " data type is not supported");
-        table.clear();
-        progressBar.end();
+    if (fs.size() > 0) {
+        let folderId = fs.get(fs.size() - 1);
+        ulake.getFolderEntries(folderRepr, folderId, filterList);
+    } else {
+        ulake.getRoot(rootRepr, filterList);
     }
 
     /* done process */
@@ -161,8 +171,7 @@ function loadFilterOptions() {
     let operator = document.getElementById("filter-modal-operator");
 
     // detect properties list
-    let type = document.getElementById("query-data-list").value;
-    listProp = globalObject.properties[type];
+    listProp = globalObject.properties["folder"];
 
     // update filter option
     operator.innerHTML = "";

@@ -117,6 +117,44 @@ class ULakeQueryClient {
     }
 
     /**
+     * get folder list
+     * @param {Function} callback - handle function for returned data
+     * @param {String} folderId - user folder
+     * @param {Array.<String>} filters - list of file filters
+     */
+    getFolderEntries(callback, folderId, filters = []) {
+        let queryParams = this.#getQueryParamString(filters);
+        let api = "/api/folder/" + folderId + queryParams;
+        this.#callMethod(api, "GET", undefined)
+            .then(async (raw) => {
+                try {
+                    return await raw.json();
+                } catch (err) {
+                    console.log("[ULake Query] Get folder entries err: " + err);
+                    return undefined;
+                }
+            })
+            .then((resp) => {
+                let folder = new FolderModel();
+                folder.files = resp.resp.files;
+                folder.subFolders = resp.resp.subFolders;
+                console.log(resp.resp);
+                callback(folder);
+            });
+    }
+
+    /**
+     * get list of root folders
+     * @param {Function} callback - handle function for returned data
+     * @param {Array.<String>} filters - list of file filters
+     */
+    getRoot(callback, filters = []) {
+        let queryParams = this.#getQueryParamString(filters);
+        let api = "/api/folder/root" + queryParams;
+        this.#getList(api, callback);
+    }
+
+    /**
      * retrieve token from lake
      * @param {UserModel} user - lake user information
      * @param {Function} callback - handle function for returned data

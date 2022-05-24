@@ -10,6 +10,7 @@ var globalObject = {
     "properties": {
         "object": ["id", "parentId", "accessTime", "createTime", "cid"],
         "file": ["object", "cid", "id", "mime", "name", "ownerId", "size"],
+        "folder": ["id", "name", "ownerId"]
     }, // filter properties
     "operators": ["=", "<", ">", "like"] // filter operators
 }

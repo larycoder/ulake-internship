@@ -13,15 +13,6 @@
     var table = new TableController("query-data-list-result");
     const search = () => searchData(table);
 
-    // load filter option
-    let selection = document.getElementById("query-data-list");
-    for (let type of globalObject.dataType) {
-        let opt = document.createElement('option');
-        opt.value = type;
-        opt.innerHTML = type;
-        selection.appendChild(opt);
-    }
-
     // initialize FS presentation
     redrawFS();
 </script>

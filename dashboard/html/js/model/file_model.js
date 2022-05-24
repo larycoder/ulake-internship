@@ -2,24 +2,19 @@
  * Data model for file representation model
  */
 
+
 class FileSystem {
     constructor() {
         this.path = [];
     }
 
     /**
-     * Support move of folder to deeper location
+     * Support move of folder to 1 level deeper
      * If pathName is absolute path then re-assign it to model
-     * @param {String} pathName
+     * @param {FolderModel} path
      */
-    moveIn(pathName) {
-        let deeperPath = pathName.split('/');
-        if (deeperPath[0] === "") {
-            deeperPath.shift();
-            this.path = deeperPath;
-        } else {
-            this.path = this.path.concat(deeperPath);
-        }
+    moveIn(path) {
+        this.path = this.path.push(path);
     }
 
     /**
@@ -32,6 +27,26 @@ class FileSystem {
     }
 
     toString() {
-        return '/' + this.path.join('/');
+        let pathStr = "/";
+        for (let p of this.path) {
+            pathStr += p.name;
+        }
+        return pathStr;
+    }
+
+    /**
+     * get folder model following index
+     * @param {Integer} idx index of folder
+     * @return {FolderModel}
+     */
+    get(idx) {
+        if (this.path.length > 0)
+            return this.path[idx];
+        else
+            return undefined;
+    }
+
+    size() {
+        return this.path.length;
     }
 }

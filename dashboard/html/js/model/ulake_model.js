@@ -50,8 +50,21 @@ class FileModel {
 
 
 /**
+ * folder model
+ * */
+class FolderModel {
+    constructor() {
+        this.id = undefined;
+        this.name = undefined;
+        this.ownerId = undefined;
+        this.subFolders = undefined;
+        this.files = undefined;
+    }
+}
+
+
+/**
  * Hold response data of ulake
- * @param {Object} resp response objects from lake
  */
 class DataListModel {
 
