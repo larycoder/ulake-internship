@@ -11,10 +11,10 @@ class FileSystem {
     /**
      * Support move of folder to 1 level deeper
      * If pathName is absolute path then re-assign it to model
-     * @param {FolderModel} path
+     * @param {FolderModel} folder
      */
-    moveIn(path) {
-        this.path = this.path.push(path);
+    moveIn(folder) {
+        this.path.push(folder);
     }
 
     /**
@@ -27,11 +27,11 @@ class FileSystem {
     }
 
     toString() {
-        let pathStr = "/";
+        let pathStr = [];
         for (let p of this.path) {
-            pathStr += p.name;
+            pathStr.push(p.name);
         }
-        return pathStr;
+        return '/' + pathStr.join('/');
     }
 
     /**

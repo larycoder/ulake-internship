@@ -118,13 +118,13 @@ class ULakeQueryClient {
 
     /**
      * get folder list
-     * @param {Function} callback - handle function for returned data
+     * @param {Function} callback - handle function for returned folder
      * @param {String} folderId - user folder
      * @param {Array.<String>} filters - list of file filters
      */
     getFolderEntries(callback, folderId, filters = []) {
         let queryParams = this.#getQueryParamString(filters);
-        let api = "/api/folder/" + folderId + queryParams;
+        let api = "/api/folder/" + folderId + "/entries" + queryParams;
         this.#callMethod(api, "GET", undefined)
             .then(async (raw) => {
                 try {
@@ -138,8 +138,7 @@ class ULakeQueryClient {
                 let folder = new FolderModel();
                 folder.files = resp.resp.files;
                 folder.subFolders = resp.resp.subFolders;
-                console.log(resp.resp);
-                callback(folder);
+                callback(resp.code, folder);
             });
     }
 

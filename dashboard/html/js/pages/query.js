@@ -2,11 +2,13 @@
  * query page controller
  */
 
-// singleton chip controller for filter data
-var filterChip = new ChipController("filter-list-chips");
+/**
+ * Singleton object must be implemented
+ */
+var table; // table controller
+var filterChip; // filter controller
+var fs; // file system controller
 
-// singleton file system controller
-var fs = new FileSystem();
 
 /**
  * decorate each column in data table
@@ -27,6 +29,7 @@ function decorateColumn(column) {
     };
 }
 
+
 /**
  * decorate each row in data table
  * @param {Node} row row node of table in datatable
@@ -34,10 +37,35 @@ function decorateColumn(column) {
  */
 function decorateRow(row, data) {
     // download
-    let downloadBtn = $(row).find("#download")[0];
-    let func = "downloadFile(\"" + data.cid + "\")";
-    downloadBtn.setAttribute("onclick", func);
+    let openBtn = $(row).find("#open")[0];
+    let func = undefined;
+    if (data.fileType === "file") {
+        func = "downloadFile(\"" + data.cid + "\")";
+    } else {
+        func = "loadFolder(" + JSON.stringify(data) + ")";
+    }
+    openBtn.setAttribute("onclick", func);
 }
+
+
+/**
+ * load data from folder model
+ * @param {Object} folder
+ */
+function loadFolder(folder) {
+    fs.moveIn(folder);
+    searchData(table);
+}
+
+
+/**
+ * move back 1 level of folder
+ */
+function leaveFolder() {
+    fs.moveOut(1);
+    searchData(table);
+}
+
 
 /**
  * download file function
@@ -47,6 +75,7 @@ function downloadFile(cid) {
     let client = new ULakeQueryClient();
     client.getObjectData(cid);
 };
+
 
 /**
  * upload file to lake
@@ -69,6 +98,7 @@ function uploadFile(event) {
     progressBar.waitUntilEnd();
 }
 
+
 /**
  * list of action button
  */
@@ -79,8 +109,8 @@ function createActionColumn() {
     // download
     let downBtn = document.createElement("button");
     downBtn.setAttribute("class", "btn btn-dark");
-    downBtn.setAttribute("id", "download");
-    downBtn.innerHTML = "Download";
+    downBtn.setAttribute("id", "open");
+    downBtn.innerHTML = "open";
     container.appendChild(downBtn);
 
     return container.outerHTML;
@@ -113,6 +143,7 @@ function redrawTable(data, table) {
     }
 };
 
+
 /**
  * query data from server and return back to query-table-result
  * compatible to query_page.html
@@ -125,12 +156,39 @@ function searchData(table) {
     let filterList = filterChip.getChipValues();
 
     // data represent
-    folderRepr = (folder) => {
-        redrawTable(new DataListModel(folder.subFolders), table);
+    folderRepr = (code, folder) => {
+        let dataList = [];
+        for (let sub of folder.subFolders) {
+            dataList.push({
+                id: sub.id,
+                name: sub.name,
+                ownerId: sub.ownerId,
+                cid: "",
+                fileType: "folder"
+            });
+        }
+        for (let file of folder.files) {
+            dataList.push({
+                id: file.id,
+                name: file.name,
+                ownerId: file.ownerId,
+                cid: file.cid,
+                fileType: "file"
+            });
+        }
+        let fakeResp = {
+            code: code,
+            resp: dataList
+        }
+        redrawTable(new DataListModel(fakeResp), table);
         progressBar.end();
     }
 
     rootRepr = (root) => {
+        root.head.push("fileType");
+        for (let f of root.data) {
+            f["fileType"] = "folder";
+        }
         redrawTable(root, table);
         progressBar.end();
     }
@@ -138,7 +196,7 @@ function searchData(table) {
     /* start collecting data */
     progressBar.start();
     if (fs.size() > 0) {
-        let folderId = fs.get(fs.size() - 1);
+        let folderId = fs.get(fs.size() - 1).id;
         ulake.getFolderEntries(folderRepr, folderId, filterList);
     } else {
         ulake.getRoot(rootRepr, filterList);
@@ -146,7 +204,9 @@ function searchData(table) {
 
     /* done process */
     progressBar.waitUntilEnd();
+    redrawFS();
 }
+
 
 /**
  * add new filter chip to chip controller
@@ -161,6 +221,7 @@ function addFilterChip() {
     filterChip.addChip(filterString);
     closeModal("filter-modal");
 }
+
 
 /**
  * update property and operator for filter
@@ -192,6 +253,7 @@ function loadFilterOptions() {
 
     openModal("filter-modal");
 }
+
 
 /**
  * redraw current path to page

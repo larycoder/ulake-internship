@@ -9,8 +9,16 @@
 
 <!-- auto-load script -->
 <script>
+    // singleton table controller
+    table = new TableController("query-data-list-result");
+
+    // singleton chip controller for filter data
+    filterChip = new ChipController("filter-list-chips");
+
+    // singleton file system controller
+    fs = new FileSystem();
+
     // data table
-    var table = new TableController("query-data-list-result");
     const search = () => searchData(table);
 
     // initialize FS presentation
