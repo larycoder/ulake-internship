@@ -201,6 +201,10 @@ class ULakeQueryClient {
      * @param {Function} callback - action on json response of request
      */
     uploadFile(fileInfo, file, callback) {
+        if (fs.size() > 0) {
+            fileInfo.parent = fs.get(fs.size() - 1);
+        }
+
         let api = "/api/file";
         let body = {
             fileInfo: new Blob([JSON.stringify(fileInfo)], {

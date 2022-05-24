@@ -45,6 +45,7 @@ class FileModel {
         this.name = undefined;
         this.ownerId = undefined;
         this.size = undefined;
+        this.parent = undefined;
     }
 }
 
@@ -59,6 +60,7 @@ class FolderModel {
         this.ownerId = undefined;
         this.subFolders = undefined;
         this.files = undefined;
+        this.parent = undefined;
     }
 }
 
