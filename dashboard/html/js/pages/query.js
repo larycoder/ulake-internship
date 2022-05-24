@@ -2,6 +2,12 @@
  * query page controller
  */
 
+// singleton chip controller for filter data
+var filterChip = new ChipController("filter-list-chips");
+
+// singleton file system controller
+var fs = new FileSystem();
+
 /**
  * decorate each column in data table
  * @param {String} column header name of each column
@@ -176,4 +182,12 @@ function loadFilterOptions() {
     }
 
     openModal("filter-modal");
+}
+
+/**
+ * redraw current path to page
+ */
+function redrawFS() {
+    let el = document.getElementById("file-path");
+    el.innerHTML = fs.toString();
 }

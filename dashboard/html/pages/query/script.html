@@ -1,16 +1,14 @@
 <!-- main script should load in bottom of data -->
-<script src="/js/pages/query.js"></script>
-<script src="/js/common/global.js"></script>
+<script src="/js/model/file_model.js"></script>
 <script src="/js/model/ulake_model.js"></script>
+<script src="/js/common/global.js"></script>
 <script src="/js/common/controller.js"></script>
 <script src="/js/common/login.js"></script>
 <script src="/js/ulake/ulake_query.js"></script>
+<script src="/js/pages/query.js"></script>
 
 <!-- auto-load script -->
 <script>
-    // singleton chip controller for filter data
-    var filterChip = new ChipController("filter-list-chips");
-
     // data table
     var table = new TableController("query-data-list-result");
     const search = () => searchData(table);
@@ -23,4 +21,7 @@
         opt.innerHTML = type;
         selection.appendChild(opt);
     }
+
+    // initialize FS presentation
+    redrawFS();
 </script>
