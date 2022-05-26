@@ -83,16 +83,17 @@ public class FolderResource {
         String bearer = "bearer " + jwt.getRawToken();
 
         // data
-        var folderResp = fileSvc.rootList(bearer);
-        var type = new TypeReference<List<FolderInfo>>() {};
-        var folders = mapper.convertValue(folderResp.getResp(), type);
+        var folderResp = fileSvc.rootInfo(bearer);
+        var folder = mapper.convertValue(
+                         folderResp.getResp(), FolderEntry.class);
 
         try {
-            folders = filter(folders, filterStr);
+            folder.subFolders = filter(folder.subFolders, filterStr);
+            folder.files = filter(folder.files, filterStr);
         } catch (QueryException e) {
             return resp.build(400, e.toString());
         }
-        return resp.build(200, null, folders);
+        return resp.build(200, null, folder);
     }
 
     @GET
@@ -135,11 +136,19 @@ public class FolderResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "list of folder entries")
     public Response subList(
-        @PathParam("folderId") Long folderId) {
+        @PathParam("folderId") Long folderId,
+        @QueryParam("filter") List<String> filterStr) {
         String bearer = "bearer " + jwt.getRawToken();
         var folderResp = fileSvc.folderInfo(bearer, folderId).getResp();
-        var folderEntry = mapper.convertValue(folderResp, FolderEntry.class);
-        return resp.build(200, null, folderEntry);
+        var folder = mapper.convertValue(folderResp, FolderEntry.class);
+
+        try {
+            folder.subFolders = filter(folder.subFolders, filterStr);
+            folder.files = filter(folder.files, filterStr);
+        } catch (QueryException e) {
+            return resp.build(400, e.toString());
+        }
+        return resp.build(200, null, folder);
     }
 
     @PUT
