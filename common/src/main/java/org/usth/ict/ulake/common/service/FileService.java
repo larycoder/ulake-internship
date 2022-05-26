@@ -56,7 +56,7 @@ public interface FileService {
     @GET
     @Path("/folder/root")
     @Schema(description = "list all root folder")
-    public LakeHttpResponse rootList(
+    public LakeHttpResponse rootInfo(
         @HeaderParam("Authorization") String bearer);
 
     @POST
