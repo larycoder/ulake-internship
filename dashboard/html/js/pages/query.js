@@ -160,22 +160,22 @@ function searchData(table) {
         let dataList = [];
         for (let sub of folder.subFolders) {
             dataList.push({
+                fileType: "folder",
                 id: sub.id,
                 name: sub.name,
                 ownerId: sub.ownerId,
                 size: "",
-                cid: "",
-                fileType: "folder"
+                cid: ""
             });
         }
         for (let file of folder.files) {
             dataList.push({
+                fileType: "file",
                 id: file.id,
                 name: file.name,
                 ownerId: file.ownerId,
                 size: file.size,
-                cid: file.cid,
-                fileType: "file"
+                cid: file.cid
             });
         }
         let fakeResp = {
@@ -186,22 +186,13 @@ function searchData(table) {
         progressBar.end();
     }
 
-    rootRepr = (root) => {
-        root.head.push("fileType");
-        for (let f of root.data) {
-            f["fileType"] = "folder";
-        }
-        redrawTable(root, table);
-        progressBar.end();
-    }
-
     /* start collecting data */
     progressBar.start();
     if (fs.size() > 0) {
         let folderId = fs.get(fs.size() - 1).id;
         ulake.getFolderEntries(folderRepr, folderId, filterList);
     } else {
-        ulake.getRoot(rootRepr, filterList);
+        ulake.getRoot(folderRepr, filterList);
     }
 
     /* done process */

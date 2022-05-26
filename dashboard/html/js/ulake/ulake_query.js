@@ -117,14 +117,10 @@ class ULakeQueryClient {
     }
 
     /**
-     * get folder list
+     * load folder data
      * @param {Function} callback - handle function for returned folder
-     * @param {String} folderId - user folder
-     * @param {Array.<String>} filters - list of file filters
      */
-    getFolderEntries(callback, folderId, filters = []) {
-        let queryParams = this.#getQueryParamString(filters);
-        let api = "/api/folder/" + folderId + "/entries" + queryParams;
+    #getFolder(api, callback) {
         this.#callMethod(api, "GET", undefined)
             .then(async (raw) => {
                 try {
@@ -143,6 +139,18 @@ class ULakeQueryClient {
     }
 
     /**
+     * get folder list
+     * @param {Function} callback - handle function for returned folder
+     * @param {String} folderId - user folder
+     * @param {Array.<String>} filters - list of file filters
+     */
+    getFolderEntries(callback, folderId, filters = []) {
+        let queryParams = this.#getQueryParamString(filters);
+        let api = "/api/folder/" + folderId + "/entries" + queryParams;
+        this.#getFolder(api, callback);
+    }
+
+    /**
      * get list of root folders
      * @param {Function} callback - handle function for returned data
      * @param {Array.<String>} filters - list of file filters
@@ -150,7 +158,7 @@ class ULakeQueryClient {
     getRoot(callback, filters = []) {
         let queryParams = this.#getQueryParamString(filters);
         let api = "/api/folder/root" + queryParams;
-        this.#getList(api, callback);
+        this.#getFolder(api, callback);
     }
 
     /**
