@@ -68,4 +68,12 @@ public class FileRepository implements PanacheRepository<UserFile> {
         String hql = String.join(" and ", conditions);
         return list(hql, params);
     }
+
+    public List<UserFile> listRoot(Long ownerId) {
+        return list("(parent = NULL) AND (ownerId = ?1)", ownerId);
+    }
+
+    public List<UserFile> listRoot() {
+        return list("parent = NULL");
+    }
 }

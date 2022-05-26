@@ -59,14 +59,21 @@ public class FolderResource {
         return response.build(200, null, repo.findById(id));
     }
 
+    /**
+     * Provide root folders and files in a virtual folder
+     * */
     @GET
     @Path("/root")
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "List root folders")
+    @Operation(summary = "List root folder")
     public Response root() {
         var ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
         // TODO: Admin should see full root
-        return response.build(200, null, repo.listRoot(ownerId));
+        UserFolder root = new UserFolder();
+        root.ownerId = ownerId;
+        root.subFolders = repo.listRoot(ownerId);
+        root.files = fileRepo.listRoot(ownerId);
+        return response.build(200, null, root);
     }
 
     @POST
