@@ -1,7 +1,6 @@
 package org.usth.ict.ulake.folder.persistence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
