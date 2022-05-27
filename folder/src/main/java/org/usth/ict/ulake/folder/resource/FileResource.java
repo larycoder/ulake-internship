@@ -19,16 +19,12 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.usth.ict.ulake.acl.model.AclModel;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
 import org.usth.ict.ulake.folder.persistence.FolderRepository;
-import org.usth.ict.ulake.folder.service.AclService;
 
 @Path("/file")
 @Tag(name = "File")
@@ -46,10 +42,6 @@ public class FileResource {
     @Inject
     JsonWebToken jwt;
 
-    @Inject
-    @RestClient
-    AclService aclSvc;
-
     @GET
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List all files")
@@ -64,22 +56,7 @@ public class FileResource {
     public Response one(
         @PathParam("id")
         @Parameter(description = "File id to search") Long id) {
-        AclModel acl = new AclModel();
-        acl.setUserId(Long.parseLong(jwt.getName()));
-        acl.setObjectId(id);
-        acl.setIsGroup("0");
-        acl.setIsFolder("0");
-        acl.setPermission(PermissionModel.READ);
-        var aclRst = aclSvc.isAllowed("bearer " + jwt.getRawToken(), acl);
-
-        if (aclRst.getCode() == 200) {
-            if ((Boolean) aclRst.getResp())
-                return response.build(200, null, repo.findById(id));
-            else
-                return response.build(403, "Permission fail");
-        } else {
-            return response.build(500, "Acl error", aclRst);
-        }
+        return response.build(200, null, repo.findById(id));
     }
 
     @POST
