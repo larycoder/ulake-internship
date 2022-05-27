@@ -1,6 +1,5 @@
 package org.usth.ict.ulake.acl.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,6 +8,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.usth.ict.ulake.common.model.PermissionModel;
 
 @Entity
 @Table(uniqueConstraints = {
@@ -24,15 +24,11 @@ public class FileAcl {
     @Schema(description = "File ID from file management")
     public Long fileId;
 
-    @Schema(description = "Flag to mark object is folder")
-    @Column(length = 1)
-    public String isFolder = "0";
-
     @Schema(description = "User ID from user management")
     public Long userId;
 
     @Schema(description = "Permission of object for corresponding user")
-    public Integer permission;
+    public PermissionModel permission;
 
     public FileAcl() {}
 }
