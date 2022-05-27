@@ -48,17 +48,19 @@ public class AdminUserResource {
     @RolesAllowed({ "User", "Admin" })
     public Response userStats(@HeaderParam("Authorization") String bearer) {
         // get requests from other service
-        HashMap<String, Integer> ret = new HashMap<>();
-        ret.put("users", (int) repo.count());
+        HashMap<String, Object> ret = new HashMap<>();
 
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         long uptime = bean.getUptime();
-        ret.put("uptime", (int) uptime);
+        ret.put("uptime", uptime);
 
         var info = userService.getStats(bearer);
-        ret.put("userInfoCode", info.getCode());
-
-
+        
+        HashMap<String, Integer> regs = (HashMap<String, Integer>) info.getResp();
+        for (String day: regs.keySet())  {
+            regs.put(day, regs.get(day));
+        }
+        ret.put("regs", regs);
         return response.build(200, "", ret);
     }
 }

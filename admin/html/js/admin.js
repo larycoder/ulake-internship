@@ -19,6 +19,19 @@ class Admin {
     }
 }
 
+stats = {
+    updateStats: ()=>{
+        ajax({
+            url: `/api/admin/users/stats`,
+            success: (data) => {
+                if (data && data.code === 200) {
+                    console.log(data);
+                }
+            }
+        });
+    }
+}
+
 admin = new Admin();
 
 function adminReady() {
