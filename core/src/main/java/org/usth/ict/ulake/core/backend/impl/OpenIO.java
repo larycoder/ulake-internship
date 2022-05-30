@@ -11,7 +11,9 @@ import org.usth.ict.ulake.core.backend.FileSystem;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -82,5 +84,11 @@ public class OpenIO implements FileSystem {
         ContainerInfo ci = getClient().createContainer(url);
         log.info("Created container {}", ci);
         return ci.name();
+    }
+
+    @Override
+    public Map<String, Integer> stats() {
+        // TODO: not considered for now
+        return new HashMap<>();
     }
 }
