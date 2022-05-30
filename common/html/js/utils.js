@@ -44,7 +44,7 @@ function getUid() {
     return -1;
 }
 
-ajax = function (param){
+ajax = async function (param){
     let headers;
     if (param.headers) {
         headers = param.headers;
@@ -53,7 +53,7 @@ ajax = function (param){
         headers = {};
     }
     // headers["Authorization-Key"] = apiKey;
-    let token = getToken()
+    let token = getToken();    
     if (token) {
         headers.Authorization = "Bearer " + token;
     }
@@ -71,7 +71,9 @@ ajax = function (param){
             window.alert(data.msg);
             return;
         }
-        oldSuccess(data);
+        if (oldSuccess) {
+            oldSuccess(data);
+        }
     };
     param.error = function (error) {
         window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
