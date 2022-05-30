@@ -1,21 +1,4 @@
-user = {
-    getUserName: (uid, callback) => {
-        ajax({
-            url: getUserUrl() + `/api/user/${uid}`,
-            success: (data) => {
-                if (data && data.code === 200) {
-                    callback(data.resp.userName);
-                }
-            }
-        });
-    }
-};
-
-admin = {
-    getUserName: (uid, callback) => {
-        user.getUserName(uid, callback)
-    }
-};
+// statistics functions
 
 stats = {
     updateStats: async () => {
@@ -113,10 +96,4 @@ stats = {
             }
         });
     }
-}
-
-function adminReady() {
-    admin.getUserName(parseInt(getUid()), (userName) => {
-        $("#userName").text(userName);
-    })
 }
