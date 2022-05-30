@@ -1,4 +1,4 @@
-// nginx SSO: <!--# include file="user.js" -->
+// SSI: <!--# include file="user.js" -->
 
 admin = {
     getUserName: (uid, callback) => {
@@ -6,7 +6,7 @@ admin = {
     }
 };
 
-// nginx SSO: <!--# include file="stats.js" -->
+// SSI: <!--# include file="stats.js" -->
 
 function adminReady() {
     admin.getUserName(parseInt(getUid()), (userName) => {
