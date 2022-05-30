@@ -25,16 +25,14 @@ stats = {
             stats.redrawStats(data);
         }
     },
-
-    redrawStats: (data) => {
-        // Area Chart Example
-        var ctx = document.getElementById("myAreaChart");
+    redrawStats: (data) => {        
+        var ctx = document.getElementById("myAreaChart");        
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: Object.keys(data.resp.regs),
                 datasets: [{
-                    label: "Earnings",
+                    label: "New users",
                     lineTension: 0.3,
                     backgroundColor: "rgba(78, 115, 223, 0.05)",
                     borderColor: "rgba(78, 115, 223, 1)",
@@ -46,7 +44,7 @@ stats = {
                     pointHoverBorderColor: "rgba(78, 115, 223, 1)",
                     pointHitRadius: 10,
                     pointBorderWidth: 2,
-                    data: [0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
+                    data: Object.values(data.resp.regs),
                 }],
             },
             options: {
