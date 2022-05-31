@@ -83,5 +83,9 @@ public interface CoreService {
         @PathParam("id") Long id,
         @HeaderParam("Authorization") String bearer);
 
-
+    @GET
+    @Path("/object/stats")
+    @Schema(description = "Get all statistics from core service")
+    public LakeHttpResponse stats(
+        @HeaderParam("Authorization") String bearer);
 }

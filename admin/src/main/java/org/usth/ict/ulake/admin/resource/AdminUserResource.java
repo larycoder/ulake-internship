@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.UserService;
 
 
@@ -33,6 +34,10 @@ public class AdminUserResource {
     @Inject
     @RestClient
     UserService userService;
+
+    @Inject
+    @RestClient
+    CoreService coreService;
 
     @GET
     @RolesAllowed({"User", "Admin"})
@@ -50,17 +55,29 @@ public class AdminUserResource {
         // get requests from other service
         HashMap<String, Object> ret = new HashMap<>();
 
+        // system uptime
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         long uptime = bean.getUptime();
         ret.put("uptime", uptime);
 
-        var info = userService.getStats(bearer);
-        
-        HashMap<String, Integer> regs = (HashMap<String, Integer>) info.getResp();
-        for (String day: regs.keySet())  {
-            regs.put(day, regs.get(day));
-        }
+        // user registration 
+        var userStats = userService.getStats(bearer);
+        HashMap<String, Integer> regs = (HashMap<String, Integer>) userStats.getResp();
+        // for (String day: regs.keySet())  {
+        //     regs.put(day, regs.get(day));
+        // }
         ret.put("regs", regs);
+
+        // core storage stats
+        var coreStats = coreService.stats(bearer);
+        HashMap<String, String> coreStorageStats = (HashMap<String, String>) coreStats.getResp();
+        // for (String k: coreStorageStats.keySet())  {
+        //     regs.put(k, coreStorageStats.get(k));
+        // }
+        ret.put("coreStorageStats", coreStorageStats);
+
+
+
         return response.build(200, "", ret);
     }
 }

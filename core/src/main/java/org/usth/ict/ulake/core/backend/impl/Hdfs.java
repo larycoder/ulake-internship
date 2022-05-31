@@ -126,7 +126,6 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     @Override
     public Map<String, Object> stats() {
         var ret = new HashMap<String, Object>();
-        ret.put("diskfree", 100);
         var fsStats = FileSystem.getGlobalStorageStatistics();
         for (var stat: fsStats.values()) {
             ret.put(stat.name(), stat.toString());

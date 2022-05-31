@@ -1,7 +1,7 @@
 // statistics functions
 
 stats = {
-    settings: {
+    userSettings: {
         type: 'line',
         data: {            
             datasets: [{
@@ -93,8 +93,8 @@ stats = {
         }
     },
     redrawStats: (data) => {        
-        const ctx = document.getElementById("myAreaChart");        
-        const chart = structuredClone(stats.settings);
+        const ctx = document.getElementById("userStatChart");
+        const chart = structuredClone(stats.userSettings);
         chart.data.labels = Object.keys(data.resp.regs);
         chart.data.datasets[0].data = Object.values(data.resp.regs);
         new Chart(ctx, chart);
