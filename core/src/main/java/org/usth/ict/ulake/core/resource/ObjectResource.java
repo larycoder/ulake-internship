@@ -170,4 +170,14 @@ public class ObjectResource {
         else
             return response.build(200, null, result);
     }
+
+    @GET
+    @RolesAllowed({ "User", "Admin" })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Get statistics about objects")
+    @Path("/stats")
+    public Response stats() {
+        var stats = fs.stats();
+        return response.build(200, null, stats);
+    }
 }
