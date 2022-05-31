@@ -163,7 +163,7 @@ public class ObjectResource {
     public Response search(
         @RequestBody(description = "Query to perform search for objects")
         LakeObjectSearchQuery query) {
-        var result = repo.seasrch(query);
+        var result = repo.search(query);
 
         if (result.isEmpty())
             return response.build(404);

@@ -14,7 +14,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
 public class ObjectRepository implements PanacheRepository<LakeObject> {
-    public List<LakeObject> seasrch(LakeObjectSearchQuery query) {
+    public List<LakeObject> search(LakeObjectSearchQuery query) {
         var conditions = new ArrayList<String>();
         var params = new HashMap<String, Object>();
 
