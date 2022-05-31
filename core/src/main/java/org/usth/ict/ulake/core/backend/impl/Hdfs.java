@@ -18,6 +18,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.DU;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,9 +124,14 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     }
 
     @Override
-    public Map<String, Integer> stats() {
-        var ret = new HashMap<String, Integer>();
-        ret.put("count", 100);
+    public Map<String, Object> stats() {
+        var ret = new HashMap<String, Object>();
+        ret.put("diskfree", 100);
+        var fsStats = FileSystem.getGlobalStorageStatistics();
+        for (var stat: fsStats.values()) {
+            ret.put(stat.name(), stat.toString());
+        }
+
         return ret;
     }
 

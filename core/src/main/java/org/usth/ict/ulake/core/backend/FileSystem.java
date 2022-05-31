@@ -7,7 +7,7 @@ import java.util.Map;
 public interface FileSystem {
     // general
     List<String> ls(String dir);
-    Map<String, Integer> stats();
+    Map<String, Object> stats();
 
     // directories
     String mkdir(String name);

@@ -87,7 +87,7 @@ public class OpenIO implements FileSystem {
     }
 
     @Override
-    public Map<String, Integer> stats() {
+    public Map<String, Object> stats() {
         // TODO: not considered for now
         return new HashMap<>();
     }
