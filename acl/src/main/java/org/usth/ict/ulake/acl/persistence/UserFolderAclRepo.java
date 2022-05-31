@@ -9,24 +9,24 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.usth.ict.ulake.acl.model.FileAcl;
+import org.usth.ict.ulake.acl.model.UserFolderAcl;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
-public class FileAclRepo implements PanacheRepository<FileAcl> {
+public class UserFolderAclRepo implements PanacheRepository<UserFolderAcl> {
     @Inject
     EntityManager em;
 
-    public List<FileAcl> findAcl(FileAcl acl) {
+    public List<UserFolderAcl> findAcl(UserFolderAcl acl) {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
         conditions.add("(userId = :userId)");
         params.put("userId", acl.userId);
 
-        conditions.add("(fileId = :fileId)");
-        params.put("fileId", acl.fileId);
+        conditions.add("(folderId = :folderId)");
+        params.put("folderId", acl.folderId);
 
         conditions.add("(permission = :permission)");
         params.put("permission", acl.permission);
@@ -35,14 +35,14 @@ public class FileAclRepo implements PanacheRepository<FileAcl> {
         return list(hql, params);
     }
 
-    public List<FileAcl> listAcl() {
-        String hql = "FROM FileAcl GROUP BY userId, fileId";
-        var result = em.createQuery(hql, FileAcl.class).getResultList();
+    public List<UserFolderAcl> listAcl() {
+        String hql = "FROM UserFolderAcl GROUP BY userId, folderId";
+        var result = em.createQuery(hql, UserFolderAcl.class).getResultList();
         for (var obj : result) obj.permission = null;
         return result;
     }
 
-    public Boolean hasAcl(FileAcl acl) {
+    public Boolean hasAcl(UserFolderAcl acl) {
         return !findAcl(acl).isEmpty();
     }
 }

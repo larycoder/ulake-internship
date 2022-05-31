@@ -16,18 +16,18 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.usth.ict.ulake.acl.model.FolderAcl;
-import org.usth.ict.ulake.acl.persistence.FolderAclRepo;
+import org.usth.ict.ulake.acl.model.UserFileAcl;
+import org.usth.ict.ulake.acl.persistence.UserFileAclRepo;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
-@Path("/acl/folder")
+@Path("/user/acl/file")
 @Produces(MediaType.APPLICATION_JSON)
-public class FolderAclResource {
+public class UserFileAclResource {
     @Inject
     LakeHttpResponse response;
 
     @Inject
-    FolderAclRepo repo;
+    UserFileAclRepo repo;
 
     @GET
     @RolesAllowed({"User", "Admin"})
@@ -52,25 +52,13 @@ public class FolderAclResource {
         @APIResponse(name = "400", responseCode = "400", description = "Invalid passing"),
         @APIResponse(name = "409", responseCode = "409", description = "already existed")
     })
-    public Response post(FolderAcl acl) {
+    public Response post(UserFileAcl acl) {
         if (repo.hasAcl(acl)) {
             return response.build(409, "ACL is already existed");
         } else {
             repo.persist(acl);
             return response.build(200, null, acl);
         }
-    }
-
-    @POST
-    @Path("/permission")
-    @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "assert permission of object")
-    @APIResponses({
-        @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
-        @APIResponse(name = "200", responseCode = "200", description = "OK"),
-    })
-    public Response permission(FolderAcl acl) {
-        return response.build(200, null, (repo.hasAcl(acl) ? true : false));
     }
 
     @DELETE
