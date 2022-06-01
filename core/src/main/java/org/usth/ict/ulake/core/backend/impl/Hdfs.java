@@ -18,9 +18,10 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FsStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.StorageStatistics;
-import org.apache.hadoop.fs.DU;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -128,12 +129,23 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     @Override
     public Map<String, Object> stats() {
         var ret = new HashMap<String, Object>();
-        var fsStats = getClient().getStorageStatistics();
-        Iterator<StorageStatistics.LongStatistic> it = fsStats.getLongStatistics();
-        while (it.hasNext()) {
-            StorageStatistics.LongStatistic next = it.next();
-            ret.put(next.getName(), next.getValue());            
+        var fs = getClient();
+        if (fs instanceof DistributedFileSystem) {
+            log.info("Core: fs is dfs");
         }
+        try {
+            FsStatus ds = fs.getStatus();
+            long capacity = ds.getCapacity();      
+            long used = ds.getUsed();
+            long remaining = ds.getRemaining();
+            long presentCapacity = used + remaining;
+            ret.put("capacity", capacity);
+            ret.put("used", used);
+            ret.put("remaining", remaining);
+            ret.put("presentCapacity", presentCapacity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }        
         return ret;
     }
 
