@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.UserService;
 
 
@@ -63,9 +62,6 @@ public class AdminUserResource {
         // user registration
         var userStats = userService.getStats(bearer);
         HashMap<String, Integer> regs = (HashMap<String, Integer>) userStats.getResp();
-        // for (String day: regs.keySet())  {
-        //     regs.put(day, regs.get(day));
-        // }
         ret.put("regs", regs);
         return response.build(200, "", ret);
     }

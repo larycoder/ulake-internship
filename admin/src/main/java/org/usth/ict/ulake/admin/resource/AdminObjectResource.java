@@ -1,8 +1,5 @@
 package org.usth.ict.ulake.admin.resource;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.annotation.security.RolesAllowed;
@@ -21,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.CoreService;
-import org.usth.ict.ulake.common.service.UserService;
 
 
 @Path("/admin/objects")
@@ -47,7 +43,7 @@ public class AdminObjectResource {
         // get requests from other service
         HashMap<String, Object> ret = new HashMap<>();
 
-            // core storage stats
+        // core storage stats
         var coreStats = coreService.stats(bearer);
         HashMap<String, String> coreStorageStats = (HashMap<String, String>) coreStats.getResp();
         ret.put("stats", coreStorageStats);
