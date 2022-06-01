@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.StorageStatistics;
 import org.apache.hadoop.fs.DU;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -126,22 +128,12 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     @Override
     public Map<String, Object> stats() {
         var ret = new HashMap<String, Object>();
-        var fsStats = FileSystem.getGlobalStorageStatistics();
-        String keys[] = {"bytesRead", "bytesWritten", "readOps", "writeOps", "largeReadOps",
-        "bytesReadLocalHost", "bytesReadDistanceOfOneOrTwo", "bytesReadDistanceOfThreeOrFour",
-        "bytesReadDistanceOfFiveOrLarger", "bytesReadErasureCoded"};
-        for (var key: keys) {
-            if (fsStats.get(key) != null) {
-                ret.put(key, fsStats.get(key).getLong(key)); 
-            }
-            else {
-                ret.put(key, -1);
-            }
+        var fsStats = getClient().getStorageStatistics();
+        Iterator<StorageStatistics.LongStatistic> it = fsStats.getLongStatistics();
+        while (it.hasNext()) {
+            StorageStatistics.LongStatistic next = it.next();
+            ret.put(next.getName(), next.getValue());            
         }
-        // for (var stat: fsStats.values()) {
-        //     ret.put(stat.name(), stat.toString());
-        // }
-
         return ret;
     }
 
