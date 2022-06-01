@@ -20,7 +20,7 @@ import org.usth.ict.ulake.acl.model.UserFolderAcl;
 import org.usth.ict.ulake.acl.persistence.UserFolderAclRepo;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
-@Path("/user/acl/folder")
+@Path("/acl/user/folder")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserFolderAclResource {
     @Inject

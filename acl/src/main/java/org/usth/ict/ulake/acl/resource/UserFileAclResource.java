@@ -20,7 +20,7 @@ import org.usth.ict.ulake.acl.model.UserFileAcl;
 import org.usth.ict.ulake.acl.persistence.UserFileAclRepo;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
-@Path("/user/acl/file")
+@Path("/acl/user/file")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserFileAclResource {
     @Inject

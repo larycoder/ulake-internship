@@ -20,7 +20,7 @@ import org.usth.ict.ulake.acl.model.GroupFileAcl;
 import org.usth.ict.ulake.acl.persistence.GroupFileAclRepo;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
-@Path("/group/acl/file")
+@Path("/acl/group/file")
 @Produces(MediaType.APPLICATION_JSON)
 public class GroupFileAclResource {
     @Inject
