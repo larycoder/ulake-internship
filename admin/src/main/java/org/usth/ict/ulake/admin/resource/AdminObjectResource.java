@@ -24,9 +24,9 @@ import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.UserService;
 
 
-@Path("/admin/users")
+@Path("/admin/objects")
 @Produces(MediaType.APPLICATION_JSON)
-public class AdminUserResource {
+public class AdminObjectResource {
     private static final Logger log = LoggerFactory.getLogger(AdminUserResource.class);
 
     @Inject
@@ -37,36 +37,20 @@ public class AdminUserResource {
 
     @Inject
     @RestClient
-    UserService userService;
-
-    @GET
-    @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "Nothing yet.")
-    public Response all() {
-        // TODO: list all users from user.
-        return response.build(200, null, new Date());
-    }
+    CoreService coreService;
 
     @GET
     @Path("/stats")
-    @Operation(summary = "Statistics about users")
+    @Operation(summary = "Statistics about objects")
     @RolesAllowed({ "User", "Admin" })
     public Response userStats(@HeaderParam("Authorization") String bearer) {
         // get requests from other service
         HashMap<String, Object> ret = new HashMap<>();
 
-        // system uptime
-        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-        long uptime = bean.getUptime();
-        ret.put("uptime", uptime);
-
-        // user registration
-        var userStats = userService.getStats(bearer);
-        HashMap<String, Integer> regs = (HashMap<String, Integer>) userStats.getResp();
-        // for (String day: regs.keySet())  {
-        //     regs.put(day, regs.get(day));
-        // }
-        ret.put("regs", regs);
+            // core storage stats
+        var coreStats = coreService.stats(bearer);
+        HashMap<String, String> coreStorageStats = (HashMap<String, String>) coreStats.getResp();
+        ret.put("stats", coreStorageStats);
         return response.build(200, "", ret);
     }
 }
