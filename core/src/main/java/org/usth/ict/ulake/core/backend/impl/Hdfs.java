@@ -41,11 +41,11 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     FileSystem client;
 
     FileSystem getClient() {
-        if(client == null) {
+        if (client == null) {
             try {
                 Configuration conf = new Configuration();
                 client = FileSystem.get(new URI(namenodeUri), conf);
-            } catch(URISyntaxException e) {
+            } catch (URISyntaxException e) {
                 log.error("Namenode URI error: {}", e);
             } catch (IOException e) {
                 log.error("Namenode connection error: {}", e);
@@ -59,24 +59,24 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
         UUID uuid = UUID.randomUUID();
         String pathFile = Paths.get(rootDir, uuid.toString()).toString();
         Path fullPath = new Path(
-                namenodeUri + Paths.get("/", pathFile).toString());
+            namenodeUri + Paths.get("/", pathFile).toString());
 
-        try{
+        try {
             OutputStream os = getClient().create(fullPath);
             log.info("Create: target {}, prepare to putObject url={} length={}",
-                    namenodeUri, pathFile, length);
+                     namenodeUri, pathFile, length);
             byte buff[] = new byte[4096];
             int len;
             try {
-                while((len = is.read(buff)) > 0) os.write(buff, 0, len);
-            } catch(IOException e) {
+                while ((len = is.read(buff)) > 0) os.write(buff, 0, len);
+            } catch (IOException e) {
                 log.error("Error to stream data to {}: {}", fullPath, e);
                 return null;
             } finally {
                 os.close();
                 is.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Fail to create new file {}: {}", fullPath, e);
             return null;
         }
@@ -88,17 +88,17 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     }
 
     @Override
-    public boolean delete(String cid) {
+    public boolean delete (String cid) {
         return false;
     }
 
     @Override
     public InputStream get(String cid) {
-        String pathFile = namenodeUri + Paths.get("/" , rootDir, cid).toString();
+        String pathFile = namenodeUri + Paths.get("/", rootDir, cid).toString();
         try {
             InputStream is = getClient().open(new Path(pathFile));
             return is;
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Fail to open file {}: {}", pathFile, e);
             return null;
         }
@@ -110,11 +110,11 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
         try {
             List<String> fileList = new ArrayList<String>();
 
-            for(FileStatus status : getClient().listStatus(new Path(path))) {
+            for (FileStatus status : getClient().listStatus(new Path(path))) {
                 fileList.add(status.getPath().toString());
             }
             return fileList;
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Fail to list file {}: {}", path, e);
             return null;
         }
@@ -135,7 +135,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
         }
         try {
             FsStatus ds = fs.getStatus();
-            long capacity = ds.getCapacity();      
+            long capacity = ds.getCapacity();
             long used = ds.getUsed();
             long remaining = ds.getRemaining();
             long presentCapacity = used + remaining;
@@ -145,7 +145,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             ret.put("presentCapacity", presentCapacity);
         } catch (IOException e) {
             e.printStackTrace();
-        }        
+        }
         return ret;
     }
 
