@@ -127,9 +127,20 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     public Map<String, Object> stats() {
         var ret = new HashMap<String, Object>();
         var fsStats = FileSystem.getGlobalStorageStatistics();
-        for (var stat: fsStats.values()) {
-            ret.put(stat.name(), stat.toString());
+        String keys[] = {"bytesRead", "bytesWritten", "readOps", "writeOps", "largeReadOps",
+        "bytesReadLocalHost", "bytesReadDistanceOfOneOrTwo", "bytesReadDistanceOfThreeOrFour",
+        "bytesReadDistanceOfFiveOrLarger", "bytesReadErasureCoded"};
+        for (var key: keys) {
+            if (fsStats.get(key) != null) {
+                ret.put(key, fsStats.get(key).getLong(key)); 
+            }
+            else {
+                ret.put(key, -1);
+            }
         }
+        // for (var stat: fsStats.values()) {
+        //     ret.put(stat.name(), stat.toString());
+        // }
 
         return ret;
     }
