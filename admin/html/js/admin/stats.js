@@ -3,7 +3,7 @@
 stats = {
     userSettings: {
         type: 'line',
-        data: {            
+        data: {
             datasets: [{
                 label: "New users",
                 lineTension: 0.3,
@@ -85,18 +85,43 @@ stats = {
         }
     },
 
-    updateStats: async () => {
-        const data = await ajax({url: "/api/admin/users/stats"});
-        if (data && data.code === 200) {
-            console.log(data);
-            stats.redrawStats(data);
+    coreSettings: {
+        type: 'pie',
+        data: {
+            datasets: [{
+                label: "Storage usage",
+                backgroundColor: ["#0074D9", "#FF4136", "#2ECC40", "#FF851B", "#7FDBFF", "#B10DC9", "#FFDC00", "#001f3f", "#39CCCC", "#01FF70", "#85144b", "#F012BE", "#3D9970", "#111111", "#AAAAAA"]
+            }],
         }
     },
-    redrawStats: (data) => {        
+
+    updateStats: async () => {
+        const userData = await ajax({url: "/api/admin/users/stats"});
+        if (userData && userData.code === 200) {
+            console.log(userData);
+            stats.redrawUserStats(userData);
+        }
+
+        const coreData = await ajax({url: "/api/admin/objects/stats"});
+        if (coreData && coreData.code === 200) {
+            console.log(coreData);
+            stats.redrawCoreStats(coreData);
+        }
+    },
+
+    redrawUserStats: (data) => {
         const ctx = document.getElementById("userStatChart");
         const chart = structuredClone(stats.userSettings);
         chart.data.labels = Object.keys(data.resp.regs);
         chart.data.datasets[0].data = Object.values(data.resp.regs);
+        new Chart(ctx, chart);
+    },
+
+    redrawCoreStats: (coreData) => {
+        const ctx = document.getElementById("coreChart");
+        const chart = structuredClone(stats.coreSettings);
+        chart.data.labels = [ "Used storage", "Remaining" ];
+        chart.data.datasets[0].data = [ parseInt(coreData.resp.stats.presentCapacity / 1048576), parseInt(coreData.resp.stats.capacity / 1048576) ]
         new Chart(ctx, chart);
     }
 }
