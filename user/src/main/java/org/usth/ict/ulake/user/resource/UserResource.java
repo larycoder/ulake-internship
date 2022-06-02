@@ -80,7 +80,7 @@ public class UserResource {
     @Operation(summary = "Create a new user")
     public Response post(@RequestBody(description = "New user info to save") User entity) {
         if (entity == null) {
-            return response.build(400, "", entity);    
+            return response.build(400, "", entity);
         }
 
         // check existence
@@ -125,14 +125,17 @@ public class UserResource {
     @Operation(summary = "Some statistics")
     @RolesAllowed({ "User", "Admin" })
     public Response stats() {
-        HashMap<String, Integer> ret = new HashMap<>();
+        HashMap<String, Object> ret = new HashMap<>();
+        HashMap<String, Integer> regs = new HashMap<>();
         var stats = repo.getUserRegistrationByDate();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");          
+        Integer count = (int) repo.count();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         for (var stat: stats) {
             String text = df.format(stat.getDate());
-            ret.put(text, stat.getCount());
+            regs.put(text, stat.getCount());
         }
-        
+        ret.put("regs", regs);
+        ret.put("count", count);
         return response.build(200, "", ret);
     }
 }

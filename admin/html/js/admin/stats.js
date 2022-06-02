@@ -87,6 +87,9 @@ stats = {
 
     coreSettings: {
         type: 'pie',
+        options: {
+            maintainAspectRatio: false
+        },
         data: {
             datasets: [{
                 label: "Storage usage",
@@ -114,6 +117,7 @@ stats = {
         const chart = structuredClone(stats.userSettings);
         chart.data.labels = Object.keys(data.resp.regs);
         chart.data.datasets[0].data = Object.values(data.resp.regs);
+        document.querySelector("#user-footer").textContent = `Total ${data.resp.count} users`
         new Chart(ctx, chart);
     },
 
@@ -121,7 +125,8 @@ stats = {
         const ctx = document.getElementById("coreChart");
         const chart = structuredClone(stats.coreSettings);
         chart.data.labels = [ "Used storage", "Remaining" ];
-        chart.data.datasets[0].data = [ parseInt(coreData.resp.stats.presentCapacity / 1048576), parseInt(coreData.resp.stats.capacity / 1048576) ]
+        chart.data.datasets[0].data = [ parseInt(coreData.resp.stats.presentCapacity / 1048576), parseInt(coreData.resp.stats.capacity / 1048576) ];
+        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(coreData.resp.stats.capacity / 1072147864)} GB`;
         new Chart(ctx, chart);
     }
 }

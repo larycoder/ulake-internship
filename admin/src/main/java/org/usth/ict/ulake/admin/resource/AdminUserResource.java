@@ -52,17 +52,17 @@ public class AdminUserResource {
     @RolesAllowed({ "User", "Admin" })
     public Response userStats(@HeaderParam("Authorization") String bearer) {
         // get requests from other service
-        HashMap<String, Object> ret = new HashMap<>();
+        //HashMap<String, Object> ret = new HashMap<>();
 
         // system uptime
-        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-        long uptime = bean.getUptime();
-        ret.put("uptime", uptime);
+        // RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        // long uptime = bean.getUptime();
+        // ret.put("uptime", uptime);
+        // ret.put("regs", regs);
 
         // user registration
         var userStats = userService.getStats(bearer);
         HashMap<String, Integer> regs = (HashMap<String, Integer>) userStats.getResp();
-        ret.put("regs", regs);
-        return response.build(200, "", ret);
+        return response.build(200, "", regs);
     }
 }
