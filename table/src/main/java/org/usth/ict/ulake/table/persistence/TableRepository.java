@@ -1,13 +1,8 @@
-package org.usth.ict.ulake.admin.persistence;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package org.usth.ict.ulake.table.persistence;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.usth.ict.ulake.admin.model.TableModel;
+import org.usth.ict.ulake.table.model.TableModel;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
