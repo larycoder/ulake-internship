@@ -1,5 +1,10 @@
 package org.usth.ict.ulake.folder.resource;
 
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -131,5 +136,28 @@ public class FileResource {
         }
         repo.delete(entity);
         return response.build(200);
+    }
+
+    @GET
+    @Path("/stats")
+    @Operation(summary = "Some statistics")
+    @RolesAllowed({ "User", "Admin" })
+    public Response stats() {
+        HashMap<String, Object> ret = new HashMap<>();
+        HashMap<String, Integer> folderCount = new HashMap<>();
+        var stats = repo.getNewFilesByDate();
+        Integer count = (int) repo.count();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        for (var stat: stats) {
+            Date date = stat.getDate();
+            if (date == null) {
+                date = new Date(System.currentTimeMillis());
+            }
+            String text = df.format(date);
+            folderCount.put(text, stat.getCount());
+        }
+        ret.put("newFiles", folderCount);
+        ret.put("count", count);
+        return response.build(200, "", ret);
     }
 }

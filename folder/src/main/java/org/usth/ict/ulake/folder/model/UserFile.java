@@ -37,6 +37,9 @@ public class UserFile extends PanacheEntityBase {
     @Schema(description = "Id of the owner user")
     public Long ownerId;
 
+    @Schema(description = "File creation time")
+    public Long creationTime;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn

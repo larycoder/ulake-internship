@@ -99,23 +99,30 @@ stats = {
     },
 
     updateStats: async () => {
-        const userData = await ajax({url: "/api/admin/users/stats"});
-        if (userData && userData.code === 200) {
-            console.log(userData);
-            stats.redrawUserStats(userData);
+        const userStats = await ajax({url: "/api/admin/users/stats"});
+        if (userStats && userStats.code === 200) {
+            console.log(userStats);
+            stats.redrawUserStats(userStats);
         }
 
-        const coreData = await ajax({url: "/api/admin/objects/stats"});
-        if (coreData && coreData.code === 200) {
-            console.log(coreData);
-            stats.redrawCoreStats(coreData);
+        const coreStats = await ajax({url: "/api/admin/objects/stats"});
+        if (coreStats && coreStats.code === 200) {
+            console.log(coreStats);
+            stats.redrawCoreStats(coreStats);
         }
 
-        const folderData = await ajax({url: "/api/admin/folders/stats"});
-        if (folderData && folderData.code === 200) {
-            console.log(folderData);
-            stats.redrawFolderStats(folderData);
+        const folderStats = await ajax({url: "/api/admin/folders/stats"});
+        if (folderStats && folderStats.code === 200) {
+            console.log(folderStats);
+            stats.redrawFolderStats(folderStats);
         }
+
+        const fileStats = await ajax({url: "/api/admin/files/stats"});
+        if (fileStats && fileStats.code === 200) {
+            console.log(fileStats);
+            stats.redrawFileStats(fileStats);
+        }
+
     },
 
     redrawUserStats: (data) => {
@@ -127,12 +134,12 @@ stats = {
         new Chart(ctx, chart);
     },
 
-    redrawCoreStats: (coreData) => {
-        const ctx = document.getElementById("coreChart");
+    redrawCoreStats: (data) => {
+        const ctx = document.getElementById("coreStatChart");
         const chart = structuredClone(stats.coreSettings);
         chart.data.labels = [ "Used storage", "Remaining" ];
-        chart.data.datasets[0].data = [ parseInt(coreData.resp.stats.presentCapacity / 1048576), parseInt(coreData.resp.stats.capacity / 1048576) ];
-        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(coreData.resp.stats.capacity / 1072147864)} GB`;
+        chart.data.datasets[0].data = [ parseInt(data.resp.stats.presentCapacity / 1048576), parseInt(data.resp.stats.capacity / 1048576) ];
+        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(data.resp.stats.capacity / 1072147864)} GB`;
         new Chart(ctx, chart);
     },
 
@@ -143,6 +150,16 @@ stats = {
         chart.data.datasets[0].data = Object.values(data.resp.newFolders);
         chart.data.datasets[0].label = "New folders per day";
         document.querySelector("#folder-footer").textContent = `Total ${data.resp.count} folders`
+        new Chart(ctx, chart);
+    },
+
+    redrawFileStats: (data) => {
+        const ctx = document.getElementById("fileStatChart");
+        const chart = structuredClone(stats.userSettings);
+        chart.data.labels = Object.keys(data.resp.newFiles);
+        chart.data.datasets[0].data = Object.values(data.resp.newFiles);
+        chart.data.datasets[0].label = "New files per day";
+        document.querySelector("#file-footer").textContent = `Total ${data.resp.count} files`
         new Chart(ctx, chart);
     },
 }
