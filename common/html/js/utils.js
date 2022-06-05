@@ -53,7 +53,7 @@ ajax = async function (param){
         headers = {};
     }
     // headers["Authorization-Key"] = apiKey;
-    let token = getToken();    
+    let token = getToken();
     if (token) {
         headers.Authorization = "Bearer " + token;
     }
@@ -77,6 +77,9 @@ ajax = async function (param){
     };
     param.error = function (error) {
         window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
+        if (error && error.status && error.status === 401) {
+            window.location = "/login";
+        }
     };
     return $.ajax(param);
 };
