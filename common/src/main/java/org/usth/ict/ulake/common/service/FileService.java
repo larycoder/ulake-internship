@@ -79,4 +79,10 @@ public interface FileService {
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id,
         @RequestBody FolderModel newData);
+
+        @GET
+        @Path("/folder/stats")
+        @Schema(description = "get folder statistics")
+        public LakeHttpResponse folderStats(
+            @HeaderParam("Authorization") String bearer);
 }

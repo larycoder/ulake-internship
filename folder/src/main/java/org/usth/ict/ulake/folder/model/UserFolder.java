@@ -10,10 +10,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
@@ -33,6 +33,9 @@ public class UserFolder extends PanacheEntityBase {
     @Schema(description = "Folder owner")
     public Long ownerId;
 
+    @Schema(description = "Creation time")
+    public Long creationTime;
+    
     @ManyToOne
     @JsonBackReference
     @JoinColumn

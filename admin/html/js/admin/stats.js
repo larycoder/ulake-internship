@@ -110,6 +110,12 @@ stats = {
             console.log(coreData);
             stats.redrawCoreStats(coreData);
         }
+
+        const folderData = await ajax({url: "/api/admin/folders/stats"});
+        if (folderData && folderData.code === 200) {
+            console.log(folderData);
+            stats.redrawFolderStats(folderData);
+        }
     },
 
     redrawUserStats: (data) => {
@@ -128,5 +134,15 @@ stats = {
         chart.data.datasets[0].data = [ parseInt(coreData.resp.stats.presentCapacity / 1048576), parseInt(coreData.resp.stats.capacity / 1048576) ];
         document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(coreData.resp.stats.capacity / 1072147864)} GB`;
         new Chart(ctx, chart);
-    }
+    },
+
+    redrawFolderStats: (data) => {
+        const ctx = document.getElementById("folderStatChart");
+        const chart = structuredClone(stats.userSettings);
+        chart.data.labels = Object.keys(data.resp.newFolders);
+        chart.data.datasets[0].data = Object.values(data.resp.newFolders);
+        chart.data.datasets[0].label = "New folders per day";
+        document.querySelector("#folder-footer").textContent = `Total ${data.resp.count} folders`
+        new Chart(ctx, chart);
+    },
 }
