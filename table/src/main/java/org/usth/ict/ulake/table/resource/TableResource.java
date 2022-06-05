@@ -25,12 +25,14 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.table.model.Table;
 import org.usth.ict.ulake.table.model.TableMetadata;
 import org.usth.ict.ulake.table.model.TableModel;
 import org.usth.ict.ulake.table.persistence.TableCellRepository;
 import org.usth.ict.ulake.table.persistence.TableColumnRepository;
 import org.usth.ict.ulake.table.persistence.TableRepository;
 import org.usth.ict.ulake.table.persistence.TableRowRepository;
+import org.usth.ict.ulake.table.utils.Parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -135,7 +137,11 @@ public class TableResource {
         table.format = meta.format;
         table.creationTime = now;
         repo.persist(table);
-        return response.build(200, null, table);
+
+        // parse input stream
+        Table tableData = Parser.parseCsv(is, meta);
+
+        return response.build(200, null, tableData);
     }
 
     @GET

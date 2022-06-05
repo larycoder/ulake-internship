@@ -25,6 +25,4 @@ public class TableModel {
 
     @Schema(description = "Original format of the uploaded table")
     public String format;
-
-
 }
