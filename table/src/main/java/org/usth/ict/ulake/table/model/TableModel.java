@@ -19,4 +19,12 @@ public class TableModel {
 
     @Schema(description = "Id of the owner")
     public Long ownerId;
+
+    @Schema(description = "Creation time")
+    public Long creationTime;
+
+    @Schema(description = "Original format of the uploaded table")
+    public String format;
+
+
 }

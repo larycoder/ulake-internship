@@ -2,6 +2,7 @@ package org.usth.ict.ulake.table.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,15 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.table.model.TableMetadata;
+import org.usth.ict.ulake.table.model.TableModel;
 import org.usth.ict.ulake.table.persistence.TableCellRepository;
 import org.usth.ict.ulake.table.persistence.TableColumnRepository;
 import org.usth.ict.ulake.table.persistence.TableRepository;
 import org.usth.ict.ulake.table.persistence.TableRowRepository;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
 
@@ -36,6 +42,9 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 @Produces(MediaType.APPLICATION_JSON)
 public class TableResource {
     private static final Logger log = LoggerFactory.getLogger(TableResource.class);
+
+    @Inject
+    ObjectMapper mapper;
 
     @Inject
     LakeHttpResponse response;
@@ -105,7 +114,7 @@ public class TableResource {
             if (formData.getKey().equals("metadata")) {
                 try {
                     String metaJson = formData.getValue().get(0).getBodyAsString();
-                    meta = mapper.readValue(metaJson, LakeObjectMetadata.class);
+                    meta = mapper.readValue(metaJson, TableMetadata.class);
                 } catch (JsonProcessingException e) {
                     log.error("error parsing metadata json {}", e.getMessage());
                 }
@@ -118,28 +127,15 @@ public class TableResource {
             return response.build(403);
         }
 
-        // make a new object, if any
-        LakeGroup group = null;
-        if (meta.getGroupId() != null) {
-            group = groupRepo.find("gid", meta.getGroupId()).firstResult();
-        }
+        // save a new table meta info
+        TableModel table = new TableModel();
 
-        // save to backend
-        String cid = fs.create(meta.getName(), meta.getLength(), is);
-        log.info("POST: object storage returned cid={}", cid);
-
-        // save a new object to metadata RDBMS
-        LakeObject object = new LakeObject();
-        object.setCid(cid);
         Long now = new Date().getTime();
-        object.setCreateTime(now);
-        object.setAccessTime(now);
-        object.setParentId(0L);
-        object.setGroup(group);
-        repo.persist(object);
-        return response.build(200, null, object);
-
-        return response.build(200, null, results);
+        table.name = meta.name;
+        table.format = meta.format;
+        table.creationTime = now;
+        repo.persist(table);
+        return response.build(200, null, table);
     }
 
     @GET
