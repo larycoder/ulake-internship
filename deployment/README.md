@@ -4,29 +4,36 @@ Document version: 0.2.0
 
 ## Deployment components
 
-1. WebApp (nginx)                   port: 8080
-2. Core Service (API)               port: 8784
-3. Folder Service (API)             port: 8786
-4. User Service (API)               port: 8785
-5. Acl Service (API)                port: 8783
-6. MySql (docker)                   port: 23306
-7. OpenIO (docker)                  port: 6006 -- deprecated
-8. Phpmyadmin (docker)              port: 8081
-9. Dashboard Service (API)          port: 8782
-10. Search Service (API)            port: 8787
-11. Admin Service (API)             port: 8781
-12. Tabular Data Service (API)      port: 8788
+### Interface
 
-8. Hadoop datanode (docker)
-9. Hadoop namenode (docker)         port: 9000, 9870
-10. Hadoop resourcemanager (docker)
-11. Hadoop nodemanager (docker)
-12. Hadoop historyserver (docker)
+1. WebApp (nginx)                   port: 8080
+
+### Service
+
+1. Core Service (API)               port: 8784
+2. Folder Service (API)             port: 8786
+3. User Service (API)               port: 8785
+4. Acl Service (API)                port: 8783
+7. Search Service (API)             port: 8787
+6. Dashboard Service (API)          port: 8782
+7. Admin Service (API)              port: 8781
+8. Tabular Data Service (API)       port: 8788
+
+### Storage
+
+1. MySql (docker)                   port: 23306
+2. OpenIO (docker)                  port: 6006 -- deprecated
+3. Hadoop namenode (docker)
+4. Hadoop datanode (swarm)
+
+### Tool
+
+1. Phpmyadmin (docker)               port: 8081
 
 ## Strategy
 
 1. WebApp: setup script
-2. Service: screen
+2. Service: dockerfile
 3. Docker: setup script
 
 ## Nginx
@@ -59,3 +66,6 @@ Since nginx setup is pretty complex part, there is a section for setup once.
 5. Nginx in docker need to link to Machine host
 6. Need to map domain name to IP for activating service vhost
 7. Hadoop system will be updated manually basing on big-data-europe work
+8. Hadoop will run on cluster base on docker swarm
+9. Services will run on docker build from dockerfile and mount volume to outside
+10. Services, Hadoop and Mysql will share same network
