@@ -73,11 +73,15 @@ public class FolderResource {
     @Operation(summary = "List root folder")
     public Response root() {
         var ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
-        // TODO: Admin should see full root
         UserFolder root = new UserFolder();
         root.ownerId = ownerId;
-        root.subFolders = repo.listRoot(ownerId);
-        root.files = fileRepo.listRoot(ownerId);
+        if (jwt.getGroups().contains("Admin")) {
+            root.subFolders = repo.listRoot();
+            root.files = fileRepo.listRoot();
+        } else {
+            root.subFolders = repo.listRoot(ownerId);
+            root.files = fileRepo.listRoot(ownerId);
+        }
         return response.build(200, null, root);
     }
 
@@ -156,7 +160,7 @@ public class FolderResource {
         var stats = repo.getNewFoldersByDate();
         Integer count = (int) repo.count();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        for (var stat: stats) {
+        for (var stat : stats) {
             Date date = stat.getDate();
             if (date == null) {
                 date = new Date(System.currentTimeMillis());
