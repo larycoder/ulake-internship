@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -44,6 +45,9 @@ public class UserResource {
 
     @Inject
     UserRepository repo;
+
+    @Inject
+    JsonWebToken jwt;
 
     @GET
     @Operation(summary = "List all users")
@@ -89,8 +93,8 @@ public class UserResource {
             return response.build(409, "", entity);
         }
 
-
         log.info("POSTING new user");
+        entity.isAdmin = false;
         entity.password = BcryptUtil.bcryptHash(entity.password);
         entity.registerTime = new Date().getTime();
         repo.persist(entity);
@@ -109,6 +113,12 @@ public class UserResource {
         if (entity == null) {
             return response.build(404);
         }
+
+        // only admin token could modify admin field
+        if (!jwt.getGroups().contains("Admin")) {
+            newEntity.isAdmin = entity.isAdmin;
+        }
+
         if (!Utils.isEmpty(newEntity.firstName)) entity.firstName = newEntity.firstName;
         if (!Utils.isEmpty(newEntity.lastName)) entity.lastName = newEntity.lastName;
         if (!Utils.isEmpty(newEntity.email)) entity.email = newEntity.email;

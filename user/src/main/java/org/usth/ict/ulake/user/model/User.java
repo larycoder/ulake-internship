@@ -20,16 +20,17 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 @Entity
 public class User extends PanacheEntityBase {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
     public String userName;
     public String firstName;
     public String lastName;
     public Long failedLogins;
+    public Boolean isAdmin;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String email;
-    
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String password;
     public Long registerTime;
@@ -69,5 +70,5 @@ public class User extends PanacheEntityBase {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
 }

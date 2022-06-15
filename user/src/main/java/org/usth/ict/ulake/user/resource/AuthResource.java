@@ -4,6 +4,7 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.security.PermitAll;
@@ -96,10 +97,10 @@ public class AuthResource {
             name = ctx.getUserPrincipal().getName();
         }
         return String.format("hello + %s,"
-                        + " isHttps: %s,"
-                        + " authScheme: %s,"
-                        + " hasJWT: %s",
-                name, ctx.isSecure(), ctx.getAuthenticationScheme(), hasJwt());
+                             + " isHttps: %s,"
+                             + " authScheme: %s,"
+                             + " hasJWT: %s",
+                             name, ctx.isSecure(), ctx.getAuthenticationScheme(), hasJwt());
     }
 
     private boolean hasJwt() {
@@ -111,14 +112,22 @@ public class AuthResource {
         if (user == null) {
             return response.build(401);
         }
+
+        List<String> groups;
+        if (user.isAdmin != null && user.isAdmin.equals(true)) {
+            groups = Arrays.asList("User", "Admin");
+        } else {
+            groups = Arrays.asList("User");
+        }
+
         user.accessToken =
-                Jwt.issuer("https://sontg.net/issuer")
-                        .upn(user.email)
-                        .expiresIn(tokenExpire)
-                        .groups(new HashSet<>(Arrays.asList("User", "Admin")))
-                        .claim(Claims.auth_time.name(), new Date().getTime())
-                        .claim(Claims.sub.name(), String.valueOf(user.id))
-                        .sign();
+            Jwt.issuer("https://sontg.net/issuer")
+            .upn(user.email)
+            .expiresIn(tokenExpire)
+            .groups(new HashSet<>(groups))
+            .claim(Claims.auth_time.name(), new Date().getTime())
+            .claim(Claims.sub.name(), String.valueOf(user.id))
+            .sign();
 
         // save access token, so we can detect abnormal cases
         // e.g. attacker uses an old accessToken
@@ -139,8 +148,8 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Authenticate user")
     @APIResponses({
-            @APIResponse(name = "200", responseCode = "200", description = "Authentication successful. JWT is in .resp, refresh token is in .msg"),
-            @APIResponse(name = "401", responseCode = "401", description = "Authentication error")
+        @APIResponse(name = "200", responseCode = "200", description = "Authentication successful. JWT is in .resp, refresh token is in .msg"),
+        @APIResponse(name = "401", responseCode = "401", description = "Authentication error")
     })
     public Response login(@RequestBody(description = "Username and password (not hashed) to authenticate") LoginCredential cred) {
         return privLogin(cred, false);
@@ -154,8 +163,8 @@ public class AuthResource {
     @PermitAll
     @Operation(summary = "Get a new JWT using a refresh token")
     @APIResponses({
-            @APIResponse(name = "200", responseCode = "200", description = "Reauthentication successful. JWT is in .resp, refresh token is in .msg"),
-            @APIResponse(name = "401", responseCode = "401", description = "Reauthentication error. Refresh token invalid")
+        @APIResponse(name = "200", responseCode = "200", description = "Reauthentication successful. JWT is in .resp, refresh token is in .msg"),
+        @APIResponse(name = "401", responseCode = "401", description = "Reauthentication error. Refresh token invalid")
     })
     public Response refresh(@RequestBody(description = "Refresh token to reauthenticate")LoginCredential cred) {
         User user = repo.checkRefreshLogin(cred);
