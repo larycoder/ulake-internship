@@ -48,7 +48,7 @@ public class FileResource {
     JsonWebToken jwt;
 
     @GET
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "List all files")
     public Response all() {
         return response.build(200, "", repo.listAll());
@@ -61,7 +61,17 @@ public class FileResource {
     public Response one(
         @PathParam("id")
         @Parameter(description = "File id to search") Long id) {
-        return response.build(200, null, repo.findById(id));
+        var file = repo.findById(id);
+        var oid = Long.parseLong(jwt.getName());
+        var groups = jwt.getGroups();
+
+        if (file == null)
+            return response.build(404, "File not found");
+
+        if ( !groups.contains("Admin") && !file.ownerId.equals(oid))
+            return response.build(403);
+
+        return response.build(200, null, file);
     }
 
     @POST
@@ -71,6 +81,7 @@ public class FileResource {
     public Response search(
         @RequestBody(description = "Query to perform search for user files")
         UserFileSearchQuery query) {
+        // TODO: admin verification
         var results = repo.search(query);
         if (results.isEmpty()) {
             return response.build(404);
@@ -84,8 +95,11 @@ public class FileResource {
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
     public Response post(UserFile entity) {
+        if (!jwt.getGroups().contains("Admin"))
+            entity.ownerId = Long.parseLong(jwt.getName());
+
         repo.persist(entity);
-        return response.build(200, "", entity);
+        return response.build(200, null, entity);
     }
 
     @PUT
@@ -96,12 +110,18 @@ public class FileResource {
     @Operation(summary = "Update a file info")
     public Response update(
         @PathParam("id")
-        @Parameter(description = "File id to update")
-        Long id,
-        @RequestBody(description = "New file info to save")
-        UserFile data) {
+        @Parameter(description = "File id to update") Long id,
+        @RequestBody(description = "New file info to save") UserFile data) {
 
         UserFile file = repo.findById(id);
+        var oid = Long.parseLong(jwt.getName());
+        var groups = jwt.getGroups();
+
+        if (file == null)
+            return response.build(404, "File not found");
+
+        if (!groups.contains("Admin") && !file.ownerId.equals(oid))
+            return response.build(403);
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
             file.cid = data.cid;
@@ -134,6 +154,12 @@ public class FileResource {
         if (entity == null) {
             return response.build(404);
         }
+
+        var oid = Long.parseLong(jwt.getName());
+        var groups = jwt.getGroups();
+        if(!groups.contains("Admin") && !entity.ownerId.equals(oid))
+            return response.build(403);
+
         repo.delete(entity);
         return response.build(200);
     }
@@ -141,14 +167,14 @@ public class FileResource {
     @GET
     @Path("/stats")
     @Operation(summary = "Some statistics")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     public Response stats() {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Integer> folderCount = new HashMap<>();
         var stats = repo.getNewFilesByDate();
         Integer count = (int) repo.count();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        for (var stat: stats) {
+        for (var stat : stats) {
             Date date = stat.getDate();
             if (date == null) {
                 date = new Date(System.currentTimeMillis());
