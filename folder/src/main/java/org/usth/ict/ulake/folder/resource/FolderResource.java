@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -48,7 +49,7 @@ public class FolderResource {
     LakeHttpResponse response;
 
     @GET
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "List all folders")
     public Response all() {
         return response.build(200, "", repo.listAll());
@@ -61,7 +62,15 @@ public class FolderResource {
     public Response one(
         @PathParam("id")
         @Parameter(description = "Folder id to search") Long id) {
-        return response.build(200, null, repo.findById(id));
+        var folder = repo.findById(id);
+
+        if (folder == null)
+            return response.build(404, "Folder not found");
+
+        if (verifyACL(folder, Long.parseLong(jwt.getName()), jwt.getGroups()))
+            return response.build(403);
+
+        return response.build(200, null, folder);
     }
 
     /**
@@ -92,6 +101,9 @@ public class FolderResource {
     @Operation(summary = "Create a new folder")
     public Response post(
         @RequestBody(description = "Folder to save") UserFolder entity) {
+        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+            return response.build(403);
+
         repo.persist(entity);
         return response.build(200, "", entity);
     }
@@ -109,6 +121,12 @@ public class FolderResource {
         @RequestBody(description = "New folder information")
         UserFolder data) {
         UserFolder entity = repo.findById(id);
+
+        if (entity == null)
+            return response.build(404, "Folder not found");
+
+        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+            return response.build(403);
 
         if (!Utils.isEmpty(data.subFolders)) {
             entity.subFolders = repo.load(data.subFolders);
@@ -143,9 +161,12 @@ public class FolderResource {
         @PathParam("id")
         @Parameter(description = "Folder id to delete") Long id) {
         UserFolder entity = repo.findById(id);
-        if (entity == null) {
+        if (entity == null)
             return response.build(404);
-        }
+
+        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+            return response.build(403);
+
         repo.delete(entity);
         return response.build(200);
     }
@@ -153,7 +174,7 @@ public class FolderResource {
     @GET
     @Path("/stats")
     @Operation(summary = "Some statistics")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     public Response stats() {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Integer> folderCount = new HashMap<>();
@@ -171,5 +192,15 @@ public class FolderResource {
         ret.put("newFolders", folderCount);
         ret.put("count", count);
         return response.build(200, "", ret);
+    }
+
+    private Boolean verifyACL(
+        UserFolder folder, Long ownerId, Set<String> groups) {
+        if (groups.contains("Admin"))
+            return true;
+        else if (folder.ownerId.equals(ownerId))
+            return true;
+        else
+            return false;
     }
 }

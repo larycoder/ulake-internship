@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -62,13 +63,11 @@ public class FileResource {
         @PathParam("id")
         @Parameter(description = "File id to search") Long id) {
         var file = repo.findById(id);
-        var oid = Long.parseLong(jwt.getName());
-        var groups = jwt.getGroups();
 
         if (file == null)
             return response.build(404, "File not found");
 
-        if ( !groups.contains("Admin") && !file.ownerId.equals(oid))
+        if (verifyACL(file, Long.parseLong(jwt.getName()), jwt.getGroups()))
             return response.build(403);
 
         return response.build(200, null, file);
@@ -95,8 +94,9 @@ public class FileResource {
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
     public Response post(UserFile entity) {
-        if (!jwt.getGroups().contains("Admin"))
-            entity.ownerId = Long.parseLong(jwt.getName());
+
+        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+            return response.build(403);
 
         repo.persist(entity);
         return response.build(200, null, entity);
@@ -114,13 +114,11 @@ public class FileResource {
         @RequestBody(description = "New file info to save") UserFile data) {
 
         UserFile file = repo.findById(id);
-        var oid = Long.parseLong(jwt.getName());
-        var groups = jwt.getGroups();
 
         if (file == null)
             return response.build(404, "File not found");
 
-        if (!groups.contains("Admin") && !file.ownerId.equals(oid))
+        if (verifyACL(file, Long.parseLong(jwt.getName()), jwt.getGroups()))
             return response.build(403);
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
@@ -151,13 +149,10 @@ public class FileResource {
         @Parameter(description = "File id to delete")
         Long id) {
         UserFile entity = repo.findById(id);
-        if (entity == null) {
+        if (entity == null)
             return response.build(404);
-        }
 
-        var oid = Long.parseLong(jwt.getName());
-        var groups = jwt.getGroups();
-        if(!groups.contains("Admin") && !entity.ownerId.equals(oid))
+        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
             return response.build(403);
 
         repo.delete(entity);
@@ -185,5 +180,15 @@ public class FileResource {
         ret.put("newFiles", folderCount);
         ret.put("count", count);
         return response.build(200, "", ret);
+    }
+
+    private Boolean verifyACL(
+        UserFile file, Long ownerId, Set<String> groups) {
+        if (groups.contains("Admin"))
+            return true;
+        else if (file.ownerId.equals(ownerId))
+            return true;
+        else
+            return false;
     }
 }
