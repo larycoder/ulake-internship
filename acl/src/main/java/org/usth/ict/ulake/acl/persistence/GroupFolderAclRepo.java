@@ -9,7 +9,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.usth.ict.ulake.acl.model.FolderAcl;
 import org.usth.ict.ulake.acl.model.GroupFolderAcl;
+import org.usth.ict.ulake.common.misc.Utils;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
@@ -44,5 +46,28 @@ public class GroupFolderAclRepo implements PanacheRepository<GroupFolderAcl> {
 
     public Boolean hasAcl(GroupFolderAcl acl) {
         return !findAcl(acl).isEmpty();
+    }
+
+    public List<GroupFolderAcl> listAcl(FolderAcl folder) {
+        List<String> query = new ArrayList<>();
+        HashMap<String, Object> params = new HashMap<>();
+
+        if (folder.folderId != null) {
+            query.add("(folderId = :folderId)");
+            params.put("folderId", folder.folderId);
+        }
+
+        if (folder.groupIds != null) {
+            query.add("(groupId in (:groupIds))");
+            params.put("groupIds", folder.groupIds);
+        }
+
+        if (folder.permission != null) {
+            query.add("(permission = :permission)");
+            params.put("permission", folder.permission);
+        }
+
+        String hql = String.join(" and ", query);
+        return list(hql, params);
     }
 }

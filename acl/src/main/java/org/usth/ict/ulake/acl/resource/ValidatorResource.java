@@ -13,14 +13,13 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.usth.ict.ulake.acl.model.FileAcl;
 import org.usth.ict.ulake.acl.model.FolderAcl;
-import org.usth.ict.ulake.acl.model.GroupFileAcl;
-import org.usth.ict.ulake.acl.model.GroupFolderAcl;
 import org.usth.ict.ulake.acl.model.UserFileAcl;
 import org.usth.ict.ulake.acl.model.UserFolderAcl;
 import org.usth.ict.ulake.acl.persistence.GroupFileAclRepo;
 import org.usth.ict.ulake.acl.persistence.GroupFolderAclRepo;
 import org.usth.ict.ulake.acl.persistence.UserFileAclRepo;
 import org.usth.ict.ulake.acl.persistence.UserFolderAclRepo;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
 @Path("/acl/validation")
@@ -57,11 +56,7 @@ public class ValidatorResource {
         if (userFileRepo.hasAcl(user))
             return resp.build(200, null, true);
 
-        var group = new GroupFileAcl();
-        group.groupId = acl.onwerId;
-        group.fileId = acl.fileId;
-        group.permission = acl.permission;
-        if (groupFileRepo.hasAcl(group))
+        if (!groupFileRepo.listAcl(acl).isEmpty())
             return resp.build(200, null, true);
 
         return resp.build(200, null, false);
@@ -83,11 +78,7 @@ public class ValidatorResource {
         if (userFolderRepo.hasAcl(user))
             return resp.build(200, null, true);
 
-        var group = new GroupFolderAcl();
-        group.groupId = acl.onwerId;
-        group.folderId = acl.folderId;
-        group.permission = acl.permission;
-        if (groupFolderRepo.hasAcl(group))
+        if (!groupFolderRepo.listAcl(acl).isEmpty())
             return resp.build(200, null, true);
 
         return resp.build(200, null, false);
