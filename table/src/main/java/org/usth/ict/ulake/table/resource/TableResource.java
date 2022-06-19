@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -101,8 +103,11 @@ public class TableResource {
     }
 
     @POST
+    @Transactional
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Make a new table")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response post(@RequestBody(description = "Multipart form data. metadata: extra json info " +
                             "{name:'table name', format: 'csv/xls'}). file: csv/xls data to save")
                         MultipartFormDataInput input) throws IOException {
@@ -112,7 +117,7 @@ public class TableResource {
         // iterate through form data to extract metadata and file
         Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
         for (var formData : formDataMap.entrySet()) {
-            // log.info("POST: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
+            log.info("POSTzzz: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
             if (formData.getKey().equals("metadata")) {
                 try {
                     String metaJson = formData.getValue().get(0).getBodyAsString();

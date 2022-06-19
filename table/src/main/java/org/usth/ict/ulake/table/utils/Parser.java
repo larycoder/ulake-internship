@@ -9,10 +9,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.usth.ict.ulake.table.model.Table;
 import org.usth.ict.ulake.table.model.TableMetadata;
+import org.usth.ict.ulake.table.model.TableModel;
 
 public class Parser {
     public static Table parseCsv(InputStream is, TableMetadata metadata) {
         Table table = new Table();
+        table.model = new TableModel();
         table.model.name = metadata.name;
         table.model.format = metadata.format;
 
