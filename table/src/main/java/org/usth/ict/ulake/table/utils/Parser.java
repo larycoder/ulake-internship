@@ -18,16 +18,17 @@ public class Parser {
         table.model.name = metadata.name;
         table.model.format = metadata.format;
 
-        Reader ir = new InputStreamReader(is);
-
-        Iterable<CSVRecord> records;
+        Reader ir = new InputStreamReader(is);        
         try {
+            Iterable<CSVRecord> records;
             records = CSVFormat.DEFAULT.parse(ir);
-            for (CSVRecord record : records) {
-                var map = record.toMap();
-                for (var key: map.keySet()) {
-                    System.out.println("CSV " + key + " = " + map.get(key));
-                }
+            var it = records.iterator();
+            while (it.hasNext()) {                
+                var row = it.next();
+                System.out.println("Row size : " + row.size());                
+                for (var key: row) {
+                    System.out.println("CSV " + key);
+                }                
             }
         } catch (IOException e) {
             e.printStackTrace();
