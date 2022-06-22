@@ -2,7 +2,6 @@ package org.usth.ict.ulake.table.parser;
 
 import java.io.InputStream;
 
-import org.slf4j.Logger;
 import org.usth.ict.ulake.table.model.Table;
 import org.usth.ict.ulake.table.model.TableMetadata;
 import org.usth.ict.ulake.table.model.TableModel;
