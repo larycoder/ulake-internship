@@ -20,6 +20,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -64,6 +66,9 @@ public class TableResource {
 
     @Inject
     TableCellRepository repoCell;
+
+    @Inject
+    JsonWebToken jwt;
 
     @GET
     @Operation(summary = "List all tables")
@@ -117,7 +122,7 @@ public class TableResource {
         // iterate through form data to extract metadata and file
         Map<String, List<InputPart>> formDataMap = input.getFormDataMap();
         for (var formData : formDataMap.entrySet()) {
-            log.info("POSTzzz: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
+            //log.info("POSTzzz: {} {}", formData.getKey(), formData.getValue().get(0).getBodyAsString());
             if (formData.getKey().equals("metadata")) {
                 try {
                     String metaJson = formData.getValue().get(0).getBodyAsString();
@@ -140,11 +145,12 @@ public class TableResource {
         Long now = new Date().getTime();
         table.name = meta.name;
         table.format = meta.format;
-        table.creationTime = now;
+        table.creationTime = now.longValue();
+        table.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
         repo.persist(table);
 
         // parse input stream
-        Table tableData = Parser.parseCsv(is, meta);
+        Table tableData = Parser.parseCsv(log, repo, repoRow, repoColumn, repoCell, is, table, meta);
 
         return response.build(200, null, tableData);
     }
