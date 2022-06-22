@@ -10,7 +10,7 @@ public class Acl {
     public Long objectId;
 
     @Schema(description = "Owner ID from user management")
-    public Long onwerId;
+    public Long ownerId;
 
     @Schema(description = "Group IDs from user management")
     public List<Long> groupIds;
