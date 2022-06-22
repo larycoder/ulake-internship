@@ -11,16 +11,14 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.usth.ict.ulake.acl.model.FileAcl;
-import org.usth.ict.ulake.acl.model.FolderAcl;
 import org.usth.ict.ulake.acl.model.UserFileAcl;
 import org.usth.ict.ulake.acl.model.UserFolderAcl;
 import org.usth.ict.ulake.acl.persistence.GroupFileAclRepo;
 import org.usth.ict.ulake.acl.persistence.GroupFolderAclRepo;
 import org.usth.ict.ulake.acl.persistence.UserFileAclRepo;
 import org.usth.ict.ulake.acl.persistence.UserFolderAclRepo;
-import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.acl.Acl;
 
 @Path("/acl/validation")
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,10 +46,10 @@ public class ValidatorResource {
         @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
         @APIResponse(name = "200", responseCode = "200", description = "OK"),
     })
-    public Response validate(FileAcl acl) {
+    public Response validateFile(Acl acl) {
         var user = new UserFileAcl();
-        user.userId = acl.onwerId;
-        user.fileId = acl.fileId;
+        user.userId = acl.ownerId;
+        user.fileId = acl.objectId;
         user.permission = acl.permission;
         if (userFileRepo.hasAcl(user))
             return resp.build(200, null, true);
@@ -70,10 +68,10 @@ public class ValidatorResource {
         @APIResponse(name = "400", responseCode = "400", description = "Invalid ACL passing"),
         @APIResponse(name = "200", responseCode = "200", description = "OK"),
     })
-    public Response validate(FolderAcl acl) {
+    public Response validateFolder(Acl acl) {
         var user = new UserFolderAcl();
-        user.userId = acl.onwerId;
-        user.folderId = acl.folderId;
+        user.userId = acl.ownerId;
+        user.folderId = acl.objectId;
         user.permission = acl.permission;
         if (userFolderRepo.hasAcl(user))
             return resp.build(200, null, true);

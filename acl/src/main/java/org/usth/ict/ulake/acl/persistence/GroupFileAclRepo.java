@@ -9,9 +9,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.usth.ict.ulake.acl.model.FileAcl;
 import org.usth.ict.ulake.acl.model.GroupFileAcl;
-import org.usth.ict.ulake.common.misc.Utils;
+import org.usth.ict.ulake.common.model.acl.Acl;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
@@ -48,13 +47,13 @@ public class GroupFileAclRepo implements PanacheRepository<GroupFileAcl> {
         return !findAcl(acl).isEmpty();
     }
 
-    public List<GroupFileAcl> listAcl(FileAcl file) {
+    public List<GroupFileAcl> listAcl(Acl file) {
         List<String> query = new ArrayList<>();
         HashMap<String, Object> params = new HashMap<>();
 
-        if (file.fileId != null) {
+        if (file.objectId != null) {
             query.add("(fileId = :fileId)");
-            params.put("fileId", file.fileId);
+            params.put("fileId", file.objectId);
         }
 
         if (file.groupIds != null) {
