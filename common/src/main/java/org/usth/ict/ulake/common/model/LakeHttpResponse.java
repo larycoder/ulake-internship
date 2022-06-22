@@ -24,6 +24,7 @@ public class LakeHttpResponse {
         codeMap.put(404, "Not Found");
         codeMap.put(405, "Method Not Allowed");
         codeMap.put(409, "Conflict");
+        codeMap.put(415, "Unsupported Media Type");
     }
 
     int code;

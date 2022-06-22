@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.table.utils;
+package org.usth.ict.ulake.table.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.table.model.Table;
 import org.usth.ict.ulake.table.model.TableCellModel;
 import org.usth.ict.ulake.table.model.TableColumnModel;
@@ -20,8 +21,11 @@ import org.usth.ict.ulake.table.persistence.TableColumnRepository;
 import org.usth.ict.ulake.table.persistence.TableRepository;
 import org.usth.ict.ulake.table.persistence.TableRowRepository;
 
-public class Parser {
-    public static Table parseCsv(Logger log, TableRepository repo, TableRowRepository repoRow,
+public class Csv implements Parser {
+    Logger log = LoggerFactory.getLogger(Csv.class);
+
+    @Override
+    public Table parse(TableRepository repo, TableRowRepository repoRow,
                 TableColumnRepository repoColumn, TableCellRepository repoCell,
                 InputStream is, TableModel tableModel, TableMetadata metadata) {
         Table table = new Table();
@@ -35,6 +39,7 @@ public class Parser {
             int rowIndex = 0;
             int cells = 0;
             while (it.hasNext()) {
+
                 var rowCsv = it.next();
                 TableRowModel row = new TableRowModel();
                 row.table = table.model;

@@ -32,11 +32,12 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.table.model.Table;
 import org.usth.ict.ulake.table.model.TableMetadata;
 import org.usth.ict.ulake.table.model.TableModel;
+import org.usth.ict.ulake.table.parser.Csv;
+import org.usth.ict.ulake.table.parser.Parser;
 import org.usth.ict.ulake.table.persistence.TableCellRepository;
 import org.usth.ict.ulake.table.persistence.TableColumnRepository;
 import org.usth.ict.ulake.table.persistence.TableRepository;
 import org.usth.ict.ulake.table.persistence.TableRowRepository;
-import org.usth.ict.ulake.table.utils.Parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -150,9 +151,21 @@ public class TableResource {
         repo.persist(table);
 
         // parse input stream
-        Table tableData = Parser.parseCsv(log, repo, repoRow, repoColumn, repoCell, is, table, meta);
+        Parser parser = null;
+        Table tableData = null;
+        if (meta.format.equals("csv")) {
+            parser = new Csv();
+        }
+        if (parser != null) {
+            tableData = parser.parse(repo, repoRow, repoColumn, repoCell, is, table, meta);
+        }
 
-        return response.build(200, null, tableData);
+        if (tableData != null) {
+            return response.build(200, null, tableData);
+        }
+        else {
+            return response.build(415, "Only CSV/XLSX files are supported");
+        }
     }
 
     @GET
