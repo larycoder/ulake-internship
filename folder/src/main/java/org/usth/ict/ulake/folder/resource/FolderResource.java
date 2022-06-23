@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,15 +24,17 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.folder.model.UserFolder;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
 import org.usth.ict.ulake.folder.persistence.FolderRepository;
 
 @Path("/folder")
-@Tag(name = "Folder")
 @Produces(MediaType.APPLICATION_JSON)
 public class FolderResource {
     @Inject
@@ -47,6 +48,10 @@ public class FolderResource {
 
     @Inject
     LakeHttpResponse response;
+
+    @Inject
+    @RestClient
+    AclService aclSvc;
 
     @GET
     @RolesAllowed({ "Admin" })
@@ -62,12 +67,13 @@ public class FolderResource {
     public Response one(
         @PathParam("id")
         @Parameter(description = "Folder id to search") Long id) {
+        var permit = PermissionModel.READ; // <-- permit
         var folder = repo.findById(id);
 
         if (folder == null)
             return response.build(404, "Folder not found");
 
-        if (verifyACL(folder, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, folder.id, folder.ownerId, permit))
             return response.build(403);
 
         return response.build(200, null, folder);
@@ -101,9 +107,7 @@ public class FolderResource {
     @Operation(summary = "Create a new folder")
     public Response post(
         @RequestBody(description = "Folder to save") UserFolder entity) {
-        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
-            return response.build(403);
-
+        // TODO: missing permission validate mechanism
         repo.persist(entity);
         return response.build(200, "", entity);
     }
@@ -120,12 +124,13 @@ public class FolderResource {
         Long id,
         @RequestBody(description = "New folder information")
         UserFolder data) {
+        var permit = PermissionModel.WRITE; // <-- permit
         UserFolder entity = repo.findById(id);
 
         if (entity == null)
             return response.build(404, "Folder not found");
 
-        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         if (!Utils.isEmpty(data.subFolders)) {
@@ -160,11 +165,12 @@ public class FolderResource {
     public Response delete (
         @PathParam("id")
         @Parameter(description = "Folder id to delete") Long id) {
+        var permit = PermissionModel.WRITE; // <-- permit
         UserFolder entity = repo.findById(id);
         if (entity == null)
             return response.build(404);
 
-        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         repo.delete(entity);
@@ -192,15 +198,5 @@ public class FolderResource {
         ret.put("newFolders", folderCount);
         ret.put("count", count);
         return response.build(200, "", ret);
-    }
-
-    private Boolean verifyACL(
-        UserFolder folder, Long ownerId, Set<String> groups) {
-        if (groups.contains("Admin"))
-            return true;
-        else if (folder.ownerId.equals(ownerId))
-            return true;
-        else
-            return false;
     }
 }

@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,16 +23,18 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
 import org.usth.ict.ulake.folder.persistence.FolderRepository;
 
 @Path("/file")
-@Tag(name = "File")
 @Produces(MediaType.APPLICATION_JSON)
 public class FileResource {
     @Inject
@@ -47,6 +48,10 @@ public class FileResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    @RestClient
+    AclService aclSvc;
 
     @GET
     @RolesAllowed({ "Admin" })
@@ -62,12 +67,13 @@ public class FileResource {
     public Response one(
         @PathParam("id")
         @Parameter(description = "File id to search") Long id) {
+        var permit = PermissionModel.READ; // <-- permit
         var file = repo.findById(id);
 
         if (file == null)
             return response.build(404, "File not found");
 
-        if (verifyACL(file, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, file.id, file.ownerId, permit))
             return response.build(403);
 
         return response.build(200, null, file);
@@ -94,9 +100,7 @@ public class FileResource {
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
     public Response post(UserFile entity) {
-
-        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
-            return response.build(403);
+        // TODO: missing appropriate permission mechanism
 
         repo.persist(entity);
         return response.build(200, null, entity);
@@ -112,13 +116,13 @@ public class FileResource {
         @PathParam("id")
         @Parameter(description = "File id to update") Long id,
         @RequestBody(description = "New file info to save") UserFile data) {
-
+        var permit = PermissionModel.WRITE; // <-- permit
         UserFile file = repo.findById(id);
 
         if (file == null)
             return response.build(404, "File not found");
 
-        if (verifyACL(file, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, file.id, file.ownerId, permit))
             return response.build(403);
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
@@ -143,16 +147,17 @@ public class FileResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Delete a file info")
+    @Operation(summary = "Delete a file")
     public Response delete (
         @PathParam("id")
         @Parameter(description = "File id to delete")
         Long id) {
+        var permit = PermissionModel.WRITE; // <-- permit
         UserFile entity = repo.findById(id);
         if (entity == null)
             return response.build(404);
 
-        if (verifyACL(entity, Long.parseLong(jwt.getName()), jwt.getGroups()))
+        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         repo.delete(entity);
@@ -180,15 +185,5 @@ public class FileResource {
         ret.put("newFiles", folderCount);
         ret.put("count", count);
         return response.build(200, "", ret);
-    }
-
-    private Boolean verifyACL(
-        UserFile file, Long ownerId, Set<String> groups) {
-        if (groups.contains("Admin"))
-            return true;
-        else if (file.ownerId.equals(ownerId))
-            return true;
-        else
-            return false;
     }
 }
