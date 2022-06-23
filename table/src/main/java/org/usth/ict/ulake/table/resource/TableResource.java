@@ -34,6 +34,7 @@ import org.usth.ict.ulake.table.model.TableMetadata;
 import org.usth.ict.ulake.table.model.TableModel;
 import org.usth.ict.ulake.table.parser.Csv;
 import org.usth.ict.ulake.table.parser.Parser;
+import org.usth.ict.ulake.table.parser.Xlsx;
 import org.usth.ict.ulake.table.persistence.TableCellRepository;
 import org.usth.ict.ulake.table.persistence.TableColumnRepository;
 import org.usth.ict.ulake.table.persistence.TableRepository;
@@ -153,9 +154,14 @@ public class TableResource {
         // parse input stream
         Parser parser = null;
         Table tableData = null;
+        log.info("Parsing uploaded format {}", meta.format);
         if (meta.format.equals("csv")) {
             parser = new Csv();
         }
+        else if (meta.format.equals("xlsx")) {
+            parser = new Xlsx();
+        }
+
         if (parser != null) {
             tableData = parser.parse(repo, repoRow, repoColumn, repoCell, is, table, meta);
         }
