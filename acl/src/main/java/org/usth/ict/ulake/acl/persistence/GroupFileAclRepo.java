@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.usth.ict.ulake.acl.model.GroupFileAcl;
+import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.acl.Acl;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -47,24 +48,22 @@ public class GroupFileAclRepo implements PanacheRepository<GroupFileAcl> {
         return !findAcl(acl).isEmpty();
     }
 
-    public List<GroupFileAcl> listAcl(Acl file) {
+    /**
+     * List permission by group of user
+     * */
+    public List<GroupFileAcl> listAcl(
+        List<Long> groupIds, Long fileId, PermissionModel permit) {
         List<String> query = new ArrayList<>();
         HashMap<String, Object> params = new HashMap<>();
 
-        if (file.objectId != null) {
-            query.add("(fileId = :fileId)");
-            params.put("fileId", file.objectId);
-        }
+        query.add("(groupId in (:groupIds))");
+        params.put("groupIds", groupIds);
 
-        if (file.groupIds != null) {
-            query.add("(groupId in (:groupIds))");
-            params.put("groupIds", file.groupIds);
-        }
+        query.add("(fileId = :fileId)");
+        params.put("fileId", fileId);
 
-        if (file.permission != null) {
-            query.add("(permission = :permission)");
-            params.put("permission", file.permission);
-        }
+        query.add("(permission = :permission)");
+        params.put("permission", permit);
 
         String hql = String.join(" and ", query);
         System.out.println(hql);

@@ -54,7 +54,9 @@ public class ValidatorResource {
         if (userFileRepo.hasAcl(user))
             return resp.build(200, null, true);
 
-        if (!groupFileRepo.listAcl(acl).isEmpty())
+        var listData = groupFileRepo.listAcl(
+                           acl.groupIds, acl.objectId, acl.permission);
+        if (!listData.isEmpty())
             return resp.build(200, null, true);
 
         return resp.build(200, null, false);
@@ -76,7 +78,9 @@ public class ValidatorResource {
         if (userFolderRepo.hasAcl(user))
             return resp.build(200, null, true);
 
-        if (!groupFolderRepo.listAcl(acl).isEmpty())
+        var listData = groupFileRepo.listAcl(
+                           acl.groupIds, acl.objectId, acl.permission);
+        if (!listData.isEmpty())
             return resp.build(200, null, true);
 
         return resp.build(200, null, false);
