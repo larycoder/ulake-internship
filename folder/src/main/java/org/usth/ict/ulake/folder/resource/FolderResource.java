@@ -73,7 +73,8 @@ public class FolderResource {
         if (folder == null)
             return response.build(404, "Folder not found");
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, folder.id, folder.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(
+                    aclSvc, jwt, folder.id, folder.ownerId, permit))
             return response.build(403);
 
         return response.build(200, null, folder);
@@ -107,7 +108,23 @@ public class FolderResource {
     @Operation(summary = "Create a new folder")
     public Response post(
         @RequestBody(description = "Folder to save") UserFolder entity) {
-        // TODO: missing permission validate mechanism
+        var permit = PermissionModel.WRITE;     // <-- permit
+        var parentPermit = PermissionModel.ADD; // <-- permit
+
+        if (!AclUtil.verifyFolderAcl(aclSvc, jwt, null, entity.ownerId, permit))
+            return response.build(403, "Create folder not allowed");
+
+        if (entity.parent != null && entity.parent.id != null) {
+            var parent = repo.findById(entity.parent.id);
+            if (parent == null)
+                return response.build(403, "Parent folder is not existed");
+
+            if (!AclUtil.verifyFolderAcl(
+                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+                return response.build(403, "Add folder not allowed");
+            entity.parent = parent;
+        }
+
         repo.persist(entity);
         return response.build(200, "", entity);
     }
@@ -125,12 +142,15 @@ public class FolderResource {
         @RequestBody(description = "New folder information")
         UserFolder data) {
         var permit = PermissionModel.WRITE; // <-- permit
+        var parentPermit = PermissionModel.ADD; // <-- permit
+
         UserFolder entity = repo.findById(id);
 
         if (entity == null)
             return response.build(404, "Folder not found");
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(
+                    aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         if (!Utils.isEmpty(data.subFolders)) {
@@ -145,12 +165,21 @@ public class FolderResource {
                 file.parent = entity;
         }
 
+        if (data.parent != null && data.parent.id != null) {
+            var parent = repo.findById(data.parent.id);
+            if (parent == null)
+                return response.build(403, "Parent folder is not existed");
+
+            if (!AclUtil.verifyFolderAcl(
+                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+                return response.build(403, "Move file not allowed");
+            entity.parent = parent;
+        }
+
         if (!Utils.isEmpty(data.name))
             entity.name = data.name;
         if (data.ownerId != null)
             entity.ownerId = data.ownerId;
-        if (data.parent != null && data.parent.id != null)
-            entity.parent = repo.findById(data.parent.id);
 
         repo.persist(entity);
         return response.build(200, null, entity);
@@ -170,7 +199,8 @@ public class FolderResource {
         if (entity == null)
             return response.build(404);
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(
+                    aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         repo.delete(entity);

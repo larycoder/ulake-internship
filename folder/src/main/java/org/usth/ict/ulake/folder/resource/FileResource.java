@@ -73,7 +73,7 @@ public class FileResource {
         if (file == null)
             return response.build(404, "File not found");
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, file.id, file.ownerId, permit))
+        if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
             return response.build(403);
 
         return response.build(200, null, file);
@@ -81,12 +81,12 @@ public class FileResource {
 
     @POST
     @Path("/search")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Search for files")
     public Response search(
         @RequestBody(description = "Query to perform search for user files")
         UserFileSearchQuery query) {
-        // TODO: admin verification
+        // TODO: allow normal user search
         var results = repo.search(query);
         if (results.isEmpty()) {
             return response.build(404);
@@ -100,7 +100,22 @@ public class FileResource {
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
     public Response post(UserFile entity) {
-        // TODO: missing appropriate permission mechanism
+        var permit = PermissionModel.WRITE;     // <-- permit
+        var parentPermit = PermissionModel.ADD; // <-- permit
+
+        if (!AclUtil.verifyFileAcl(aclSvc, jwt, null, entity.ownerId, permit))
+            return response.build(403, "Create file not allowed");
+
+        if (entity.parent != null && entity.parent.id != null) {
+            var parent = folderRepo.findById(entity.parent.id);
+            if (parent == null)
+                return response.build(403, "Parent folder is not existed");
+
+            if (!AclUtil.verifyFolderAcl(
+                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+                return response.build(403, "Add file not allowed");
+            entity.parent = parent;
+        }
 
         repo.persist(entity);
         return response.build(200, null, entity);
@@ -116,14 +131,16 @@ public class FileResource {
         @PathParam("id")
         @Parameter(description = "File id to update") Long id,
         @RequestBody(description = "New file info to save") UserFile data) {
-        var permit = PermissionModel.WRITE; // <-- permit
+        var permit = PermissionModel.WRITE;     // <-- permit
+        var parentPermit = PermissionModel.ADD; // <-- permit
+
         UserFile file = repo.findById(id);
 
         if (file == null)
             return response.build(404, "File not found");
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, file.id, file.ownerId, permit))
-            return response.build(403);
+        if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
+            return response.build(403, "Update file not allowed");
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
             file.cid = data.cid;
@@ -135,7 +152,14 @@ public class FileResource {
         if (data.ownerId != null) file.ownerId = data.ownerId;
 
         if (data.parent != null && data.parent.id != null) {
-            file.parent = folderRepo.findById(data.parent.id);
+            var parent = folderRepo.findById(data.parent.id);
+            if (parent == null)
+                return response.build(403, "Parent folder is not existed");
+
+            if (!AclUtil.verifyFolderAcl(
+                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+                return response.build(403, "Move file not allowed");
+            file.parent = parent;
         }
 
         repo.persist(file);
@@ -157,7 +181,7 @@ public class FileResource {
         if (entity == null)
             return response.build(404);
 
-        if (!AclUtil.verifyACL(aclSvc, jwt, entity.id, entity.ownerId, permit))
+        if (!AclUtil.verifyFileAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         repo.delete(entity);
