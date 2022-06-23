@@ -2,6 +2,7 @@ package org.usth.ict.ulake.table.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +85,8 @@ public class TableResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one table info")
     public Response one(@PathParam("id") @Parameter(description = "User id to search") Long id) {
-        return response.build(200, null, repo.findById(id));
+        TableModel table = repo.findById(id);
+        return response.build(200, null, table);
     }
 
 
@@ -106,7 +108,34 @@ public class TableResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one table data")
     public Response data(@PathParam("id") @Parameter(description = "User id to search") Long id) {
-        return response.build(200, null, repo.findById(id));
+        HashMap<String, Object> ret = new HashMap<>();
+
+        // table info
+        TableModel table = repo.findById(id);
+        ret.put("id", table.id);
+        ret.put("name", table.name);
+        ret.put("ownerId", table.ownerId);
+
+        // columns
+        ArrayList<String> colInfo = new ArrayList<>();
+        var cols = repoColumn.find("table.id", id);
+        for (var col: cols.list()) {
+            colInfo.add(col.columnName);
+        }
+        ret.put("columns", colInfo);
+
+        // cells
+        var cells = repoCell.find("table.id", id);
+        var rows = new HashMap<Long, ArrayList<String>>();
+        for (var cell: cells.list()) {
+            if (rows.get(cell.row.id) == null) {
+                rows.put(cell.row.id, new ArrayList<String>());
+            }
+            rows.get(cell.row.id).add(cell.value);
+        }
+        ret.put("rows", rows);
+
+        return response.build(200, null, ret);
     }
 
     @POST
