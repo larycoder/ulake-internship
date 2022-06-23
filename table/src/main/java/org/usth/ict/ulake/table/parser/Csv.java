@@ -39,7 +39,6 @@ public class Csv implements Parser {
             int rowIndex = 0;
             int cells = 0;
             while (it.hasNext()) {
-
                 var rowCsv = it.next();
                 TableRowModel row = new TableRowModel();
                 row.table = table.model;
