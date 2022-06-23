@@ -41,7 +41,7 @@ public class GroupFolderAclResource {
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "list all ACL with permission")
     public Response all() {
-        return response.build(200, null, repo.findAll());
+        return response.build(200, null, repo.listAll());
     }
 
     @POST
