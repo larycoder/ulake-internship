@@ -181,6 +181,10 @@ public class TableResource {
     public Response tableStats(@HeaderParam("Authorization") String bearer) {
         // get requests from other service
         HashMap<String, Object> ret = new HashMap<>();
+        ret.put("tables", repo.count());
+        ret.put("rows", repoRow.count());
+        ret.put("columns", repoColumn.count());
+        ret.put("cells", repoCell.count());
         return response.build(200, "", ret);
     }
 }
