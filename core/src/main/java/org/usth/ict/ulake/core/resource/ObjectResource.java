@@ -39,6 +39,7 @@ import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
 import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.model.LakeObject;
@@ -135,6 +136,8 @@ public class ObjectResource {
                 return response.build(403);
 
             cid = file.cid;
+        } catch (LakeServiceForbiddenException e) {
+            return response.build(403, "File forbidden");
         } catch (Exception e) {
             log.error("File process error", e);
             return response.build(500, "Internal error");
