@@ -7,12 +7,13 @@ public class FileModel {
     public String name;
     public Long ownerId;
     public Long size;
+    public Long creationTime;
     public FolderModel parent;
 
     public FileModel(
         String cid, Long id, String mime,
         String name, Long ownerId,
-        Long size, FolderModel parent) {
+        Long size, FolderModel parent, Long creationTime) {
         this.cid = cid;
         this.id = id;
         this.mime = mime;
@@ -20,6 +21,7 @@ public class FileModel {
         this.ownerId = ownerId;
         this.size = size;
         this.parent = parent;
+        this.creationTime = creationTime;
     }
 
     public FileModel () {}
