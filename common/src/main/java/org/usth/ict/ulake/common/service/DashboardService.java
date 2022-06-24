@@ -15,7 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 
 @Path("/api")
@@ -40,7 +40,7 @@ public interface DashboardService {
     @Path("/file")
     @Schema(description = "upload new file")
     public LakeHttpResponse newFile(
-        @HeaderParam("Authorization") String bearer, FileModel file);
+        @HeaderParam("Authorization") String bearer, FileFormModel file);
 
     @GET
     @Path("/folder")

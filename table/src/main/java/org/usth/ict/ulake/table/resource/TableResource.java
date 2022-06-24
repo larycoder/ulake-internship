@@ -21,11 +21,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.compress.utils.CountingInputStream;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -45,6 +47,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
+import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.service.DashboardService;
 
 
 @Path("/table")
@@ -72,6 +77,10 @@ public class TableResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    @RestClient
+    DashboardService dashboardService;
 
     @GET
     @Operation(summary = "List all tables")
@@ -170,6 +179,8 @@ public class TableResource {
             return response.build(403);
         }
 
+        CountingInputStream cis = new CountingInputStream(is);
+
         // save a new table meta info
         TableModel table = new TableModel();
 
@@ -192,10 +203,19 @@ public class TableResource {
         }
 
         if (parser != null) {
-            tableData = parser.parse(repo, repoRow, repoColumn, repoCell, is, table, meta);
+            tableData = parser.parse(repo, repoRow, repoColumn, repoCell, cis, table, meta);
         }
 
         if (tableData != null) {
+
+            // push to core backend
+            String bearer = "bearer " + jwt.getRawToken();
+            FileFormModel model = new FileFormModel();
+            model.fileInfo = new FileModel();
+            model.fileInfo.name = meta.name + "." + meta.format;
+            model.fileInfo.size = cis.getBytesRead();
+            model.is = cis;
+            dashboardService.newFile(bearer, model);
             return response.build(200, null, tableData);
         }
         else {
