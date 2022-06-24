@@ -21,6 +21,10 @@ function getCoreUrl() {
     return window.location.protocol + "//core." + getBaseDomain();
 }
 
+function getTableUrl() {
+    return window.location.protocol + "//table." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');
