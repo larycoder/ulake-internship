@@ -28,6 +28,8 @@ dependencies {
     implementation 'io.quarkus:quarkus-smallrye-jwt'
     implementation 'io.quarkus:quarkus-smallrye-jwt-build'
     implementation 'io.openio.sds:openio-api:2.0.3'
+    implementation 'io.quarkus:quarkus-rest-client'
+    implementation 'io.quarkus:quarkus-rest-client-jackson'
     implementation('org.apache.hadoop:hadoop-client:3.2.1') {
         exclude(group: 'javax.ws.rs', module: 'jsr311-api')
     }
