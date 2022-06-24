@@ -21,14 +21,14 @@ Document version: 0.2.0
 
 ### Storage
 
-1. MySql (docker)                   port: 23306
+1. MySql (docker)                   port: 23306 swarm_port: 3306
 2. OpenIO (docker)                  port: 6006 -- deprecated
 3. Hadoop namenode (docker)
 4. Hadoop datanode (swarm)
 
 ### Tool
 
-1. Phpmyadmin (docker)               port: 8081
+1. Phpmyadmin (docker)               port: 8081 swarm_port: 80
 
 ## Strategy
 
