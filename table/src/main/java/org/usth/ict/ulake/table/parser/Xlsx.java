@@ -59,7 +59,6 @@ public class Xlsx implements Parser {
             Workbook workbook = new XSSFWorkbook(is);
             Sheet sheet = workbook.getSheetAt(0);
             int rowIndex = 0;
-            int cells = 0;
             for (Row row : sheet) {
                 TableRowModel rowModel = new TableRowModel();
                 rowModel.table = table.model;
@@ -97,6 +96,7 @@ public class Xlsx implements Parser {
                 }
 
             }
+            workbook.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
