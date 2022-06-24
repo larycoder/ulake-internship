@@ -137,7 +137,7 @@ public class ObjectResource {
             cid = file.cid;
         } catch (Exception e) {
             log.error("File process error", e);
-            return response.build(500, "Internal error", e);
+            return response.build(500, "Internal error");
         }
 
         return streamOutData(cid);
