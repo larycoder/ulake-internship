@@ -111,7 +111,7 @@ public class ObjectResource {
     }
 
     @GET
-    @Path("/{fileId}/data")
+    @Path("/{fileId}/fileData")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get object binary data")
     public Response dataByFileId(
