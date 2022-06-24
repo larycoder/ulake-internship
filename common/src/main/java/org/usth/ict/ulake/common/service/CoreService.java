@@ -45,6 +45,13 @@ public interface CoreService {
         @PathParam("cid") String cid,
         @HeaderParam("Authorization") String bearer);
 
+    @GET
+    @Path("/object/{fileId}/fileData")
+    @Schema(description = "load binary object from core by file id")
+    public InputStream objectDataByFileId(
+        @PathParam("fileId") Long fileId,
+        @HeaderParam("Authorization") String bearer);
+
     @POST
     @Path("/object")
     @Produces(MediaType.APPLICATION_JSON)
