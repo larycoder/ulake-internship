@@ -48,7 +48,7 @@ public class ObjectResource {
     LakeHttpResponse resp;
 
     @GET
-    @RolesAllowed({"User", "Admin"})
+    @RolesAllowed({"Admin"})
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "list objects of user")
     public Response object(
@@ -80,12 +80,33 @@ public class ObjectResource {
 
     @GET
     @Path("/{cid}/data")
-    @RolesAllowed({"User", "Admin"})
+    @RolesAllowed({"Admin"})
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Operation(summary = "get object data")
     public Response objectData(@PathParam("cid") String cid) {
         String bearer = "Bearer " + jwt.getRawToken();
         InputStream is = coreSvc.objectData(cid, bearer);
+        var stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream os) throws IOException {
+                is.transferTo(os);
+            }
+        };
+        return Response.ok(stream).build();
+    }
+
+    @GET
+    @Path("/{fileId}/fileData")
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "get object data by file id")
+    public Response objectDataByFileId(@PathParam("fileId") Long fileId) {
+        String bearer = "Bearer " + jwt.getRawToken();
+        InputStream is;
+        try {
+            is = coreSvc.objectDataByFileId(fileId, bearer);
+        } catch(Exception e) {
+            return resp.build(500, "Internal error");
+        }
         var stream = new StreamingOutput() {
             @Override
             public void write(OutputStream os) throws IOException {
