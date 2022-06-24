@@ -87,7 +87,6 @@ public class Xlsx implements Parser {
                             cell.table = tableModel;
                             cell.value = value;
                             repoCell.persist(cell);
-                            cells++;
                         }
                         else {
                             log.warn("Row {}: out of column {}, value {}", rowIndex, index, value);
