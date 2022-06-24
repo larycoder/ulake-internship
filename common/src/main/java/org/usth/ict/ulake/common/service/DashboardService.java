@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.common.service;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -14,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
@@ -39,8 +41,10 @@ public interface DashboardService {
     @POST
     @Path("/file")
     @Schema(description = "upload new file")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public LakeHttpResponse newFile(
-        @HeaderParam("Authorization") String bearer, FileFormModel file);
+        @HeaderParam("Authorization") String bearer, @MultipartForm FileFormModel file);
 
     @GET
     @Path("/folder")

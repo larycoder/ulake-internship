@@ -179,6 +179,11 @@ public class TableResource {
             return response.build(403);
         }
 
+        log.info("Input stream mark supported {}", is.markSupported());
+        if (is.markSupported()) {
+            log.info("Marking place for later reset()");
+            is.mark(100*1048576);
+        }
         CountingInputStream cis = new CountingInputStream(is);
 
         // save a new table meta info
@@ -207,14 +212,16 @@ public class TableResource {
         }
 
         if (tableData != null) {
-
             // push to core backend
+            is.reset();
             String bearer = "bearer " + jwt.getRawToken();
             FileFormModel model = new FileFormModel();
             model.fileInfo = new FileModel();
             model.fileInfo.name = meta.name + "." + meta.format;
             model.fileInfo.size = cis.getBytesRead();
             model.is = cis;
+            log.info("Pushing to core {}, format {}, size {}", meta.name, meta.format, model.fileInfo.size);
+
             dashboardService.newFile(bearer, model);
             return response.build(200, null, tableData);
         }
