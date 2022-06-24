@@ -2,12 +2,13 @@
 
 drawTable = (resp) => {
     const header = $("thead tr")
+    $("#table-name").html(`"${resp.name}"`);
+
     resp.columns.forEach(col => {
         const th = $("<th></th>");
         th.html(col);
         header.append(th);
     });
-
     // post process each row
     let rows = [];
     for (const rid in resp.rows) {
