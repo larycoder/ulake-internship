@@ -7,26 +7,38 @@ BASE_DIR=$(readlink -f $(dirname $0));
 ROOT_DIR=$(readlink -f $BASE_DIR/../);
 CONF="$BASE_DIR/nginx.conf";
 NET="ulake-network";
+FRONTEND=""
 
-if [ "$1" == "" ]; then
-    # Start nginx docker with ALL configurations and installations
-    DASHBOARD="$ROOT_DIR/dashboard/html";
-    COMMON="$ROOT_DIR/common/html";
-    ADMIN="$ROOT_DIR/admin/html";
-    TABLE="$ROOT_DIR/table/html";
+# Parse args
+while test ${#} -gt 0; do
+    case "$1" in
+        --help) echo "start-nginx.sh [-p PORT] [frontend-name]"
+                ;;
+        -p)     shift
+                PORT="$1"
+                ;;
+        *)      FRONTEND="$1"
+                ;;
+    esac
+    shift
+done
+
+if [ "$FRONTEND" == "" ]; then
+    # Start nginx docker with ALL frontends mounted
+    FRONTENDS=""
+    for i in dashboard common admin table; do
+        FRONTENDS="$FRONTENDS -v $ROOT_DIR/$i/html:/opt/$i:ro "
+    done
     docker run --name $HOST -p $PORT:80 \
         -v $CONF:/etc/nginx/nginx.conf:ro \
-        -v $DASHBOARD:/opt/dashboard:ro \
-        -v $COMMON:/opt/common:ro \
-        -v $ADMIN:/opt/admin:ro \
-        -v $TABLE:/opt/table:ro \
+        $FRONTENDS \
         --network $NET \
         -d nginx:latest
 else
     # Start nginx docker with a specific port and configurations
-    docker run --name $HOST-$1 -p $PORT:80 \
+    docker run --name $HOST-$FRONTEND -p $PORT:80 \
         -v $CONF:/etc/nginx/nginx.conf:ro \
-        -v $ROOT_DIR/$1/html:/opt/dashboard:ro \
+        -v $ROOT_DIR/$FRONTEND/html:/opt/$FRONTEND:ro \
         --network $NET \
         -d nginx:latest
 fi
