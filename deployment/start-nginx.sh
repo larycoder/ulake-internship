@@ -8,14 +8,18 @@ ROOT_DIR=$(readlink -f $BASE_DIR/../);
 CONF="$BASE_DIR/nginx.conf";
 NET="ulake-network";
 FRONTEND=""
+HTML="html"
 
 # Parse args
 while test ${#} -gt 0; do
     case "$1" in
-        --help) echo "start-nginx.sh [-p PORT] [frontend-name]"
+        --help) echo "start-nginx.sh [-p port] [-h html_dir] [frontend_name]"
                 ;;
         -p)     shift
                 PORT="$1"
+                ;;
+        -h)     shift
+                HTML="$1"
                 ;;
         *)      FRONTEND="$1"
                 ;;
@@ -35,7 +39,7 @@ else
     # Start nginx docker with a specific port and configurations
     docker run --name $HOST-$FRONTEND -p $PORT:80 \
         -v $CONF:/etc/nginx/nginx.conf:ro \
-        -v $ROOT_DIR/$FRONTEND/html:/opt/$FRONTEND:ro \
+        -v $ROOT_DIR/$FRONTEND/$HTML:/opt/$FRONTEND:ro \
         --network $NET \
         -d nginx:latest
 fi
