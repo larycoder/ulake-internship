@@ -25,10 +25,7 @@ done
 
 if [ "$FRONTEND" == "" ]; then
     # Start nginx docker with ALL frontends mounted
-    FRONTENDS=""
-    for i in dashboard common admin table; do
-        FRONTENDS="$FRONTENDS -v $ROOT_DIR/$i/html:/opt/$i:ro "
-    done
+    FRONTENDS=`find $ROOT_DIR -name "html" -type d | sed 's#/html##;s#.*/##' | while read -r line; do echo "-v $ROOT_DIR/$line/html:/opt/$line:ro"; done`
     docker run --name $HOST -p $PORT:80 \
         -v $CONF:/etc/nginx/nginx.conf:ro \
         $FRONTENDS \
