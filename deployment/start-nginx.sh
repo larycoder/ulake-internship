@@ -26,7 +26,7 @@ else
     # Start nginx docker with a specific port and configurations
     docker run --name $HOST-$1 -p $PORT:80 \
         -v $CONF:/etc/nginx/nginx.conf:ro \
-        -v $ROOT_DIR/$1/html:/opt/dashboard:ro
+        -v $ROOT_DIR/$1/html:/opt/dashboard:ro \
         --network $NET \
         -d nginx:latest
 fi
