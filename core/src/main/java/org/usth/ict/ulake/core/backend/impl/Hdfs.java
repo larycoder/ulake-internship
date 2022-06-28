@@ -3,6 +3,7 @@ package org.usth.ict.ulake.core.backend.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -20,6 +21,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,6 +148,25 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             String rep = fs.getConf().get("dfs.replication");
             if (rep == null) rep = "3";
             ret.put("replication", rep);
+            StringWriter writer = new StringWriter(1000000);
+            Configuration.dumpConfiguration(fs.getConf(), writer);
+            log.info(writer.toString());
+
+            YarnClient client = YarnClient.createYarnClient();
+            Configuration conf = new Configuration();
+            client.init(new YarnConfiguration(conf));
+            client.start();
+            try {
+                List<NodeReport> reports = client.getNodeReports(NodeState.RUNNING);
+                log.info("number of active notes: {}", reports.size());
+                ret.put("nodes", reports.size());
+            }
+            catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
+            client.stop();
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
