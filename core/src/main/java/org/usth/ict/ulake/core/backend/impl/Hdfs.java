@@ -140,7 +140,9 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             ret.put("used", used);
             ret.put("remaining", remaining);
             ret.put("presentCapacity", presentCapacity);
-            ret.put("replication", fs.getConf().get("dfs.replication"));
+            String rep = fs.getConf().get("dfs.replication");
+            if (rep == null) rep = "3";
+            ret.put("replication", rep);
         } catch (IOException e) {
             e.printStackTrace();
         }
