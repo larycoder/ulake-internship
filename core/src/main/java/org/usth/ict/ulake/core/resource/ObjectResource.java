@@ -131,9 +131,10 @@ public class ObjectResource {
 
             var file = mapper.convertValue(
                            fileResp.getResp(), FileModel.class);
-            if (!AclUtil.verifyFileAcl(
-                        aclSvc, jwt, file.id, file.ownerId, filePermit))
-                return response.build(403);
+            // TODO: HiepLNC: check permissions
+            // if (!AclUtil.verifyFileAcl(
+            //             aclSvc, jwt, file.id, file.ownerId, filePermit))
+            //     return response.build(403);
 
             cid = file.cid;
         } catch (LakeServiceForbiddenException e) {
