@@ -139,7 +139,7 @@ stats = {
         const chart = structuredClone(stats.coreSettings);
         chart.data.labels = [ "Used storage", "Remaining" ];
         chart.data.datasets[0].data = [ parseInt(data.resp.stats.presentCapacity / 1048576), parseInt(data.resp.stats.capacity / 1048576) ];
-        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(data.resp.stats.capacity / 1072147864)} GB`;
+        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(data.resp.stats.capacity / 1072147864)} GB <br/>Data replication: ${parseInt(data.resp.stats.replication)} times.`;
         new Chart(ctx, chart);
     },
 
