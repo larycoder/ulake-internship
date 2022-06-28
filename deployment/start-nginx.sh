@@ -14,6 +14,7 @@ HTML="html"
 while test ${#} -gt 0; do
     case "$1" in
         --help) echo "start-nginx.sh [-p port] [-h html_dir] [frontend_name]"
+        	exit
                 ;;
         -p)     shift
                 PORT="$1"
