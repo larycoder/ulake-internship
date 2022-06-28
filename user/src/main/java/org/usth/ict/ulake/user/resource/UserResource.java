@@ -96,7 +96,7 @@ public class UserResource {
         log.info("POSTING new user");
         entity.isAdmin = false;
         entity.password = BcryptUtil.bcryptHash(entity.password);
-        entity.registerTime = new Date().getTime();
+        entity.registerTime = new Date().getTime()/1000;
         repo.persist(entity);
         return response.build(200, "", entity);
     }

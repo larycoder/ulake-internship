@@ -189,7 +189,7 @@ public class TableResource {
         // save a new table meta info
         TableModel table = new TableModel();
 
-        Long now = new Date().getTime();
+        Long now = new Date().getTime()/1000;
         table.name = meta.name;
         table.format = meta.format;
         table.creationTime = now.longValue();
