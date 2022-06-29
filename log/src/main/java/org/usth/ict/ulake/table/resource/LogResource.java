@@ -66,7 +66,7 @@ public class LogResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get one log entry")
     public Response one(@PathParam("id") @Parameter(description = "Logid to search") Long id) {
-        var ret = repo.findById(id);
+        LogEntry ret = repo.findById(id);
         return response.build(200, null, ret);
     }
 
@@ -75,7 +75,7 @@ public class LogResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get log entries for a specific user")
     public Response byUser(@PathParam("uid") @Parameter(description = "User id search") Long uid) {
-        var ret = repo.find("ownerId", uid);
+        var ret = repo.find("ownerId", uid).list();
         return response.build(200, null, ret);
     }
 
@@ -85,7 +85,7 @@ public class LogResource {
     @Operation(summary = "Get log entries for current user")
     public Response byCurrentUser() {
         Long uid = Long.parseLong(jwt.getClaim(Claims.sub));
-        var ret = repo.find("ownerId", uid);
+        var ret = repo.find("ownerId", uid).list();
         return response.build(200, null, ret);
     }
 
@@ -96,7 +96,7 @@ public class LogResource {
     @Operation(summary = "Get log entries for a specific timestamp range (ts1 to ts2)")
     public Response byTime(@PathParam("ts1") @Parameter(description = "From timestamp") Long ts1,
                     @PathParam("ts2") @Parameter(description = "To timestamp") Long ts2) {
-        var ret = repo.find("timestamp >= ?1 and timestamp <= ?2", ts1, ts2);
+        var ret = repo.find("timestamp >= ?1 and timestamp <= ?2", ts1, ts2).list();
         return response.build(200, null, ret);
     }
 
@@ -105,7 +105,7 @@ public class LogResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get log entries for a specific tag")
     public Response byTag(@QueryParam("q") @Parameter(description = "Tag to search") String tag) {
-        var ret = repo.find("tag", tag);
+        var ret = repo.find("tag", tag).list();
         return response.build(200, null, ret);
     }
 
@@ -114,7 +114,7 @@ public class LogResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get log entries for a specific service")
     public Response byService(@QueryParam("q") @Parameter(description = "Service to search") String service) {
-        var ret = repo.find("service", service);
+        var ret = repo.find("service", service).list();
         return response.build(200, null, ret);
     }
 
