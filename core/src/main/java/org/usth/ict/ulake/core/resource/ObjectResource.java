@@ -20,7 +20,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.hadoop.fs.permission.AclUtil;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -31,6 +30,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
@@ -131,10 +131,9 @@ public class ObjectResource {
 
             var file = mapper.convertValue(
                            fileResp.getResp(), FileModel.class);
-            // TODO: HiepLNC: check permissions
-            // if (!AclUtil.verifyFileAcl(
-            //             aclSvc, jwt, file.id, file.ownerId, filePermit))
-            //     return response.build(403);
+            if (!AclUtil.verifyFileAcl(
+                        aclSvc, jwt, file.id, file.ownerId, filePermit))
+                return response.build(403);
 
             cid = file.cid;
         } catch (LakeServiceForbiddenException e) {
