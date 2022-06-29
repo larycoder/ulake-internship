@@ -13,6 +13,11 @@ function login() {
             if (data.code === 200) {
                 console.log(`Login ok, token=${data.resp}`);
                 setToken(data.resp);
+                if (!getGroups().includes("Admin")) {
+                    window.alert(`Sorry, you are not admin.`);
+                    setToken(null);
+                    return;
+                }
             }
             window.location = "/";
         },

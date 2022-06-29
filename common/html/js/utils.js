@@ -48,6 +48,20 @@ function getUid() {
     return -1;
 }
 
+function getGroups() {
+    if (jwt_decode) {
+        try {
+            const jwt = jwt_decode(getToken());
+            if (jwt.groups) {
+                return jwt.groups;
+            }
+        }
+        catch (e) {
+        }
+    }
+    return [];
+}
+
 ajax = async function (param){
     let headers;
     if (param.headers) {
