@@ -3,6 +3,7 @@ package org.usth.ict.ulake.table.resource;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -120,7 +121,8 @@ public class LogResource {
 
     @POST
     @Transactional
-    @RolesAllowed({ "Admin" })
+    @PermitAll
+    //@RolesAllowed({ "Admin" })
     @Operation(summary = "Make a new log entry")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response post(@RequestBody(description = "Log entry to save") LogEntry entity) {
@@ -134,7 +136,12 @@ public class LogResource {
         if ("".equals(entity.tag) || entity.tag == null) {
             entity.service = "Log";
         }
-        entity.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        if (jwt.getClaim(Claims.sub) != null) {
+            entity.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        }
+        else {
+            entity.ownerId = 0L;
+        }
         entity.timestamp = new Date().getTime();
         repo.persist(entity);
         return response.build(200, "", entity);
