@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -28,7 +29,9 @@ import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.AclService;
+import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
@@ -53,10 +56,15 @@ public class FileResource {
     @RestClient
     AclService aclSvc;
 
+    @Inject
+    @RestClient
+    LogService logService;
+
     @GET
     @RolesAllowed({ "Admin" })
     @Operation(summary = "List all files")
-    public Response all() {
+    public Response all(@HeaderParam("Authorization") String bearer) {
+        logService.post(bearer, new LogModel("Query", "Get all files"));
         return response.build(200, "", repo.listAll());
     }
 
@@ -65,6 +73,7 @@ public class FileResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get a single file info")
     public Response one(
+        @HeaderParam("Authorization") String bearer,
         @PathParam("id")
         @Parameter(description = "File id to search") Long id) {
         var permit = PermissionModel.READ; // <-- permit
@@ -76,6 +85,7 @@ public class FileResource {
         if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
             return response.build(403);
 
+        logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
         return response.build(200, null, file);
     }
 
@@ -84,6 +94,7 @@ public class FileResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Search for files")
     public Response search(
+        @HeaderParam("Authorization") String bearer,
         @RequestBody(description = "Query to perform search for user files")
         UserFileSearchQuery query) {
         // TODO: allow normal user search
@@ -91,6 +102,7 @@ public class FileResource {
         if (results.isEmpty()) {
             return response.build(404);
         }
+        logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
         return response.build(200, null, results);
     }
 
@@ -99,7 +111,7 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
-    public Response post(UserFile entity) {
+    public Response post(@HeaderParam("Authorization") String bearer, UserFile entity) {
         var permit = PermissionModel.WRITE;     // <-- permit
         var parentPermit = PermissionModel.ADD; // <-- permit
 
@@ -118,6 +130,7 @@ public class FileResource {
         }
 
         repo.persist(entity);
+        logService.post(bearer, new LogModel("Add", "Create file info for id " + entity.id + ", cid " + entity.cid + ", name " + entity.name));
         return response.build(200, null, entity);
     }
 
@@ -128,6 +141,7 @@ public class FileResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Update a file info")
     public Response update(
+        @HeaderParam("Authorization") String bearer,
         @PathParam("id")
         @Parameter(description = "File id to update") Long id,
         @RequestBody(description = "New file info to save") UserFile data) {
@@ -163,6 +177,7 @@ public class FileResource {
         }
 
         repo.persist(file);
+        logService.post(bearer, new LogModel("Update", "Update file info for id " + id));
         return response.build(200, null, file);
     }
 
@@ -173,6 +188,7 @@ public class FileResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Delete a file")
     public Response delete (
+        @HeaderParam("Authorization") String bearer,
         @PathParam("id")
         @Parameter(description = "File id to delete")
         Long id) {
@@ -185,6 +201,7 @@ public class FileResource {
             return response.build(403);
 
         repo.delete(entity);
+        logService.post(bearer, new LogModel("Delete", "Delete file info for id " + id));
         return response.build(200);
     }
 
@@ -192,7 +209,7 @@ public class FileResource {
     @Path("/stats")
     @Operation(summary = "Some statistics")
     @RolesAllowed({ "Admin" })
-    public Response stats() {
+    public Response stats(@HeaderParam("Authorization") String bearer) {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Integer> folderCount = new HashMap<>();
         var stats = repo.getNewFilesByDate();
@@ -208,6 +225,7 @@ public class FileResource {
         }
         ret.put("newFiles", folderCount);
         ret.put("count", count);
+        logService.post(bearer, new LogModel("Query", "Get file statistics"));
         return response.build(200, "", ret);
     }
 }
