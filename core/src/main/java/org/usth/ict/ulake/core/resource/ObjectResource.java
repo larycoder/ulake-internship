@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -34,8 +35,10 @@ import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
 import org.usth.ict.ulake.core.backend.impl.Hdfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
@@ -79,11 +82,16 @@ public class ObjectResource {
     @RestClient
     AclService aclSvc;
 
+    @Inject
+    @RestClient
+    LogService logService;
+
     @GET
     @RolesAllowed({ "Admin" })
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "List all objects")
-    public Response all() {
+    public Response all(@HeaderParam("Authorization") String bearer) {
+        logService.post(bearer, new LogModel("Query", "List all objects"));
         return response.build(200, null, repo.listAll());
     }
 
@@ -92,11 +100,13 @@ public class ObjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get one object info")
-    public Response one(@PathParam("cid") @Parameter(description = "Content id to lookup") String cid) {
+    public Response one(@HeaderParam("Authorization") String bearer,
+                        @PathParam("cid") @Parameter(description = "Content id to lookup") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
         }
+        logService.post(bearer, new LogModel("Query", "Get info for object cid=" + cid));
         return response.build(200, "", object);
     }
 
@@ -105,10 +115,12 @@ public class ObjectResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Get object binary data")
     public Response data(
+        @HeaderParam("Authorization") String bearer,
         @PathParam("cid")
         @Parameter(description = "Content id to extract")
         String cid) {
-        return streamOutData(cid);
+        logService.post(bearer, new LogModel("Extract", "Get object data for cid " + cid));
+        return streamOutData(bearer, cid);
     }
 
     @GET
@@ -116,6 +128,7 @@ public class ObjectResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get object binary data")
     public Response dataByFileId(
+        @HeaderParam("Authorization") String bearer,
         @PathParam("fileId")
         @Parameter(description = "File id to extract")
         Long fileId) {
@@ -142,8 +155,8 @@ public class ObjectResource {
             log.error("File process error", e);
             return response.build(500, "Internal error");
         }
-
-        return streamOutData(cid);
+        logService.post(bearer, new LogModel("Extract", "Get object data for file id " + fileId));
+        return streamOutData(bearer, cid);
     }
 
     @POST
@@ -153,6 +166,7 @@ public class ObjectResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Create a new binary object")
     public Response post(
+        @HeaderParam("Authorization") String bearer,
         @RequestBody(description = "Multipart form data. metadata: extra json info " +
                                    "{name:'original filename', gid: 'object group id', length: 'binary length'). file: binary data to save")
         MultipartFormDataInput input) throws IOException {
@@ -202,6 +216,7 @@ public class ObjectResource {
         object.setParentId(0L);
         object.setGroup(group);
         repo.persist(object);
+        logService.post(bearer, new LogModel("Add", "Added a new file with name " + meta.getName()));
         return response.build(200, null, object);
     }
 
@@ -212,10 +227,12 @@ public class ObjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Search for object")
     public Response search(
+        @HeaderParam("Authorization") String bearer,
         @RequestBody(description = "Query to perform search for objects")
         LakeObjectSearchQuery query) {
         var result = repo.search(query);
 
+        logService.post(bearer, new LogModel("Query", "Search for object, query keyword " + query.getKeyword()));
         if (result.isEmpty())
             return response.build(404);
         else
@@ -227,8 +244,9 @@ public class ObjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get statistics about objects")
     @Path("/stats")
-    public Response stats() {
+    public Response stats(@HeaderParam("Authorization") String bearer) {
         var stats = fs.stats();
+        logService.post(bearer, new LogModel("Query", "Get object stats"));
         return response.build(200, null, stats);
     }
 
@@ -238,7 +256,7 @@ public class ObjectResource {
      * @param cid - content id of object
      * @return - response error or response stream relying on query result
      */
-    private Response streamOutData(String cid) {
+    private Response streamOutData(@HeaderParam("Authorization") String bearer, String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
             return response.build(404);
