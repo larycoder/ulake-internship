@@ -32,7 +32,7 @@ public interface LogService {
         @PathParam("id") @Parameter(description = "Logid to search") Long id);
 
     @GET
-    @Path("/log/user/{id}")
+    @Path("/log/user/{uid}")
     public LakeHttpResponse byUser(
         @HeaderParam("Authorization") String bearer,
         @PathParam("uid") @Parameter(description = "User id search") Long uid);
