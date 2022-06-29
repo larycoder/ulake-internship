@@ -18,6 +18,8 @@ Document version: 0.2.0
 6. Dashboard Service (API)          port: 8782
 7. Admin Service (API)              port: 8781
 8. Tabular Data Service (API)       port: 8788
+9. Ingestion Service (API)          port: 8789
+10. Logging Service (API)           port: 8790
 
 ### Storage
 
