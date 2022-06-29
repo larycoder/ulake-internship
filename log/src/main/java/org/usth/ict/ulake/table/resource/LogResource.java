@@ -144,6 +144,7 @@ public class LogResource {
         }
         entity.timestamp = new Date().getTime();
         repo.persist(entity);
+        log.info("Making a new Log Entry at {}: {}", entity.timestamp, entity.content);
         return response.build(200, "", entity);
     }
 
