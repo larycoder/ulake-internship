@@ -12,7 +12,7 @@ public class LogModel {
     public LogModel() {
     }
 
-    public LogModel(Long id, Long timestamp, Long ownerId, Long level, String tag, String service, String content) {
+    public LogModel(Long id, Long timestamp, Long ownerId, Long level, String service, String tag, String content) {
         this.id = id;
         this.timestamp = timestamp;
         this.ownerId = ownerId;
@@ -20,6 +20,26 @@ public class LogModel {
         this.tag = tag;
         this.service = service;
         this.content = content;
+    }
+
+    public LogModel(Long level, String service, String tag, String content) {
+        this.level = level;
+        this.tag = tag;
+        this.service = service;
+        this.content = content;
+    }
+
+    public LogModel(String service, String tag, String content) {
+        this(1L, service, tag, content);
+    }
+
+    public LogModel(String tag, String content) {
+        this(StackWalker.getInstance(java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName(),
+            tag, content);
+    }
+
+    public LogModel(String content) {
+        this("Log", content);
     }
 
     public Long getId() {
