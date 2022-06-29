@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,10 +32,13 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.RandomString;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.log.LogModel;
+import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.persistence.UserRepository;
@@ -69,6 +73,10 @@ public class AuthResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    @RestClient
+    LogService logService;
 
     @GET
     @PermitAll
@@ -151,7 +159,9 @@ public class AuthResource {
         @APIResponse(name = "200", responseCode = "200", description = "Authentication successful. JWT is in .resp, refresh token is in .msg"),
         @APIResponse(name = "401", responseCode = "401", description = "Authentication error")
     })
-    public Response login(@RequestBody(description = "Username and password (not hashed) to authenticate") LoginCredential cred) {
+    public Response login(@HeaderParam("Authorization") String bearer,
+                          @RequestBody(description = "Username and password (not hashed) to authenticate") LoginCredential cred) {
+        logService.post(bearer, new LogModel("Auth", "Attempt to login " + cred.getUserName()));
         return privLogin(cred, false);
     }
 

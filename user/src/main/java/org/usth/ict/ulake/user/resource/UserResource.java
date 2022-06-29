@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -19,10 +20,13 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.log.LogModel;
+import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
@@ -49,6 +53,10 @@ public class UserResource {
     @Inject
     JsonWebToken jwt;
 
+    @Inject
+    @RestClient
+    LogService logService;
+
     @GET
     @Operation(summary = "List all users")
     @RolesAllowed({ "User", "Admin" })
@@ -60,7 +68,9 @@ public class UserResource {
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one user info")
-    public Response one(@PathParam("id") @Parameter(description = "User id to search") Long id) {
+    public Response one(@HeaderParam("Authorization") String bearer,
+                        @PathParam("id") @Parameter(description = "User id to search") Long id) {
+        logService.post(bearer, new LogModel("Query", "Get user info for " + id));
         return response.build(200, null, repo.findById(id));
     }
 
@@ -82,7 +92,8 @@ public class UserResource {
     @PermitAll
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Create a new user")
-    public Response post(@RequestBody(description = "New user info to save") User entity) {
+    public Response post(@HeaderParam("Authorization") String bearer,
+            @RequestBody(description = "New user info to save") User entity) {
         if (entity == null) {
             return response.build(400, "", entity);
         }
@@ -93,11 +104,12 @@ public class UserResource {
             return response.build(409, "", entity);
         }
 
-        log.info("POSTING new user");
         entity.isAdmin = false;
         entity.password = BcryptUtil.bcryptHash(entity.password);
         entity.registerTime = new Date().getTime()/1000;
         repo.persist(entity);
+
+        logService.post(bearer, new LogModel("Insert", "Created new user " + entity.userName));
         return response.build(200, "", entity);
     }
 
@@ -107,7 +119,8 @@ public class UserResource {
     @RolesAllowed({ "User", "Admin" })
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Update an existing user")
-    public Response update(@PathParam("id") @Parameter(description = "User id to update") Long id,
+    public Response update(@HeaderParam("Authorization") String bearer,
+                           @PathParam("id") @Parameter(description = "User id to update") Long id,
                            @RequestBody(description = "New user info to update") User newEntity) {
         User entity = repo.findById(id);
         if (entity == null) {
@@ -124,6 +137,8 @@ public class UserResource {
         if (!Utils.isEmpty(newEntity.email)) entity.email = newEntity.email;
         if (!Utils.isEmpty(newEntity.password)) entity.password = newEntity.password;
         if (newEntity.registerTime != 0) entity.registerTime = newEntity.registerTime;
+
+        logService.post(bearer, new LogModel("Update", "Updated user " + id));
 
         // TODO: allow update department, group
         repo.persist(entity);
