@@ -128,10 +128,10 @@ public class LogResource {
             return response.build(400, "", entity);
         }
 
-        if ("".equals(entity.service)) {
+        if ("".equals(entity.service) || entity.service == null) {
             entity.service = "Log";
         }
-        if ("".equals(entity.tag)) {
+        if ("".equals(entity.tag) || entity.tag == null) {
             entity.service = "Log";
         }
         entity.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
