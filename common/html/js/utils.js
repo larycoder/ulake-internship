@@ -107,7 +107,7 @@ function setUserName(userName) {
 }
 
 function getUserName() {
-    sessionStorage.getItem("username");
+    return sessionStorage.getItem("username");
 }
 
 

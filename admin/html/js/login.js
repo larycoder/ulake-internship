@@ -9,10 +9,12 @@ function login() {
             userName: uid,
             password: pwd
         }),
-        success: (data) => {
+        success: async (data) => {
             if (data.code === 200) {
                 console.log(`Login ok, token=${data.resp}`);
                 setToken(data.resp);
+                const name = await user.getName(getUid());
+                setUserName(name);
                 if (!getGroups().includes("Admin")) {
                     showModal("Error", "Sorry, you are not an admin.");
                     setToken(null);
