@@ -1,9 +1,7 @@
-// SSI: <!--# include file="stats.js" -->
+// SSI: <!--# include file="../user.js" -->
 
-function adminReady() {
+function userReady() {
     user.getUserName(parseInt(getUid()), (userName) => {
         $("#userName").text(userName);
     })
 }
-
-$(document).ready(adminReady);

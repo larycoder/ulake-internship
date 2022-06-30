@@ -101,3 +101,9 @@ ajax = async function (param){
     };
     return $.ajax(param);
 };
+
+function showModal(title, content) {
+    $("#confirm-title").text(title);
+    $("#confirm-content").text(content);
+    $('#confirm-modal').modal();
+}

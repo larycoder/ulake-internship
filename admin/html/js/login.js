@@ -14,7 +14,7 @@ function login() {
                 console.log(`Login ok, token=${data.resp}`);
                 setToken(data.resp);
                 if (!getGroups().includes("Admin")) {
-                    window.alert(`Sorry, you are not admin.`);
+                    showModal("Error", "Sorry, you are not an admin.");
                     setToken(null);
                     return;
                 }
