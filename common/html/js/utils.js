@@ -102,6 +102,16 @@ ajax = async function (param){
     return $.ajax(param);
 };
 
+function setUserName(userName) {
+    sessionStorage.setItem("username", userName);
+}
+
+function getUserName() {
+    sessionStorage.getItem("username");
+}
+
+
+
 function showModal(title, content) {
     $("#confirm-title").text(title);
     $("#confirm-content").text(content);
