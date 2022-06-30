@@ -35,3 +35,5 @@ class User extends Api {
 }
 
 const user = new User();
+
+$("#userName").text(getUserName());
