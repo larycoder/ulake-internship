@@ -1,9 +1,8 @@
 // SSI: <!--# include file="stats.js" -->
 
-function adminReady() {
-    user.getUserName(parseInt(getUid()), (userName) => {
-        $("#userName").text(userName);
-    })
+async function adminReady() {
+    const userName = await user.getName(parseInt(getUid()));
+    $("#userName").text(userName);
 }
 
 $(document).ready(adminReady);

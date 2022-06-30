@@ -1,9 +1,8 @@
 // SSI: <!--# include file="../user.js" -->
 
-function userReady() {
-    user.getUserName(parseInt(getUid()), (userName) => {
-        $("#userName").text(userName);
-    })
+async function userReady() {
+    const userName = await user.getName(parseInt(getUid()))
+    $("#userName").text(userName);
 }
 
 $(document).ready(userReady);
