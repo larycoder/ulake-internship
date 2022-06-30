@@ -163,3 +163,6 @@ stats = {
         new Chart(ctx, chart);
     },
 }
+
+
+$(document).ready(stats.updateStats);

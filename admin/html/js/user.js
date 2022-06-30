@@ -1,13 +1,9 @@
+// SSI: <!--# include file="../user.js" -->
 
-user = {
-    getUserName: (uid, callback) => {
-        ajax({
-            url: getUserUrl() + `/api/user/${uid}`,
-            success: (data) => {
-                if (data && data.code === 200) {
-                    callback(data.resp.userName);
-                }
-            }
-        });
-    }
-};
+function userReady() {
+    user.getUserName(parseInt(getUid()), (userName) => {
+        $("#userName").text(userName);
+    })
+}
+
+$(document).ready(userReady);
