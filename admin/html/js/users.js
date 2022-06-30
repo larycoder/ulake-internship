@@ -1,13 +1,13 @@
 // SSI: <!--# include file="../user.js" -->
 
-function list(data) {
+function detail(data) {
     return $('#table').DataTable(  {
         data: data,
         bProcessing: true,
         paging: true,
         aoColumns: [
             { mData: "id" },
-            { mData: "userName" },
+            { mData: "userName", render: (data, type, row) => `<a href="/user?uid=${row.id}">${data}</a>` },
             { mData: "registerTime", render: (data, type, row) => new Date(data*1000).toLocaleDateString() },
             { mData: "isAdmin", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
             { mData: null }
@@ -21,10 +21,10 @@ function list(data) {
         ]
     });
 }
-async function userReady() {
+async function usersReady() {
     const users = await user.all();
     console.log(users);
-    list(users);
+    detail(users);
 }
 
-$(document).ready(userReady);
+$(document).ready(usersReady);
