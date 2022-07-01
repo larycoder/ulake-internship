@@ -135,8 +135,18 @@ function getUserName() {
     return table;
 }
 
-function showModal(title, content) {
+function showModal(title, content, onOk) {
     $("#confirm-title").text(title);
     $("#confirm-content").text(content);
+    if (onOk) {
+        $("#confirm-ok").off("click");
+        $("#confirm-ok").on("click", onOk);
+    }
+    else {
+        $("#confirm-ok").off("click");
+        $("#confirm-ok").on("click", () => {
+            $("#confirm-modal").modal("toggle");
+        });
+    }
     $('#confirm-modal').modal();
 }

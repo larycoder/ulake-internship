@@ -18,33 +18,21 @@
                 <!--# include virtual="/inc/main/topbar.html" -->
 
                 <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">User Management</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Export</a>
-                    </div>
-
                     <!-- Content Row -->
                     <div class="row">
-                        <div class="col-xl-12 col-lg-7">
+                        <div class="col-xl-8 col-lg-7">
                             <div class="card shadow mb-7">
                                 <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Users</h6>
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 id="username-detail" class="m-0 font-weight-bold text-primary">User Detail</h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <table id="table" class="table hover stripe">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>User name</th>
-                                                <th>Registered</th>
-                                                <th>Admin</th>
-                                                <th>Actions</th>
+                                                <th>Field</th>
+                                                <th>Value</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -59,10 +47,9 @@
         </div>
     </div>
 
-    <!--# include virtual="/inc/confirmModal.html" -->
     <!--# include virtual="/inc/logoutModal.html" -->
     <!--# include virtual="/inc/scripts.html" -->
-    <script src="js/users.js" type="text/javascript"></script>
+    <script src="/js/user.js" type="text/javascript"></script>
 </body>
 
 </html>
