@@ -1,5 +1,3 @@
-// SSI: <!--# include file="../user.js" -->
-
 function detail(data) {
     return $('#table').DataTable(  {
         data: data,
@@ -15,13 +13,9 @@ function detail(data) {
 }
 
 async function userReady() {
-    let urlParams = new URLSearchParams(location.search);
-    if (!urlParams.has('uid')) {
-        window.location = "/users";
-        return;
-    }
-    const uid = parseInt(urlParams.get("uid"));
-    var userInfo = await user.one(uid);
+    const params = parseParam(uid, "/users");
+    const uid = parseInt(params.uid);
+    var userInfo = await userApi.one(uid);
     $("#username-detail").text(`User Detail for ${userInfo.userName}`);
     detail(toTable(userInfo, "department, failedLogins, groups, firstName, lastName"));
 }

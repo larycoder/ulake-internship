@@ -4,14 +4,29 @@ class Api {
         this.endpoint = endpoint;
     }
 
-    async get(url) {
-        const data = await ajax({
-            url: this.server + this.endpoint + url
-        });
-        if (data && data.code === 200) {
-            return data.resp;
-        }
+    async call(url, method, body) {
+        const req = { url: this.server + this.endpoint + url };
+        if (method) req.method = method;
+        if (body) req.data = body;
+        const data = await ajax(req);
+        if (data && data.code === 200) return data.resp;
         return {};
+    }
+
+    async get(url) {
+        return this.call(url);
+    }
+
+    async post(url, body) {
+        return this.call(url, "POST", body);
+    }
+
+    async put(url, body) {
+        return this.call(url, "PUT");
+    }
+
+    async delete(url) {
+        return this.call(url, "DELETE");
     }
 
     async all() {
@@ -20,6 +35,10 @@ class Api {
 
     async one(id) {
         return this.get(`/${id}`);
+    }
+
+    async deleteOne(id) {
+        return this.delete(`/${id}`);
     }
 }
 
@@ -34,6 +53,6 @@ class User extends Api {
     }
 }
 
-const user = new User();
+const userApi = new User();
 
 $("#userName").text(getUserName());

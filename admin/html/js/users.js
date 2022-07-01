@@ -1,5 +1,3 @@
-// SSI: <!--# include file="../user.js" -->
-
 let users;
 
 function deleteItem(id) {
@@ -9,7 +7,7 @@ function deleteItem(id) {
     }
     else {
         showModal("Error", `Are you sure to delete ${user[0].userName}?`, () => {
-            console.log("lets kill him.");
+            userApi.deleteOne(user[0].userName);
         });
     }
 }
@@ -33,8 +31,7 @@ function detail(data) {
     });
 }
 async function usersReady() {
-    users = await user.all();
-    console.log(users);
+    users = await userApi.all();
     const table = detail(users);
 
 }

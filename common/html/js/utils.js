@@ -34,6 +34,10 @@ function setToken(token) {
     sessionStorage.setItem("jwt", token);
 }
 
+/**
+ *
+ * @returns Logged in user id
+ */
 function getUid() {
     if (jwt_decode) {
         try {
@@ -48,6 +52,10 @@ function getUid() {
     return -1;
 }
 
+/**
+ *
+ * @returns Groups that logged in user belongs
+ */
 function getGroups() {
     if (jwt_decode) {
         try {
@@ -62,6 +70,9 @@ function getGroups() {
     return [];
 }
 
+/**
+ * Ajax function, with token if any
+ */
 ajax = async function (param){
     let headers;
     if (param.headers) {
@@ -135,6 +146,12 @@ function getUserName() {
     return table;
 }
 
+/**
+ * Show a bootstrap modal
+ * @param {string} title of the modal
+ * @param {string} content of the modal
+ * @param {func} onOk callback function when user pressed on OK
+ */
 function showModal(title, content, onOk) {
     $("#confirm-title").text(title);
     $("#confirm-content").text(content);
@@ -149,4 +166,27 @@ function showModal(title, content, onOk) {
         });
     }
     $('#confirm-modal').modal();
+}
+
+/**
+ *
+ * @param {string} requiredParams Required search parameter
+ * @param {string} defaultLocation If any of the required params do not exist, redirect to this location
+ * @returns
+ */
+function parseParam(requiredParams, defaultLocation) {
+    let urlParams = new URLSearchParams(location.search);
+    if (requiredParams) {
+        for (const requiredParam of requiredParams) {
+            if (!urlParams.has(requiredParam)) {
+                window.location = defaultLocation;
+                return;
+            }
+        }
+    }
+    let ret = {};
+    for (const [key, value] of urlParams) {
+        ret[key] = value;
+    }
+    return ret;
 }
