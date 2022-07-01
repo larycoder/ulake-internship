@@ -1,3 +1,6 @@
+/**
+ * Generalized Api class for a specific CRUD endpoint
+ */
 class Api {
     constructor(server, endpoint) {
         this.server = server;
@@ -10,43 +13,47 @@ class Api {
         if (headers) req.headers = headers;
         if (body) req.data = body;
         const data = await ajax(req);
+        console.log(data);
         if (data && data.code === 200) return data.resp;
         return {};
     }
 
     async get(url) {
-        return this.call(url);
+        return await this.call(url);
     }
 
     async post(url, body, headers) {
-        return this.call(url, "POST", body, headers);
+        return await this.call(url, "POST", body, headers);
     }
 
     async put(url, body, headers) {
-        return this.call(url, "PUT", body, headers);
+        return await this.call(url, "PUT", body, headers);
     }
 
     async delete(url) {
-        return this.call(url, "DELETE");
+        return await this.call(url, "DELETE");
     }
 
     async all() {
-        return this.get("");
+        return await this.get("");
     }
 
     async one(id) {
-        return this.get(`/${id}`);
+        return await this.get(`/${id}`);
     }
 
     async deleteOne(id) {
-        return this.delete(`/${id}`);
+        return await this.delete(`/${id}`);
     }
 
     async save(id, body) {
-        return this.put(`/${id}`, body);
+        return await this.put(`/${id}`, body, { "Content-Type": "application/json; charset=utf-8" });
     }
 }
 
+/**
+ * Specific API for User CRUD management
+ */
 class User extends Api {
     constructor () {
         super(getUserUrl(), "/api/user")

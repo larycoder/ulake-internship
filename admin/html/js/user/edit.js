@@ -39,7 +39,13 @@ async function saveUser() {
         const value = _this.find("td:last-child input").val();
         ret[key] = value;
     });
-    userApi.save(ret.id, ret, {contentType: "application/json; charset=utf-8"});
+    const resp = await userApi.save(ret.id, JSON.stringify(ret));
+    if (resp == null) { // no error
+        showModal("Info", "Successfully saved", () => {
+            window.location="/users";
+        })
+    }
+
 }
 
 $(document).ready(userReady);
