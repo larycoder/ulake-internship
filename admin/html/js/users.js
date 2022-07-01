@@ -7,7 +7,7 @@ function detail(data) {
         paging: true,
         aoColumns: [
             { mData: "id" },
-            { mData: "userName", render: (data, type, row) => `<a href="/user?uid=${row.id}">${data}</a>` },
+            { mData: "userName", render: (data, type, row) => `<a href="/user/?uid=${row.id}">${data}</a>` },
             { mData: "registerTime", render: (data, type, row) => new Date(data*1000).toLocaleDateString() },
             { mData: "isAdmin", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
             { mData: null }
