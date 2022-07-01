@@ -177,6 +177,7 @@ function showModal(title, content, onOk) {
 function parseParam(requiredParams, defaultLocation) {
     let urlParams = new URLSearchParams(location.search);
     if (requiredParams) {
+        if (!Array.isArray(requiredParams)) requiredParams = [ requiredParams ];
         for (const requiredParam of requiredParams) {
             if (!urlParams.has(requiredParam)) {
                 window.location = defaultLocation;

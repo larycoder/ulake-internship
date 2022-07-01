@@ -13,7 +13,7 @@ function detail(data) {
 }
 
 async function userReady() {
-    const params = parseParam(uid, "/users");
+    const params = parseParam("uid", "/users");
     const uid = parseInt(params.uid);
     var userInfo = await userApi.one(uid);
     $("#username-detail").text(`User Detail for ${userInfo.userName}`);
