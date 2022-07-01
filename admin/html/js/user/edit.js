@@ -8,7 +8,7 @@ function detail(data) {
         aoColumns: [
             { mData: "key" },
             { mData: "value", render: (data, type, row) =>
-                `<input class="form-control bg-light border-0 small" type="text" value="${data}" data-for="${row.key}" ${row.readonly ? "readonly" : ""}>` }
+                `<input class="form-control border-1 small" type="text" value="${data}" data-for="${row.key}" ${row.readonly ? "readonly" : ""}>` }
         ]
     });
 }
@@ -30,7 +30,16 @@ async function userReady() {
 }
 
 async function saveUser() {
-    showModal("Info", "Saving users");
+    // TODO: validate form input.
+    const ret = {};
+    const rows = $("#table tbody tr");
+    rows.each(function () {
+        const _this = $(this);
+        const key = _this.find("td:first-child").text();
+        const value = _this.find("td:last-child input").val();
+        ret[key] = value;
+    });
+    userApi.save(ret.id, ret, {contentType: "application/json; charset=utf-8"});
 }
 
 $(document).ready(userReady);
