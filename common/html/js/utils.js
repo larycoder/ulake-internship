@@ -110,7 +110,30 @@ function getUserName() {
     return sessionStorage.getItem("username");
 }
 
-
+/**
+ * Convert an object to an array of key/value pairs
+ * @param {object} object to convert
+ * @param {string} field exclusions
+ * @returns
+ */
+ function toTable(object, excludes) {
+    var table = [];
+    if (typeof excludes === "string") {
+        excludes = excludes.split(",");
+        excludes.forEach((element, index) => {
+            excludes[index] = element.trim();
+        });
+    }
+    for (var key in object) {
+        if (!excludes || (excludes && excludes.indexOf(key) < 0 )) {
+            table.push( {
+                key: key,
+                value: object[key]
+            });
+        }
+    }
+    return table;
+}
 
 function showModal(title, content) {
     $("#confirm-title").text(title);

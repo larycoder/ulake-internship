@@ -13,6 +13,7 @@ function detail(data) {
         ]
     });
 }
+
 async function userReady() {
     let urlParams = new URLSearchParams(location.search);
     if (!urlParams.has('uid')) {
@@ -21,16 +22,8 @@ async function userReady() {
     }
     const uid = parseInt(urlParams.get("uid"));
     var userInfo = await user.one(uid);
-    var transform = [];
-    for (var key in userInfo) {
-        transform.push( {
-           key: key,
-           value: userInfo[key]
-        });
-    }
     $("#username-detail").text(`User Detail for ${userInfo.userName}`);
-
-    detail(transform);
+    detail(toTable(userInfo, "department, failedLogins, groups, firstName, lastName"));
 }
 
 $(document).ready(userReady);
