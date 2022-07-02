@@ -27,10 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.compress.model.Request;
+import org.usth.ict.ulake.compress.model.RequestFile;
+import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @Path("/compress")
@@ -39,16 +39,13 @@ public class CompressResource {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
-    ObjectMapper mapper;
-
-    @Inject
     LakeHttpResponse response;
 
     @Inject
     RequestRepository repoReq;
 
     @Inject
-    RequestRepository repoReqFile;
+    RequestFileRepository repoReqFile;
 
     @Inject
     ResultRepository repoResp;
@@ -115,6 +112,49 @@ public class CompressResource {
         return response.build(200, "", entity);
     }
 
+    @POST
+    @Path("/{id}/file")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Add a new file to a compression request")
+    public Response postFile(
+        @PathParam("id") @Parameter(description = "Request id to add into") Long id,
+        @RequestBody(description = "New file to add into compression request")
+        RequestFile entity) {
+        // check if request is valid
+        Request req = repoReq.findById(id);
+        if (req == null) {
+            return response.build(404);
+        }
+        if (!checkOwner(req.userId)) {
+            return response.build(403);
+        }
+        entity.requestId = id;
+        repoReqFile.persist(entity);
+        return response.build(200, "", entity);
+    }
+
+    @POST
+    @Path("/{id}/start")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Start a compression request")
+    public Response start(@PathParam("id") @Parameter(description = "Request id to start") Long id) {
+        // check if request is valid
+        Request req = repoReq.findById(id);
+        if (req == null) {
+            return response.build(404);
+        }
+        if (!checkOwner(req.userId)) {
+            return response.build(403);
+        }
+        // TODO: start compression service in background with specified id
+
+        return response.build(200, "", req);
+    }
+
     @DELETE
     @Path("/{id}")
     @Transactional
@@ -130,7 +170,6 @@ public class CompressResource {
         repoReq.persist(req);
         return response.build(200, "", req);
     }
-
 
     @GET
     @Path("/stats")
