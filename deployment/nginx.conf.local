@@ -30,7 +30,7 @@ http {
         listen 80;
         server_name user.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8785;
+            proxy_pass http://172.17.0.1:8785;
         }
     }
 
@@ -40,7 +40,7 @@ http {
         server_name dashboard.ulake.sontg.net db.ulake.sontg.net;
 
         location ~* ^/(api|apidoc|q/openapi) {
-            proxy_pass http://ulake-service:8782;
+            proxy_pass http://172.17.0.1:8782;
         }
         location / {
             root /opt/dashboard;
@@ -53,7 +53,7 @@ http {
         listen 80;
         server_name admin.ulake.sontg.net;
         location ~* ^/(api|apidoc|q/openapi) {
-            proxy_pass http://ulake-service:8781;
+            proxy_pass http://172.17.0.1:8781;
         }
         location / {
             root /opt/admin;
@@ -77,7 +77,7 @@ http {
         listen 80;
         server_name table.ulake.sontg.net;
         location ~* ^/(api|apidoc|q/openapi) {
-            proxy_pass http://ulake-service:8788;
+            proxy_pass http://172.17.0.1:8788;
         }
         location / {
             root /opt/table;
@@ -90,7 +90,7 @@ http {
         listen 80;
         server_name search.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8787;
+            proxy_pass http://172.17.0.1:8787;
         }
     }
 
@@ -98,7 +98,7 @@ http {
         listen 80;
         server_name folder.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8786;
+            proxy_pass http://172.17.0.1:8786;
         }
     }
 
@@ -106,7 +106,7 @@ http {
         listen 80;
         server_name core.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8784;
+            proxy_pass http://172.17.0.1:8784;
         }
     }
 
@@ -114,7 +114,7 @@ http {
         listen 80;
         server_name acl.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8783;
+            proxy_pass http://172.17.0.1:8783;
         }
     }
 
@@ -130,7 +130,7 @@ http {
         listen 80;
         server_name log.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8790;
+            proxy_pass http://172.17.0.1:8790;
         }
     }
 
@@ -138,7 +138,7 @@ http {
         listen 80;
         server_name compress.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-service:8791;
+            proxy_pass http://172.17.0.1:8791;
         }
     }
 
@@ -146,7 +146,7 @@ http {
         listen 80;
         server_name pma.ulake.sontg.net;
         location / {
-            proxy_pass http://ulake-phpmyadmin:80;
+            proxy_pass http://172.17.0.1:80;
         }
     }
 }
