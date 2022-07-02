@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.compress.resource;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -49,11 +51,15 @@ public class CompressResource {
     JsonWebToken jwt;
 
     @GET
-    @Operation(summary = "List all requests. Admin: all possible requests, User: requests of his own.")
+    @Operation(summary = "List all compression requests. Admin: all possible requests, User: requests of his own.")
     @RolesAllowed({ "User", "Admin" })
     public Response all() {
-        // TODO: separation of result for Users/Admins
-        return response.build(200, "", repoReq.listAll());
+        Set<String> groups = jwt.getGroups();
+        if (groups.contains("Admin")) {
+            return response.build(200, "", repoReq.listAll());
+        }
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        return response.build(200, "", repoReq.list("userId", userId));
     }
 
     @GET
