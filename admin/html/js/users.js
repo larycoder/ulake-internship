@@ -7,9 +7,9 @@ const userCrud = new CRUD({
     nameField: "userName",
     listFieldRenderer: [
         { mData: "id" },
-        { mData: "userName", render: (data, type, row) => `<a href="/user/show?id=${row.id}">${data}</a>` },
+        { mData: "userName", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },
         { mData: "registerTime", render: (data, type, row) => new Date(data*1000).toLocaleDateString() },
-        { mData: "isAdmin", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
+        { mData: "isAdmin", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} disabled >` },
         { mData: "id",
             render: (data, type, row) =>
                 `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>

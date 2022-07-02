@@ -62,6 +62,39 @@ class CRUD {
         this.listDetail(this.entities);
     }
 
+
+    /**
+     *
+     * @param {*} data Object for viewing
+     * @returns
+     */
+    viewDetail(data) {
+        return $('#table').DataTable(  {
+            data: data,
+            bProcessing: false,
+            paging: false,
+            searching: false,
+            info: false,
+            columns: [
+                { data: "key" },
+                { data: "value" }
+            ]
+        });
+    }
+
+    /**
+     * Callback when the view UI is ready to be rendered
+     */
+     async viewReady() {
+        const params = parseParam("id", this.listUrl);
+        const id = parseInt(params.id);
+        var info = await this.api.one(id);
+        $("#name-detail").text(`Update ${this.name} Detail for ${info[this.nameField]}`);
+        const table = toTable(info, this.hidden);
+        this.viewDetail(table);
+    }
+
+
     /**
      *
      * @param {*} data Object for editting
