@@ -1,6 +1,5 @@
 worker_processes auto;
 worker_rlimit_nofile 8192;
-pid /tmp/nginx.pid;
 
 events {
     worker_connections 4096;
@@ -8,6 +7,7 @@ events {
 
 http {
     index    index.html index.htm index.php;
+    ssi on;
 
     default_type application/octet-stream;
     log_format   main '$remote_addr - $remote_user [$time_local]  $status '
@@ -16,82 +16,137 @@ http {
     sendfile     on;
     tcp_nopush   on;
     server_names_hash_bucket_size 128;
-    include  /etc/nginx/mime.types;
-    error_log /tmp/error.log;
-    access_log /tmp/access.log;
-    gzip on;
-
+    include /etc/nginx/mime.types;
 
     server {
-        listen 8080;
+        listen 80;
         server_name ulake.sontg.net;
         location / {
-            root /home/dx/dev/ulake/dashboard/html;
+            root /opt/dashboard;
         }
     }
 
     server { # service user
-        listen 8080;
+        listen 80;
         server_name user.ulake.sontg.net;
         location / {
-            proxy_pass http://127.0.0.1:8785;
+            proxy_pass http://ulake-service:8785;
         }
     }
 
     server { # service dashboard
-        listen 8080;
-        server_name dashboard.ulake.sontg.net;
-        location ~* ^/(api|apidoc) {
-            proxy_pass http://127.0.0.1:8782;
-        }
-        location / {
-            root /home/dx/dev/ulake/dashboard/html;
-        }
-    }
+        listen 80;
+        # db is for testing
+        server_name dashboard.ulake.sontg.net db.ulake.sontg.net;
 
-    server { # service admin
-        listen 8080;
-        server_name admin.ulake.sontg.net;
-	ssi on;
-        location ~* ^/(api|apidoc) {
-            proxy_pass http://127.0.0.1:8781;
+        location ~* ^/(api|apidoc|q/openapi) {
+            proxy_pass http://ulake-service:8782;
         }
         location / {
+            root /opt/dashboard;
             ssi_types application/javascript;
-            root /home/dx/dev/ulake/admin/html;
             try_files $uri $uri/ $uri.html =404;
         }
     }
 
+    server { # service admin
+        listen 80;
+        server_name admin.ulake.sontg.net;
+        location ~* ^/(api|apidoc|q/openapi) {
+            proxy_pass http://ulake-service:8781;
+        }
+        location / {
+            root /opt/admin;
+            ssi_types application/javascript;
+            try_files $uri $uri/ $uri.html =404;
+        }
+    }
+
+    server { # service common
+        listen 80;
+        server_name common.ulake.sontg.net;
+        add_header Access-Control-Allow-Origin *;
+        location / {
+            root /opt/common;
+            ssi_types application/javascript;
+            try_files $uri $uri/ $uri.html =404;
+        }
+    }
+
+    server { # service table (for tabular data, to be imported to RDBMS)
+        listen 80;
+        server_name table.ulake.sontg.net;
+        location ~* ^/(api|apidoc|q/openapi) {
+            proxy_pass http://ulake-service:8788;
+        }
+        location / {
+            root /opt/table;
+            ssi_types application/javascript;
+            try_files $uri $uri/ $uri.html =404;
+        }
+    }
+
+    server { # service search
+        listen 80;
+        server_name search.ulake.sontg.net;
+        location / {
+            proxy_pass http://ulake-service:8787;
+        }
+    }
+
     server { # service folder
-        listen 8080;
+        listen 80;
         server_name folder.ulake.sontg.net;
         location / {
-            proxy_pass http://127.0.0.1:8786;
+            proxy_pass http://ulake-service:8786;
         }
     }
 
     server { # service core
-        listen 8080;
+        listen 80;
         server_name core.ulake.sontg.net;
         location / {
-            proxy_pass http://127.0.0.1:8784;
+            proxy_pass http://ulake-service:8784;
         }
     }
 
     server { # service acl
-        listen 8080;
+        listen 80;
         server_name acl.ulake.sontg.net;
         location / {
-            proxy_pass http://127.0.0.1:8783;
+            proxy_pass http://ulake-service:8783;
+        }
+    }
+
+    server { # service ingestion
+        listen 80;
+        server_name ingest.ulake.sontg.net;
+        location / {
+            proxy_pass http://172.17.0.1:8789;
+        }
+    }
+
+    server { # service log
+        listen 80;
+        server_name log.ulake.sontg.net;
+        location / {
+            proxy_pass http://ulake-service:8790;
+        }
+    }
+
+    server { # service compression
+        listen 80;
+        server_name compress.ulake.sontg.net;
+        location / {
+            proxy_pass http://ulake-service:8791;
         }
     }
 
     server { # phpmyadmin
-        listen 8080;
+        listen 80;
         server_name pma.ulake.sontg.net;
         location / {
-            proxy_pass http://127.0.0.1:8081;
+            proxy_pass http://ulake-phpmyadmin:80;
         }
     }
 }
