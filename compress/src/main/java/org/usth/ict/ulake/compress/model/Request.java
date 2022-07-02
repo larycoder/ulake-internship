@@ -19,4 +19,7 @@ public class Request {
 
     @Schema(description = "Requested time")
     public Long timestamp;
+
+    @Schema(description = "Finished time")
+    public Long finishedTime;
 }
