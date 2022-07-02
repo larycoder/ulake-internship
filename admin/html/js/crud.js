@@ -18,7 +18,7 @@ class CRUD {
             this.listUrl = listUrl;
             this.name = name;
             this.nameField = nameField;
-            this.blacklist = hidden? hidden.split(",").map((field) => field.trim()) : [];
+            this.hidden = hidden? hidden.split(",").map((field) => field.trim()) : [];
             this.readonly = readonly? readonly.split(",").map((field) => field.trim()) : [];
         }
         else {
@@ -27,7 +27,7 @@ class CRUD {
             this.listUrl = api.listUrl;
             this.name = api.name;
             this.nameField = api.nameField;
-            this.blacklist = api.hidden? api.hidden.split(",").map((field) => field.trim()) : [];
+            this.hidden = api.hidden? api.hidden.split(",").map((field) => field.trim()) : [];
             this.readonly = api.readonly? api.readonly.split(",").map((field) => field.trim()) : [];
         }
     }
@@ -52,9 +52,8 @@ class CRUD {
         var info = await this.api.one(id);
         $("#name-detail").text(`Update ${this.name} Detail for ${info[this.nameField]}`);
         const table = toTable(info, this.hidden);
-        const readonly = this.readonly;
         table.forEach((data, index) => {
-            if (readonly.includes(data.key)) {
+            if (this.readonly.includes(data.key)) {
                 table[index].readonly = true;
             }
         });
@@ -64,13 +63,18 @@ class CRUD {
 
     async save() {
         // TODO: validate form input.
+        const _crud = this;
         const ret = {};
         const rows = $("#table tbody tr");
         rows.each(function () {
             const _this = $(this);
             const key = _this.find("td:first-child").text();
             const value = _this.find("td:last-child input").val();
-            if (!isEmpty(value)) ret[key] = value;
+            if ((/*!_crud.readonly.includes(key) &&
+                 !_crud.hidden.includes(key) &&*/
+                !isEmpty(value)) || (key === "id")) {
+                    ret[key] = value;
+            }
         });
         const resp = await this.api.save(ret.id, JSON.stringify(ret));
         if (resp == null) { // no error
