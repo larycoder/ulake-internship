@@ -15,7 +15,7 @@ public class Result {
     public Long id;
 
     @Schema(description = "Compression request id")
-    public String req;
+    public Long requestId;
 
     @Schema(description = "Location on disk to store cached compressed data")
     public String url;
@@ -23,9 +23,9 @@ public class Result {
     @Schema(description = "Id of the requested user")
     public Long ownerId;
 
-    @Schema(description = "Creation time")
-    public Long creationTime;
+    @Schema(description = "How many files have been compressed into the big file")
+    public Long progress;
 
-    @Schema(description = "Original format of the uploaded table")
-    public String format;
+    @Schema(description = "How many files in total should be compressed")
+    public Long totalFiles;
 }

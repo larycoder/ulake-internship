@@ -22,7 +22,4 @@ public class Request {
 
     @Schema(description = "Finished time")
     public Long finishedTime;
-
-    @Schema(description = "How many files have been compressed into the big file")
-    public Long progress;
 }
