@@ -17,7 +17,7 @@ async function userReady() {
     const uid = parseInt(params.uid);
     var userInfo = await userApi.one(uid);
     $("#username-detail").text(`User Detail for ${userInfo.userName}`);
-    detail(toTable(userInfo, "department, failedLogins, groups, firstName, lastName"));
+    detail(toTable(userInfo, "department, failedLogins, groups"));
 }
 
 $(document).ready(userReady);

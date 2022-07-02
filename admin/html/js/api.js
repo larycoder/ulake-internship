@@ -54,7 +54,7 @@ class Api {
 /**
  * Specific API for User CRUD management
  */
-class User extends Api {
+class UserApi extends Api {
     constructor () {
         super(getUserUrl(), "/api/user")
     }
@@ -65,6 +65,22 @@ class User extends Api {
     }
 }
 
-const userApi = new User();
+/**
+ * Specific API for Group CRUD management
+ */
+ class GroupApi extends Api {
+    constructor () {
+        super(getUserUrl(), "/api/user/group")
+    }
+
+    async getName(id) {
+        const ret = await this.one(id);
+        return ret.name;
+    }
+}
+
+
+const userApi = new UserApi();
+const groupApi = new GroupApi();
 
 $("#userName").text(getUserName());

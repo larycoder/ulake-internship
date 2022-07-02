@@ -13,7 +13,7 @@ function login() {
             if (data.code === 200) {
                 console.log(`Login ok, token=${data.resp}`);
                 setToken(data.resp);
-                const name = await user.getName(getUid());
+                const name = await userApi.getName(getUid());
                 setUserName(name);
                 if (!getGroups().includes("Admin")) {
                     showModal("Error", "Sorry, you are not an admin.");
