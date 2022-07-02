@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.usth.ict.ulake.ingest.model.DataModel;
-import org.usth.ict.ulake.ingest.model.PolicyModel;
+import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.services.CrawlSvc;
 
 @Path("/crawl")
@@ -29,7 +29,7 @@ public class CrawlResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public DataModel runCrawl(
         @QueryParam("mode") String mode,
-        @RequestBody PolicyModel policy) {
+        @RequestBody Policy policy) {
         var type = new TypeReference<Map<String, Object>>(){};
         var policyMap = mapper.convertValue(policy, type);
         return svc.runCrawl(policyMap, mode);

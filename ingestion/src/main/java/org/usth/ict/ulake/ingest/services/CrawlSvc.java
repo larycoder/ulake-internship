@@ -15,33 +15,33 @@ import java.util.Map;
 
 @ApplicationScoped
 public class CrawlSvc {
-    private int fetchMode(String mode) {
+    private FetchConfig fetchMode(String mode) {
        if(mode.equals("fetch")) {
            return FetchConfig.FETCH;
        } else if(mode.equals("download")) {
            return FetchConfig.DOWNLOAD;
        }
-       return -1;
+       return null;
     }
 
-    public DataModel runCrawl(Map policy, String mode) {
+    public DataModel runCrawl(Map<String, Object> policy, String mode) {
         Recorder recorder = new ULakeCacheFileRecorderImpl();
         String host = "http://core.ulake.sontg.net";
         String path = "/tmp/ulake";
-        HashMap config = new HashMap();
+        HashMap<Object, Object> config = new HashMap<>();
         config.put(Record.HOST, host);
         config.put(Record.PATH, path);
         recorder.setup(config);
 
         Fetcher fetcher = new GithubFetcherImpl();
-        config = new HashMap();
+        config = new HashMap<>();
         config.put(FetchConfig.POLICY, policy);
         config.put(FetchConfig.MODE, fetchMode(mode));
         fetcher.setup(config);
         fetcher.setup(null, recorder);
 
-        List data = fetcher.fetch();
-        List head = (List) data.remove(0);
+        var data = fetcher.fetch();
+        var head = (List<?>) data.remove(0);
         return new DataModel(head, data);
     }
 }
