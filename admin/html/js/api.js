@@ -68,13 +68,23 @@ class UserApi extends Api {
 /**
  * Specific API for Group CRUD management
  */
- class GroupApi extends Api {
+class GroupApi extends Api {
     constructor () {
         super(getUserUrl(), "/api/user/group")
     }
- }
+}
+
+/**
+ * Specific API for Object CRUD management
+ */
+ class ObjectApi extends Api {
+    constructor () {
+        super(getCoreUrl(), "/api/object")
+    }
+}
 
 const userApi = new UserApi();
 const groupApi = new GroupApi();
+const objectApi = new ObjectApi();
 
 $("#userName").text(getUserName());
