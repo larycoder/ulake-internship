@@ -9,29 +9,65 @@ class CRUD {
      * @param {string} listUrl Url to the UI's list view, e.g. /users
      * @param {string} name Name of the managed object, e.g. User
      * @param {string} nameField Name of the field that will be used for showing name
-     * @param {string} hidden Fields that will be hidden from the UI, e.g. "department, failedLogins, groups"
-     * @param {string} readonly Fields that will be read-only from the UI, e.g. "id,registerTime,userName,isAdmin"
+     * @param {string} listFieldRenderer Renderer for fields in the list. Ref <a href="https://legacy.datatables.net/usage/columns">DataTable aoColumns</a>
+     * @param {string} hidden [optional] Fields that will be hidden from the UI, e.g. "department, failedLogins, groups"
+     * @param {string} readonly [optional] Fields that will be read-only from the UI, e.g. "id,registerTime,userName,isAdmin"
      */
-    constructor (api, listUrl, name, nameField, hidden, readonly) {
-        if (typeof api === "string") {
-            this.api = api;
-            this.listUrl = listUrl;
-            this.name = name;
-            this.nameField = nameField;
-            this.hidden = hidden? hidden.split(",").map((field) => field.trim()) : [];
-            this.readonly = readonly? readonly.split(",").map((field) => field.trim()) : [];
+    constructor (config) {
+        this.api = config.api;
+        this.listUrl = config.listUrl;
+        this.name = config.name;
+        this.nameField = config.nameField;
+        this.listFieldRenderer = config.listFieldRenderer;
+        this.hidden = config.hidden? config.hidden.split(",").map((field) => field.trim()) : [];
+        this.readonly = config.readonly? config.readonly.split(",").map((field) => field.trim()) : [];
+    }
+
+    /**
+     * Show a delete item modal
+     * @param {string} id Entity to be deleted
+     */
+    listDeleteItem(id) {
+        const entity = this.entities.filter(e => e.id === id);
+        if (entity.length === 0) {
+            showModal("Error", `Weird, cannot find ${this.name} with id ${id}`);
         }
         else {
-            // that's an object
-            this.api = api.api;
-            this.listUrl = api.listUrl;
-            this.name = api.name;
-            this.nameField = api.nameField;
-            this.hidden = api.hidden? api.hidden.split(",").map((field) => field.trim()) : [];
-            this.readonly = api.readonly? api.readonly.split(",").map((field) => field.trim()) : [];
+            showModal("Error", `Are you sure to delete ${entity[0][this.nameField]}?`, () => {
+                console.log(`this.api.deleteOne(${entity[0].id})`);
+            });
         }
     }
-    detail(data) {
+
+    /**
+     *
+     * @param {*} data Data to be shown on list
+     * @returns
+     */
+    listDetail(data) {
+        const _this = this;
+        return $('#table').DataTable(  {
+            data: data,
+            bProcessing: true,
+            paging: true,
+            aoColumns: this.listFieldRenderer
+        });
+    }
+
+    /**
+     * Callback when the list UI is ready to be rendered
+     */
+    async listReady() {
+        this.entities = await this.api.all();
+        this.listDetail(this.entities);
+    }
+
+    /**
+     *
+     * @param {*} data Object for editting
+     * @returns
+     */
+    editDetail(data) {
         return $('#table').DataTable(  {
             data: data,
             bProcessing: false,
@@ -46,6 +82,9 @@ class CRUD {
         });
     }
 
+    /**
+     * Callback when the edit UI is ready to be rendered
+     */
     async editReady() {
         const params = parseParam("id", this.listUrl);
         const id = parseInt(params.id);
@@ -57,11 +96,11 @@ class CRUD {
                 table[index].readonly = true;
             }
         });
-        this.detail(table);
-        $("#save").click(() => this.save());
+        this.editDetail(table);
+        $("#save").click(() => this.editSave());
     }
 
-    async save() {
+    async editSave() {
         // TODO: validate form input.
         const _crud = this;
         const ret = {};
