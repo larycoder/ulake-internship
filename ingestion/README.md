@@ -1,13 +1,10 @@
 # ULake Data Ingestion
-This module is a part of ulake (datalake) work as a crawler.
+This module is a part of ulake (datalake) and serve as a crawler.
 
 # Develop Tools
-1. java 16
+1. java 11
 2. gradle 7.1.1
-3. quarkus 2.1.0
-4. Intellij (optional)
-5. hibernate
-6. jackson
+3. quarkus 2.8.1.Final
 
 # Development Guideline
 The project structure comes up with 2 path: REST API and Crawler library.
