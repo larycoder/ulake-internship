@@ -10,17 +10,18 @@ Document version: 0.2.0
 
 ### Service
 
-1. Core Service (API)               port: 8784
-2. Folder Service (API)             port: 8786
-3. User Service (API)               port: 8785
-4. Acl Service (API)                port: 8783
-7. Search Service (API)             port: 8787
-6. Dashboard Service (API)          port: 8782
-7. Admin Service (API)              port: 8781
-8. Tabular Data Service (API)       port: 8788
-9. Ingestion Service (API)          port: 8789
-10. Logging Service (API)           port: 8790
-10. Compression Service (API)       port: 8791
+1. Core Service (API)                          port: 8784
+2. Folder Service (API)                        port: 8786
+3. User Service (API)                          port: 8785
+4. Acl Service (API)                           port: 8783
+7. Search Service (API)                        port: 8787
+6. Dashboard Service (API)                     port: 8782
+7. Admin Service (API)                         port: 8781
+8. Tabular Data Service (API)                  port: 8788
+9. Ingestion Service (API)                     port: 8789
+10. Logging Service (API)                      port: 8790
+10. Compression Service (API)                  port: 8791
+11. Indexing and Retrieval Service (API)       port: 8792
 
 ### Storage
 

@@ -9,7 +9,7 @@ BASE_DIR=$(readlink -f $(dirname $0));
 ROOT_DIR=$(readlink -f $BASE_DIR/../);
 
 # Export ports
-PORTS="8781-8788";
+PORTS="8781-8799";
 EXP_PORT="";
 for i in $PORTS;
 do
