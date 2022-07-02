@@ -72,13 +72,7 @@ class UserApi extends Api {
     constructor () {
         super(getUserUrl(), "/api/user/group")
     }
-
-    async getName(id) {
-        const ret = await this.one(id);
-        return ret.name;
-    }
-}
-
+ }
 
 const userApi = new UserApi();
 const groupApi = new GroupApi();
