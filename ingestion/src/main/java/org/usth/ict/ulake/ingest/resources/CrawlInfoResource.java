@@ -9,7 +9,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
-@Path("/api/v1/crawl-info")
+@Path("/crawl-info")
 public class CrawlInfoResource {
     @Inject
     CrawlInfoSvc svc;

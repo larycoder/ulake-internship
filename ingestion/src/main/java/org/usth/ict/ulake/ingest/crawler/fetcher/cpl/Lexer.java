@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Lexer {
     Map<String, Object> policy;
-    List<Token> tokens = new ArrayList();
+    List<Token> tokens = new ArrayList<Token>();
     int pos = -1;
 
     public Lexer(Map policy){
@@ -134,7 +134,7 @@ public class Lexer {
                 for(String dataKey : data.keySet()) {
                     dataTokens(dataKey, (Map) data.get(dataKey));
                 }
-            } else if(key.equals("return")){
+            } else if(key.equals("pReturn")){
                 addToken(Type.RETURN, null);
             } else {
                 error();
