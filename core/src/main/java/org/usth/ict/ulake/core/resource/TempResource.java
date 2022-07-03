@@ -98,7 +98,7 @@ public class TempResource {
      * @return - response error or response stream relying on query result
      */
     private Response streamOutData(@HeaderParam("Authorization") String bearer, String cid) {
-        InputStream is = fs.get(cid);
+        InputStream is = fs.get(tempDir, cid);
         if (is == null) {
             return response.build(403);
         }
