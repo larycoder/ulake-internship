@@ -13,25 +13,24 @@ import org.usth.ict.ulake.compress.persistence.ResultRepository;
 /**
  * Perform compression in a background thread
  */
-public class CompressThread extends Thread implements CompressCallback {
+public class CompressTask implements CompressCallback {
 
     private Long requestId;
     private RequestRepository repoReq;
-    private ResultRepository repoResult;
     private RequestFileRepository repoReqFile;
+    private ResultRepository repoResult;
     private Compressor compressor;
 
     private Result result;
 
-    public CompressThread(Compressor compressor, Long requestId, String token, RequestRepository repoReq, ResultRepository repoResult, RequestFileRepository repoReqFile) {
+    public CompressTask(Compressor compressor, Long requestId, String token, RequestRepository repoReq, RequestFileRepository repoReqFile, ResultRepository repoResult) {
         this.compressor = compressor;
         this.requestId = requestId;
         this.repoReq = repoReq;
-        this.repoResult = repoResult;
         this.repoReqFile = repoReqFile;
+        this.repoResult = repoResult;
     }
 
-    @Override
     public void run() {
         // prepare request files and result object
         var req = getRequest();

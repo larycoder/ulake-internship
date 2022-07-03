@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -31,6 +32,9 @@ import org.usth.ict.ulake.compress.model.RequestFile;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
+import org.usth.ict.ulake.compress.service.CompressTask;
+import org.usth.ict.ulake.compress.service.Compressor;
+import org.usth.ict.ulake.compress.service.ZipCompressor;
 
 
 @Path("/compress")
@@ -52,6 +56,9 @@ public class CompressResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    ManagedExecutor executor;
 
     /**
      * Check if an userId is valid for the current request
@@ -141,7 +148,9 @@ public class CompressResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Start a compression request")
-    public Response start(@PathParam("id") @Parameter(description = "Request id to start") Long id) {
+    public Response start(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("id") @Parameter(description = "Request id to start") Long id) {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
@@ -150,9 +159,19 @@ public class CompressResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        // TODO: start compression service in background with specified id
+        executor.submit(() -> compress(bearer, id));
 
         return response.build(200, "", req);
+    }
+
+    /**
+     * Start compression service in background with specified id
+     * @param id Compression request Id
+     */
+    private void compress(String bearer, Long id) {
+        Compressor compressor = new ZipCompressor();
+        CompressTask task = new CompressTask(compressor, id, bearer, repoReq, repoReqFile, repoResp);
+        task.run();
     }
 
     @DELETE
