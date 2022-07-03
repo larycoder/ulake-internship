@@ -97,4 +97,28 @@ public interface CoreService {
     @Schema(description = "Get all statistics from core service")
     public LakeHttpResponse stats(
         @HeaderParam("Authorization") String bearer);
+
+    @GET
+    @Path("/temp/{cid}/data")
+    @Schema(description = "load temporary binary object from core")
+    public InputStream tempData(
+        @PathParam("cid") String cid,
+        @HeaderParam("Authorization") String bearer);
+
+    @POST
+    @Path("/temp")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Schema(description = "upload new temporary binary object")
+    public LakeHttpResponse newTemp(
+        @HeaderParam("Authorization") String bearer,
+        InputStream output);
+
+    @DELETE
+    @Path("/temp/{id}")
+    @Schema(description = "delete temporary binary daya")
+    public LakeHttpResponse delTemp(
+        @PathParam("cid") Long cid,
+        @HeaderParam("Authorization") String bearer);
+
 }
