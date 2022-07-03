@@ -6,13 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
@@ -23,27 +24,26 @@ import org.usth.ict.ulake.ingest.utils.RestClientUtil;
 
 
 public class GithubFetcherImpl implements Fetcher<InputStream, String> {
+    private static final Logger log = LoggerFactory.getLogger(GithubFetcherImpl.class);
+
     private Storage<String> store;
     private Recorder<InputStream> record;
-    private final FetchConfig[] fetchConfigEnum = FetchConfig.values();
 
     private Map<String, Object> policy;
     private FetchConfig mode;
 
-    @Inject
-    ObjectMapper mapper;
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void setup(Map<FetchConfig, String> config) {
         try {
+            log.info("Parsing policy from string to object...");
             var type = new TypeReference<Map<String, Object>>(){};
             policy = mapper.readValue(config.get(FetchConfig.POLICY), type);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Fail to parse policy from string", e);
         }
-
-        int modeIdx = Integer.parseInt(config.get(FetchConfig.MODE));
-        mode = fetchConfigEnum[modeIdx];
+        mode = FetchConfig.valueOf(config.get(FetchConfig.MODE));
     }
 
     @Override
@@ -54,8 +54,10 @@ public class GithubFetcherImpl implements Fetcher<InputStream, String> {
 
     @Override
     public List<?> fetch() {
+        log.info("Executing policy...");
         Interpreter engine = new Interpreter(buildRemote());
         TableStruct resultTable = engine.eval(policy);
+        log.info("Executed policy");
 
         if (mode == FetchConfig.FETCH) {
             return resultTable.extractAsList();

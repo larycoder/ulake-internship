@@ -14,7 +14,6 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
     private Recorder<InputStream> fileRecorder;
     private Recorder<InputStream> ulakeRecorder;
     private Map<Record, String> config;
-    private final Record[] recordEnumValue = Record.values();
 
     @Override
     public void setup(Map<Record, String> config) {
@@ -52,7 +51,7 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
 
         var fileRecordDetail = new HashMap<Record, String>();
         for (String key : fileRecordLog.keySet()) {
-            Record newKey = recordEnumValue[Integer.parseInt(key)];
+            Record newKey = Record.valueOf(key);
             fileRecordDetail.put(newKey, fileRecordLog.get(key));
         }
         fileRecordDetail.put(Record.TOKEN, meta.get(Record.TOKEN));

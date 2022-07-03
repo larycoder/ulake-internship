@@ -28,12 +28,13 @@ public class CrawlResource {
     public DataModel runCrawl(
         @QueryParam("mode") String mode,
         @RequestBody Policy policy) {
-        String policyMap = null;
+        String policyString = null;
         try {
-            policyMap = mapper.writeValueAsString(policy);
+            policyString = mapper.writeValueAsString(policy);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return null;
         }
-        return svc.runCrawl(policyMap, mode);
+        return svc.runCrawl(policyString, mode);
     }
 }
