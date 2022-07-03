@@ -1,10 +1,14 @@
 package org.usth.ict.ulake.compress.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
 import org.usth.ict.ulake.compress.model.Result;
@@ -46,6 +50,8 @@ public class CompressTask implements CompressCallback {
 
         // go
         compressor.compress(files, result, this);
+        String localFilePath = pushCore(result);
+        deleteLocalFile(localFilePath);
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
@@ -58,6 +64,34 @@ public class CompressTask implements CompressCallback {
 
     private List<RequestFile> getFiles() {
         return repoReqFile.list("requestId", requestId);
+    }
+
+    /**
+     * push the zipped file to core temp repository
+     * @param result
+     * @return local file name
+     */
+    private String pushCore(Result result) {
+        String ret = result.url;
+        try {
+            FileInputStream fis = new FileInputStream(new File(result.url));
+            LakeHttpResponse resp = compressor.coreService.newTemp(compressor.token, fis);
+            if (resp.getCode() != 200) {
+                return null;
+            }
+            result.url = resp.getMsg();
+            fis.close();
+            log.info("- Successfully pushed temporary file to core, cid={}", result.url);
+        } catch (IOException e) {
+            log.error("   + Cannot open zip file {}: {}", result.url, e.getMessage());
+            return null;
+        }
+        return ret;
+    }
+
+    private boolean deleteLocalFile(String filePath) {
+        File file = new File(filePath);
+        return file.delete();
     }
 
     @Override

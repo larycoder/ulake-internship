@@ -28,9 +28,10 @@ public class ZipCompressor extends Compressor {
     public void compress(List<RequestFile> files, Result result, CompressCallback callback) {
         Path temp = createTempZipFile();
         ZipOutputStream zipOut = null;
+        FileOutputStream fos = null;
         // create zip file
         try {
-            FileOutputStream fos = new FileOutputStream(temp.toFile());
+            fos = new FileOutputStream(temp.toFile());
             zipOut = new ZipOutputStream(fos);
         } catch (IOException e) {
             log.error("- Cannot create zip for temporary file {}: {}", temp.toString(), e.getMessage());
@@ -48,6 +49,7 @@ public class ZipCompressor extends Compressor {
         // clean up and return
         try {
             zipOut.close();
+            fos.close();
             log.info("- Zip compression finished {} files", files.size());
             result.url = temp.toFile().getAbsolutePath();
         } catch (IOException e) {
