@@ -13,8 +13,10 @@ public interface FileSystem {
     String mkdir(String name);
 
     // files
-    String create(String name, long length, InputStream is);
     String create(String rootDir, String name, long length, InputStream is);
+    String create(String name, long length, InputStream is);
+    boolean delete(String rootDir, String cid);
     boolean delete(String cid);
+    InputStream get(String rootDir, String cid);
     InputStream get(String cid);
 }

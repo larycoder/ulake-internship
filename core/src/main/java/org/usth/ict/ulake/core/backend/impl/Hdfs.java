@@ -65,9 +65,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     public String create(String rootDir, String name, long length, InputStream is) {
         UUID uuid = UUID.randomUUID();
         String pathFile = Paths.get(rootDir, uuid.toString()).toString();
-        Path fullPath = new Path(
-            namenodeUri + Paths.get("/", pathFile).toString());
-
+        Path fullPath = new Path(namenodeUri + Paths.get("/", pathFile).toString());
         try {
             OutputStream os = getClient().create(fullPath);
             log.info("Create: target {}, prepare to putObject url={} length={}",
@@ -95,12 +93,25 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     }
 
     @Override
-    public boolean delete (String cid) {
-        return false;
+    public boolean delete(String rootDir, String cid) {
+        String pathFile = Paths.get(rootDir, cid).toString();
+        Path fullPath = new Path(namenodeUri + Paths.get("/", pathFile).toString());
+        try {
+            getClient().delete(fullPath, false);
+        } catch (IOException e) {
+            log.error("Fail to delete file {}: {}", pathFile, e);
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public InputStream get(String cid) {
+    public boolean delete(String cid) {
+        return delete(rootDir, cid);
+    }
+
+    @Override
+    public InputStream get(String rootDir, String cid) {
         String pathFile = namenodeUri + Paths.get("/", rootDir, cid).toString();
         try {
             InputStream is = getClient().open(new Path(pathFile));
@@ -109,6 +120,11 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             log.error("Fail to open file {}: {}", pathFile, e);
             return null;
         }
+    }
+
+    @Override
+    public InputStream get(String cid) {
+        return get(rootDir, cid);
     }
 
     @Override

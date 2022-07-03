@@ -9,6 +9,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -108,5 +109,17 @@ public class TempResource {
             }
         };
         return Response.ok(stream).build();
+    }
+
+    @DELETE
+    @Path("/{cid}")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Delete temp binary data")
+    public Response delete(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("cid") @Parameter(description = "Content id to delete") String cid) {
+        fs.delete(tempDir, cid);
+        logService.post(bearer, new LogModel("Delete", "Delete temp data for cid " + cid));
+        return response.build(200, null, cid);
     }
 }
