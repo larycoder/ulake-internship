@@ -108,7 +108,7 @@ public interface CoreService {
     @POST
     @Path("/temp")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Schema(description = "upload new temporary binary object")
     public LakeHttpResponse newTemp(
         @HeaderParam("Authorization") String bearer,
