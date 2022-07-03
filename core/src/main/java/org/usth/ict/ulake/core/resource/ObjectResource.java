@@ -111,19 +111,6 @@ public class ObjectResource {
     }
 
     @GET
-    @Path("/{cid}/data")
-    @RolesAllowed({ "Admin" })
-    @Operation(summary = "Get object binary data")
-    public Response data(
-        @HeaderParam("Authorization") String bearer,
-        @PathParam("cid")
-        @Parameter(description = "Content id to extract")
-        String cid) {
-        logService.post(bearer, new LogModel("Extract", "Get object data for cid " + cid));
-        return streamOutData(bearer, cid);
-    }
-
-    @GET
     @Path("/{fileId}/fileData")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get object binary data")

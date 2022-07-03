@@ -52,6 +52,11 @@ public class OpenIO implements FileSystem {
     }
 
     @Override
+    public String create(String rootDir, String name, long length, InputStream is) {
+        return create(name, length, is);
+    }
+
+    @Override
     public boolean delete(String cid) {
         return false;
     }

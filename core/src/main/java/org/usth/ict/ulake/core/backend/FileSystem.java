@@ -14,6 +14,7 @@ public interface FileSystem {
 
     // files
     String create(String name, long length, InputStream is);
+    String create(String rootDir, String name, long length, InputStream is);
     boolean delete(String cid);
     InputStream get(String cid);
 }

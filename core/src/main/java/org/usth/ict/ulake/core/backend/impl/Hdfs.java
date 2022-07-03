@@ -58,6 +58,11 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
 
     @Override
     public String create(String name, long length, InputStream is) {
+        return create(rootDir, name, length, is);
+    }
+
+    @Override
+    public String create(String rootDir, String name, long length, InputStream is) {
         UUID uuid = UUID.randomUUID();
         String pathFile = Paths.get(rootDir, uuid.toString()).toString();
         Path fullPath = new Path(
