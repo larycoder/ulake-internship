@@ -32,6 +32,7 @@ import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
+import org.usth.ict.ulake.compress.model.Result;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
@@ -105,15 +106,16 @@ public class CompressResource {
     }
 
     @GET
-    @Path("/{id}/status")
+    @Path("/{id}/result")
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Check a compression request status")
+    @Operation(summary = "Check a compression request result")
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         Request req = repoReq.findById(id);
-        if (checkOwner(req.userId)) {
-            return response.build(200, null, req.finishedTime > 0);
+        if (!checkOwner(req.userId)) {
+            return response.build(403);
         }
-        return response.build(404);
+        Result resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
+        return response.build(200, null, resp);
     }
 
     @POST
@@ -153,6 +155,25 @@ public class CompressResource {
         entity.requestId = id;
         repoReqFile.persist(entity);
         return response.build(200, "", entity);
+    }
+
+    @GET
+    @Path("/{id}/files")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "List all files in a compression request")
+    public Response getFiles(@PathParam("id") @Parameter(description = "Request id to list") Long id) {
+        // check if request is valid
+        Request req = repoReq.findById(id);
+        if (req == null) {
+            return response.build(404);
+        }
+        if (!checkOwner(req.userId)) {
+            return response.build(403);
+        }
+        var files = repoReqFile.list("requestId", id);
+        return response.build(200, "", files);
     }
 
     @POST

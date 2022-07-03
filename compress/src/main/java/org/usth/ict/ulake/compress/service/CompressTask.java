@@ -3,7 +3,8 @@ package org.usth.ict.ulake.compress.service;
 import java.util.Date;
 import java.util.List;
 
-import org.usth.ict.ulake.common.service.CoreService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
 import org.usth.ict.ulake.compress.model.Result;
@@ -15,6 +16,7 @@ import org.usth.ict.ulake.compress.persistence.ResultRepository;
  * Perform compression in a background thread
  */
 public class CompressTask implements CompressCallback {
+    private static final Logger log = LoggerFactory.getLogger(CompressTask.class);
 
     private Long requestId;
     private RequestRepository repoReq;
@@ -59,8 +61,14 @@ public class CompressTask implements CompressCallback {
     }
 
     @Override
-    public void callback(RequestFile file, Result result) {
-        result.totalFiles++;
-        repoResult.persist(result);
+    public void callback(RequestFile file, boolean success, Result result) {
+        log.info("  + callback: file {}, status {}, progress {}", file.fileId, Boolean.valueOf(success), result.progress);
+        if (success) {
+            if (result.progress == null) result.progress = 0L;
+            result.progress++;
+            repoResult.persist(result);
+            log.info("  + persisted result: id {}, progress {}/total {}", result.id, result.progress, result.totalFiles);
+        }
+        // TODO: what to do when failed?
     }
 }

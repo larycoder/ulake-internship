@@ -17,12 +17,12 @@ public abstract class Compressor {
 
     protected String token;
     protected CoreService coreService;
-    protected FileService folderService;
+    protected FileService fileService;
 
-    public Compressor(String token, CoreService coreService, FileService folderService) {
+    public Compressor(String token, CoreService coreService, FileService fileService) {
         this.token = token;
         this.coreService = coreService;
-        this.folderService = folderService;
+        this.fileService = fileService;
     }
 
     public abstract void compress(List<RequestFile> files, Result result, CompressCallback callback);
