@@ -1,9 +1,11 @@
 package org.usth.ict.ulake.ingest.crawler.storage;
 
-import java.util.HashMap;
+import java.util.Map;
 
-public interface Storage {
-    void setup(HashMap config);
-    void store(Object data, HashMap meta);
-    void get(Object carrier, HashMap meta);
+import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
+
+public interface Storage<T> {
+    void setup(Map<StoreMacro, String>config);
+    void store(T data, Map<StoreMacro, String> meta);
+    T get(Map<StoreMacro, String> meta);
 }
