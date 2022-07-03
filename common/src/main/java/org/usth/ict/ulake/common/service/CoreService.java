@@ -115,7 +115,7 @@ public interface CoreService {
         InputStream output);
 
     @DELETE
-    @Path("/temp/{id}")
+    @Path("/temp/{cid}")
     @Schema(description = "delete temporary binary daya")
     public LakeHttpResponse delTemp(
         @PathParam("cid") Long cid,
