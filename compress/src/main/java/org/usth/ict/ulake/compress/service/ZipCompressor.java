@@ -109,8 +109,11 @@ public class ZipCompressor extends Compressor {
      * @return
      */
     private boolean addObjectToZip(Long fileId, String fileName, ZipOutputStream zipOut) {
+        log.info("  + Preparing to fetch file id {} from core", fileId);
         InputStream fis = coreService.objectDataByFileId(fileId, token);
+        log.info("  + Finished fetching file id {} from core", fileId);
         ZipEntry zipEntry = new ZipEntry(fileName);
+        log.info("  + Start adding {}", fileName);
         try {
             zipOut.putNextEntry(zipEntry);
             byte[] bytes = new byte[1024];
@@ -119,6 +122,7 @@ public class ZipCompressor extends Compressor {
                 zipOut.write(bytes, 0, length);
             }
             fis.close();
+            log.info("  + Finished adding {}", fileName);
         } catch (IOException e) {
             log.error("   + Cannot Zip file {}, name {}: {}", fileId, fileName, e.getMessage());
             e.printStackTrace();

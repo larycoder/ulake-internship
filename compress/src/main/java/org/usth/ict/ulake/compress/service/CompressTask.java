@@ -74,6 +74,7 @@ public class CompressTask implements CompressCallback {
     private String pushCore(Result result) {
         String ret = result.url;
         try {
+            log.info(" + Going to push temporary file to core, cid={}", result.url);
             FileInputStream fis = new FileInputStream(new File(result.url));
             LakeHttpResponse resp = compressor.coreService.newTemp(compressor.token, fis);
             if (resp.getCode() != 200) {
@@ -81,7 +82,7 @@ public class CompressTask implements CompressCallback {
             }
             result.url = resp.getMsg();
             fis.close();
-            log.info("- Successfully pushed temporary file to core, cid={}", result.url);
+            log.info(" + Successfully pushed temporary file to core, cid={}", result.url);
         } catch (IOException e) {
             log.error("   + Cannot open zip file {}: {}", result.url, e.getMessage());
             return null;
