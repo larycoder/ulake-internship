@@ -6,7 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
@@ -17,21 +22,32 @@ import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.utils.RestClientUtil;
 
 
-public class GithubFetcherImpl implements Fetcher {
-    private Storage store;
-    private Recorder record;
+public class GithubFetcherImpl implements Fetcher<InputStream, String> {
+    private Storage<String> store;
+    private Recorder<InputStream> record;
+    private final FetchConfig[] fetchConfigEnum = FetchConfig.values();
 
     private Map<String, Object> policy;
     private FetchConfig mode;
 
+    @Inject
+    ObjectMapper mapper;
+
     @Override
-    public void setup(HashMap<?, ?> config) {
-        policy = (Map<String, Object>) config.get(FetchConfig.POLICY);
-        mode = (FetchConfig) config.get(FetchConfig.MODE);
+    public void setup(Map<FetchConfig, String> config) {
+        try {
+            var type = new TypeReference<Map<String, Object>>(){};
+            policy = mapper.readValue(config.get(FetchConfig.POLICY), type);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        int modeIdx = Integer.parseInt(config.get(FetchConfig.MODE));
+        mode = fetchConfigEnum[modeIdx];
     }
 
     @Override
-    public void setup(Storage store, Recorder consumer) {
+    public void setup(Storage<String> store, Recorder<InputStream> consumer) {
         this.store = store;
         this.record = consumer;
     }
@@ -92,7 +108,7 @@ public class GithubFetcherImpl implements Fetcher {
 
     private void putToRecord(
             InputStream info, String url, String file, String token) {
-        HashMap<Object, Object> meta = new HashMap<>();
+        Map<Record, String> meta = new HashMap<>();
         meta.put(Record.LINK, url);
         meta.put(Record.NAME, file);
         meta.put(Record.TOKEN, token);
