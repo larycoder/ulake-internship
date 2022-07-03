@@ -199,8 +199,8 @@ public class CompressResource implements CompressCallback {
      * Start compression service in background with specified id
      * @param id Compression request Id
      */
-    @Transactional
-    private void compress(String bearer, Long id) {
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void compress(String bearer, Long id) {
         log.info("Start compression in managed executor");
 
         Compressor compressor = new ZipCompressor();
@@ -208,18 +208,26 @@ public class CompressResource implements CompressCallback {
         // TODO: split to new task class
         var req = repoReq.findById(id);
         var files = repoReqFile.list("requestId", id);
+
+        log.info("Finished geting");
+
         var result = new Result();
         result.requestId = id;
         result.ownerId = req.userId;
         result.totalFiles = (long) files.size();
         repoResp.persist(result);
 
+        log.info("Finished persisting");
+
         // go
         compressor.compress(files, result, this);
+
+        log.info("Finished compression");
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
         repoReq.persist(req);
+        log.info("Finished everything");
     }
 
     @Override
