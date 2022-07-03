@@ -22,7 +22,6 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
 
         var recorderSetting = new HashMap<Record, String>();
         recorderSetting.put(Record.PATH, config.get(Record.PATH));
-        recorderSetting.put(Record.HOST, config.get(Record.HOST));
 
         fileRecorder = new FileRecorderImpl();
         fileRecorder.setup(recorderSetting);

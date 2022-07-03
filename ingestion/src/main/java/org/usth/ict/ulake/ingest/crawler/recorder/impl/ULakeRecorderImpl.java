@@ -15,15 +15,12 @@ import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 
 public class ULakeRecorderImpl implements Recorder<InputStream> {
-    String remoteHost;
-
     @Inject
     @RestClient
     DashboardService dashboardSvc;
 
     @Override
     public void setup(Map<Record, String> config) {
-        remoteHost = (String) config.get(Record.HOST);
     }
 
     @Override

@@ -28,10 +28,8 @@ public class CrawlSvc {
 
     public DataModel runCrawl(Map<String, Object> policy, String mode) {
         Recorder<InputStream> recorder = new ULakeCacheFileRecorderImpl();
-        String host = "http://core.ulake.sontg.net";
         String path = "/tmp/ulake";
         Map<Record, String> recordConfig = new HashMap<>();
-        recordConfig.put(Record.HOST, host);
         recordConfig.put(Record.PATH, path);
         recorder.setup(recordConfig);
 
