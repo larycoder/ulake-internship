@@ -23,7 +23,7 @@ public class CompressThread extends Thread implements CompressCallback {
 
     private Result result;
 
-    public CompressThread(Compressor compressor, Long requestId, RequestRepository repoReq, ResultRepository repoResult, RequestFileRepository repoReqFile) {
+    public CompressThread(Compressor compressor, Long requestId, String token, RequestRepository repoReq, ResultRepository repoResult, RequestFileRepository repoReqFile) {
         this.compressor = compressor;
         this.requestId = requestId;
         this.repoReq = repoReq;
