@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.eclipse.microprofile.context.ThreadContext;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -29,17 +30,18 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
+import org.usth.ict.ulake.compress.model.Result;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
-import org.usth.ict.ulake.compress.service.CompressTask;
+import org.usth.ict.ulake.compress.service.CompressCallback;
 import org.usth.ict.ulake.compress.service.Compressor;
 import org.usth.ict.ulake.compress.service.ZipCompressor;
 
 
 @Path("/compress")
 @Produces(MediaType.APPLICATION_JSON)
-public class CompressResource {
+public class CompressResource implements CompressCallback {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
@@ -113,6 +115,8 @@ public class CompressResource {
     public Response post(
         @RequestBody(description = "New compression request to save")
         Request entity) {
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        entity.userId = userId;
         entity.timestamp = new Date().getTime();
         entity.finishedTime = 0L;
         repoReq.persist(entity);
@@ -164,16 +168,6 @@ public class CompressResource {
         return response.build(200, "", req);
     }
 
-    /**
-     * Start compression service in background with specified id
-     * @param id Compression request Id
-     */
-    private void compress(String bearer, Long id) {
-        Compressor compressor = new ZipCompressor();
-        CompressTask task = new CompressTask(compressor, id, bearer, repoReq, repoReqFile, repoResp);
-        task.run();
-    }
-
     @DELETE
     @Path("/{id}")
     @Transactional
@@ -199,5 +193,39 @@ public class CompressResource {
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoReqFile.count());
         return response.build(200, "", ret);
+    }
+
+    /**
+     * Start compression service in background with specified id
+     * @param id Compression request Id
+     */
+    @Transactional
+    private void compress(String bearer, Long id) {
+        log.info("Start compression in managed executor");
+
+        Compressor compressor = new ZipCompressor();
+
+        // TODO: split to new task class
+        var req = repoReq.findById(id);
+        var files = repoReqFile.list("requestId", id);
+        var result = new Result();
+        result.requestId = id;
+        result.ownerId = req.userId;
+        result.totalFiles = (long) files.size();
+        repoResp.persist(result);
+
+        // go
+        compressor.compress(files, result, this);
+
+        // mark as finished in the request object
+        req.finishedTime = new Date().getTime();
+        repoReq.persist(req);
+    }
+
+    @Override
+    public void callback(RequestFile file, Result result) {
+        result.totalFiles++;
+        log.info("  + Compression task callback file {}", file.fileId);
+        repoResp.persist(result);
     }
 }
