@@ -96,4 +96,14 @@ public class OpenIO implements FileSystem {
         // TODO: not considered for now
         return new HashMap<>();
     }
+
+    @Override
+    public boolean delete(String rootDir, String cid) {
+        return false;
+    }
+
+    @Override
+    public InputStream get(String rootDir, String cid) {
+        return get(cid);
+    }
 }
