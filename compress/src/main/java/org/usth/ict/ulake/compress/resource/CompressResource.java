@@ -23,8 +23,6 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.jboss.resteasy.reactive.RestHeader;
-import org.jboss.resteasy.reactive.RestPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -80,7 +78,7 @@ public class CompressResource {
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one request info")
-    public Response one(@RestPath("id") @Parameter(description = "Request id to search") Long id) {
+    public Response one(@PathParam("id") @Parameter(description = "Request id to search") Long id) {
         Request req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
             return response.build(200, null, req);
@@ -92,7 +90,7 @@ public class CompressResource {
     @Path("/{id}/status")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Check a compression request status")
-    public Response status(@RestPath("id") @Parameter(description = "Request id to check status") Long id) {
+    public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         Request req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
             return response.build(200, null, req.finishedTime > 0);
@@ -121,7 +119,7 @@ public class CompressResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Add a new file to a compression request")
     public Response postFile(
-        @RestPath("id") @Parameter(description = "Request id to add into") Long id,
+        @PathParam("id") @Parameter(description = "Request id to add into") Long id,
         @RequestBody(description = "New file to add into compression request")
         RequestFile entity) {
         // check if request is valid
@@ -143,7 +141,7 @@ public class CompressResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Start a compression request")
-    public Response start(@RestPath("id") @Parameter(description = "Request id to start") Long id) {
+    public Response start(@PathParam("id") @Parameter(description = "Request id to start") Long id) {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
@@ -163,7 +161,7 @@ public class CompressResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Stop an on-going compression request")
-    public Response delete(@RestPath("id") @Parameter(description = "Request id to stop") Long id) {
+    public Response delete(@PathParam("id") @Parameter(description = "Request id to stop") Long id) {
         Request req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
             return response.build(403);
@@ -177,7 +175,7 @@ public class CompressResource {
     @Path("/stats")
     @Operation(summary = "Statistics about compression requests")
     @RolesAllowed({ "User", "Admin" })
-    public Response tableStats(@RestHeader("Authorization") String bearer) {
+    public Response tableStats(@HeaderParam("Authorization") String bearer) {
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoReqFile.count());
