@@ -1,43 +1,45 @@
 package org.usth.ict.ulake.ingest.services;
 
-import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
-import org.usth.ict.ulake.ingest.crawler.fetcher.GithubFetcherImpl;
-import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
-import org.usth.ict.ulake.ingest.crawler.recorder.ulake.ULakeCacheFileRecorderImpl;
-import org.usth.ict.ulake.ingest.model.DataModel;
-import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
-import org.usth.ict.ulake.ingest.model.macro.Record;
-
-import javax.enterprise.context.ApplicationScoped;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
+import org.usth.ict.ulake.ingest.crawler.fetcher.GithubFetcherImpl;
+import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
+import org.usth.ict.ulake.ingest.crawler.recorder.impl.ULakeCacheFileRecorderImpl;
+import org.usth.ict.ulake.ingest.model.DataModel;
+import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
+import org.usth.ict.ulake.ingest.model.macro.Record;
+
 @ApplicationScoped
 public class CrawlSvc {
     private FetchConfig fetchMode(String mode) {
-       if(mode.equals("fetch")) {
-           return FetchConfig.FETCH;
-       } else if(mode.equals("download")) {
-           return FetchConfig.DOWNLOAD;
-       }
-       return null;
+        if (mode.equals("fetch")) {
+            return FetchConfig.FETCH;
+        } else if (mode.equals("download")) {
+            return FetchConfig.DOWNLOAD;
+        }
+        return null;
     }
 
     public DataModel runCrawl(Map<String, Object> policy, String mode) {
-        Recorder recorder = new ULakeCacheFileRecorderImpl();
+        Recorder<InputStream> recorder = new ULakeCacheFileRecorderImpl();
         String host = "http://core.ulake.sontg.net";
         String path = "/tmp/ulake";
-        HashMap<Object, Object> config = new HashMap<>();
-        config.put(Record.HOST, host);
-        config.put(Record.PATH, path);
-        recorder.setup(config);
+        Map<Record, String> recordConfig = new HashMap<>();
+        recordConfig.put(Record.HOST, host);
+        recordConfig.put(Record.PATH, path);
+        recorder.setup(recordConfig);
 
         Fetcher fetcher = new GithubFetcherImpl();
-        config = new HashMap<>();
-        config.put(FetchConfig.POLICY, policy);
-        config.put(FetchConfig.MODE, fetchMode(mode));
-        fetcher.setup(config);
+        HashMap<FetchConfig, Object> fetchConfig = new HashMap<>();
+        fetchConfig.put(FetchConfig.POLICY, policy);
+        fetchConfig.put(FetchConfig.MODE, fetchMode(mode));
+        fetcher.setup(fetchConfig);
         fetcher.setup(null, recorder);
 
         var data = fetcher.fetch();
