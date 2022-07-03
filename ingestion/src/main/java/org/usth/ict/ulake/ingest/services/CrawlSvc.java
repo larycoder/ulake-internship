@@ -26,17 +26,17 @@ public class CrawlSvc {
         return null;
     }
 
-    public DataModel runCrawl(Map<String, Object> policy, String mode) {
+    public DataModel runCrawl(String policy, String mode) {
         Recorder<InputStream> recorder = new ULakeCacheFileRecorderImpl();
         String path = "/tmp/ulake";
         Map<Record, String> recordConfig = new HashMap<>();
         recordConfig.put(Record.PATH, path);
         recorder.setup(recordConfig);
 
-        Fetcher fetcher = new GithubFetcherImpl();
-        HashMap<FetchConfig, Object> fetchConfig = new HashMap<>();
+        Fetcher<InputStream, String> fetcher = new GithubFetcherImpl();
+        Map<FetchConfig, String> fetchConfig = new HashMap<>();
         fetchConfig.put(FetchConfig.POLICY, policy);
-        fetchConfig.put(FetchConfig.MODE, fetchMode(mode));
+        fetchConfig.put(FetchConfig.MODE, fetchMode(mode).toString());
         fetcher.setup(fetchConfig);
         fetcher.setup(null, recorder);
 
