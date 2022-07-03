@@ -46,6 +46,7 @@ public class CompressTask implements CompressCallback {
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
+        repoReq.persist(req);
     }
 
     private Request getRequest() {

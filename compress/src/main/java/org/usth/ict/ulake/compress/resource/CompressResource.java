@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.context.ManagedExecutor;
-import org.eclipse.microprofile.context.ThreadContext;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -30,18 +29,17 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
-import org.usth.ict.ulake.compress.model.Result;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
-import org.usth.ict.ulake.compress.service.CompressCallback;
+import org.usth.ict.ulake.compress.service.CompressTask;
 import org.usth.ict.ulake.compress.service.Compressor;
 import org.usth.ict.ulake.compress.service.ZipCompressor;
 
 
 @Path("/compress")
 @Produces(MediaType.APPLICATION_JSON)
-public class CompressResource implements CompressCallback {
+public class CompressResource {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
@@ -204,36 +202,7 @@ public class CompressResource implements CompressCallback {
         log.info("Start compression in managed executor");
 
         Compressor compressor = new ZipCompressor();
-
-        // TODO: split to new task class
-        var req = repoReq.findById(id);
-        var files = repoReqFile.list("requestId", id);
-
-        log.info("Finished geting");
-
-        var result = new Result();
-        result.requestId = id;
-        result.ownerId = req.userId;
-        result.totalFiles = (long) files.size();
-        repoResp.persist(result);
-
-        log.info("Finished persisting");
-
-        // go
-        compressor.compress(files, result, this);
-
-        log.info("Finished compression");
-
-        // mark as finished in the request object
-        req.finishedTime = new Date().getTime();
-        repoReq.persist(req);
-        log.info("Finished everything");
-    }
-
-    @Override
-    public void callback(RequestFile file, Result result) {
-        result.totalFiles++;
-        log.info("  + Compression task callback file {}", file.fileId);
-        repoResp.persist(result);
+        CompressTask task = new CompressTask(compressor, id, bearer, repoReq, repoReqFile, repoResp);
+        task.run();
     }
 }
