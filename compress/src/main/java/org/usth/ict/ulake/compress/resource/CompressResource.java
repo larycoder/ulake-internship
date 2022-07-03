@@ -24,9 +24,12 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.service.CoreService;
+import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
@@ -56,6 +59,14 @@ public class CompressResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    @RestClient
+    CoreService coreService;
+
+    @Inject
+    @RestClient
+    FileService fileService;
 
     @Inject
     ManagedExecutor executor;
@@ -200,9 +211,8 @@ public class CompressResource {
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void compress(String bearer, Long id) {
         log.info("Start compression in managed executor");
-
-        Compressor compressor = new ZipCompressor();
-        CompressTask task = new CompressTask(compressor, id, bearer, repoReq, repoReqFile, repoResp);
+        Compressor compressor = new ZipCompressor(bearer, coreService, fileService);
+        CompressTask task = new CompressTask(compressor, id, repoReq, repoReqFile, repoResp);
         task.run();
     }
 }

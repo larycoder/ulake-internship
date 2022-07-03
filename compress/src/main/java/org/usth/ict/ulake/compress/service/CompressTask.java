@@ -3,6 +3,7 @@ package org.usth.ict.ulake.compress.service;
 import java.util.Date;
 import java.util.List;
 
+import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.compress.model.Request;
 import org.usth.ict.ulake.compress.model.RequestFile;
 import org.usth.ict.ulake.compress.model.Result;
@@ -23,7 +24,7 @@ public class CompressTask implements CompressCallback {
 
     private Result result;
 
-    public CompressTask(Compressor compressor, Long requestId, String token, RequestRepository repoReq, RequestFileRepository repoReqFile, ResultRepository repoResult) {
+    public CompressTask(Compressor compressor, Long requestId, RequestRepository repoReq, RequestFileRepository repoReqFile, ResultRepository repoResult) {
         this.compressor = compressor;
         this.requestId = requestId;
         this.repoReq = repoReq;
