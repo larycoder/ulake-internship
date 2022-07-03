@@ -1,9 +1,14 @@
 package org.usth.ict.ulake.ingest.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@ApplicationScoped
 public class TransferUtil {
     public void streamIO(InputStream is, OutputStream os, byte[] buf) {
         try {
@@ -31,7 +42,7 @@ public class TransferUtil {
 
     public void streamOutputFile(InputStream is, File file, byte[] buf, boolean createFile) {
         try {
-            if(createFile) {
+            if (createFile) {
                 Path path = Paths.get(file.toString());
                 Files.createDirectories(path.getParent());
                 Files.createFile(path);
@@ -46,14 +57,14 @@ public class TransferUtil {
 
     public String streamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8));
+            new InputStreamReader(is, StandardCharsets.UTF_8));
         String text = "";
         try {
             int c;
-            while((c = reader.read()) != -1) {
+            while ((c = reader.read()) != -1) {
                 text += (char) c;
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return text;
@@ -75,7 +86,7 @@ public class TransferUtil {
                 tempResult = om.readValue(jsonString, Map.class);
                 mapResult.put("data", tempResult);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return mapResult;
@@ -85,7 +96,7 @@ public class TransferUtil {
         try {
             File file = new File(path);
             return new FileInputStream(file);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
@@ -96,7 +107,7 @@ public class TransferUtil {
         try {
             ObjectMapper om = new ObjectMapper();
             map = om.readValue(text, Map.class);
-        } catch(JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return map;
@@ -107,7 +118,7 @@ public class TransferUtil {
         try {
             ObjectMapper om = new ObjectMapper();
             text = om.writeValueAsString(data);
-        } catch(JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return text;
