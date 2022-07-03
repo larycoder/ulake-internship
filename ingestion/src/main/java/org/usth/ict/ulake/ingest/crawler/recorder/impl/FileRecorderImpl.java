@@ -1,8 +1,4 @@
-package org.usth.ict.ulake.ingest.crawler.recorder;
-
-import org.usth.ict.ulake.ingest.crawler.storage.Storage;
-import org.usth.ict.ulake.ingest.utils.TransferUtil;
-import org.usth.ict.ulake.ingest.model.macro.Record;
+package org.usth.ict.ulake.ingest.crawler.recorder.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,18 +9,23 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileRecorderImpl implements Recorder {
+import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
+import org.usth.ict.ulake.ingest.crawler.storage.Storage;
+import org.usth.ict.ulake.ingest.model.macro.Record;
+import org.usth.ict.ulake.ingest.utils.TransferUtil;
+
+public class FileRecorderImpl implements Recorder<InputStream> {
     private String path;
-    private Map config;
-    private byte[] buf = new byte[Record.MAX];
-    private Map log = new HashMap(); // record previous record action
+    private Map<Record, String> config;
+    private byte[] buf = new byte[1024 * 1024];
+    private Map<Record, String> log = new HashMap<>(); // log record
 
     /**
      * recorder config includes:
      * 1. path: String (path to stored local)
      */
     @Override
-    public void setup(HashMap config) {
+    public void setup(Map<Record, String> config) {
         this.config = config;
         path = (String) config.get(Record.PATH);
     }
@@ -50,13 +51,13 @@ public class FileRecorderImpl implements Recorder {
      * from link name
      */
     @Override
-    public void record(Object info, HashMap meta) {
-        InputStream is = (InputStream) info;
-        String link = (String) meta.get(Record.LINK);
-        String name = (String) meta.get(Record.NAME);
+    public void record(InputStream data, Map<Record, String> meta) {
+        InputStream is = data;
+        String link = meta.get(Record.LINK);
+        String name = meta.get(Record.NAME);
         TransferUtil transfer = new TransferUtil();
 
-        if (name == null && name.isEmpty()) {
+        if (name != null && !name.isEmpty()) {
             String[] paths = link.split("/");
             name = paths[paths.length - 1];
             name = name.strip();
@@ -74,17 +75,17 @@ public class FileRecorderImpl implements Recorder {
         Long fileSize = 0L;
         try {
             fileSize = Files.size(path);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        log.put(Record.FILE_SIZE, fileSize);
+        log.put(Record.FILE_SIZE, fileSize.toString());
     }
 
     @Override
-    public void info(Object carrier, HashMap meta) {
-        var mapCarrier = (Map<Object, Object>) carrier;
-        if(log != null) {
-            mapCarrier.putAll(log);
-        }
+    public void info(Map<String, String> carrier, Map<Record, String> meta) {
+        if (log == null)
+            return;
+        for (Record key : log.keySet())
+            carrier.put(key.toString(), log.get(key));
     }
 }

@@ -1,12 +1,13 @@
 package org.usth.ict.ulake.ingest.crawler.recorder;
 
+import java.util.Map;
+
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
+import org.usth.ict.ulake.ingest.model.macro.Record;
 
-import java.util.HashMap;
-
-public interface Recorder {
-    void setup(HashMap config);
+public interface Recorder<T> {
+    void setup(Map<Record, String> config);
     void setup(Storage store);
-    void record(Object info, HashMap meta);
-    void info(Object carrier, HashMap meta);
+    void record(T data, Map<Record, String> meta);
+    void info(Map<String, String> carrier, Map<Record, String> meta);
 }
