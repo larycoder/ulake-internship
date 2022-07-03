@@ -16,6 +16,9 @@ do
     EXP_PORT="$EXP_PORT -p $i:$i";
 done;
 
+# LRA Coordinator
+docker run --name ulake-lra -p 8793:8080 --network $NET -d jbosstm/lra-coordinator
+
 docker run --name $HOST $EXP_PORT \
     -v $ROOT_DIR:/home \
     --network $NET \
