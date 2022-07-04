@@ -1,21 +1,23 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl;
 
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
-import org.usth.ict.ulake.ingest.utils.RestClientUtil;
-import org.usth.ict.ulake.ingest.utils.TransferUtil;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.HttpMethod;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
+import org.usth.ict.ulake.ingest.model.http.HttpRawRequest;
+import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
+import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
 
 public class Interpreter {
     // stack declare
@@ -25,9 +27,9 @@ public class Interpreter {
 
     ASTNode tree;
     Map<String, Object> stack = new HashMap<>();
-    RestClientUtil client;
+    HttpRawRequest client;
 
-    public Interpreter(RestClientUtil client) {
+    public Interpreter(HttpRawRequest client) {
         this.client = client;
 
         stack.put(RESULT_STACK, new TableStruct());
@@ -36,7 +38,7 @@ public class Interpreter {
     }
 
     public Interpreter() {
-        this(new RestClientUtil());
+        this(new HttpRawRequest());
     }
 
     public TableStruct eval(Map policy) {
@@ -75,9 +77,9 @@ public class Interpreter {
     }
 
     private Object visit(ASTNode tree) {
-        if(tree.node == ASTNode.ACT) return visitAct(tree);
-        else if(tree.node == ASTNode.DATA) return visitData(tree);
-        else if(tree.node == ASTNode.MAP) return visitMap(tree);
+        if (tree.node == ASTNode.ACT) return visitAct(tree);
+        else if (tree.node == ASTNode.DATA) return visitData(tree);
+        else if (tree.node == ASTNode.MAP) return visitMap(tree);
         else error("Node type not found !");
         return null;
     }
@@ -90,16 +92,16 @@ public class Interpreter {
     }
 
     private Object visitMap(ASTNode node) {
-        if(node.child != ASTNode.ACT_DEFAULT) error("MAP structure is wrong.");
-        if(node.left != null) visit(node.left);
+        if (node.child != ASTNode.ACT_DEFAULT) error("MAP structure is wrong.");
+        if (node.left != null) visit(node.left);
 
         List<Object> dataList = getTempStack();
         List<Object> interList = new ArrayList<>();
 
         // prepare list
-        for(var data : dataList) {
+        for (var data : dataList) {
             // unwind data
-            if(data instanceof List) {
+            if (data instanceof List) {
                 interList.addAll((List)data);
             } else {
                 interList.add(data);
@@ -108,8 +110,8 @@ public class Interpreter {
         dataList.clear();
 
         // map list
-        for(var data : interList) {
-            if(data instanceof Map) {
+        for (var data : interList) {
+            if (data instanceof Map) {
                 var map = (Map) data;
                 dataList.add(map.get(node.token.value));
             }
@@ -119,9 +121,9 @@ public class Interpreter {
     }
 
     private Object visitActVAR(ASTNode node) {
-        if(node.left != null) {
+        if (node.left != null) {
             // put data to stack for process
-            if(node.left.node == ASTNode.DATA) {
+            if (node.left.node == ASTNode.DATA) {
                 List<Object> temp = getTempStack();
                 temp.add(visit(node.left));
             } else {
@@ -141,15 +143,15 @@ public class Interpreter {
 
         // prepare variable
         Map<String, String> interVar = new HashMap<>();
-        for(String key : mapInfo.keySet()) {
+        for (String key : mapInfo.keySet()) {
             String newKey = "\\{" + key + "\\}";
             interVar.put(newKey, var.get(mapInfo.get(key)));
         }
 
         // process string only
-        while(inter.size() > 0) {
+        while (inter.size() > 0) {
             var pattern = (String) inter.remove(0);
-            for(String key : interVar.keySet()) {
+            for (String key : interVar.keySet()) {
                 pattern = pattern.replaceAll(key, interVar.get(key));
             }
             temp.add(pattern);
@@ -159,9 +161,9 @@ public class Interpreter {
     }
 
     private Object visitActPATH(ASTNode node) {
-        if(node.left == null) {
+        if (node.left == null) {
             error("Act PATH Struct is wrong.");
-        } else if(node.left.node == ASTNode.DATA) {
+        } else if (node.left.node == ASTNode.DATA) {
             getTempStack().add(visit(node.left));
         } else {
             visit(node.left);
@@ -170,25 +172,27 @@ public class Interpreter {
     }
 
     private Object visitActREQ(ASTNode node) {
-        if(node.child != ASTNode.ACT_LIST) error("Act REQ structure is wrong.");
+        if (node.child != ASTNode.ACT_LIST) error("Act REQ structure is wrong.");
         // TODO: improve client request mechanism
-        RestClientUtil client = this.client.clone();
+        HttpRawRequest client = this.client.clone();
 
-        List temp = getTempStack();
-        String method = "GET";
-        Map body = null; // support json only
+        client.method = HttpMethod.GET;
+        Map<Object, Object> body = null;
         List<String> path = new ArrayList<>();
 
+        List<Object> temp = getTempStack();
+
         // prepare variable setup
-        for(var value : node.list) {
-            if(value.token.type.equals(Type.METHOD)) {
-                method = (String) visit(value);
-            } else if(value.token.type.equals(Type.HEAD)) {
-                var heads = (Map<String, Object>) visit(value);
-                client.setHead(heads);
-            } else if(value.token.type.equals(Type.BODY)) {
+        for (var value : node.list) {
+            if (value.token.type.equals(Type.METHOD)) {
+                client.method = (String) visit(value);
+            } else if (value.token.type.equals(Type.HEAD)) {
+                var heads = (Map<String, String>) visit(value);
+                for (String key : heads.keySet())
+                    client.addHeader(key, heads.get(key));
+            } else if (value.token.type.equals(Type.BODY)) {
                 body = (Map) visit(value);
-            } else if(value.token.type.equals(Type.PATH)) {
+            } else if (value.token.type.equals(Type.PATH)) {
                 visit(value);
                 path.addAll((List<String>)(Object) getTempStack());
                 temp.clear();
@@ -196,37 +200,36 @@ public class Interpreter {
         }
 
         // invoke request call
-        for(var concrete : path) {
-            Response resp;
-            var request = client.clone()
-                    .setPath(concrete)
-                    .buildRequest();
-            if(body == null) {
-                resp = request.method(method);
-            } else {
-                // support send json body only
-                Entity entity = Entity.entity(body, MediaType.APPLICATION_JSON);
-                resp = request.method(method, entity);
+        for (String concrete : path) {
+            var request = client.clone();
+            request.path = concrete;
+
+            if (body != null) {
+                try {
+                    request.body = new ObjectMapper().writeValueAsString(body);
+                    request.addHeader("Content-Type", "application/json");
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
+            HttpRawResponse resp = LakeHttpClient.send(request);
 
             // push result back to temp stack
-            var is = (InputStream) resp.getEntity();
-            Map data = null;
             try {
-                data = new TransferUtil().streamToJson(is);
-                is.close();
-            } catch(IOException e) {
+                var data = new ObjectMapper().readValue(resp.body, Map.class);
+                temp.add(data);
+                resp.body.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(data != null) temp.add(data);
         }
         return null;
     }
 
     private Object visitActPATTERN(ASTNode node) {
-        if(node.child != ASTNode.ACT_DEFAULT) error("Act PATTERN structure is wrong");
+        if (node.child != ASTNode.ACT_DEFAULT) error("Act PATTERN structure is wrong");
 
-        if(node.left.node == ASTNode.DATA) {
+        if (node.left.node == ASTNode.DATA) {
             getTempStack().add(visit(node.left));
         } else {
             visit(node.left);
@@ -238,7 +241,7 @@ public class Interpreter {
         inter.addAll(temp);
         temp.clear();
 
-        for(var obj : inter) {
+        for (var obj : inter) {
             Map data = new HashMap();
             data.put("data", obj);
             temp.add(data);
@@ -248,7 +251,7 @@ public class Interpreter {
     }
 
     private Object visitActDATA(ASTNode node) {
-        if(node.child != ASTNode.ACT_DEFAULT) error("Act DATA structure is wrong.");
+        if (node.child != ASTNode.ACT_DEFAULT) error("Act DATA structure is wrong.");
 
         String name = (String) node.token.value;
         Map varMap;
@@ -264,7 +267,7 @@ public class Interpreter {
         resultStack.clear();
         resultStack.addKey(name);
 
-        while(interStack.rowSize() > 0) {
+        while (interStack.rowSize() > 0) {
             tempStack.clear();
             varStack.clear();
 
@@ -275,7 +278,7 @@ public class Interpreter {
             visit(actTree);
             visit(mapTree);
 
-            for(var value : tempStack) {
+            for (var value : tempStack) {
                 varMap.put(name, value);
                 resultStack.add(varMap);
             }
@@ -285,12 +288,12 @@ public class Interpreter {
     }
 
     private Object visitActKEY(ASTNode node) {
-        if(node.left.node != ASTNode.DATA) error("Act KEY structure is wrong.");
+        if (node.left.node != ASTNode.DATA) error("Act KEY structure is wrong.");
         List values = (List) visit(node.left);
         String key = (String) node.token.value;
         List var = new ArrayList();
 
-        for(var data : values) {
+        for (var data : values) {
             Map newVar = new HashMap();
             newVar.put(key, data);
             var.add(newVar);
@@ -300,7 +303,7 @@ public class Interpreter {
     }
 
     private Object visitActDECLARE(ASTNode node) {
-        if(node.child != ASTNode.ACT_LIST) error("Act DECLARE structure is wrong.");
+        if (node.child != ASTNode.ACT_LIST) error("Act DECLARE structure is wrong.");
         List<Map> listVar = new ArrayList<>();
         List<Map> listFinalVar = new ArrayList<>();
         List<Map> listNewVar;
@@ -308,19 +311,19 @@ public class Interpreter {
         TableStruct result = getResultStack();
         result.drop();
 
-        for(ASTNode var : node.list) {
+        for (ASTNode var : node.list) {
             // declare var and add first var to list
-            if(!var.token.type.equals(Type.KEY)) continue;
-            if(listVar.isEmpty()) {
+            if (!var.token.type.equals(Type.KEY)) continue;
+            if (listVar.isEmpty()) {
                 listVar.addAll((List) visit(var));
                 continue;
             }
 
             listNewVar = (List) visit(var);
-            if(listNewVar == null) continue;
+            if (listNewVar == null) continue;
 
-            for(Map mapVar : listVar) {
-                for(Map newMapVar : listNewVar) {
+            for (Map mapVar : listVar) {
+                for (Map newMapVar : listNewVar) {
                     Map newData = new HashMap();
                     newData.putAll(mapVar);
                     newData.putAll(newMapVar);
@@ -332,8 +335,8 @@ public class Interpreter {
             listFinalVar.clear();
         }
 
-        for(Map data : listVar) {
-            if(result.colSize() == 0) {
+        for (Map data : listVar) {
+            if (result.colSize() == 0) {
                 List fields = new ArrayList(data.keySet());
                 result.setKey(fields);
             }
@@ -344,11 +347,11 @@ public class Interpreter {
     }
 
     private Object visitActEXEC(ASTNode node) {
-        if(node.child != ASTNode.ACT_LIST) error("Act EXEC structure is wrong.");
+        if (node.child != ASTNode.ACT_LIST) error("Act EXEC structure is wrong.");
 
-        for(ASTNode child : node.list) {
+        for (ASTNode child : node.list) {
             // Deactivate return token for now
-            if(child.token.type.equals(Type.RETURN)) continue;
+            if (child.token.type.equals(Type.RETURN)) continue;
 
             getTempStack().clear();
             getVarStack().clear();
@@ -358,14 +361,14 @@ public class Interpreter {
     }
 
     private Object visitAct(ASTNode node) {
-        if(node.token.type.equals(Type.PATH)) return visitActPATH(node);
-        else if(node.token.type.equals(Type.VAR)) return visitActVAR(node);
-        else if(node.token.type.equals(Type.REQ)) return visitActREQ(node);
-        else if(node.token.type.equals(Type.PATTERN)) return visitActPATTERN(node);
-        else if(node.token.type.equals(Type.DATA)) return visitActDATA(node);
-        else if(node.token.type.equals(Type.KEY)) return visitActKEY(node);
-        else if(node.token.type.equals(Type.DECLARE)) return visitActDECLARE(node);
-        else if(node.token.type.equals(Type.EXEC)) return visitActEXEC(node);
+        if (node.token.type.equals(Type.PATH)) return visitActPATH(node);
+        else if (node.token.type.equals(Type.VAR)) return visitActVAR(node);
+        else if (node.token.type.equals(Type.REQ)) return visitActREQ(node);
+        else if (node.token.type.equals(Type.PATTERN)) return visitActPATTERN(node);
+        else if (node.token.type.equals(Type.DATA)) return visitActDATA(node);
+        else if (node.token.type.equals(Type.KEY)) return visitActKEY(node);
+        else if (node.token.type.equals(Type.DECLARE)) return visitActDECLARE(node);
+        else if (node.token.type.equals(Type.EXEC)) return visitActEXEC(node);
         else error("Act node type not found !");
         return null;
     }
