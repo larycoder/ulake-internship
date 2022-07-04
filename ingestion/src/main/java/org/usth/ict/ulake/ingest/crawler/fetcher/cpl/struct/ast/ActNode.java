@@ -1,17 +1,14 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast;
 
-import antlr.collections.AST;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 
 
 public class ActNode extends ASTNode {
     public ActNode(
-            Token token, ASTNode left, ASTNode right) {
+        Token token, ASTNode left, ASTNode right) {
         super(token, left, right);
         this.node = ACT;
     }
@@ -21,7 +18,7 @@ public class ActNode extends ASTNode {
     }
 
     public void setChild(String name, ASTNode node) {
-        if(param == null) {
+        if (param == null) {
             param = new HashMap<>();
         }
         child = ACT_MAP;
@@ -29,7 +26,7 @@ public class ActNode extends ASTNode {
     }
 
     public void setChild(ASTNode node) {
-        if(list == null) {
+        if (list == null) {
             list = new ArrayList<>();
         }
         child = ACT_LIST;

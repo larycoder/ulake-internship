@@ -17,7 +17,7 @@ public class RestClientUtil {
     private String path;
     private int waitingTime = 0; // wait before performing request build
 
-    private Map<String, Object> headerList = new HashMap();
+    private Map<String, Object> headerList = new HashMap<>();
 
     private boolean httpRedirect = false;
 

@@ -1,9 +1,9 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast;
 
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
-
 import java.util.List;
 import java.util.Map;
+
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 
 
 public class ASTNode {
@@ -29,7 +29,7 @@ public class ASTNode {
     public ASTNode right;
 
     public ASTNode(
-            Token token, ASTNode left, ASTNode right) {
+        Token token, ASTNode left, ASTNode right) {
         this.token = token;
         this.left = left;
         this.right = right;
@@ -42,20 +42,20 @@ public class ASTNode {
 
     public void posView() {
         switch (child) {
-            case ACT_LIST:
-                for(var node : list) {
-                    node.posView();
-                }
-                break;
-            case ACT_MAP:
-                for(var node: param.values()) {
-                    node.posView();
-                }
-                break;
-            default:
-                if(left != null) left.posView();
-                if(right != null) right.posView();
-                break;
+        case ACT_LIST:
+            for (var node : list) {
+                node.posView();
+            }
+            break;
+        case ACT_MAP:
+            for (var node : param.values()) {
+                node.posView();
+            }
+            break;
+        default:
+            if (left != null) left.posView();
+            if (right != null) right.posView();
+            break;
         }
         System.out.println(token.toString());
     }

@@ -31,8 +31,8 @@ public class Interpreter {
         this.client = client;
 
         stack.put(RESULT_STACK, new TableStruct());
-        stack.put(TEMP_STACK, new ArrayList<>());
-        stack.put(VAR_STACK, new HashMap<>());
+        stack.put(TEMP_STACK, new ArrayList<Object>());
+        stack.put(VAR_STACK, new HashMap<String, String>());
     }
 
     public Interpreter() {
@@ -66,12 +66,12 @@ public class Interpreter {
         return (TableStruct) stack.get(RESULT_STACK);
     }
 
-    private List getTempStack() {
-        return (List) stack.get(TEMP_STACK);
+    private List<Object> getTempStack() {
+        return (List<Object>) stack.get(TEMP_STACK);
     }
 
-    private Map getVarStack() {
-        return (Map) stack.get(VAR_STACK);
+    private Map<String, String> getVarStack() {
+        return (Map<String, String>) stack.get(VAR_STACK);
     }
 
     private Object visit(ASTNode tree) {
@@ -93,14 +93,14 @@ public class Interpreter {
         if(node.child != ASTNode.ACT_DEFAULT) error("MAP structure is wrong.");
         if(node.left != null) visit(node.left);
 
-        List dataList = getTempStack();
-        List interList = new ArrayList();
+        List<Object> dataList = getTempStack();
+        List<Object> interList = new ArrayList<>();
 
         // prepare list
         for(var data : dataList) {
             // unwind data
             if(data instanceof List) {
-                interList.addAll((List) data);
+                interList.addAll((List)data);
             } else {
                 interList.add(data);
             }
@@ -110,7 +110,7 @@ public class Interpreter {
         // map list
         for(var data : interList) {
             if(data instanceof Map) {
-                Map map = (Map) data;
+                var map = (Map) data;
                 dataList.add(map.get(node.token.value));
             }
         }
@@ -122,7 +122,7 @@ public class Interpreter {
         if(node.left != null) {
             // put data to stack for process
             if(node.left.node == ASTNode.DATA) {
-                List temp = getTempStack();
+                List<Object> temp = getTempStack();
                 temp.add(visit(node.left));
             } else {
                 visit(node.left);
@@ -131,10 +131,10 @@ public class Interpreter {
             error("Act VAR struct is wrong.");
         }
 
-        Map<String, String> var = getVarStack();
+        Map<String, String> var = (Map<String, String>) getVarStack();
         var mapInfo = (Map<String, String>) node.token.value;
-        List temp = getTempStack();
-        List inter = new ArrayList();
+        List<Object> temp = getTempStack();
+        List<Object> inter = new ArrayList<>();
 
         inter.addAll(temp);
         temp.clear();
@@ -171,6 +171,7 @@ public class Interpreter {
 
     private Object visitActREQ(ASTNode node) {
         if(node.child != ASTNode.ACT_LIST) error("Act REQ structure is wrong.");
+        // TODO: improve client request mechanism
         RestClientUtil client = this.client.clone();
 
         List temp = getTempStack();
@@ -189,7 +190,7 @@ public class Interpreter {
                 body = (Map) visit(value);
             } else if(value.token.type.equals(Type.PATH)) {
                 visit(value);
-                path.addAll(getTempStack());
+                path.addAll((List<String>)(Object) getTempStack());
                 temp.clear();
             }
         }

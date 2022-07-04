@@ -14,7 +14,7 @@ public class Parser {
     private Token current_token;
     private Lexer lexer;
 
-    public ASTNode parse(Map policy) {
+    public ASTNode parse(Map<String, Object> policy) {
         lexer = new Lexer(policy);
         current_token = lexer.getNextToken();
         return execSymbol();
