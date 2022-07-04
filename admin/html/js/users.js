@@ -18,4 +18,5 @@ const userCrud = new CRUD({
     ]
 });
 
+// TODO: add user - usergroup - group relation
 $(document).ready(() => userCrud.listReady());

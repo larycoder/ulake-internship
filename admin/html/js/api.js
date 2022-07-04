@@ -83,8 +83,18 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for Table CRUD management
+ */
+ class TableApi extends Api {
+    constructor () {
+        super(getTableUrl(), "/api/table")
+    }
+}
+
 const userApi = new UserApi();
 const groupApi = new GroupApi();
 const objectApi = new ObjectApi();
+const tableApi = new TableApi();
 
 $("#userName").text(getUserName());
