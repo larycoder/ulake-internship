@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -86,7 +87,12 @@ public class TableResource {
     @Operation(summary = "List all tables")
     @RolesAllowed({ "User", "Admin" })
     public Response all() {
-        return response.build(200, "", repo.listAll());
+        Set<String> groups = jwt.getGroups();
+        if (groups.contains("Admin")) {
+            return response.build(200, "", repo.listAll());
+        }
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        return response.build(200, "", repo.list("ownerId", userId));
     }
 
     @GET
