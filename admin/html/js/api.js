@@ -42,6 +42,10 @@ class Api {
         return await this.get(`/${id}`);
     }
 
+    async data(id) {
+        return await this.get(`/${id}/data`);
+    }
+
     async deleteOne(id) {
         return await this.delete(`/${id}`);
     }

@@ -11,9 +11,7 @@ const tableCrud = new CRUD({
         { mData: "format" },
         { mData: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
         { mData: "id",
-            render: (data, type, row) =>
-                `<a href="/table/edit?id=${data}"><i class="fas fa-table"></i></a>
-                 <a href="#"><i class="fas fa-trash" onclick="tableCrud.listDeleteItem(${data})"></i></a>`
+            render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="tableCrud.listDeleteItem(${data})"></i></a>`
         }
     ]
 });
