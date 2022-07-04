@@ -13,7 +13,7 @@ const tableCrud = new CRUD({
         { mData: "id",
             render: (data, type, row) =>
                 `<a href="/table/edit?id=${data}"><i class="fas fa-table"></i></a>
-                 <a href="#"><i class="fas fa-user-trash" onclick="userCrud.listDeleteItem(${data})"></i></a>`
+                 <a href="#"><i class="fas fa-trash" onclick="tableCrud.listDeleteItem(${data})"></i></a>`
         }
     ]
 });
