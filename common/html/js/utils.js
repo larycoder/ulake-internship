@@ -13,6 +13,10 @@ function getUserUrl() {
     return window.location.protocol + "//user." + getBaseDomain();
 }
 
+function getLogUrl() {
+    return window.location.protocol + "//log." + getBaseDomain();
+}
+
 function getFolderUrl() {
     return window.location.protocol + "//folder." + getBaseDomain();
 }
