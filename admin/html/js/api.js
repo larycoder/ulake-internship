@@ -92,9 +92,19 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for Log CRUD management
+ */
+ class LogApi extends Api {
+    constructor () {
+        super(getLogUrl(), "/api/log")
+    }
+}
+
 const userApi = new UserApi();
 const groupApi = new GroupApi();
 const objectApi = new ObjectApi();
 const tableApi = new TableApi();
+const logApi = new LogApi();
 
 $("#userName").text(getUserName());

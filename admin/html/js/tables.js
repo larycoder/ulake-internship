@@ -9,7 +9,7 @@ const tableCrud = new CRUD({
         { mData: "id" },
         { mData: "name", render: (data, type, row) => `<a href="/table/view?id=${row.id}">${data}</a>` },
         { mData: "format" },
-        { mData: "creationTime", render: (data, type, row) => new Date(data*1000).toLocaleDateString() },
+        { mData: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
         { mData: "id",
             render: (data, type, row) =>
                 `<a href="/table/edit?id=${data}"><i class="fas fa-table"></i></a>
