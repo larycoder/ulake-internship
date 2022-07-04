@@ -168,26 +168,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             ret.put("presentCapacity", presentCapacity);
             String rep = fs.getConf().get("dfs.replication");
             if (rep == null) rep = "3";
-            ret.put("replication", rep);
-            StringWriter writer = new StringWriter(1000000);
-            Configuration.dumpConfiguration(fs.getConf(), writer);
-            log.info(writer.toString());
-
-            YarnClient client = YarnClient.createYarnClient();
-            Configuration conf = new Configuration();
-            client.init(new YarnConfiguration(conf));
-            client.start();
-            try {
-                List<NodeReport> reports = client.getNodeReports(NodeState.RUNNING);
-                log.info("number of active notes: {}", reports.size());
-                ret.put("nodes", reports.size());
-            }
-            catch (Exception ex) {
-                System.err.println(ex.getMessage());
-            }
-            client.stop();
-
-
+            ret.put("replication", rep);           
         } catch (IOException e) {
             e.printStackTrace();
         }
