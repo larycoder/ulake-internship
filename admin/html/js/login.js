@@ -1,6 +1,6 @@
 async function login() {
-    const uid = $("#uid").val(),
-        pwd = $("#pwd").val();
+    const uid = document.querySelector("#uid").value,
+        pwd = document.querySelector("#pwd").value;
     console.log(`Logging in as ${uid}, ${pwd}, domain ${getBaseDomain()}`);
     const resp = await fetch(getUserUrl() + "/api/auth/login", {
         method: "POST",
