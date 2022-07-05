@@ -56,28 +56,26 @@ public class GithubFetcherImpl implements Fetcher<InputStream, String> {
     public List<?> fetch() {
         log.info("Executing policy...");
         Interpreter engine = new Interpreter(buildRemote());
-        TableStruct resultTable = engine.eval(policy);
+        var resultTable = engine.eval(policy);
         log.info("Executed policy");
 
         if (mode == FetchConfig.FETCH) {
             return resultTable.extractAsList();
         } else if (mode == FetchConfig.DOWNLOAD) {
-            TableStruct status = new TableStruct();
+            var status = new TableStruct<String>();
 
             status.addKey("link");
             status.addKey("status");
 
-            for (var data : resultTable.rowList()) {
-                var rowData = (List<?>) data.get("list");
-                var url = (String) rowData.get(rowData.size() - 1);
+            for (var rowData : resultTable.mapRowList()) {
+                var url = "";
 
                 // get token if existed
-                var rowMap = (Map<?, ?>) data.get("json");
-                var token = (String) rowMap.get("$token");
+                var token = (String) rowData.get("$token");
 
-                List<Object> resultInfo = new ArrayList<>();
+                List<String> resultInfo = new ArrayList<>();
                 resultInfo.add(url);
-                resultInfo.add(download(url, token));
+                resultInfo.add((String) download(url, token));
 
                 status.add(resultInfo);
             }

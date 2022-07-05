@@ -1,21 +1,29 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct;
 
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-public class TableStruct {
+public class TableStruct<T> {
     List<String> key;
-    List<List<Object>> table;
+    List<List<T>> table;
 
-    public TableStruct(List key, List data) {
-        this.key = new ArrayList<>(key);
-        this.table = data;
-
-        Set checkSet = new HashSet(this.key);
-        if(checkSet.size() != this.key.size()) error("Duplicate fields.");
+    private void error(String message) {
+        throw new TableStructException(message);
     }
 
-    public TableStruct(List key) {
+    public TableStruct(List<String> key, List<List<T>> data) {
+        if (new HashSet<>(this.key).size() != this.key.size())
+            error("Duplicate fields.");
+
+        this.key = new ArrayList<>(key);
+        this.table = data;
+    }
+
+    public TableStruct(List<String> key) {
         this(key, new ArrayList<>());
     }
 
@@ -24,44 +32,37 @@ public class TableStruct {
         this.table = new ArrayList<>();
     }
 
-    private void error(String message) {
-        throw new RuntimeException(message);
+    public void addKey(String field) {
+        if (key.contains(field))
+            error("Field existed.");
+
+        key.add(field);
+        for (var row : table)
+            row.add(null);
     }
 
-    public void add(Map<String, Object> data) {
-        List row = new ArrayList();
-        for(String field : this.key) {
+    public void setKey(List<String> key) {
+        drop();
+        this.key.addAll(key);
+    }
+
+    public void add(Map<String, T> data) {
+        List<T> row = new ArrayList<>();
+        for (String field : this.key)
             row.add(data.get(field));
-        }
         table.add(row);
     }
 
-    public void add(List data) {
-        if(key.size() != data.size()) {
+    public void add(List<T> data) {
+        if (key.size() != data.size())
             error("Data size mismatch with key size.");
-        }
         table.add(data);
     }
 
-    public void add(String key, Object data) {
-        Map dataMap = new HashMap();
+    public void add(String key, T data) {
+        Map<String, T> dataMap = new HashMap<>();
         dataMap.put(key, data);
         add(dataMap);
-    }
-
-    public void addKey(String field) {
-        if(key.contains(field)) {
-            error("Field existed.");
-        }
-        key.add(field);
-        for(var row : table) {
-            row.add(null);
-        }
-    }
-
-    public void setKey(List key) {
-        drop();
-        this.key.addAll(key);
     }
 
     public int rowSize() {
@@ -72,68 +73,49 @@ public class TableStruct {
         return key.size();
     }
 
-    public List getCol(String field) {
+    public List<T> getCol(String field) {
         int idx = key.indexOf(field);
-        List col = new ArrayList();
-        for(var row : table) {
+        List<T> col = new ArrayList<>();
+        for (var row : table) {
             col.add(row.get(idx));
         }
         return col;
     }
 
-    public List getRow(int idx) {
-        List row = new ArrayList();
+    public List<T> getRow(int idx) {
+        List<T> row = new ArrayList<>();
         row.addAll(table.get(idx));
         return row;
     }
 
-    private List getList(List list) {
-        List result = new ArrayList<>();
-        for(var field : list) {
-            result.add(field);
-        }
-        return result;
-    }
-
     public List<String> getKey() {
-        return new ArrayList<String>(getList(key));
+        List<String> rstKey = new ArrayList<>();
+        rstKey.addAll(key);
+        return rstKey;
     }
 
-    private Map convertToJson(List data) {
-        Map obj = new HashMap();
-        for(int i=0; i < key.size(); i++) {
-            obj.put(key.get(i), data.get(i));
+    private Map<String, T> wrapDataToMap(List<T> data) {
+        Map<String, T> wrapper = new HashMap<>();
+        for (int i = 0; i < key.size(); i++) {
+            wrapper.put(key.get(i), data.get(i));
         }
-        return obj;
+        return wrapper;
     }
 
-    public List stackPop() {
+    public List<T> stackPop() {
         return table.remove(table.size() - 1);
     }
 
-    public Map stackPopJson() {
-        return convertToJson(stackPop());
-    }
-
-    public List queuePop() {
+    public List<T> queuePop() {
         return table.remove(0);
     }
 
-    public Map queuePopJson() {
-        return convertToJson(queuePop());
+    public Map<String, T> stackPopJson() {
+        return wrapDataToMap(stackPop());
     }
 
-    public TableStruct clone() {
-        List<String> key = new ArrayList(this.key);
-        TableStruct instance = new TableStruct(key);
-
-        for(var row : table) {
-            List cloneRow = new ArrayList();
-            cloneRow.addAll(row);
-            instance.add(cloneRow);
-        }
-
-        return instance;
+    public Map<String, T> queuePopJson() {
+        return wrapDataToMap(queuePop());
     }
 
     public void clear() {
@@ -147,49 +129,47 @@ public class TableStruct {
         key.clear();
     }
 
-    private List getFullData() {
-        return table;
+    public TableStruct<T> clone() {
+        TableStruct<T> newTable = new TableStruct<>(new ArrayList<>(key));
+        for (var row : table)
+            newTable.add(new ArrayList<>(row));
+        return newTable;
     }
 
-    public List<List> extractAsList() {
-        TableStruct instance = clone();
-        List table = instance.getFullData();
-        table.add(0, instance.getKey());
-        return table;
+    public List<List<Object>> extractAsList() {
+        var tableList = new ArrayList<List<Object>>();
+        tableList.add(new ArrayList<Object>(key));
+        for (List<T> row : table)
+            tableList.add(new ArrayList<Object>(row));
+        return tableList;
     }
 
-    public String toString() {
-        Map present = new HashMap();
-        present.put("key", key);
-        present.put("data", table);
-        return present.toString();
-    }
-
-    public Iterable<Map> rowList() {
-        return () -> new Iterator<Map>() {
+    /**
+     * Iterating throw each row and return it as map structure.
+     * */
+    public Iterable<Map<String, T>> mapRowList() {
+        return () -> new Iterator<Map<String, T>>() {
             int pos = 0;
 
             @Override
             public boolean hasNext() {
-                if(pos < TableStruct.this.rowSize()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return ( pos < TableStruct.this.rowSize() );
             }
 
             @Override
-            public Map next() {
-                List data = TableStruct.this.getRow(pos);
-                Map json = TableStruct.this.convertToJson(data);
-
-                Map result = new HashMap();
-                result.put("list", data);
-                result.put("json", json);
-
+            public Map<String, T> next() {
+                List<T> data = table.get(pos);
+                Map<String, T> dataMap = TableStruct.this.wrapDataToMap(data);
                 pos += 1;
-                return result;
+                return dataMap;
             }
         };
+    }
+
+    public String toString() {
+        Map<String, Object> present = new HashMap<>();
+        present.put("key", key);
+        present.put("data", table);
+        return present.toString();
     }
 }

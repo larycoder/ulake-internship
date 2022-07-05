@@ -20,60 +20,48 @@ import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
 import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
 
 public class Interpreter {
-    // stack declare
-    private final String RESULT_STACK = "RESULT_STACK";
-    private final String TEMP_STACK = "TEMP_STACK";
-    private final String VAR_STACK = "VAR_STACK";
+    /**
+     * Memory stack for processing language.
+     * */
+    private class BufferStack {
+        public TableStruct<String> RESULT_STACK;
+        public List<Object> TEMP_STACK;
+        public Map<String, Object> VAR_STACK;
+    }
 
     ASTNode tree;
-    Map<String, Object> stack = new HashMap<>();
+    BufferStack stack;
     HttpRawRequest client;
 
     public Interpreter(HttpRawRequest client) {
         this.client = client;
-
-        stack.put(RESULT_STACK, new TableStruct());
-        stack.put(TEMP_STACK, new ArrayList<Object>());
-        stack.put(VAR_STACK, new HashMap<String, String>());
+        stack = new BufferStack();
+        stack.RESULT_STACK = new TableStruct<String>();
+        stack.TEMP_STACK = new ArrayList<Object>();
+        stack.VAR_STACK = new HashMap<String, Object>();
     }
 
     public Interpreter() {
         this(new HttpRawRequest());
     }
 
-    public TableStruct eval(Map policy) {
+    public TableStruct<String> eval(Map<String, Object> policy) {
         Parser parser = new Parser();
         tree = parser.parse(policy);
 
-        getTempStack().clear();
-        getVarStack().clear();
-        getResultStack().drop();
+        stack.TEMP_STACK.clear();
+        stack.VAR_STACK.clear();
+        stack.RESULT_STACK.drop();
 
         visit(tree);
-        return getResultStack().clone();
+        return stack.RESULT_STACK.clone();
     }
 
     //============================================//
     // Interpreter supporter definition
 
-    private void error() {
-        throw new CplException("Runtime error.");
-    }
-
     private void error(String message) {
         throw new CplException("Runtime error: " + message);
-    }
-
-    private TableStruct getResultStack() {
-        return (TableStruct) stack.get(RESULT_STACK);
-    }
-
-    private List<Object> getTempStack() {
-        return (List<Object>) stack.get(TEMP_STACK);
-    }
-
-    private Map<String, String> getVarStack() {
-        return (Map<String, String>) stack.get(VAR_STACK);
     }
 
     private Object visit(ASTNode tree) {
@@ -95,14 +83,14 @@ public class Interpreter {
         if (node.child != ASTNode.ACT_DEFAULT) error("MAP structure is wrong.");
         if (node.left != null) visit(node.left);
 
-        List<Object> dataList = getTempStack();
+        List<Object> dataList = stack.TEMP_STACK;
         List<Object> interList = new ArrayList<>();
 
         // prepare list
         for (var data : dataList) {
             // unwind data
             if (data instanceof List) {
-                interList.addAll((List)data);
+                interList.addAll((List<Object>)data);
             } else {
                 interList.add(data);
             }
@@ -124,7 +112,7 @@ public class Interpreter {
         if (node.left != null) {
             // put data to stack for process
             if (node.left.node == ASTNode.DATA) {
-                List<Object> temp = getTempStack();
+                List<Object> temp = stack.TEMP_STACK;
                 temp.add(visit(node.left));
             } else {
                 visit(node.left);
@@ -133,9 +121,9 @@ public class Interpreter {
             error("Act VAR struct is wrong.");
         }
 
-        Map<String, String> var = (Map<String, String>) getVarStack();
+        Map<String, String> var = (Map<String, String>) (Object) stack.VAR_STACK;
         var mapInfo = (Map<String, String>) node.token.value;
-        List<Object> temp = getTempStack();
+        List<Object> temp = stack.TEMP_STACK;
         List<Object> inter = new ArrayList<>();
 
         inter.addAll(temp);
@@ -164,7 +152,7 @@ public class Interpreter {
         if (node.left == null) {
             error("Act PATH Struct is wrong.");
         } else if (node.left.node == ASTNode.DATA) {
-            getTempStack().add(visit(node.left));
+            stack.TEMP_STACK.add(visit(node.left));
         } else {
             visit(node.left);
         }
@@ -180,7 +168,7 @@ public class Interpreter {
         Map<Object, Object> body = null;
         List<String> path = new ArrayList<>();
 
-        List<Object> temp = getTempStack();
+        List<Object> temp = stack.TEMP_STACK;
 
         // prepare variable setup
         for (var value : node.list) {
@@ -194,7 +182,7 @@ public class Interpreter {
                 body = (Map) visit(value);
             } else if (value.token.type.equals(Type.PATH)) {
                 visit(value);
-                path.addAll((List<String>)(Object) getTempStack());
+                path.addAll((List<String>)(Object) stack.TEMP_STACK);
                 temp.clear();
             }
         }
@@ -230,12 +218,12 @@ public class Interpreter {
         if (node.child != ASTNode.ACT_DEFAULT) error("Act PATTERN structure is wrong");
 
         if (node.left.node == ASTNode.DATA) {
-            getTempStack().add(visit(node.left));
+            stack.TEMP_STACK.add(visit(node.left));
         } else {
             visit(node.left);
         }
 
-        List temp = getTempStack();
+        List temp = stack.TEMP_STACK;
         List inter = new ArrayList();
 
         inter.addAll(temp);
@@ -258,9 +246,9 @@ public class Interpreter {
         ASTNode actTree = node.left;
         ASTNode mapTree = node.right;
 
-        Map varStack = getVarStack();
-        List tempStack = getTempStack();
-        TableStruct resultStack = getResultStack();
+        Map varStack = stack.VAR_STACK;
+        List tempStack = stack.TEMP_STACK;
+        TableStruct resultStack = stack.RESULT_STACK;
         TableStruct interStack = resultStack.clone();
 
         tempStack.clear();
@@ -308,7 +296,7 @@ public class Interpreter {
         List<Map> listFinalVar = new ArrayList<>();
         List<Map> listNewVar;
 
-        TableStruct result = getResultStack();
+        TableStruct result = stack.RESULT_STACK;
         result.drop();
 
         for (ASTNode var : node.list) {
@@ -353,8 +341,8 @@ public class Interpreter {
             // Deactivate return token for now
             if (child.token.type.equals(Type.RETURN)) continue;
 
-            getTempStack().clear();
-            getVarStack().clear();
+            stack.TEMP_STACK.clear();
+            stack.VAR_STACK.clear();
             visit(child);
         }
         return null;

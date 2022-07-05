@@ -24,7 +24,7 @@ public class Parser {
         throw new CplException("Syntax invalid.");
     }
 
-    private void eat(String type) {
+    private void eat(Type type) {
         if(current_token.type.equals(type)) {
             current_token = lexer.getNextToken();
         } else {

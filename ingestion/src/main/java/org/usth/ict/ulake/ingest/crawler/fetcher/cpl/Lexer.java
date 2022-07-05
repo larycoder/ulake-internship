@@ -13,7 +13,7 @@ public class Lexer {
     List<Token> tokens = new ArrayList<Token>();
     int pos = -1;
 
-    public Lexer(Map policy){
+    public Lexer(Map<String, Object> policy){
         this.policy = policy;
         buildTokenList();
     }
@@ -31,7 +31,7 @@ public class Lexer {
         throw new CplException("Unrecognized token.");
     }
 
-    private void addToken(String type, Object value) {
+    private void addToken(Type type, Object value) {
         tokens.add(new Token(type, value));
     }
 
