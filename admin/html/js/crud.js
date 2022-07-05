@@ -91,9 +91,7 @@ class CRUD {
      * @returns
      */
     async listDetail(data) {
-        console.log("before join", data);
         data = await this.join(data);
-        console.log("after join", data);
         const _this = this;
         return $('#table').DataTable(  {
             data: data,
