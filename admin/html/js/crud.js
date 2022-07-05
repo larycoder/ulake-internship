@@ -12,6 +12,7 @@ class CRUD {
      * @param {string} listFieldRenderer Renderer for fields in the list. Ref <a href="https://legacy.datatables.net/usage/columns">DataTable aoColumns</a>
      * @param {string} hidden [optional] Fields that will be hidden from the UI, e.g. "department, failedLogins, groups"
      * @param {string} readonly [optional] Fields that will be read-only from the UI, e.g. "id,registerTime,userName,isAdmin"
+     * @param {*} joins [optional] joining options. apiMethod, fkField, targetId, targetField
      */
     constructor (config) {
         this.api = config.api;
@@ -21,6 +22,34 @@ class CRUD {
         this.listFieldRenderer = config.listFieldRenderer;
         this.hidden = config.hidden? config.hidden.split(",").map((field) => field.trim()) : [];
         this.readonly = config.readonly? config.readonly.split(",").map((field) => field.trim()) : [];
+        this.joins = config.joins;
+    }
+
+    /**
+     *
+     * @param {*} data
+     * @returns Joined data on the client side
+     */
+    async join(data) {
+        // extract unique foreign keys from data
+        const uniqIds = data.map(entry => entry[this.joins.fkField])
+            .filter((value, index, self) => self.indexOf(value) === index && value);
+        let others = await this.joins.apiMethod(uniqIds);
+        if (!Array.isArray(others)) others = [ others ];
+
+        // join on client side
+        data = data.map(entry => {
+            // get the value on other object
+            const other = others.filter(o => o[this.joins.targetId] == entry[this.joins.fkField]);
+
+            // join, if valid
+            if (other && other.length && other[0][this.joins.targetField]) {
+                entry[this.joins.targetField] = other[0][this.joins.targetField];
+            }
+            else entry[this.joins.targetField]="";
+            return entry;
+        });
+        return data;
     }
 
     /**
@@ -45,10 +74,10 @@ class CRUD {
      * @returns
      */
     async listDetail(data) {
+        if (this.joins) data = await this.join(data);
         const _this = this;
         return $('#table').DataTable(  {
             data: data,
-            bProcessing: true,
             paging: true,
             aoColumns: this.listFieldRenderer
         });
@@ -71,7 +100,6 @@ class CRUD {
     async viewDetail(data) {
         return $('#table').DataTable(  {
             data: data,
-            bProcessing: false,
             paging: false,
             searching: false,
             info: false,
@@ -103,7 +131,6 @@ class CRUD {
     editDetail(data) {
         return $('#table').DataTable(  {
             data: data,
-            bProcessing: false,
             paging: false,
             searching: false,
             info: false,
