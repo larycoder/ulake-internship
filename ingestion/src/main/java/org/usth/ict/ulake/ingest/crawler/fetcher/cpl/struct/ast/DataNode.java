@@ -5,14 +5,8 @@ import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 public class DataNode extends ASTNode {
     public Object value;
 
-    public DataNode(
-        Token token, ASTNode left, ASTNode right) {
-        super(token, left, right);
-        this.node = DATA;
+    public DataNode(Token token, ASTNode... child) {
+        super(token, child);
         this.value = token.value;
-    }
-
-    public DataNode(Token token) {
-        this(token, null, null);
     }
 }

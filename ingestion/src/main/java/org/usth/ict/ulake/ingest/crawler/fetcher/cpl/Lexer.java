@@ -58,7 +58,7 @@ public class Lexer {
             } else if(key.equals("var")) {
                 var vars = (Map) body.get(key);
                 for(var varKey : vars.keySet()) {
-                    Map varMap = new HashMap();
+                    Map<Object, Object> varMap = new HashMap<>();
                     varMap.put(varKey, vars.get(varKey));
                     addToken(Type.VAR, varMap);
                 }

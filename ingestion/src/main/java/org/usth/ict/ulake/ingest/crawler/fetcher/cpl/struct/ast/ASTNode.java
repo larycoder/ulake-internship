@@ -1,62 +1,34 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 
 
 public class ASTNode {
-    // node type declare
-    public static final int AST = 0;
-    public static final int ACT = 1;
-    public static final int MAP = 2;
-    public static final int DATA = 3;
-
-    // child store mode
-    public static final int ACT_DEFAULT = 0;
-    public static final int ACT_MAP = 1;
-    public static final int ACT_LIST = 2;
-
     public Token token;
-    public int node;
-    public int child = ACT_DEFAULT;
+    public List<ASTNode> child;
 
-    public Map<String, ASTNode> param;
-    public List<ASTNode> list;
-
-    public ASTNode left;
-    public ASTNode right;
-
-    public ASTNode(
-        Token token, ASTNode left, ASTNode right) {
+    public ASTNode(Token token, ASTNode... child) {
         this.token = token;
-        this.left = left;
-        this.right = right;
+        if (child != null && child.length > 0)
+            this.child = Arrays.asList(child);
+        else
+            this.child = new ArrayList<>();
     }
 
-    public ASTNode(Token token) {
-        this.token = token;
-        this.left = this.right = null;
+    public ASTNode getChild(int idx) {
+        if (child.size() <= idx)
+            return null;
+        else
+            return child.get(idx);
     }
 
     public void posView() {
-        switch (child) {
-        case ACT_LIST:
-            for (var node : list) {
-                node.posView();
-            }
-            break;
-        case ACT_MAP:
-            for (var node : param.values()) {
-                node.posView();
-            }
-            break;
-        default:
-            if (left != null) left.posView();
-            if (right != null) right.posView();
-            break;
-        }
+        for (var node : child)
+            node.posView();
         System.out.println(token.toString());
     }
 }

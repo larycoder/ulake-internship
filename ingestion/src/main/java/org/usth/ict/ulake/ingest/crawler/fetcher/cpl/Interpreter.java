@@ -14,7 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ActNode;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.MapNode;
 import org.usth.ict.ulake.ingest.model.http.HttpRawRequest;
 import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
 import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
@@ -65,9 +67,9 @@ public class Interpreter {
     }
 
     private Object visit(ASTNode tree) {
-        if (tree.node == ASTNode.ACT) return visitAct(tree);
-        else if (tree.node == ASTNode.DATA) return visitData(tree);
-        else if (tree.node == ASTNode.MAP) return visitMap(tree);
+        if (tree instanceof ActNode) return visitAct(tree);
+        else if (tree instanceof DataNode) return visitData(tree);
+        else if (tree instanceof MapNode) return visitMap(tree);
         else error("Node type not found !");
         return null;
     }
@@ -80,8 +82,7 @@ public class Interpreter {
     }
 
     private Object visitMap(ASTNode node) {
-        if (node.child != ASTNode.ACT_DEFAULT) error("MAP structure is wrong.");
-        if (node.left != null) visit(node.left);
+        if (node.getChild(0) != null) visit(node.getChild(0));
 
         List<Object> dataList = stack.TEMP_STACK;
         List<Object> interList = new ArrayList<>();
@@ -109,13 +110,13 @@ public class Interpreter {
     }
 
     private Object visitActVAR(ASTNode node) {
-        if (node.left != null) {
+        if (node.getChild(0) != null) {
             // put data to stack for process
-            if (node.left.node == ASTNode.DATA) {
+            if (node.getChild(0) instanceof DataNode) {
                 List<Object> temp = stack.TEMP_STACK;
-                temp.add(visit(node.left));
+                temp.add(visit(node.getChild(0)));
             } else {
-                visit(node.left);
+                visit(node.getChild(0));
             }
         } else {
             error("Act VAR struct is wrong.");
@@ -149,18 +150,17 @@ public class Interpreter {
     }
 
     private Object visitActPATH(ASTNode node) {
-        if (node.left == null) {
+        if (node.getChild(0) == null) {
             error("Act PATH Struct is wrong.");
-        } else if (node.left.node == ASTNode.DATA) {
-            stack.TEMP_STACK.add(visit(node.left));
+        } else if (node.getChild(0) instanceof DataNode) {
+            stack.TEMP_STACK.add(visit(node.getChild(0)));
         } else {
-            visit(node.left);
+            visit(node.getChild(0));
         }
         return null;
     }
 
     private Object visitActREQ(ASTNode node) {
-        if (node.child != ASTNode.ACT_LIST) error("Act REQ structure is wrong.");
         // TODO: improve client request mechanism
         HttpRawRequest client = this.client.clone();
 
@@ -171,7 +171,7 @@ public class Interpreter {
         List<Object> temp = stack.TEMP_STACK;
 
         // prepare variable setup
-        for (var value : node.list) {
+        for (var value : node.child) {
             if (value.token.type.equals(Type.METHOD)) {
                 client.method = (String) visit(value);
             } else if (value.token.type.equals(Type.HEAD)) {
@@ -215,12 +215,10 @@ public class Interpreter {
     }
 
     private Object visitActPATTERN(ASTNode node) {
-        if (node.child != ASTNode.ACT_DEFAULT) error("Act PATTERN structure is wrong");
-
-        if (node.left.node == ASTNode.DATA) {
-            stack.TEMP_STACK.add(visit(node.left));
+        if (node.getChild(0) instanceof DataNode) {
+            stack.TEMP_STACK.add(visit(node.getChild(0)));
         } else {
-            visit(node.left);
+            visit(node.getChild(0));
         }
 
         List temp = stack.TEMP_STACK;
@@ -239,17 +237,15 @@ public class Interpreter {
     }
 
     private Object visitActDATA(ASTNode node) {
-        if (node.child != ASTNode.ACT_DEFAULT) error("Act DATA structure is wrong.");
-
         String name = (String) node.token.value;
         Map varMap;
-        ASTNode actTree = node.left;
-        ASTNode mapTree = node.right;
+        ASTNode actTree = node.getChild(0);
+        ASTNode mapTree = node.getChild(1);
 
         Map varStack = stack.VAR_STACK;
         List tempStack = stack.TEMP_STACK;
-        TableStruct resultStack = stack.RESULT_STACK;
-        TableStruct interStack = resultStack.clone();
+        TableStruct<String> resultStack = stack.RESULT_STACK;
+        TableStruct<String> interStack = resultStack.clone();
 
         tempStack.clear();
         resultStack.clear();
@@ -276,8 +272,7 @@ public class Interpreter {
     }
 
     private Object visitActKEY(ASTNode node) {
-        if (node.left.node != ASTNode.DATA) error("Act KEY structure is wrong.");
-        List values = (List) visit(node.left);
+        List values = (List) visit(node.getChild(0));
         String key = (String) node.token.value;
         List var = new ArrayList();
 
@@ -291,7 +286,6 @@ public class Interpreter {
     }
 
     private Object visitActDECLARE(ASTNode node) {
-        if (node.child != ASTNode.ACT_LIST) error("Act DECLARE structure is wrong.");
         List<Map> listVar = new ArrayList<>();
         List<Map> listFinalVar = new ArrayList<>();
         List<Map> listNewVar;
@@ -299,7 +293,7 @@ public class Interpreter {
         TableStruct result = stack.RESULT_STACK;
         result.drop();
 
-        for (ASTNode var : node.list) {
+        for (ASTNode var : node.child) {
             // declare var and add first var to list
             if (!var.token.type.equals(Type.KEY)) continue;
             if (listVar.isEmpty()) {
@@ -335,9 +329,7 @@ public class Interpreter {
     }
 
     private Object visitActEXEC(ASTNode node) {
-        if (node.child != ASTNode.ACT_LIST) error("Act EXEC structure is wrong.");
-
-        for (ASTNode child : node.list) {
+        for (ASTNode child : node.child) {
             // Deactivate return token for now
             if (child.token.type.equals(Type.RETURN)) continue;
 

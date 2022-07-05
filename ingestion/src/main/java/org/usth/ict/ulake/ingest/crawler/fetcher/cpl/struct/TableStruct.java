@@ -16,7 +16,7 @@ public class TableStruct<T> {
     }
 
     public TableStruct(List<String> key, List<List<T>> data) {
-        if (new HashSet<>(this.key).size() != this.key.size())
+        if (new HashSet<String>(key).size() != key.size())
             error("Duplicate fields.");
 
         this.key = new ArrayList<>(key);
@@ -24,7 +24,7 @@ public class TableStruct<T> {
     }
 
     public TableStruct(List<String> key) {
-        this(key, new ArrayList<>());
+        this(key, new ArrayList<List<T>>());
     }
 
     public TableStruct() {

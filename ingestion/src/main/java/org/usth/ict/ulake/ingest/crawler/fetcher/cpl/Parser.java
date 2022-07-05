@@ -1,13 +1,13 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl;
 
+import java.util.Map;
+
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ActNode;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.MapNode;
-
-import java.util.Map;
 
 
 public class Parser {
@@ -25,7 +25,7 @@ public class Parser {
     }
 
     private void eat(Type type) {
-        if(current_token.type.equals(type)) {
+        if (current_token.type.equals(type)) {
             current_token = lexer.getNextToken();
         } else {
             error();
@@ -41,7 +41,7 @@ public class Parser {
     private ASTNode mapSymbol() {
         MapNode node = new MapNode(current_token);
         eat(Type.MAP);
-        while(current_token.type.equals(Type.MAP)) {
+        while (current_token.type.equals(Type.MAP)) {
             node = new MapNode(current_token, node, null);
             eat(Type.MAP);
         }
@@ -52,7 +52,7 @@ public class Parser {
         ASTNode node = new DataNode(current_token);
         eat(Type.VALUE);
 
-        while(current_token.type.equals(Type.VAR)) {
+        while (current_token.type.equals(Type.VAR)) {
             node = new ActNode(current_token, node, null);
             eat(Type.VAR);
         }
@@ -72,17 +72,17 @@ public class Parser {
         ActNode node = new ActNode(current_token);
         eat(Type.REQ);
 
-        node.setChild(new DataNode(current_token));
+        node.addChild(new DataNode(current_token));
         eat(Type.METHOD);
 
-        node.setChild(pathSymbol());
+        node.addChild(pathSymbol());
 
-        if(current_token.type.equals(Type.HEAD)) {
-            node.setChild(new DataNode(current_token));
+        if (current_token.type.equals(Type.HEAD)) {
+            node.addChild(new DataNode(current_token));
             eat(Type.HEAD);
         }
-        if(current_token.type.equals(Type.BODY)) {
-            node.setChild(new DataNode(current_token));
+        if (current_token.type.equals(Type.BODY)) {
+            node.addChild(new DataNode(current_token));
             eat(Type.BODY);
         }
         eat(Type.END);
@@ -104,7 +104,7 @@ public class Parser {
         eat(Type.DATA);
 
         ASTNode nodeAct;
-        if(current_token.type.equals(Type.REQ)) {
+        if (current_token.type.equals(Type.REQ)) {
             nodeAct = reqSymbol();
         } else {
             nodeAct = patternSymbol();
@@ -127,9 +127,9 @@ public class Parser {
         ActNode node = new ActNode(current_token);
         eat(Type.DECLARE);
 
-        node.setChild(pareSymbol());
-        while(current_token.type.equals(Type.KEY)) {
-            node.setChild(pareSymbol());
+        node.addChild(pareSymbol());
+        while (current_token.type.equals(Type.KEY)) {
+            node.addChild(pareSymbol());
         }
         eat(Type.END);
         return node;
@@ -139,12 +139,12 @@ public class Parser {
         ActNode node = new ActNode(current_token);
         eat(Type.EXEC);
 
-        node.setChild(declareSymbol());
-        while(current_token.type.equals(Type.DATA)) {
-            node.setChild(dataSymbol());
+        node.addChild(declareSymbol());
+        while (current_token.type.equals(Type.DATA)) {
+            node.addChild(dataSymbol());
         }
-        if(current_token.type.equals(Type.RETURN)) {
-            node.setChild(returnSymbol());
+        if (current_token.type.equals(Type.RETURN)) {
+            node.addChild(returnSymbol());
         }
         eat(Type.END);
         return node;
