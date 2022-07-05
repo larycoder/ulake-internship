@@ -44,7 +44,7 @@ class CRUD {
      * @param {*} data Data to be shown on list
      * @returns
      */
-    listDetail(data) {
+    async listDetail(data) {
         const _this = this;
         return $('#table').DataTable(  {
             data: data,
@@ -68,7 +68,7 @@ class CRUD {
      * @param {*} data Object for viewing
      * @returns
      */
-    viewDetail(data) {
+    async viewDetail(data) {
         return $('#table').DataTable(  {
             data: data,
             bProcessing: false,
