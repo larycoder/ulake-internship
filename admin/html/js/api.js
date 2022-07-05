@@ -119,11 +119,31 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for File CRUD management
+ */
+ class FileApi extends Api {
+    constructor () {
+        super(getFolderUrl(), "/api/file")
+    }
+}
+
+/**
+ * Specific API for File CRUD management
+ */
+ class FolderApi extends Api {
+    constructor () {
+        super(getFolderUrl(), "/api/folder")
+    }
+}
+
 const userApi = new UserApi();
 const groupApi = new GroupApi();
 const objectApi = new ObjectApi();
 const tableApi = new TableApi();
 const logApi = new LogApi();
 const compressApi = new CompressApi();
+const fileApi = new FileApi();
+const folderApi = new FolderApi();
 
 $("#userName").text(getUserName());
