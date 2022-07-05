@@ -23,5 +23,4 @@ const tableCrud = new CRUD({
     }
 });
 
-// TODO: add user - usergroup - group relation
 $(document).ready(() => tableCrud.listReady());
