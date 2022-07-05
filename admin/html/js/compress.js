@@ -7,12 +7,12 @@ const compressCrud = new CRUD({
     nameField: "id",
     listFieldRenderer: [
         { mData: "id", render: (data, type, row) => `<a href="/compress/view?id=${data}">${data}</a>` },
-        { mData: "userName" },
+        { mData: "userName" },        
         { mData: "timestamp", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
         { mData: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
         { mData: "id",
             render: (data, type, row) =>
-                `<a href="#"><i class="fas fa-stop" onclick="stopJob(${data})"></i></a>`
+                row.finishedTime <= 0? "" : `<a href="#"><i class="fas fa-stop" onclick="stopJob(${data})"></i></a>`
         }
     ],
     joins: {
@@ -20,7 +20,7 @@ const compressCrud = new CRUD({
         fkField: "userId",
         targetId: "id",
         targetField: "userName"
-    }
+    }    
 });
 
 function stopJob(data) {

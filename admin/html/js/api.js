@@ -117,6 +117,10 @@ class GroupApi extends Api {
     constructor () {
         super(getCompressUrl(), "/api/compress")
     }
+
+    async countFiles(id) {
+        return await this.get(`/${id}/count`);
+    }
 }
 
 /**

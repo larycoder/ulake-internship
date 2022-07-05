@@ -12,7 +12,7 @@ class CRUD {
      * @param {string} listFieldRenderer Renderer for fields in the list. Ref <a href="https://legacy.datatables.net/usage/columns">DataTable aoColumns</a>
      * @param {string} hidden [optional] Fields that will be hidden from the UI, e.g. "department, failedLogins, groups"
      * @param {string} readonly [optional] Fields that will be read-only from the UI, e.g. "id,registerTime,userName,isAdmin"
-     * @param {*} joins [optional] joining options. apiMethod, fkField, targetId, targetField
+     * @param {*} joins [optional] joining options, can be an array for multiple joins. apiMethod, fkField, targetId, targetField.
      */
     constructor (config) {
         this.api = config.api;
@@ -30,7 +30,7 @@ class CRUD {
      * @param {*} data
      * @returns Joined data on the client side
      */
-    async join(data) {
+    async joinOne(data) {
         // extract unique foreign keys from data
         const uniqIds = data.map(entry => entry[this.joins.fkField])
             .filter((value, index, self) => self.indexOf(value) === index && value);
@@ -50,6 +50,15 @@ class CRUD {
             return entry;
         });
         return data;
+    }
+
+    async join(data) {
+        if (Array.isArray(data)) {
+            data.forEach(one => this.joinOne());
+        }
+        else {
+            this.joinOne(data);
+        }
     }
 
     /**
