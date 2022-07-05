@@ -30,35 +30,43 @@ class CRUD {
      * @param {*} data
      * @returns Joined data on the client side
      */
-    async joinOne(data) {
+    async joinOne(joinOptions, data) {
         // extract unique foreign keys from data
-        const uniqIds = data.map(entry => entry[this.joins.fkField])
+        const uniqIds = data.map(entry => entry[joinOptions.fkField])
             .filter((value, index, self) => self.indexOf(value) === index && value);
-        let others = await this.joins.apiMethod(uniqIds);
+        let others = await joinOptions.apiMethod(uniqIds);
         if (!Array.isArray(others)) others = [ others ];
 
         // join on client side
         data = data.map(entry => {
             // get the value on other object
-            const other = others.filter(o => o[this.joins.targetId] == entry[this.joins.fkField]);
+            const other = others.filter(o => o[joinOptions.targetId] == entry[joinOptions.fkField]);
 
             // join, if valid
-            if (other && other.length && other[0][this.joins.targetField]) {
-                entry[this.joins.targetField] = other[0][this.joins.targetField];
+            if (other && other.length && other[0][joinOptions.targetField]) {
+                entry[joinOptions.targetField] = other[0][joinOptions.targetField];
             }
-            else entry[this.joins.targetField]="";
+            else entry[joinOptions.targetField]="";
             return entry;
         });
         return data;
     }
 
+    /**
+     * Join one or multiple tables into the final data
+     * @param {*} data 
+     * @returns Joined data
+     */
     async join(data) {
-        if (Array.isArray(data)) {
-            data.forEach(one => this.joinOne());
+        if (this.joins)  {
+            if (Array.isArray(this.joins)) {
+                for (const joinOptions of this.joins) {
+                    data = await this.joinOne(joinOptions, data);   
+                }
+            }
+            else data = await this.joinOne(this.joins, data);
         }
-        else {
-            this.joinOne(data);
-        }
+        return data;
     }
 
     /**
@@ -83,7 +91,9 @@ class CRUD {
      * @returns
      */
     async listDetail(data) {
-        if (this.joins) data = await this.join(data);
+        console.log("before join", data);
+        data = await this.join(data);
+        console.log("after join", data);
         const _this = this;
         return $('#table').DataTable(  {
             data: data,
