@@ -1,6 +1,6 @@
 // SSI CRUD: <!--# include virtual="/js/crud.js" -->
 
-const logCrud = new CRUD({
+const compressCrud = new CRUD({
     api: logApi,
     listUrl: "/tables",
     name: "Table",
@@ -21,4 +21,4 @@ const logCrud = new CRUD({
     }
 });
 
-$(document).ready(() => logCrud.listReady());
+$(document).ready(() => compressCrud.listReady());

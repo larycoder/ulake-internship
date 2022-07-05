@@ -110,10 +110,20 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for Compress Taks CRUD management
+ */
+ class CompressApi extends Api {
+    constructor () {
+        super(getCompressUrl(), "/api/compress")
+    }
+}
+
 const userApi = new UserApi();
 const groupApi = new GroupApi();
 const objectApi = new ObjectApi();
 const tableApi = new TableApi();
 const logApi = new LogApi();
+const compressApi = new CompressApi();
 
 $("#userName").text(getUserName());
