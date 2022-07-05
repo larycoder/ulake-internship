@@ -35,8 +35,12 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/user")
 @Tag(name = "Users")
@@ -69,10 +73,25 @@ public class UserResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one user info")
     public Response one(@HeaderParam("Authorization") String bearer,
-                        @PathParam("id") @Parameter(description = "User id to search") Long id) {
-        logService.post(bearer, new LogModel("Query", "Get user info for " + id));
-        return response.build(200, null, repo.findById(id));
+                        @PathParam("id") @Parameter(description = "User id to search") String id) {
+        if (Utils.isNumeric(id)) {
+            logService.post(bearer, new LogModel("Query", "Get user info for " + id));
+            return response.build(200, null, repo.findById(Long.parseLong(id)));
+        }
+        else {
+            String idArr[] = id.split(",");
+            List<Long> ids = Arrays.asList(idArr).stream()
+                .filter(idStr -> Utils.isNumeric(idStr))
+                .mapToLong(Long::parseLong)
+                .boxed()
+                .collect(Collectors.toList());
+            UserSearchQuery query = new UserSearchQuery();
+            query.ids = ids;
+            logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
+            return search(query);
+        }
     }
+
 
     @POST
     @Path("/search")
