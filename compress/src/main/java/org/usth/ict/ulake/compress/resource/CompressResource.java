@@ -175,6 +175,25 @@ public class CompressResource {
         var files = repoReqFile.list("requestId", id);
         return response.build(200, "", files);
     }
+    
+    @GET
+    @Path("/{id}/count")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Count number of files in a compression request")
+    public Response countFiles(@PathParam("id") @Parameter(description = "Request id to count") Long id) {
+        // check if request is valid
+        Request req = repoReq.findById(id);
+        if (req == null) {
+            return response.build(404);
+        }
+        if (!checkOwner(req.userId)) {
+            return response.build(403);
+        }
+        var count = repoReqFile.count("requestId", id);
+        return response.build(200, "", count);
+    }
 
     @POST
     @Path("/{id}/start")
