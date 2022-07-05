@@ -1,4 +1,3 @@
-// SSI: <!--# include file="stats.js" -->
 
 async function adminReady() {
 
