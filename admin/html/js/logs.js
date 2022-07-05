@@ -3,17 +3,17 @@
 // add user name into view
 class LogCRUD extends CRUD {
     async listDetail(data) {
-        const uniqIds = data.map(log => log.ownerId)
+        // extract unique user ids from data
+        const uniqIds = data.map(entry => entry.ownerId)
             .filter((value, index, self) => self.indexOf(value) === index && value);
-        console.log(uniqIds);
-        const users = await userApi.one(uniqIds);
-        console.log(users);
+        let users = await userApi.many(uniqIds);
+        if (uniqIds.length < 2) users = [ users ];
 
         // join on client side
-        data = data.map(log => {
-            const user = users.filter(user => user.id == log.ownerId);
-            if (user && user.length && user[0].userName) log.ownerId = user[0].userName;
-            return log;
+        data = data.map(entry => {
+            const user = users.filter(user => user.id == entry.ownerId);
+            if (user && user.length && user[0].userName) entry.ownerId = user[0].userName;
+            return entry;
         });
         super.listDetail(data);
     }

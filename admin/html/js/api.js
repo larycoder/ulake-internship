@@ -42,6 +42,11 @@ class Api {
         return await this.get(`/${id}`);
     }
 
+    // server should support one and many at the same endpoint
+    async many(ids) {
+        return await this.get(`/${ids}`);
+    }
+
     async data(id) {
         return await this.get(`/${id}/data`);
     }
