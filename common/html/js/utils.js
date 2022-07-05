@@ -79,42 +79,22 @@ function getGroups() {
  */
 ajax = async function (param){
     let headers;
-    if (param.headers) {
-        headers = param.headers;
-    }
-    else {
-        headers = {};
-    }
-    // headers["Authorization-Key"] = apiKey;
-    let token = getToken();
-    if (token) {
-        headers.Authorization = "Bearer " + token;
-    }
-    let oldSuccess = param.success;
+    if (param.headers) headers = param.headers;
+    else headers = {};
+    const token = getToken();
+    if (token) headers.Authorization = "Bearer " + token;
     param.headers = headers;
-    if (!param.method) {
-        param.method = "GET";
-    }
-    param.success = function (data) {
-        if (!data) {
-            window.alert("No response from server.");
-            return;
-        }
-        if (data.code === 400) {
-            window.alert(data.msg);
-            return;
-        }
-        if (oldSuccess) {
-            oldSuccess(data);
-        }
-    };
-    param.error = function (error) {
+    if (!param.method) param.method = "GET";
+
+    const resp = await fetch(param.url, param);
+    if (!resp.ok) {
+        const error = resp.error;
         window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
         if (error && error.status && error.status === 401) {
             window.location = "/login";
         }
     };
-    return $.ajax(param);
+    return await resp.json();
 };
 
 function setUserName(userName) {
