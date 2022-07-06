@@ -54,14 +54,14 @@ class CRUD {
 
     /**
      * Join one or multiple tables into the final data
-     * @param {*} data 
+     * @param {*} data
      * @returns Joined data
      */
     async join(data) {
         if (this.joins)  {
             if (Array.isArray(this.joins)) {
                 for (const joinOptions of this.joins) {
-                    data = await this.joinOne(joinOptions, data);   
+                    data = await this.joinOne(joinOptions, data);
                 }
             }
             else data = await this.joinOne(this.joins, data);

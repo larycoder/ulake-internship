@@ -15,7 +15,7 @@ drawTable = (resp) => {
          rows.push(resp.rows[rid]);
     }
     console.log(rows);
-
+    $.fn.dataTable.ext.errMode = 'none';
     $('#table').DataTable({
          bProcessing: true,
          paging: true,
