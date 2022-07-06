@@ -31,12 +31,11 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
-import org.usth.ict.ulake.extract.model.ExtractResultFile;
 import org.usth.ict.ulake.extract.model.ExtractResult;
-import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
+import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
-import org.usth.ict.ulake.extract.service.CompressTask;
+import org.usth.ict.ulake.extract.service.ExtractTask;
 import org.usth.ict.ulake.extract.service.Extractor;
 import org.usth.ict.ulake.extract.service.ZipExtractor;
 
@@ -230,7 +229,7 @@ public class ExtractResource {
     public void extract(String bearer, Long id) {
         log.info("Start extraction in managed executor");
         Extractor compressor = new ZipExtractor(bearer, coreService, fileService);
-        CompressTask task = new CompressTask(compressor, id, repoReq, repoResFile, repoRes);
+        ExtractTask task = new ExtractTask(compressor, id, repoReq, repoResFile, repoRes);
         task.run();
     }
 }

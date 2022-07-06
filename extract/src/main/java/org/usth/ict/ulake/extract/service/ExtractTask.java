@@ -17,41 +17,46 @@ import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 
 /**
- * Perform compression in a background thread
+ * Perform extraction in a background thread
  */
-public class CompressTask implements ExtractCallback {
-    private static final Logger log = LoggerFactory.getLogger(CompressTask.class);
+public class ExtractTask implements ExtractCallback {
+    private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
     private Long requestId;
     private ExtractRequestRepository repoReq;
-    private ExtractResultFileRepository repoReqFile;
+    private ExtractResultFileRepository repoResultFile;
     private ExtractResultRepository repoResult;
-    private Extractor compressor;
+    private Extractor extractor;
 
     private ExtractResult result;
 
-    public CompressTask(Extractor compressor, Long requestId, ExtractRequestRepository repoReq, ExtractResultFileRepository repoReqFile, ExtractResultRepository repoResult) {
-        this.compressor = compressor;
+    public ExtractTask(Extractor extractor, Long requestId, ExtractRequestRepository repoReq, ExtractResultFileRepository repoReqFile, ExtractResultRepository repoResult) {
+        this.extractor = extractor;
         this.requestId = requestId;
         this.repoReq = repoReq;
-        this.repoReqFile = repoReqFile;
+        this.repoResultFile = repoReqFile;
         this.repoResult = repoResult;
     }
 
     public void run() {
         // prepare request files and result object
         var req = getRequest();
-        var files = getFiles();
+
         result = new ExtractResult();
         result.requestId = requestId;
         result.ownerId = req.userId;
-        result.totalFiles = (long) files.size();
+        result.progress = 0L;
         repoResult.persist(result);
 
         // go
-        compressor.extract(req, result, this);
-        String localFilePath = pushCore(result);
-        deleteLocalFile(localFilePath);
+        extractor.extract(req, result, this);
+
+        // push all extracted files to dashboard
+        List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", this.requestId);
+        for (var file: resultFiles) {
+            String localFilePath = pushFile(file);
+            deleteLocalFile(localFilePath);
+        }
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
@@ -62,20 +67,17 @@ public class CompressTask implements ExtractCallback {
         return repoReq.findById(requestId);
     }
 
-    private List<ExtractResultFile> getFiles() {
-        return repoReqFile.list("requestId", requestId);
-    }
-
     /**
-     * push the zipped file to core temp repository
+     * Push the extracted file to file/folder repository
+     * Using dashboard service
      * @param result
      * @return local file name
      */
-    private String pushCore(ExtractResult result) {
+    private String pushFile(ExtractResultFile resultFile) {
         String ret = result.url;
         try {
             FileInputStream fis = new FileInputStream(new File(result.url));
-            LakeHttpResponse resp = compressor.coreService.newTemp(compressor.token, fis);
+            LakeHttpResponse resp = extractor.coreService.newTemp(extractor.token, fis);
             if (resp.getCode() != 200) {
                 return null;
             }
