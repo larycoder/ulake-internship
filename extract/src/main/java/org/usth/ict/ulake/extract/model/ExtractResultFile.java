@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-// represent a file info in the compression request
+// represent an extracted info in request
 @Entity
 public class ExtractResultFile {
     @Id
@@ -17,6 +17,6 @@ public class ExtractResultFile {
     @Schema(description = "Id of the request")
     public Long requestId;
 
-    @Schema(description = "Requested file id")
+    @Schema(description = "Extracted result file id")
     public Long fileId;
 }

@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-// represent a compression request
+// represent an extraction request
 @Entity
 public class ExtractRequest {
     @Id

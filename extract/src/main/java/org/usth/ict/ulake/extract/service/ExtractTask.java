@@ -19,18 +19,18 @@ import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 /**
  * Perform compression in a background thread
  */
-public class CompressTask implements CompressCallback {
+public class CompressTask implements ExtractCallback {
     private static final Logger log = LoggerFactory.getLogger(CompressTask.class);
 
     private Long requestId;
     private ExtractRequestRepository repoReq;
     private ExtractResultFileRepository repoReqFile;
     private ExtractResultRepository repoResult;
-    private Compressor compressor;
+    private Extractor compressor;
 
     private ExtractResult result;
 
-    public CompressTask(Compressor compressor, Long requestId, ExtractRequestRepository repoReq, ExtractResultFileRepository repoReqFile, ExtractResultRepository repoResult) {
+    public CompressTask(Extractor compressor, Long requestId, ExtractRequestRepository repoReq, ExtractResultFileRepository repoReqFile, ExtractResultRepository repoResult) {
         this.compressor = compressor;
         this.requestId = requestId;
         this.repoReq = repoReq;
@@ -49,7 +49,7 @@ public class CompressTask implements CompressCallback {
         repoResult.persist(result);
 
         // go
-        compressor.compress(files, result, this);
+        compressor.extract(req, result, this);
         String localFilePath = pushCore(result);
         deleteLocalFile(localFilePath);
 

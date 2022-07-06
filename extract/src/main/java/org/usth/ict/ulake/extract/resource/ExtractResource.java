@@ -37,8 +37,8 @@ import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 import org.usth.ict.ulake.extract.service.CompressTask;
-import org.usth.ict.ulake.extract.service.Compressor;
-import org.usth.ict.ulake.extract.service.ZipCompressor;
+import org.usth.ict.ulake.extract.service.Extractor;
+import org.usth.ict.ulake.extract.service.ZipExtractor;
 
 
 @Path("/extract")
@@ -53,10 +53,10 @@ public class ExtractResource {
     ExtractRequestRepository repoReq;
 
     @Inject
-    ExtractResultFileRepository repoReqFile;
+    ExtractResultFileRepository repoResFile;
 
     @Inject
-    ExtractResultRepository repoResp;
+    ExtractResultRepository repoRes;
 
     @Inject
     JsonWebToken jwt;
@@ -82,7 +82,7 @@ public class ExtractResource {
     }
 
     @GET
-    @Operation(summary = "List all compression requests. Admin: all possible requests, User: requests of his own.")
+    @Operation(summary = "List all extraction requests. Admin: all possible requests, User: requests of his own.")
     @RolesAllowed({ "User", "Admin" })
     public Response all() {
         Set<String> groups = jwt.getGroups();
@@ -108,13 +108,13 @@ public class ExtractResource {
     @GET
     @Path("/{id}/result")
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Check a extraction request result")
+    @Operation(summary = "Check an extraction request result")
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        ExtractResult resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
+        ExtractResult resp = repoRes.find("requestId=?1 order by id desc", id).firstResult();
         return response.build(200, null, resp);
     }
 
@@ -127,33 +127,11 @@ public class ExtractResource {
         @RequestBody(description = "New extraction request to save")
         ExtractRequest entity) {
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        entity.id = null;   // auto generated.
         entity.userId = userId;
         entity.timestamp = new Date().getTime();
         entity.finishedTime = 0L;
         repoReq.persist(entity);
-        return response.build(200, "", entity);
-    }
-
-    @POST
-    @Path("/{id}/file")
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Add a new file to a extraction request")
-    public Response postFile(
-        @PathParam("id") @Parameter(description = "Request id to add into") Long id,
-        @RequestBody(description = "New file to add into extraction request")
-        ExtractResultFile entity) {
-        // check if request is valid
-        ExtractRequest req = repoReq.findById(id);
-        if (req == null) {
-            return response.build(404);
-        }
-        if (!checkOwner(req.userId)) {
-            return response.build(403);
-        }
-        entity.requestId = id;
-        repoReqFile.persist(entity);
         return response.build(200, "", entity);
     }
 
@@ -162,7 +140,7 @@ public class ExtractResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "List all files in a extraction request")
+    @Operation(summary = "List all files in an extraction request")
     public Response getFiles(@PathParam("id") @Parameter(description = "Request id to list") Long id) {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
@@ -172,16 +150,16 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        var files = repoReqFile.list("requestId", id);
+        var files = repoResFile.list("requestId", id);
         return response.build(200, "", files);
     }
-    
+
     @GET
     @Path("/{id}/count")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Count number of files in a extraction request")
+    @Operation(summary = "Count number of files in an extraction request")
     public Response countFiles(@PathParam("id") @Parameter(description = "Request id to count") Long id) {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
@@ -191,7 +169,7 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        var count = repoReqFile.count("requestId", id);
+        var count = repoResFile.count("requestId", id);
         return response.build(200, "", count);
     }
 
@@ -200,7 +178,7 @@ public class ExtractResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Start a extraction request")
+    @Operation(summary = "Start an extraction request")
     public Response start(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") @Parameter(description = "Request id to start") Long id) {
@@ -212,7 +190,7 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        executor.submit(() -> compress(bearer, id));
+        executor.submit(() -> extract(bearer, id));
 
         return response.build(200, "", req);
     }
@@ -240,7 +218,7 @@ public class ExtractResource {
     public Response tableStats(@HeaderParam("Authorization") String bearer) {
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("count", repoReq.count());
-        ret.put("fileCount", repoReqFile.count());
+        ret.put("fileCount", repoResFile.count());
         return response.build(200, "", ret);
     }
 
@@ -249,10 +227,10 @@ public class ExtractResource {
      * @param id Compression request Id
      */
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public void compress(String bearer, Long id) {
+    public void extract(String bearer, Long id) {
         log.info("Start extraction in managed executor");
-        Compressor compressor = new ZipCompressor(bearer, coreService, fileService);
-        CompressTask task = new CompressTask(compressor, id, repoReq, repoReqFile, repoResp);
+        Extractor compressor = new ZipExtractor(bearer, coreService, fileService);
+        CompressTask task = new CompressTask(compressor, id, repoReq, repoResFile, repoRes);
         task.run();
     }
 }
