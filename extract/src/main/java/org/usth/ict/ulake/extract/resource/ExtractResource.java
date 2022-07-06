@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.CoreService;
+import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
@@ -67,6 +68,10 @@ public class ExtractResource {
     @Inject
     @RestClient
     FileService fileService;
+
+    @Inject
+    @RestClient
+    DashboardService dashboardService;
 
     @Inject
     ManagedExecutor executor;
@@ -228,7 +233,7 @@ public class ExtractResource {
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void extract(String bearer, Long id) {
         log.info("Start extraction in managed executor");
-        Extractor compressor = new ZipExtractor(bearer, coreService, fileService);
+        Extractor compressor = new ZipExtractor(bearer, coreService, fileService, dashboardService);
         ExtractTask task = new ExtractTask(compressor, id, repoReq, repoResFile, repoRes);
         task.run();
     }

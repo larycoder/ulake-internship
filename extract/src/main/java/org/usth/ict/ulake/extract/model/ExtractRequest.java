@@ -17,6 +17,12 @@ public class ExtractRequest {
     @Schema(description = "Id of the requested user")
     public Long userId;
 
+    @Schema(description = "Id of the compressed file for extraction")
+    public Long fileId;
+
+    @Schema(description = "Id of the target folder for extraction")
+    public Long folderId;
+
     @Schema(description = "Requested time")
     public Long timestamp;
 
