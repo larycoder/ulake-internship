@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.dashboard.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -144,6 +145,7 @@ public class FileResource {
 
         try {
             fileInfo.cid = obj.cid;
+            fileInfo.creationTime = new Date().getTime();
             var fileResp = fileSvc.newFile(bearer, fileInfo);
             return resp.build(200, null, fileResp.getResp());
         } catch (Exception e) {

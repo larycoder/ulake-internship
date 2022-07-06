@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.dashboard.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -189,6 +190,7 @@ public class FolderResource {
         FolderModel folder) {
         String bearer = "bearer " + jwt.getRawToken();
         folder.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        folder.creationTime = new Date().getTime();
         var folderResp = fileSvc.newFolder(bearer, folder);
         return resp.build(200, null, folderResp.getResp());
     }
