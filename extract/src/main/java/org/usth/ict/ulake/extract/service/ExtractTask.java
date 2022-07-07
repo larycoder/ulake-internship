@@ -50,6 +50,7 @@ public class ExtractTask implements ExtractCallback {
 
         // go
         extractor.extract(req, result, this);
+        repoResult.persist(result);
 
         // push all extracted files to dashboard
         List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", this.requestId);
