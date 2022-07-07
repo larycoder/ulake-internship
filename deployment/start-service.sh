@@ -43,7 +43,7 @@ fi;
 
 # Main services
 docker run --name $HOST \
-    -v $ROOT_DIR/common:/home/common \
+    -v $ROOT_DIR/common/src:/home/common/src \
     -v $ROOT_DIR/$QUARKUS_SERVICE:/home/$QUARKUS_SERVICE \
     -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
     --network $NET \

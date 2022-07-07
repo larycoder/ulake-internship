@@ -20,9 +20,25 @@ task runQuarkusDev() {
     }
 }
 
+task runQuarkusBuildNative() {
+    subprojects.each {
+        if ("${it.name}" != "common") {
+            dependsOn("${it.name}:build")
+        }
+    }
+}
+
 tasks.register('dev') {
 //    dependsOn tasks.gitlog
     dependsOn tasks.runQuarkusDev
+    doLast {
+        println 'Finished.'
+    }
+}
+
+tasks.register('build-native') {
+//    dependsOn tasks.gitlog
+    dependsOn tasks.runQuarkusBuildNative
     doLast {
         println 'Finished.'
     }
