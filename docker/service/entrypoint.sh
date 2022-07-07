@@ -1,4 +1,9 @@
 #!/bin/bash
 
 cd /home;
-./gradlew dev;
+
+if [[ $QUARKUS_SERVICE == "" ]];
+then
+    ./gradlew dev;
+else
+    ./gradlew $QUARKUS_SERVICE:quarkusDev;
