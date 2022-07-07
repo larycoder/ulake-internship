@@ -8,9 +8,9 @@ allprojects {
 
 defaultTasks 'dev'
 
-task gitlog(type: Exec) {
-    commandLine '/bin/bash', '-c', 'git log --color --graph --date=format:"%Y-%m-%d %H:%M:%S" --pretty=format:"%Cred%h%Creset %Cgreen(%ad) -%C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/html/pages/commits/commits.html'
-}
+// task gitlog(type: Exec) {
+//     commandLine '/bin/bash', '-c', 'git log --color --graph --date=format:"%Y-%m-%d %H:%M:%S" --pretty=format:"%Cred%h%Creset %Cgreen(%ad) -%C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/html/pages/commits/commits.html'
+// }
 
 task runQuarkusDev() {
     subprojects.each {
@@ -21,7 +21,7 @@ task runQuarkusDev() {
 }
 
 tasks.register('dev') {
-    dependsOn tasks.gitlog
+//    dependsOn tasks.gitlog
     dependsOn tasks.runQuarkusDev
     doLast {
         println 'Finished.'

@@ -15,7 +15,7 @@ while test ${#} -gt 0; do
         -s) shift
             QUARKUS_SERVICE="$1"
             ;;
-        --help) echo "start-service.sh [-s service]"
+        --help) echo "start-service.sh -s serviceName"
                 exit
                 ;;
     esac
@@ -31,9 +31,11 @@ done
 #done;
 
 # Quarkus service
-if [[ $QUARKUS_SERVICE != "" ]];
-then
+if [[ $QUARKUS_SERVICE != "" ]]; then
     HOST="$HOST-$QUARKUS_SERVICE";
+else
+    echo "Service name is required!"
+    echo "start-service.sh -s serviceName"
 fi;
 
 # LRA Coordinator
