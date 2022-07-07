@@ -6,16 +6,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.usth.ict.ulake.common.misc.Utils;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class ZipExtractor extends Extractor {
+    private ObjectMapper mapper = new ObjectMapper();
 
     public ZipExtractor(String token, CoreService coreService, FileService fileService, DashboardService dashboardService) {
         super(token, coreService, fileService, dashboardService);
@@ -23,17 +28,23 @@ public class ZipExtractor extends Extractor {
 
     @Override
     public void extract(ExtractRequest request, ExtractResult result, ExtractCallback callback) {
-        var fileInfo = dashboardService.fileInfo(request.fileId, token);
-        FileModel fileModel = Utils.parseLakeResp(fileInfo, FileModel.class);
-        if (fileModel == null) {
-            result.requestId = -1L;  // indicates an error
+        FileModel fileModel = null;
+        FolderModel parent = null;
+        try {
+            var info = dashboardService.fileInfo(request.fileId, token);
+            fileModel = mapper.convertValue(info.getResp(), FileModel.class);
+        }
+        catch (LakeServiceException e) {
+            result.progress = -1L;  // indicates an error
             return;
         }
 
-        var folderInfo = dashboardService.folderInfo(token, request.folderId);
-        FolderModel parent = Utils.parseLakeResp(folderInfo, FolderModel.class);
-        if (parent == null) {
-            result.requestId = -2L;  // indicates an error
+        try {
+            var info = dashboardService.folderInfo(token, request.folderId);
+            parent = mapper.convertValue(info.getResp(), FolderModel.class);
+        }
+        catch (LakeServiceException e) {
+            result.progress = -2L;  // indicates an error
             return;
         }
 
@@ -44,7 +55,6 @@ public class ZipExtractor extends Extractor {
         try {
             ZipEntry entry = zis.getNextEntry();
             while (entry != null) {
-                //save(entry, parent);
                 log.info("Zip dir {}, entry {}", entry.isDirectory(), entry.getName());
                 save(zis, entry, parent);
                 entry = zis.getNextEntry();
@@ -65,13 +75,14 @@ public class ZipExtractor extends Extractor {
      * @throws IOException
      */
     private Object save(ZipInputStream zis, ZipEntry entry, FolderModel parent) throws IOException {
-        InputStream ret = null;
+        // TODO: nested directory support
         if (entry.isDirectory()) {
             // make a new dir
             FolderModel folder = new FolderModel();
             folder.name = entry.getName();
             folder.parent = parent;
-            dashboardService.newFolder(token, folder);
+            var resp = dashboardService.newFolder(token, folder).getResp();
+            return mapper.convertValue(resp, FolderModel.class);
         }
         else {
             FileModel file = new FileModel();
@@ -82,8 +93,8 @@ public class ZipExtractor extends Extractor {
             FileFormModel fileModel = new FileFormModel();
             fileModel.fileInfo = file;
             fileModel.is = zis;
-            dashboardService.newFile(token, fileModel);
+            var resp = dashboardService.newFile(token, fileModel);
+            return mapper.convertValue(resp, FolderModel.class);
         }
-        return ret;
     }
 }

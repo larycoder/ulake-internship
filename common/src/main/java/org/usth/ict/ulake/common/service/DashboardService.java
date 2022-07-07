@@ -56,6 +56,7 @@ public interface DashboardService {
     @Path("/folder/{id}")
     @Schema(description = "get folder info")
     public LakeHttpResponse folderInfo(
+        // TODO: HiepLNC refactors ASAP.
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id);
 
