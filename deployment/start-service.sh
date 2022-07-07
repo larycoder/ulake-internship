@@ -15,7 +15,7 @@ while test ${#} -gt 0; do
         -s) shift
             QUARKUS_SERVICE="$1"
             ;;
-        *) echo "start-service.sh [-s service]"
+        --help) echo "start-service.sh [-s service]"
                 exit
                 ;;
     esac
@@ -23,12 +23,12 @@ while test ${#} -gt 0; do
 done
 
 # Export ports
-PORTS="8781-8799";
-EXP_PORT="";
-for i in $PORTS;
-do
-    EXP_PORT="$EXP_PORT -p $i:$i";
-done;
+#PORTS="8781-8799";
+#EXP_PORT="";
+#for i in $PORTS;
+#do
+#    EXP_PORT="$EXP_PORT -p $i:$i";
+#done;
 
 # Quarkus service
 if [[ $QUARKUS_SERVICE != "" ]];
@@ -36,14 +36,12 @@ then
     HOST="$HOST-$QUARKUS_SERVICE";
 fi;
 
-function run() {
-    # LRA Coordinator
-    docker run --name ulake-lra -p 8793:8080 --network $NET -d jbosstm/lra-coordinator
+# LRA Coordinator
+#docker run --name ulake-lra -p 8793:8080 --network $NET -d jbosstm/lra-coordinator
 
-    # Main services
-    docker run --name $HOST $EXP_PORT \
-        -v $ROOT_DIR:/home \
-        -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
-        --network $NET \
-        -d ulake/service:1.0.0-SNAPSHOT
-}
+# Main services
+docker run --name $HOST \
+    -v $ROOT_DIR:/home \
+    -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
+    --network $NET \
+    -d ulake/service:1.0.0-SNAPSHOT
