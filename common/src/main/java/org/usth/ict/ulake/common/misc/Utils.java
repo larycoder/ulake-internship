@@ -32,12 +32,6 @@ public class Utils {
         return (lst == null || lst.isEmpty());
     }
 
-    public static Object convert(Object obj, Class<?> type)
-    throws IllegalArgumentException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(obj, type);
-    }
-
     public static <T> T parseLakeResp(LakeHttpResponse resp, Class<T> clazz) {
         if (resp.getCode() != 200) {
             log.error("Error in response: {}", resp.getCode());

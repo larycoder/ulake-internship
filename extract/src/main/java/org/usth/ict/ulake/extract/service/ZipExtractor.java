@@ -6,6 +6,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.usth.ict.ulake.common.misc.Utils;
+import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.CoreService;
@@ -45,6 +46,7 @@ public class ZipExtractor extends Extractor {
             while (entry != null) {
                 //save(entry, parent);
                 log.info("Zip dir {}, entry {}", entry.isDirectory(), entry.getName());
+                save(zis, entry, parent);
                 entry = zis.getNextEntry();
              }
             zis.closeEntry();
@@ -58,11 +60,11 @@ public class ZipExtractor extends Extractor {
     /**
      * Extract a zip entry and push to a target folder using dashboard service
      * @param entry
-     * @param folderId
+     * @param folderId  0 or null to get to user's root
      * @return
      * @throws IOException
      */
-    private InputStream save(ZipEntry entry, FolderModel parent) throws IOException {
+    private Object save(ZipInputStream zis, ZipEntry entry, FolderModel parent) throws IOException {
         InputStream ret = null;
         if (entry.isDirectory()) {
             // make a new dir
@@ -76,6 +78,11 @@ public class ZipExtractor extends Extractor {
             file.name = entry.getName();
             file.parent = parent;
             file.size = entry.getSize();
+
+            FileFormModel fileModel = new FileFormModel();
+            fileModel.fileInfo = file;
+            fileModel.is = zis;
+            dashboardService.newFile(token, fileModel);
         }
         return ret;
     }
