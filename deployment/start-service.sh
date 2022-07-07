@@ -41,7 +41,8 @@ fi;
 
 # Main services
 docker run --name $HOST \
-    -v $ROOT_DIR:/home \
+    -v $ROOT_DIR/common:/home/common \
+    -v $ROOT_DIR/$QUARKUS_SERVICE:/home/$QUARKUS_SERVICE \
     -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
     --network $NET \
     -d ulake/service:1.0.0-SNAPSHOT
