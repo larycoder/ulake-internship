@@ -7,3 +7,4 @@ then
     ./gradlew dev;
 else
     ./gradlew $QUARKUS_SERVICE:quarkusDev;
+fi;
