@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -35,7 +36,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.common.misc.RandomString;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.LogService;
@@ -62,8 +62,6 @@ public class AuthResource {
     @Inject
     UserRepository repo;
 
-    @Inject
-    RandomString randomString;
 
     @ConfigProperty(name = "ulake.jwt.accesstoken.expire")
     long tokenExpire;
@@ -140,7 +138,7 @@ public class AuthResource {
         // save access token, so we can detect abnormal cases
         // e.g. attacker uses an old accessToken
         // while the access & refresh tokens were legally refreshed.
-        user.refreshToken = randomString.nextString();
+        user.refreshToken = UUID.randomUUID().toString();
         user.refreshTokenExpire = refreshTokenExpire;
         repo.persist(user);
         Map.Entry<String, String> cookie = new AbstractMap.SimpleEntry<String, String>("Set-Cookie", "jwt=" + user.refreshToken + "; SameSite=strict");
