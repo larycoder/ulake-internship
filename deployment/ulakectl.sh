@@ -85,6 +85,7 @@ restart () {
         containers=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
     else
         containers=$1
+    fi
     docker restart $containers
 }
 
