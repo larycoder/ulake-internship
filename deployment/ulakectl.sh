@@ -8,7 +8,7 @@ ROOT_DIR=$(readlink -f $BASE_DIR/../);
 
 
 help() {
-    echo "Usage: service.sh [start/start-all/restart/kill]"
+    echo "Usage: service.sh <start/restart/kill> [service-name]"
 }
 
 # Start service docker with proper configuration and installation
@@ -80,7 +80,11 @@ kill_all () {
 }
 
 restart () {
-    containers=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
+    containers=""
+    if [[ "$1" == "" ]]; then
+        containers=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
+    else
+        containers=$1
     docker restart $containers
 }
 
@@ -90,11 +94,11 @@ case $1 in
 
     "start")
         shift
-        start $@
-        ;;
-
-    "start-all")
-        start_all $@
+        if [[ "$1" == "" ]]; then
+            start_all
+        else
+            start $@
+        fi
         ;;
 
     "restart")
