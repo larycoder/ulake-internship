@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.ingest.model;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,5 +10,5 @@ public class PolicyPattern {
     public String value;
 
     @JsonInclude(Include.NON_NULL)
-    public Map<String, String> var;
+    public Map<String, List<String>> var;
 }

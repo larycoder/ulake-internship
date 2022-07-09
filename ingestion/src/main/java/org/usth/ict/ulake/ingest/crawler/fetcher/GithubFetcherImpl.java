@@ -16,6 +16,7 @@ import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
+import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.http.HttpRawRequest;
 import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
@@ -29,7 +30,7 @@ public class GithubFetcherImpl implements Fetcher<InputStream, String> {
     private Storage<String> store;
     private Recorder<InputStream> record;
 
-    private Map<String, Object> policy;
+    private Policy policy;
     private FetchConfig mode;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -38,8 +39,8 @@ public class GithubFetcherImpl implements Fetcher<InputStream, String> {
     public void setup(Map<FetchConfig, String> config) {
         try {
             log.info("Parsing policy from string to object...");
-            var type = new TypeReference<Map<String, Object>>() {};
-            policy = mapper.readValue(config.get(FetchConfig.POLICY), type);
+            policy = mapper.readValue(
+                         config.get(FetchConfig.POLICY), Policy.class);
         } catch (JsonProcessingException e) {
             log.error("Fail to parse policy from string", e);
         }
