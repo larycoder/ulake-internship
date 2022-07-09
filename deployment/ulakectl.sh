@@ -103,6 +103,7 @@ case $1 in
         ;;
 
     "restart")
+        shift
         restart $@
         ;;
 
