@@ -85,7 +85,7 @@ restart () {
 }
 
 case $1 in
-    "") help()
+    "") help
         ;;
 
     "start")
