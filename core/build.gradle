@@ -17,7 +17,6 @@ repositories {
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'org.jboss.logmanager:log4j2-jboss-logmanager'
     implementation 'io.quarkus:quarkus-hibernate-orm'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     implementation 'io.quarkus:quarkus-jdbc-mariadb'
@@ -31,9 +30,11 @@ dependencies {
     implementation 'io.openio.sds:openio-api:2.0.3'
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-rest-client-jackson'
+    implementation 'commons-logging:commons-logging:1.2'
     implementation('org.apache.hadoop:hadoop-client:3.2.1') {
         exclude(group: 'javax.ws.rs', module: 'jsr311-api')
     }
+
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
