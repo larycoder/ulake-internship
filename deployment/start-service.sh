@@ -18,7 +18,7 @@ while test ${#} -gt 0; do
             QUARKUS_SERVICE="$1"
             ;;
         -n) shift
-            QUARKUS_SERVICE="$1"
+            NATIVE="YES"
             ;;
         --help) echo "start-service.sh -s serviceName [-n]"
                 echo "Option: -n for Native service"
