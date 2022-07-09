@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 
 # Predefine variable
 HOST="ulake-service";
