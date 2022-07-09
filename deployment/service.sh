@@ -86,7 +86,6 @@ restart () {
 
 case $1 in
     "") help()
-        exit 1
         ;;
 
     "start")
