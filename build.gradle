@@ -1,16 +1,13 @@
-
-allprojects {
-    // task buildJar << { task -> println "$task.project.name" }
-    // if (project.name.startsWith("other/")) {
-    //     task runBuildJar(dependsOn: buildJar) {}
-    // }
-}
-
 defaultTasks 'dev'
 
 // task gitlog(type: Exec) {
 //     commandLine '/bin/bash', '-c', 'git log --color --graph --date=format:"%Y-%m-%d %H:%M:%S" --pretty=format:"%Cred%h%Creset %Cgreen(%ad) -%C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset" --abbrev-commit | aha > dashboard/html/pages/commits/commits.html'
 // }
+
+task copyCerts(type: Exec) {
+    commandLine '/bin/bash', '-c', 'for i in */src/*/resources; do echo cp -v common/src/main/resources/*.pem $i; done'
+}
+
 
 task runQuarkusDev() {
     subprojects.each {
@@ -37,8 +34,8 @@ tasks.register('dev') {
 }
 
 tasks.register('build-native') {
-//    dependsOn tasks.gitlog
     System.setProperty("quarkus.package.type", "native")
+    dependsOn tasks.copyCerts
     dependsOn tasks.runQuarkusBuildNative
     doLast {
         println 'Finished.'
