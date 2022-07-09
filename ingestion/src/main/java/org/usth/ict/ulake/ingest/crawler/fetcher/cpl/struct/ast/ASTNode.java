@@ -5,14 +5,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
+import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
 
 
 public class ASTNode {
     public Token token;
+    public Type type;
     public List<ASTNode> child;
 
     public ASTNode(Token token, ASTNode... child) {
         this.token = token;
+        this.type = token.type;
         if (child != null && child.length > 0)
             this.child = Arrays.asList(child);
         else
