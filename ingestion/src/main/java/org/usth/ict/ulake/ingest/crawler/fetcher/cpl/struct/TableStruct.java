@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +47,9 @@ public class TableStruct<T> {
         this.key.addAll(key);
     }
 
+    /**
+     * Add row using mapper to construct order following key.
+     * */
     public void add(Map<String, T> data) {
         List<T> row = new ArrayList<>();
         for (String field : this.key)
@@ -53,16 +57,57 @@ public class TableStruct<T> {
         table.add(row);
     }
 
+    /**
+     * Add new row to table.
+     * */
     public void add(List<T> data) {
         if (key.size() != data.size())
             error("Data size mismatch with key size.");
         table.add(data);
     }
 
+    /**
+     * Add row having only one key to table.
+     * */
     public void add(String key, T data) {
         Map<String, T> dataMap = new HashMap<>();
         dataMap.put(key, data);
         add(dataMap);
+    }
+
+    /**
+     * Add column to table, if table has data, performing cross-join.
+     * */
+    public void add(String key, List<T> data) {
+        if (this.key.isEmpty()) {
+            this.key.add(key);
+            for (T value : data)
+                this.table.add(Arrays.asList(value));
+        } else {
+            crossJoinOneCol(key, data);
+        }
+    }
+
+    /**
+     * Cross-join single row to current table.
+     * */
+    public void crossJoinOneCol(String key, List<T> values) {
+        if (this.key.contains(key))
+            error("Field already existed.");
+        else
+            this.key.add(key);
+
+        List<List<T>> newTable = new ArrayList<>();
+        while (!this.table.isEmpty()) {
+            List<T> row = this.table.remove(0);
+            for (T value : values) {
+                var newRow = new ArrayList<T>();
+                newRow.addAll(row);
+                newRow.add(value);
+                newTable.add(newRow);
+            }
+        }
+        this.table = newTable;
     }
 
     public int rowSize() {
