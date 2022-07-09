@@ -1,0 +1,29 @@
+# <version 2.0 >
+## TODO: allow variable in header
+
+# main
+<exec> ::= "EXEC" <declare> <data>* <return> "END"
+
+# variable
+<var> ::= "VAR"                                           # key: [ value_1, value_2, ... ]
+
+# seed
+<declare> ::= "DECLARE" <var>+ "END"
+
+# process
+<data> ::= "DATA" ( <req> | <pattern> ) <map>+ "END"
+
+# pattern
+<pattern> ::= "PATTERN" <var>* "END"                                 # "pattern_string" key: [ value, ... ] END
+
+# request
+<req> ::= "REQ" "METHOD" <path> [ <head> ] [ <body> ] "END"
+<path> ::= "PATH" <var>* "END"                                       # "path_string" key: [ value, ... ] END
+<body> ::= "BODY" <var>* "END"                                       # "body_string" key: [ value, ... ] END
+<head> ::= "HEAD" <var>* "END"                                       # HEAD key: [ value, ...] END
+
+# post-process
+<map> ::= "MAP"
+
+# end of query
+<return> ::= "RETURN"                                           # "return_string"
