@@ -58,7 +58,7 @@ if [[ "$NATIVE" == "" ]]; then
 else
     RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
     TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
-    docker run -it --name $HOST \
+    docker run -d --name $HOST \
         -v $RUNNER:$TARGET_RUNNER \
         --network $NET \
         --rm \
