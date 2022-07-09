@@ -5,7 +5,7 @@ defaultTasks 'dev'
 // }
 
 task copyCerts(type: Exec) {
-    commandLine '/bin/bash', '-c', 'for i in */src/*/resources; do cp -v common/src/main/resources/*.pem $i; done'
+    commandLine '/bin/bash', '-c', 'for i in */src/*/resources; do rsync -avr common/src/main/resources/*.pem $i; done'
 }
 
 
