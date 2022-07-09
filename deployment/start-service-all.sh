@@ -6,6 +6,6 @@ echo ${projects[@]}
 for i in ${projects[@]}; do
     echo Starting {$i}....
     if [[ "$i" != "common" ]]; then
-        ./start-service.sh -s $i
+        ./start-service.sh -s $i $@
     fi
 done
