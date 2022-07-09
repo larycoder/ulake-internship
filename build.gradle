@@ -38,6 +38,7 @@ tasks.register('dev') {
 
 tasks.register('build-native') {
 //    dependsOn tasks.gitlog
+    System.setProperty("quarkus.package.type", "native")
     dependsOn tasks.runQuarkusBuildNative
     doLast {
         println 'Finished.'
