@@ -61,6 +61,7 @@ else
     docker run -it --name $HOST \
         -v $RUNNER:$TARGET_RUNNER \
         --network $NET \
+        --rm \
         --entrypoint $TARGET_RUNNER \
         registry.access.redhat.com/ubi8/ubi-minimal:8.6
 fi
