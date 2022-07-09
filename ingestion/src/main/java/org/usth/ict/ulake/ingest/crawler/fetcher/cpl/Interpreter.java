@@ -6,17 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ActNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.MapNode;
+import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.http.HttpRawRequest;
 import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
 import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
@@ -28,26 +25,28 @@ public class Interpreter {
     private class BufferStack {
         public TableStruct<String> RESULT_STACK;
         public List<Object> TEMP_STACK;
-        public Map<String, Object> VAR_STACK;
+        public Map<String, String> VAR_STACK;
     }
 
     ASTNode tree;
     BufferStack stack;
     HttpRawRequest client;
+    ObjectMapper mapper;
 
     public Interpreter(HttpRawRequest client) {
         this.client = client;
         stack = new BufferStack();
         stack.RESULT_STACK = new TableStruct<String>();
         stack.TEMP_STACK = new ArrayList<Object>();
-        stack.VAR_STACK = new HashMap<String, Object>();
+        stack.VAR_STACK = new HashMap<String, String>();
+        mapper = new ObjectMapper();
     }
 
     public Interpreter() {
         this(new HttpRawRequest());
     }
 
-    public TableStruct<String> eval(Map<String, Object> policy) {
+    public TableStruct<String> eval(Policy policy) {
         Parser parser = new Parser();
         tree = parser.parse(policy);
 
@@ -59,297 +58,212 @@ public class Interpreter {
         return stack.RESULT_STACK.clone();
     }
 
-    //============================================//
-    // Interpreter supporter definition
-
     private void error(String message) {
         throw new CplException("Runtime error: " + message);
     }
 
-    private Object visit(ASTNode tree) {
-        if (tree instanceof ActNode) return visitAct(tree);
-        else if (tree instanceof DataNode) return visitData(tree);
-        else if (tree instanceof MapNode) return visitMap(tree);
+    private void visit(ASTNode tree) {
+        if (tree.type == Type.EXEC) visitExec(tree);
+        else if (tree.type == Type.DECLARE) visitDeclare(tree);
+        else if (tree.type == Type.DATA) visitData(tree);
+        else if (tree.type == Type.PATTERN) visitPattern(tree);
+        else if (tree.type == Type.REQ) visitReq(tree);
+        else if (tree.type == Type.MAP) visitMap(tree);
+        else if (tree.type == Type.VAR) visitVar(tree);
         else error("Node type not found !");
-        return null;
     }
 
     //============================================//
-    // Node action definition
-    private Object visitData(ASTNode node) {
-        DataNode data = (DataNode) node;
-        return data.value;
+    // Interpreter supporter definition
+
+    private void visitExec(ASTNode node) {
+        for (ASTNode child : node.child)
+            visit(child);
     }
 
-    private Object visitMap(ASTNode node) {
-        if (node.getChild(0) != null) visit(node.getChild(0));
-
-        List<Object> dataList = stack.TEMP_STACK;
-        List<Object> interList = new ArrayList<>();
-
-        // prepare list
-        for (var data : dataList) {
-            // unwind data
-            if (data instanceof List) {
-                interList.addAll((List<Object>)data);
-            } else {
-                interList.add(data);
-            }
+    private void visitDeclare(ASTNode node) {
+        for (ASTNode child : node.child) {
+            var value = child.token.mapValue;
+            stack.RESULT_STACK.add(
+                value.getKey(), value.getValue());
         }
-        dataList.clear();
-
-        // map list
-        for (var data : interList) {
-            if (data instanceof Map) {
-                var map = (Map) data;
-                dataList.add(map.get(node.token.value));
-            }
-        }
-
-        return null;
     }
 
-    private Object visitActVAR(ASTNode node) {
-        if (node.getChild(0) != null) {
-            // put data to stack for process
-            if (node.getChild(0) instanceof DataNode) {
-                List<Object> temp = stack.TEMP_STACK;
-                temp.add(visit(node.getChild(0)));
-            } else {
-                visit(node.getChild(0));
+    private void visitData(ASTNode node) {
+        // new field to fields
+        List<String> key = stack.RESULT_STACK.getKey();
+        key.add(node.token.stringValue);
+        var newTableResult = new TableStruct<String>(key);
+
+        // update new field values with each table row
+        while (stack.RESULT_STACK.rowSize() > 0) {
+            // store current table row for processing
+            stack.VAR_STACK = stack.RESULT_STACK.queuePopJson();
+
+            for (ASTNode child : node.child)
+                visit(child);
+
+            // add processed values with corresponding row old values to table
+            while (!stack.TEMP_STACK.isEmpty()) {
+                stack.VAR_STACK.put(node.token.stringValue,
+                                    stack.TEMP_STACK.remove(0).toString());
+                newTableResult.add(stack.VAR_STACK);
             }
-        } else {
-            error("Act VAR struct is wrong.");
         }
 
-        Map<String, String> var = (Map<String, String>) (Object) stack.VAR_STACK;
-        var mapInfo = (Map<String, String>) node.token.value;
-        List<Object> temp = stack.TEMP_STACK;
-        List<Object> inter = new ArrayList<>();
-
-        inter.addAll(temp);
-        temp.clear();
-
-        // prepare variable
-        Map<String, String> interVar = new HashMap<>();
-        for (String key : mapInfo.keySet()) {
-            String newKey = "\\{" + key + "\\}";
-            interVar.put(newKey, var.get(mapInfo.get(key)));
-        }
-
-        // process string only
-        while (inter.size() > 0) {
-            var pattern = (String) inter.remove(0);
-            for (String key : interVar.keySet()) {
-                pattern = pattern.replaceAll(key, interVar.get(key));
-            }
-            temp.add(pattern);
-        }
-
-        return null;
+        stack.RESULT_STACK = newTableResult;
     }
 
-    private Object visitActPATH(ASTNode node) {
-        if (node.getChild(0) == null) {
-            error("Act PATH Struct is wrong.");
-        } else if (node.getChild(0) instanceof DataNode) {
-            stack.TEMP_STACK.add(visit(node.getChild(0)));
-        } else {
-            visit(node.getChild(0));
+    private void visitPattern(ASTNode node) {
+        stack.TEMP_STACK.add(node.token.stringValue);
+
+        for (ASTNode child : node.child)
+            visit(child);
+
+        // wrap value to data holder
+        for (int i = 0; i < stack.TEMP_STACK.size(); i++) {
+            var valueHolder = new HashMap<String, Object>();
+            valueHolder.put("data", stack.TEMP_STACK.get(i));
+            stack.TEMP_STACK.set(i, valueHolder);
         }
-        return null;
     }
 
-    private Object visitActREQ(ASTNode node) {
-        // TODO: improve client request mechanism
+    private void visitReq(ASTNode node) {
+        List<String> path = new ArrayList<>();
+        List<String> body = new ArrayList<>();
         HttpRawRequest client = this.client.clone();
 
-        client.method = HttpMethod.GET;
-        Map<Object, Object> body = null;
-        List<String> path = new ArrayList<>();
-
-        List<Object> temp = stack.TEMP_STACK;
-
-        // prepare variable setup
-        for (var value : node.child) {
-            if (value.token.type.equals(Type.METHOD)) {
-                client.method = (String) visit(value);
-            } else if (value.token.type.equals(Type.HEAD)) {
-                var heads = (Map<String, String>) visit(value);
-                for (String key : heads.keySet())
-                    client.addHeader(key, heads.get(key));
-            } else if (value.token.type.equals(Type.BODY)) {
-                body = (Map) visit(value);
-            } else if (value.token.type.equals(Type.PATH)) {
-                visit(value);
-                path.addAll((List<String>)(Object) stack.TEMP_STACK);
-                temp.clear();
+        // collect request parameter
+        for (ASTNode child : node.child) {
+            if (child.type == Type.METHOD) {
+                client.method = child.token.stringValue;
+            } else if (child.type == Type.PATH) {
+                visitReqStringPattern(child);
+                while (!stack.TEMP_STACK.isEmpty())
+                    path.add(stack.TEMP_STACK.remove(0).toString());
+            } else if (child.type == Type.BODY) {
+                visitReqStringPattern(child);
+                while (!stack.TEMP_STACK.isEmpty())
+                    body.add(stack.TEMP_STACK.remove(0).toString());
+            } else if (child.type == Type.HEAD) {
+                client.headers = visitHead(child);
             }
         }
 
-        // invoke request call
-        for (String concrete : path) {
+        // build list of parameter
+        TableStruct<String> reqParam = new TableStruct<>();
+        reqParam.add("path", path);
+        reqParam.add("body", body);
+
+        while (reqParam.rowSize() > 0) {
+            Map<String, String> param = reqParam.queuePopJson();
             var request = client.clone();
-            request.path = concrete;
+            request.addPath(param.get("path"));
+            request.body = param.get("body");
 
-            if (body != null) {
-                try {
-                    request.body = new ObjectMapper().writeValueAsString(body);
-                    request.addHeader("Content-Type", "application/json");
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
+            // parse and put result values to temp stack
             HttpRawResponse resp = LakeHttpClient.send(request);
-
-            // push result back to temp stack
             try {
                 var data = new ObjectMapper().readValue(resp.body, Map.class);
-                temp.add(data);
+                var holder = new HashMap<String, Object>();
+                holder.put("data", data);
+                stack.TEMP_STACK.add(holder);
                 resp.body.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return null;
     }
 
-    private Object visitActPATTERN(ASTNode node) {
-        if (node.getChild(0) instanceof DataNode) {
-            stack.TEMP_STACK.add(visit(node.getChild(0)));
-        } else {
-            visit(node.getChild(0));
-        }
-
-        List temp = stack.TEMP_STACK;
-        List inter = new ArrayList();
-
-        inter.addAll(temp);
-        temp.clear();
-
-        for (var obj : inter) {
-            Map data = new HashMap();
-            data.put("data", obj);
-            temp.add(data);
-        }
-
-        return null;
-    }
-
-    private Object visitActDATA(ASTNode node) {
-        String name = (String) node.token.value;
-        Map varMap;
-        ASTNode actTree = node.getChild(0);
-        ASTNode mapTree = node.getChild(1);
-
-        Map varStack = stack.VAR_STACK;
-        List tempStack = stack.TEMP_STACK;
-        TableStruct<String> resultStack = stack.RESULT_STACK;
-        TableStruct<String> interStack = resultStack.clone();
-
-        tempStack.clear();
-        resultStack.clear();
-        resultStack.addKey(name);
-
-        while (interStack.rowSize() > 0) {
-            tempStack.clear();
-            varStack.clear();
-
-            varMap = interStack.stackPopJson();
-            varStack.putAll(varMap);
-
-            // call request and map result to temp stack
-            visit(actTree);
-            visit(mapTree);
-
-            for (var value : tempStack) {
-                varMap.put(name, value);
-                resultStack.add(varMap);
-            }
-        }
-
-        return null;
-    }
-
-    private Object visitActKEY(ASTNode node) {
-        List values = (List) visit(node.getChild(0));
-        String key = (String) node.token.value;
-        List var = new ArrayList();
-
-        for (var data : values) {
-            Map newVar = new HashMap();
-            newVar.put(key, data);
-            var.add(newVar);
-        }
-
-        return var;
-    }
-
-    private Object visitActDECLARE(ASTNode node) {
-        List<Map> listVar = new ArrayList<>();
-        List<Map> listFinalVar = new ArrayList<>();
-        List<Map> listNewVar;
-
-        TableStruct result = stack.RESULT_STACK;
-        result.drop();
-
-        for (ASTNode var : node.child) {
-            // declare var and add first var to list
-            if (!var.token.type.equals(Type.KEY)) continue;
-            if (listVar.isEmpty()) {
-                listVar.addAll((List) visit(var));
-                continue;
-            }
-
-            listNewVar = (List) visit(var);
-            if (listNewVar == null) continue;
-
-            for (Map mapVar : listVar) {
-                for (Map newMapVar : listNewVar) {
-                    Map newData = new HashMap();
-                    newData.putAll(mapVar);
-                    newData.putAll(newMapVar);
-                    listFinalVar.add(newData);
-                }
-            }
-            listVar.clear();
-            listVar.addAll(listFinalVar);
-            listFinalVar.clear();
-        }
-
-        for (Map data : listVar) {
-            if (result.colSize() == 0) {
-                List fields = new ArrayList(data.keySet());
-                result.setKey(fields);
-            }
-            result.add(data);
-        }
-
-        return null;
-    }
-
-    private Object visitActEXEC(ASTNode node) {
-        for (ASTNode child : node.child) {
-            // Deactivate return token for now
-            if (child.token.type.equals(Type.RETURN)) continue;
-
-            stack.TEMP_STACK.clear();
-            stack.VAR_STACK.clear();
+    /**
+     * Helper method of visitReq method.
+     * */
+    private void visitReqStringPattern(ASTNode node) {
+        stack.TEMP_STACK.add(node.token.stringValue);
+        for (ASTNode child : node.child)
             visit(child);
+        for (int i = 0; i < stack.TEMP_STACK.size(); i++) {
+            stack.TEMP_STACK.set(i, stack.TEMP_STACK.get(i).toString());
         }
-        return null;
     }
 
-    private Object visitAct(ASTNode node) {
-        if (node.token.type.equals(Type.PATH)) return visitActPATH(node);
-        else if (node.token.type.equals(Type.VAR)) return visitActVAR(node);
-        else if (node.token.type.equals(Type.REQ)) return visitActREQ(node);
-        else if (node.token.type.equals(Type.PATTERN)) return visitActPATTERN(node);
-        else if (node.token.type.equals(Type.DATA)) return visitActDATA(node);
-        else if (node.token.type.equals(Type.KEY)) return visitActKEY(node);
-        else if (node.token.type.equals(Type.DECLARE)) return visitActDECLARE(node);
-        else if (node.token.type.equals(Type.EXEC)) return visitActEXEC(node);
-        else error("Act node type not found !");
-        return null;
+    private Map<String, List<String>> visitHead(ASTNode node) {
+        Map<String, List<String>> holder = new HashMap<>();
+        for (ASTNode child : node.child) {
+            var value = child.token.mapValue;
+            holder.put(value.getKey(), value.getValue());
+        }
+        return holder;
+    }
+
+    private void visitMap(ASTNode node) {
+        List<Object> myList = new ArrayList<>();
+
+        // unwind list data
+        while (!stack.TEMP_STACK.isEmpty()) {
+            var data = stack.TEMP_STACK.remove(0);
+            if (data instanceof List) {
+                var type = new TypeReference<List<Object>>() {};
+                var myData = mapper.convertValue(data, type);
+                myList.addAll(myData);
+            } else {
+                myList.add(data);
+            }
+        }
+
+        // collect new data by map key
+        // TODO: extend more type than Map type
+        while (!myList.isEmpty()) {
+            var data = myList.remove(0);
+            if (data instanceof Map) {
+                var map = mapper.convertValue(data, Map.class);
+                stack.TEMP_STACK.add(map.get(node.token.stringValue));
+            }
+        }
+    }
+
+    /**
+     * Replace all pattern string by new value.
+     * Error behavior: if fail on value processing, the original is hold
+     * */
+    private void visitVar(ASTNode node) {
+        var myList = new ArrayList<Object>();
+        var valueList = new ArrayList<String>();
+        var holder = new HashMap<String, Object>();
+        var type = new TypeReference<Map<String, Object>>() {};
+        var myVar = node.token.mapValue;
+
+        String key = "\\{" + myVar.getKey() + "\\}";
+
+        // detect and change variable to mere string
+        while (!myVar.getValue().isEmpty()) {
+            String value = myVar.getValue().remove(0);
+            if (value.startsWith("$"))
+                valueList.add(stack.VAR_STACK.get(value));
+            else
+                valueList.add(value);
+        }
+        myVar.setValue(valueList);
+
+        // replace value by pattern
+        while (!stack.TEMP_STACK.isEmpty()) {
+            holder.put("temp", stack.TEMP_STACK.remove(0));
+            try {
+                // put data to holder for compatible with JSON
+                String json = mapper.writeValueAsString(holder);
+
+                // replace by pattern and retrieve data from holder
+                // WARNING: process erase type of original object
+                for (String rplc : myVar.getValue()) {
+                    String newJson = json.replaceAll(key, rplc);
+                    holder.putAll(mapper.readValue(newJson, type));
+                    myList.add(holder.get("temp"));
+                }
+            } catch (JsonProcessingException e) {
+                myList.add(holder.get("temp"));
+                holder.clear();
+            }
+        }
+        stack.TEMP_STACK.addAll(myList);
     }
 }

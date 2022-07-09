@@ -1,20 +1,16 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl;
 
-import java.util.Map;
-
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Token;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.Type;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ASTNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.ActNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.DataNode;
-import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.ast.MapNode;
+import org.usth.ict.ulake.ingest.model.Policy;
 
 
 public class Parser {
     private Token current_token;
     private Lexer lexer;
 
-    public ASTNode parse(Map<String, Object> policy) {
+    public ASTNode parse(Policy policy) {
         lexer = new Lexer(policy);
         current_token = lexer.getNextToken();
         return execSymbol();
@@ -32,121 +28,129 @@ public class Parser {
         }
     }
 
-    private ASTNode returnSymbol() {
-        Token token = current_token;
-        eat(Type.RETURN);
-        return new ActNode(token);
-    }
+    private ASTNode execSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.EXEC);
 
-    private ASTNode mapSymbol() {
-        MapNode node = new MapNode(current_token);
-        eat(Type.MAP);
-        while (current_token.type.equals(Type.MAP)) {
-            node = new MapNode(current_token, node, null);
-            eat(Type.MAP);
+        node.child.add(declareSymbol());
+        while (current_token.type == Type.DATA) {
+            node.child.add(dataSymbol());
         }
-        return node;
-    }
+        node.child.add(returnSymbol());
 
-    private ASTNode varSymbol() {
-        ASTNode node = new DataNode(current_token);
-        eat(Type.VALUE);
-
-        while (current_token.type.equals(Type.VAR)) {
-            node = new ActNode(current_token, node, null);
-            eat(Type.VAR);
-        }
-
-        return node;
-    }
-
-    private ASTNode pathSymbol() {
-        Token pathToken = current_token;
-        eat(Type.PATH);
-        ASTNode node = varSymbol();
         eat(Type.END);
-        return new ActNode(pathToken, node, null);
+        return node;
     }
 
-    private ASTNode reqSymbol() {
-        ActNode node = new ActNode(current_token);
-        eat(Type.REQ);
+    private ASTNode declareSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.DECLARE);
 
-        node.addChild(new DataNode(current_token));
-        eat(Type.METHOD);
+        varSymbol(node);
 
-        node.addChild(pathSymbol());
+        eat(Type.END);
+        return node;
+    }
 
-        if (current_token.type.equals(Type.HEAD)) {
-            node.addChild(new DataNode(current_token));
-            eat(Type.HEAD);
+    private ASTNode dataSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.DATA);
+
+        if (current_token.type == Type.REQ) {
+            node.child.add(reqSymbol());
+        } else {
+            node.child.add(patternSymbol());
         }
-        if (current_token.type.equals(Type.BODY)) {
-            node.addChild(new DataNode(current_token));
-            eat(Type.BODY);
-        }
+        mapSymbol(node);
+
         eat(Type.END);
         return node;
     }
 
     private ASTNode patternSymbol() {
-        Token pattern = current_token;
-
+        var node = new ASTNode(current_token);
         eat(Type.PATTERN);
-        ASTNode node = varSymbol();
-        eat(Type.END);
 
-        return new ActNode(pattern, node, null);
-    }
+        if (current_token.type == Type.VAR)
+            varSymbol(node);
 
-    private ASTNode dataSymbol() {
-        Token dataToken = current_token;
-        eat(Type.DATA);
-
-        ASTNode nodeAct;
-        if (current_token.type.equals(Type.REQ)) {
-            nodeAct = reqSymbol();
-        } else {
-            nodeAct = patternSymbol();
-        }
-        ASTNode nodeMap = mapSymbol();
-        eat(Type.END);
-        return new ActNode(dataToken, nodeAct, nodeMap);
-    }
-
-    private ASTNode pareSymbol() {
-        Token key = current_token;
-        eat(Type.KEY);
-
-        DataNode node = new DataNode(current_token);
-        eat(Type.VALUE);
-        return new ActNode(key, node, null);
-    }
-
-    private ASTNode declareSymbol() {
-        ActNode node = new ActNode(current_token);
-        eat(Type.DECLARE);
-
-        node.addChild(pareSymbol());
-        while (current_token.type.equals(Type.KEY)) {
-            node.addChild(pareSymbol());
-        }
         eat(Type.END);
         return node;
     }
 
-    private ASTNode execSymbol() {
-        ActNode node = new ActNode(current_token);
-        eat(Type.EXEC);
+    private ASTNode reqSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.REQ);
 
-        node.addChild(declareSymbol());
-        while (current_token.type.equals(Type.DATA)) {
-            node.addChild(dataSymbol());
-        }
-        if (current_token.type.equals(Type.RETURN)) {
-            node.addChild(returnSymbol());
-        }
+        node.child.add(new ASTNode(current_token));
+        eat(Type.METHOD);
+
+        node.child.add(pathSymbol());
+        if (current_token.type == Type.HEAD)
+            node.child.add(headSymbol());
+        if (current_token.type == Type.BODY)
+            node.child.add(bodySymbol());
+
         eat(Type.END);
+        return node;
+    }
+
+    private void mapSymbol(ASTNode node) {
+        node.child.add(new ASTNode(current_token));
+        eat(Type.MAP);
+
+        while (current_token.type.equals(Type.MAP)) {
+            node.child.add(new ASTNode(current_token));
+            eat(Type.MAP);
+        }
+    }
+
+    private ASTNode pathSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.PATH);
+
+        if (current_token.type == Type.VAR)
+            varSymbol(node);
+
+        eat(Type.END);
+        return node;
+    }
+
+    private ASTNode headSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.HEAD);
+
+        if (current_token.type == Type.VAR)
+            varSymbol(node);
+
+        eat(Type.END);
+        return node;
+    }
+
+    private ASTNode bodySymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.BODY);
+
+        if (current_token.type == Type.VAR)
+            varSymbol(node);
+
+        eat(Type.END);
+        return node;
+    }
+
+    private void varSymbol(ASTNode node) {
+        node.child.add(new ASTNode(current_token));
+        eat(Type.VAR);
+
+        while (current_token.type.equals(Type.VAR)) {
+            node.child.add(new ASTNode(current_token));
+            eat(Type.VAR);
+        }
+    }
+
+    private ASTNode returnSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.RETURN);
         return node;
     }
 }
