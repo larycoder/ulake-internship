@@ -1,6 +1,7 @@
 package org.usth.ict.ulake.ingest.crawler.fetcher.cpl;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -147,7 +148,7 @@ public class Interpreter {
                 while (!stack.TEMP_STACK.isEmpty())
                     body.add(stack.TEMP_STACK.remove(0).toString());
             } else if (child.type == Type.HEAD) {
-                client.headers = visitHead(child);
+                client.headers.putAll(visitHead(child));
             }
         }
 
@@ -165,11 +166,19 @@ public class Interpreter {
             // parse and put result values to temp stack
             HttpRawResponse resp = LakeHttpClient.send(request);
             try {
-                var data = new ObjectMapper().readValue(resp.body, Map.class);
-                var holder = new HashMap<String, Object>();
-                holder.put("data", data);
-                stack.TEMP_STACK.add(holder);
+                String respBody = new String(
+                    resp.body.readAllBytes(), StandardCharsets.UTF_8);
                 resp.body.close();
+
+                var holder = new HashMap<String, Object>();
+                try {
+                    var respMap = mapper.readValue(respBody, Map.class);
+                    holder.put("data", respMap);
+                } catch(JsonProcessingException e) {
+                    holder.put("data", respBody);
+                }
+
+                stack.TEMP_STACK.add(holder);
             } catch (IOException e) {
                 e.printStackTrace();
             }
