@@ -30,9 +30,12 @@ public class LakeHttpClient {
         if (conf == null)
             return HttpClient.newHttpClient();
 
-        return HttpClient.newBuilder()
-               .followRedirects(conf.redirectStrategy)
-               .build();
+        var builder = HttpClient.newBuilder();
+
+        if (conf.redirectStrategy != null)
+               builder = builder.followRedirects(conf.redirectStrategy);
+
+        return builder.build();
     }
 
     public HttpRawResponse send() {
