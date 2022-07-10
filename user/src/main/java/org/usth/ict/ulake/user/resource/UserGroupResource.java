@@ -97,6 +97,19 @@ public class UserGroupResource {
         return response.build(200);
     }
 
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed({ "Admin" })
+    @Operation(summary = "Delete one user group")
+    public Response one(@PathParam("id") @Parameter(description = "User group id to delete") Long id) {
+        UserGroup entity = repo.findById(id);
+        if (entity == null) {
+            return response.build(404);
+        }
+        repo.delete(entity);
+        return response.build(200);
+    }
+
     @GET
     @Path("/stats")
     @Operation(summary = "Some statistics")
