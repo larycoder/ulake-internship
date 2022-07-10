@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Predefine variable
-HOST="ulake-service";
+HOSTBASE="ulake-service";
 NET="ulake-network"
 BASE_DIR=$(readlink -f $(dirname $0));
 ROOT_DIR=$(readlink -f $BASE_DIR/../);
@@ -36,10 +36,10 @@ start() {
 
     # Quarkus service
     if [[ $QUARKUS_SERVICE != "" ]]; then
-        HOST="$HOST-$QUARKUS_SERVICE";
+        HOST="$HOSTBASE-$QUARKUS_SERVICE";
     else
         echo "Service name is required!"
-        exit 1
+        return 1
     fi;
 
     # Main services
@@ -107,7 +107,7 @@ case $1 in
     "start")
         shift
 	echo start $1
-        if [[ "$1" == "" || "$1" == "-s" ]]; then
+        if [[ "$1" == "" || "$1" == "-n" ]]; then
             start_all
         else
             start $@
