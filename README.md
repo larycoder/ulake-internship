@@ -22,7 +22,7 @@ To build everything native binaries:
 ./gradlew build-native
 ```
 
-# Boot it up
+# Booting
 
 To start all lake services in dev mode:
 
@@ -46,7 +46,9 @@ To stop lakes services:
 
 All docker containers are conntected using a docker network named ```ulake-network```. HDFS nodes are managed by a global docker service ```ulake-hadoop_ulake-Hdatanode```.
 
-We use nginx as reverse proxy for the whole ulake. To start nginx in a docker container:
+Almost every ulake service depends on a relational database. A MariaDB instance **must** be available in ```ulake-network```. We prepared a MySQL instance as in ```deployment/start-mysql.sh```. Launch the instance and create tables for services.
+
+Finally, we use ```nginx``` as reverse proxy for the whole ulake. To start nginx in a docker container:
 
 ```bash
 ./deployment/start-nginx.sh
