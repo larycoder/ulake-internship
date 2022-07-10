@@ -151,6 +151,19 @@ function showModal(title, content, onOk) {
 }
 
 /**
+ * Show a bootstrap toast
+ * @param {string} title of the toast
+ * @param {string} content of the toast
+ * @param {int} delay
+ */
+ function showToast(title, content, delay) {
+    const toast = $('.toast');
+    toast.find("strong").text(title);
+    toast.find(".toast-body").text(content);
+    toast.toast('show');
+}
+
+/**
  *
  * @param {string} requiredParams Required search parameter
  * @param {string} defaultLocation If any of the required params do not exist, redirect to this location
