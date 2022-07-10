@@ -8,7 +8,7 @@ ROOT_DIR=$(readlink -f $BASE_DIR/../);
 
 
 help() {
-    echo "Usage: service.sh <start/restart/kill> [service-name]"
+    echo "Usage: service.sh <start/restart/kill> [service-name] [options]"
 }
 
 # Start service docker with proper configuration and installation
@@ -26,7 +26,7 @@ start() {
             -n) shift
                 NATIVE="YES"
                 ;;
-            --help) echo "service.sh start -s serviceName [-n]"
+            --help) echo "ulakectl.sh start -s serviceName [-n]"
                     echo "Option: -n for Native service"
                     exit
                     ;;
@@ -39,25 +39,36 @@ start() {
         HOST="$HOST-$QUARKUS_SERVICE";
     else
         echo "Service name is required!"
+        exit 1
     fi;
 
     # Main services
-    if [[ "$NATIVE" == "" ]]; then
-        docker run --name $HOST \
-            -v $ROOT_DIR/common/src:/home/common/src \
-            -v $ROOT_DIR/$QUARKUS_SERVICE:/home/$QUARKUS_SERVICE \
-            -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
-            --network $NET \
-            -d ulake/service:1.0.0-SNAPSHOT
+    if [[ $QUARKUS_SERVICE != "core" ]]; then
+        if [[ "$NATIVE" == "" ]]; then
+            docker run --name $HOST \
+                -v $ROOT_DIR/common/src:/home/common/src \
+                -v $ROOT_DIR/$QUARKUS_SERVICE:/home/$QUARKUS_SERVICE \
+                -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
+                --network $NET \
+                -d ulake/service:1.0.0-SNAPSHOT
+        else
+            RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
+            TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
+            docker run -d --name $HOST \
+                -v $RUNNER:$TARGET_RUNNER \
+                --network $NET \
+                --rm \
+                --entrypoint $TARGET_RUNNER \
+                registry.access.redhat.com/ubi8/ubi-minimal:8.6
+        fi
     else
-        RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
-        TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
+        # core: force JVM build
         docker run -d --name $HOST \
-            -v $RUNNER:$TARGET_RUNNER \
-            --network $NET \
-            --rm \
-            --entrypoint $TARGET_RUNNER \
-            registry.access.redhat.com/ubi8/ubi-minimal:8.6
+                -v $ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app:/home/$QUARKUS_SERVICE \
+                --network $NET \
+                --rm \
+                -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
+                registry.access.redhat.com/ubi8/openjdk-11
     fi
 }
 
