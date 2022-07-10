@@ -6,9 +6,9 @@ Document version: 0.2.0
 
 ### Interface
 
-1. WebApp (nginx)                   port: 8080
+1. Reverse proxy (nginx)                       port: 8080
 
-### Service
+### Services
 
 1. Core Service (API)                          port: 8784
 2. Folder Service (API)                        port: 8786
@@ -34,33 +34,6 @@ Document version: 0.2.0
 ### Tool
 
 1. Phpmyadmin (docker)               port: 8081 swarm_port: 80
-
-## Strategy
-
-1. WebApp: setup script
-2. Service: dockerfile
-3. Docker: setup script
-
-## Nginx
-
-Since nginx setup is pretty complex part, there is a section for setup once.
-
-### Role
-
-1. Route path to service
-2. Dashboard holder
-3. Https
-
-### Setup
-
-1. Start script
-2. Configuration file
-
-### Name-based virtual host
-
-1. User service: user.ulake.sontg.net
-2. Folder service: folder.ulake.sontg.net
-3. Core service: core.ulake.sontg.net
 
 ## Note
 
