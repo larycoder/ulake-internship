@@ -18,6 +18,7 @@ class Api {
         return {};
     }
 
+    // general http methods
     async get(url) {
         return await this.call(url);
     }
@@ -34,6 +35,7 @@ class Api {
         return await this.call(url, "DELETE");
     }
 
+    // getters
     async all() {
         return await this.get("");
     }
@@ -42,8 +44,8 @@ class Api {
         return await this.get(`/${id}`);
     }
 
-    // server should support one and many at the same endpoint
     async many(ids) {
+        // server should support one and many at the same endpoint
         return await this.get(`/${ids}`);
     }
 
@@ -51,13 +53,19 @@ class Api {
         return await this.get(`/${id}/data`);
     }
 
+    // create, update, delete
+    async create(entity) {
+        return await this.post("", entity, { "Content-Type": "application/json; charset=utf-8" });
+    }
+
+    async save(id, entity) {
+        return await this.put(`/${id}`, entity, { "Content-Type": "application/json; charset=utf-8" });
+    }
+
     async deleteOne(id) {
         return await this.delete(`/${id}`);
     }
 
-    async save(id, body) {
-        return await this.put(`/${id}`, body, { "Content-Type": "application/json; charset=utf-8" });
-    }
 }
 
 /**
