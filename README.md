@@ -2,28 +2,54 @@
 
 This is the USTH Data Lake.
 
-
-# Boot it up
+# Building
 
 To build everything:
 
 ```bash
-./gradlew quarkusBuild
+./gradlew build
 ```
 
-To start the lake services in dev mode:
+To build a specific service:
+
+```bash
+./gradlew <service>:build
+```
+
+To build everything native binaries:
+
+```bash
+./gradlew build-native
+```
+
+# Boot it up
+
+To start all lake services in dev mode:
 
 ```bash
 ./gradlew dev -Ddebug=false
 ```
 
-To build native binaries and start all lake services:
+To start all lakes services with native binaries in docker containers:
 
 ```bash
-./gradlew build -Dquarkus.package.type=native
+./deployment/ulakectl.sh start
 ```
 
+To stop lakes services:
+
+```bash
+./deployment/ulakectl.sh kill
+```
+
+# Deployment
+
+We use nginx as reverse proxy for the whole ulake. To start nginx in a docker container:
+
+```bash
+./deployment/start-nginx.sh
+```
 
 # Hacking
 
-We use Intellij IDEA as the main IDE. Simply open this directory in IDEA and start the available sub-projects as services. 
+We use Intellij IDEA/Visual Studio Code/vim as the main IDEs. Simply open this directory in your favorite IDE and start the available sub-projects as services.
