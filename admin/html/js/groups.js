@@ -13,7 +13,7 @@ class GroupListCRUD extends CRUD {
                 { mData: "id",
                     render: (data, type, row) =>
                         `<a href="/group/edit?id=${data}"><i class="fas fa-user-cog"></i></a>
-                         <a href="#"><i class="fas fa-users-slash" onclick="crud.listDeleteItem(${data})"></i></a>`
+                         <a href="#"><i class="fas fa-users-slash" onclick="groupListCrud.listDeleteItem(${data})"></i></a>`
                 }
             ]
         })
@@ -47,5 +47,4 @@ class GroupListCRUD extends CRUD {
 
 }
 const groupListCrud = new GroupListCRUD();
-
 $(document).ready(() => groupListCrud.listReady());

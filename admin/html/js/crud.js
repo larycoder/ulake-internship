@@ -80,7 +80,7 @@ class CRUD {
         }
         else {
             showModal("Error", `Are you sure to delete ${entity[0][this.nameField]}?`, () => {
-                console.log(`this.api.deleteOne(${entity[0].id})`);
+                this.api.deleteOne(entity[0].id);
             });
         }
     }
