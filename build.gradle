@@ -18,8 +18,19 @@ task runQuarkusDev() {
 }
 
 task runQuarkusBuildNative() {
+    def type = System.getProperty("quarkus.package.type")
+    println "Default build type is ${type}"
     subprojects.each {
         if ("${it.name}" != "common") {
+            // only build native for non-core projects..
+            if ("${it.name}" == "core") {
+                println 'BUILDING UBER-JAR FOR CORE ================='
+                System.setProperty("quarkus.package.type", "uber-jar")
+            }
+            else {
+                System.setProperty("quarkus.package.type", "native")
+            }
+
             dependsOn("${it.name}:build")
         }
     }
@@ -34,7 +45,6 @@ tasks.register('dev') {
 }
 
 tasks.register('build-native') {
-    System.setProperty("quarkus.package.type", "native")
     dependsOn tasks.copyCerts
     dependsOn tasks.runQuarkusBuildNative
     doLast {
