@@ -108,7 +108,7 @@ case $1 in
         shift
 	echo start $1
         if [[ "$1" == "" || "$1" == "-n" ]]; then
-            start_all
+            start_all $@
         else
             start $@
         fi
