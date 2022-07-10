@@ -1,6 +1,5 @@
 package org.usth.ict.ulake.user.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
@@ -18,7 +17,6 @@ public class UserGroup extends PanacheEntityBase {
 
     public String name;
 
-    @JsonBackReference
     @ManyToMany(cascade = {
         CascadeType.PERSIST,
         CascadeType.MERGE
