@@ -44,11 +44,14 @@ To stop lakes services:
 
 # Deployment
 
+All docker containers are conntected using a docker network named ```ulake-network```. HDFS nodes are managed by a global docker service ```ulake-hadoop_ulake-Hdatanode```.
+
 We use nginx as reverse proxy for the whole ulake. To start nginx in a docker container:
 
 ```bash
 ./deployment/start-nginx.sh
 ```
+
 
 # Hacking
 
