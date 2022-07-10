@@ -19,7 +19,13 @@ public class UserGroup extends PanacheEntityBase {
     public String name;
 
     @JsonBackReference
-    @ManyToMany
-    @JoinColumn
+    @ManyToMany(cascade = {
+        CascadeType.PERSIST,
+        CascadeType.MERGE
+    })
+    @JoinTable(name = "UserGroup_User",
+        joinColumns = @JoinColumn(name = "UserGroup_id"),
+        inverseJoinColumns = @JoinColumn(name = "users_id")
+    )
     public Set<User> users = new HashSet<>();
 }

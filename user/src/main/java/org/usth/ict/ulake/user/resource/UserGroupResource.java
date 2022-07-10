@@ -21,10 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.model.UserGroup;
 import org.usth.ict.ulake.user.persistence.UserGroupRepository;
+import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Path("/user/group")
 @Tag(name = "User Groups")
@@ -37,6 +41,9 @@ public class UserGroupResource {
 
     @Inject
     UserGroupRepository repo;
+
+    @Inject
+    UserRepository repoUser;
 
     @GET
     @Operation(summary = "List all user groups")
@@ -77,7 +84,15 @@ public class UserGroupResource {
         }
         if (!Utils.isEmpty(newEntity.name)) entity.name = newEntity.name;
 
-        // TODO: allow update department, group
+        if (newEntity.users != null && newEntity.users.size() > 0) {
+            Set<User> attachedUsers = new HashSet<>();
+            for (User user : newEntity.users) {
+                if (user.id != null && user.id > 0) {
+                    attachedUsers.add(repoUser.findById(user.id));
+                }
+            }
+            entity.users = attachedUsers;
+        }
         repo.persist(entity);
         return response.build(200);
     }
