@@ -63,7 +63,7 @@ public class TableStruct<T> {
     public void add(List<T> data) {
         if (key.size() != data.size())
             error("Data size mismatch with key size.");
-        table.add(data);
+        table.add(new ArrayList<>(data));
     }
 
     /**
