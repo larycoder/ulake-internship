@@ -73,13 +73,13 @@ start() {
 }
 
 start_all() {
-    projects=$(cat ../settings.gradle  | grep include | sed "s/'//g;s/include //;s/,//g")
+    projects=$(cat $ROOT_DIR/settings.gradle  | grep include | sed "s/'//g;s/include //;s/,//g")
     projects=($projects)
     echo ${projects[@]}
     for i in ${projects[@]}; do
         echo Starting {$i}....
         if [[ "$i" != "common" ]]; then
-            start -s $i $@
+		start -s $i $@
         fi
     done
 }
@@ -106,7 +106,8 @@ case $1 in
 
     "start")
         shift
-        if [[ "$1" == "" ]]; then
+	echo start $1
+        if [[ "$1" == "" || "$1" == "-s" ]]; then
             start_all
         else
             start $@
