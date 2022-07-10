@@ -70,7 +70,8 @@ public class Interpreter {
         else if (tree.type == Type.REQ) visitReq(tree);
         else if (tree.type == Type.MAP) visitMap(tree);
         else if (tree.type == Type.VAR) visitVar(tree);
-        else error("Node type not found !");
+        else if (tree.type == Type.RETURN) visitReturn(tree);
+        else error("Node type not found, receive: " + tree.token.toString());
     }
 
     //============================================//
@@ -220,6 +221,10 @@ public class Interpreter {
                 stack.TEMP_STACK.add(map.get(node.token.stringValue));
             }
         }
+    }
+
+    private void visitReturn(ASTNode node) {
+        // TODO: preserve symbol
     }
 
     /**
