@@ -35,7 +35,6 @@ dependencies {
         exclude(group: 'javax.ws.rs', module: 'jsr311-api')
     }
 
-
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 

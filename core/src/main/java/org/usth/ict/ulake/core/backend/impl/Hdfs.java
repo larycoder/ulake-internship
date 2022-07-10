@@ -41,13 +41,19 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
         if (client == null) {
             try {
                 Configuration conf = new Configuration();
+                conf.setClass("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class, FileSystem.class);
+                conf.setClass("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class, FileSystem.class);
                 client = FileSystem.get(new URI(namenodeUri), conf);
+                System.out.println("Finished get client as " + client);
             } catch (URISyntaxException e) {
+                e.printStackTrace();
                 log.error("Namenode URI error: {}", e);
             } catch (IOException e) {
+                e.printStackTrace();
                 log.error("Namenode connection error: {}", e);
             }
         }
+        System.out.println("Returning get client as " + client);
         return client;
     }
 
@@ -148,6 +154,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     public Map<String, Object> stats() {
         var ret = new HashMap<String, Object>();
         var fs = getClient();
+        log.info("Core: fs client before getstatus {}", fs.toString());
         if (fs instanceof DistributedFileSystem) {
             log.info("Core: fs is dfs");
         }
@@ -163,7 +170,7 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
             ret.put("presentCapacity", presentCapacity);
             String rep = fs.getConf().get("dfs.replication");
             if (rep == null) rep = "3";
-            ret.put("replication", rep);           
+            ret.put("replication", rep);
         } catch (IOException e) {
             e.printStackTrace();
         }
