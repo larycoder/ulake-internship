@@ -90,12 +90,16 @@ public class TableStruct<T> {
 
     /**
      * Cross-join single row to current table.
+     * Behavior: if values is empty then set default value of null.
      * */
     public void crossJoinOneCol(String key, List<T> values) {
         if (this.key.contains(key))
             error("Field already existed.");
         else
             this.key.add(key);
+
+        if (values.isEmpty())
+            values.add(null);
 
         List<List<T>> newTable = new ArrayList<>();
         while (!this.table.isEmpty()) {
