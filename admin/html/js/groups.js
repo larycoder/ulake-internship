@@ -25,9 +25,10 @@ class GroupListCRUD extends CRUD {
             name: name,
             users: []
         }
-        const resp = this.api.create(group);
-        if (resp && resp.code === 200) {
+        const resp = await this.api.create(group);
+        if (resp && resp.id) {
             this.modal.modal('hide');
+            showToast("Info", `Group "${name}" created.`);
         }
     }
 
@@ -40,6 +41,7 @@ class GroupListCRUD extends CRUD {
         this.modal = $("#add-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
         this.modal.find(".btn-primary").on("click", () => this.confirm());
+        // prepare toast
         await super.listReady();
     }
 

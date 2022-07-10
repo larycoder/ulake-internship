@@ -1,0 +1,13 @@
+.toast-container {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+}
+
+.toast:not(.showing):not(.show) {
+    display: none !important;
+}
+
+.fade {
+    transition-duration: 0.5s;
+}
