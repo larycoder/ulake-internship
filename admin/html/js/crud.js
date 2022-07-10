@@ -130,12 +130,12 @@ class CRUD {
     /**
      * Callback when the view UI is ready to be rendered
      */
-     async viewReady() {
+    async viewReady() {
         const params = parseParam("id", this.listUrl);
-        const id = parseInt(params.id);
-        var info = await this.api.one(id);
-        $("#name-detail").text(`Update ${this.name} Detail for ${info[this.nameField]}`);
-        const table = toTable(info, this.hidden);
+        this.id = parseInt(params.id);
+        this.info = await this.api.one(this.id);
+        $("#name-detail").text(`${this.name} Detail for ${this.info[this.nameField]}`);
+        const table = toTable(this.info, this.hidden);
         this.viewDetail(table);
     }
 
@@ -164,9 +164,9 @@ class CRUD {
      */
     async editReady() {
         const params = parseParam("id", this.listUrl);
-        const id = parseInt(params.id);
-        var info = await this.api.one(id);
-        $("#name-detail").text(`Update ${this.name} Detail for ${info[this.nameField]}`);
+        this.id = parseInt(params.id);
+        this.info = await this.api.one(this.id);
+        $("#name-detail").text(`Update ${this.name} Detail for ${this.info[this.nameField]}`);
         const table = toTable(info, this.hidden);
         table.forEach((data, index) => {
             if (this.readonly.includes(data.key)) {

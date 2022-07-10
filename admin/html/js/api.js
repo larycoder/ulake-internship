@@ -11,7 +11,7 @@ class Api {
         const req = { url: this.server + this.endpoint + url };
         if (method) req.method = method;
         if (headers) req.headers = headers;
-        if (body) req.data = body;
+        if (body) req.body = typeof body === 'string' || body instanceof String? body : JSON.stringify(body);
         const data = await ajax(req);
         console.log(data);
         if (data && data.code === 200) return data.resp;

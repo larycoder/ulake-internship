@@ -1,5 +1,3 @@
-// $(document).ready(userReady);
-
 // SSI CRUD: <!--# include virtual="/js/crud.js" -->
 
 const crud = new CRUD({
@@ -11,8 +9,14 @@ const crud = new CRUD({
 
 async function confirm(modal) {
     let table = modal.find("#add-table").DataTable();
-    const selected = table.rows( { selected: true } ).data();
-    // TODO: POST to server
+    const select = table.rows( { selected: true } ).data();
+    let entity = crud.info;
+    entity.users = [];
+    select.each(u => {
+        entity.users.push({ id: u.id, userName: u.userName });
+    });
+    console.log(entity);
+    crud.api.save(crud.id, entity);
     modal.modal('hide');
 }
 
@@ -27,18 +31,20 @@ async function initTable(table) {
     });
 }
 
-async function showAddModal() {
+async function showModal() {
     const modal = $(this);
     let table = modal.find("#add-table")
     if (!$.fn.DataTable.isDataTable("#add-table")) table = initTable(table);
+    else table.DataTable().rows().deselect();
+
 }
 
 function viewReady() {
     // prepare modal events
     const modal = $("#add-modal");
-    modal.on("show.bs.modal", showAddModal);
+    modal.on("show.bs.modal", showModal);
     modal.find(".btn-primary").on("click", () => confirm(modal));
     crud.viewReady();
 }
 
-$(document).ready(viewReady);  // to keep proper 'this' context
+$(document).ready(viewReady);
