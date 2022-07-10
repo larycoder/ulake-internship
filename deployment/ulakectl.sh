@@ -53,6 +53,7 @@ start() {
                 -d ulake/service:1.0.0-SNAPSHOT
         else
             RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
+            echo "+ Using native build at $RUNNER"
             TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
             docker run -d --name $HOST \
                 -v $RUNNER:$TARGET_RUNNER \
