@@ -24,12 +24,16 @@ public class Interpreter {
      * Memory stack for processing language.
      * */
     private class BufferStack {
+        // store all result of pipeline process
         public TableStruct<String> RESULT_STACK;
+
+        // store temporary list of data during processing
         public List<Object> TEMP_STACK;
+
+        // store key value pair for each row of result table during processing
         public Map<String, String> VAR_STACK;
     }
 
-    ASTNode tree;
     BufferStack stack;
     HttpRawRequest client;
     ObjectMapper mapper;
@@ -49,7 +53,7 @@ public class Interpreter {
 
     public TableStruct<String> eval(Policy policy) {
         Parser parser = new Parser();
-        tree = parser.parse(policy);
+        ASTNode tree = parser.parse(policy);
 
         stack.TEMP_STACK.clear();
         stack.VAR_STACK.clear();
@@ -170,6 +174,8 @@ public class Interpreter {
                     resp.body.readAllBytes(), StandardCharsets.UTF_8);
                 resp.body.close();
 
+                // try to save response as Map value
+                // if could not convert to Map then save raw String
                 var holder = new HashMap<String, Object>();
                 try {
                     var respMap = mapper.readValue(respBody, Map.class);
@@ -267,7 +273,7 @@ public class Interpreter {
                 String json = mapper.writeValueAsString(holder);
 
                 // replace by pattern and retrieve data from holder
-                // WARNING: process erase type of original object
+                // WARNING: process erases type of original object
                 for (String rplc : myVar.getValue()) {
                     String newJson = json.replaceAll(key, rplc);
                     holder.putAll(mapper.readValue(newJson, type));
