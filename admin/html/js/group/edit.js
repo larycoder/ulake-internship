@@ -1,10 +1,13 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { EditCRUD } from '../crud/editcrud.js';
+import { groupApi } from "../api.js";
 
-const crud = new CRUD({
+const crud = new EditCRUD({
     api: groupApi,
     listUrl: "/groups",
     name: "Group",
-    nameField: "name"
+    nameField: "name",
+    readonly: "id",
+    hidden: "users"
 });
 
-$(document).ready(() => crud.editReady());  // to keep proper 'this' context
+$(document).ready(() => crud.ready());

@@ -32,7 +32,7 @@ export class EditCRUD extends CRUD {
     }
 
     async ready() {
-        super().ready();
+        super.ready();
         $("#save").click(() => this.save());
     }
 

@@ -1,4 +1,6 @@
-async function login() {
+import { authApi, userApi } from "./api.js";
+
+window.login = async () => {
     const uid = document.querySelector("#uid").value,
           pwd = document.querySelector("#pwd").value;
 
