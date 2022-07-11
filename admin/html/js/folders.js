@@ -1,10 +1,9 @@
-import { CRUD } from "./crud/crud.js";
 import { ListCRUD } from "./crud/listcrud.js";
-import { DataWrapper } from "./data/wrapper.js";
+import { UserWrapper } from "./datawrapper/user.js";
 import { userApi, folderApi, fileApi } from "./api.js";
 
 // data browser, first level is users
-class DataCRUD extends CRUD {
+class DataCRUD extends ListCRUD {
     constructor() {
         super({
             api: userApi,
@@ -15,31 +14,22 @@ class DataCRUD extends CRUD {
                 { mData: "id" },
                 { mData: "name" },
                 { mData: "type" },
+                { mData: "size" },
                 { mData: "id",
                    render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.delete('${data}')"></i></a>`
                 }
             ]});
-        this.folderId = 0;  // default at root
-        this.folderPath = [ ];
-        this.fileApi = fileApi;
-        this.folderApi = folderApi;
+        this.id = 0;        // default 0: everyone. negative: userid, positive: folderid
+        this.path = [ ];    //
+
+        this.userWrapper = new UserWrapper();
+        this.dataWrapper = this.userWrapper;
         $.fn.dataTable.ext.errMode = 'none';
     }
 
-    async detail() {
-        if (!this.table) {
-            this.table = $('#table').DataTable(  {
-                data: this.data,
-                paging: true,
-                aoColumns: this.listFieldRenderer
-            });
-        }
-        else this.reloadTable(data);
-    }
-
     async fetch() {
-        this.data = await this.api.all();
-        // this.data.map(e => { e.name = e.userName; e.id = `u${e.id}`; e.type = "User"; return e;});
+        const raw = await this.dataWrapper.fetch();
+        this.data = this.dataWrapper.transform(raw);
     }
 
     delete(id) {
