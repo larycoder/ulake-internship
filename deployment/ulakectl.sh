@@ -112,6 +112,7 @@ case $1 in
         ;;
 
     "stop")
+        shift
         stop $@
         ;;
 esac
