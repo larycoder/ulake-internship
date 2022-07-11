@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { userApi, logApi } from "./api.js";
 
-const compressCrud = new CRUD({
+const crud = new ListCRUD({
     api: logApi,
     listUrl: "/tables",
     name: "Table",
@@ -21,4 +22,4 @@ const compressCrud = new CRUD({
     }
 });
 
-$(document).ready(() => compressCrud.listReady());
+$(document).ready(() => crud.ready());
