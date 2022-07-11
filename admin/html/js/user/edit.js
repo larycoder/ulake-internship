@@ -3,9 +3,9 @@ import { userApi } from "../api.js";
 
 const crud = new EditCRUD({
     api: userApi,
-    listUrl: "/users",
     name: "User",
     nameField: "userName",
+    listUrl: "/users",
     hidden: "department, failedLogins, groups",
     readonly: "id, registerTime, userName, isAdmin"
 });

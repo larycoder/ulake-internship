@@ -3,9 +3,9 @@ import { groupApi } from "../api.js";
 
 const crud = new EditCRUD({
     api: groupApi,
-    listUrl: "/groups",
     name: "Group",
     nameField: "name",
+    listUrl: "/groups",
     readonly: "id",
     hidden: "users"
 });

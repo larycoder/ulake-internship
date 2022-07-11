@@ -14,7 +14,6 @@ function formatDate(date) {
 
 const crud = new ListCRUD({
     api: objectApi,
-    listUrl: "/objects",
     name: "Object",
     nameField: "cid",
     listFieldRenderer: [

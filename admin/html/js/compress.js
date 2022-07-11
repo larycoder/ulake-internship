@@ -3,7 +3,6 @@ import { userApi, compressApi } from "./api.js";
 
 window.crud = new ListCRUD({
     api: compressApi,
-    listUrl: "/compress",
     name: "Compress Requests",
     nameField: "id",
     listFieldRenderer: [
@@ -13,7 +12,7 @@ window.crud = new ListCRUD({
         { mData: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
         { mData: "id",
             render: (data, type, row) =>
-                row.finishedTime <= 0? "" : `<a href="#"><i class="fas fa-stop" onclick="stopJob(${data})"></i></a>`
+                row.finishedTime <= 0? "" : `<a href="#"><i class="fas fa-stop" onclick="window.stopJob(${data})"></i></a>`
         }
     ],
     joins: {
@@ -24,8 +23,8 @@ window.crud = new ListCRUD({
     }
 });
 
-function stopJob(data) {
-    window.crud.listDeleteItem(data);
+window.stopJob = function(data) {
+    window.crud.confirm(data);
 }
 
 $(document).ready(() => window.crud.ready());

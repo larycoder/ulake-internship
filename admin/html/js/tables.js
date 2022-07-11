@@ -3,7 +3,6 @@ import { userApi, tableApi } from "./api.js";
 
 window.crud = new ListCRUD({
     api: tableApi,
-    listUrl: "/tables",
     name: "Table",
     nameField: "name",
     listFieldRenderer: [

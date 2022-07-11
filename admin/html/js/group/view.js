@@ -5,9 +5,9 @@ class GroupViewCRUD extends ViewCRUD {
     constructor () {
         super({
             api: groupApi,
-            listUrl: "/groups",
             name: "Group",
             nameField: "name",
+            listUrl: "/groups",
             hidden: "users"
         });
     }

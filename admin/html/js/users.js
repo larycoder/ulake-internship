@@ -3,9 +3,7 @@ import { userApi } from "./api.js";
 
 window.crud = new ListCRUD({
     api: userApi,
-    listUrl: "/users",
     name: "User",
-    nameField: "userName",
     listFieldRenderer: [
         { mData: "id" },
         { mData: "userName", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },

@@ -1,8 +1,10 @@
+import { CRUD } from "./crud/crud.js";
 import { ListCRUD } from "./crud/listcrud.js";
+import { DataWrapper } from "./data/wrapper.js";
 import { userApi, folderApi, fileApi } from "./api.js";
 
 // data browser, first level is users
-class DataCRUD extends ListCRUD {
+class DataCRUD extends CRUD {
     constructor() {
         super({
             api: userApi,
@@ -20,13 +22,24 @@ class DataCRUD extends ListCRUD {
         this.folderId = 0;  // default at root
         this.folderPath = [ ];
         this.fileApi = fileApi;
+        this.folderApi = folderApi;
         $.fn.dataTable.ext.errMode = 'none';
     }
 
-    async fetch() {
-        await super.fetch();
-        this.data.map(e => { e.name = e.userName; e.id = `u${e.id}`; e.type = "User"; return e;});
+    async detail() {
+        if (!this.table) {
+            this.table = $('#table').DataTable(  {
+                data: this.data,
+                paging: true,
+                aoColumns: this.listFieldRenderer
+            });
+        }
+        else this.reloadTable(data);
+    }
 
+    async fetch() {
+        this.data = await this.api.all();
+        // this.data.map(e => { e.name = e.userName; e.id = `u${e.id}`; e.type = "User"; return e;});
     }
 
     delete(id) {

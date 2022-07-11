@@ -3,9 +3,8 @@ import { userApi, logApi } from "./api.js";
 
 const crud = new ListCRUD({
     api: logApi,
-    listUrl: "/tables",
-    name: "Table",
-    nameField: "name",
+    name: "Logs",
+    nameField: "content",
     listFieldRenderer: [
         { mData: "id" },
         { mData: "userName" },

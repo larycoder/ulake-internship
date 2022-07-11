@@ -5,7 +5,6 @@ class GroupListCRUD extends ListCRUD {
     constructor () {
         super({
             api: groupApi,
-            listUrl: "/groups",
             name: "Group",
             nameField: "name",
             listFieldRenderer: [

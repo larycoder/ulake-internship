@@ -23,19 +23,7 @@ function ready() {
         api: compressTaskApi,
         listUrl: "/compresses",
         name: "Files",
-        nameField: "id",
-        listFieldRenderer: [
-            { mData: "id" },
-            { mData: "name" },
-            { mData: "size" },
-            { mData: "mime" }
-        ],
-        joins: {
-            apiMethod: (a) => fileApi.many(a),
-            fkField: "fileId",
-            targetId: "id",
-            targetField: "name"
-        }
+        nameField: "id"
     });
 
     fileCrud.listReady();
