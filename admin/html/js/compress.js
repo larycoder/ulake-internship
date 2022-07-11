@@ -1,13 +1,14 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { userApi, compressApi } from "./api.js";
 
-const compressCrud = new CRUD({
+window.crud = new ListCRUD({
     api: compressApi,
     listUrl: "/compress",
     name: "Compress Requests",
     nameField: "id",
     listFieldRenderer: [
         { mData: "id", render: (data, type, row) => `<a href="/compress/view?id=${data}">${data}</a>` },
-        { mData: "userName" },        
+        { mData: "userName" },
         { mData: "timestamp", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
         { mData: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
         { mData: "id",
@@ -20,11 +21,11 @@ const compressCrud = new CRUD({
         fkField: "userId",
         targetId: "id",
         targetField: "userName"
-    }    
+    }
 });
 
 function stopJob(data) {
-    compressCrud.listDeleteItem(data);
+    window.crud.listDeleteItem(data);
 }
 
-$(document).ready(() => compressCrud.listReady());
+$(document).ready(() => window.crud.ready());
