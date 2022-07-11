@@ -80,14 +80,25 @@ class UserApi extends Api {
         const ret = await this.one(id);
         return ret.userName;
     }
+}
+
+/**
+ * Specific API for Authentication
+ */
+ class AuthApi extends Api {
+    constructor () {
+        super(getUserUrl(), "/api/auth")
+    }
 
     async login(userName, password) {
-        return await this.post(`/api/auth/login`, {
-            userName: uid,
-            password: pwd
-        });
+        return await this.post(`/login`, {
+            userName: userName,
+            password: password
+        },
+        { "Content-Type": "application/json; charset=utf-8" });
     }
 }
+
 
 /**
  * Specific API for Group CRUD management
@@ -157,6 +168,7 @@ class GroupApi extends Api {
 }
 
 const userApi = new UserApi();
+const authApi = new AuthApi();
 const groupApi = new GroupApi();
 const objectApi = new ObjectApi();
 const tableApi = new TableApi();
