@@ -101,6 +101,7 @@ public class UserGroupResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({ "Admin" })
+    @Transactional
     @Operation(summary = "Delete one user group")
     public Response delete(@PathParam("id") @Parameter(description = "User group id to delete") Long id) {
         UserGroup entity = repo.findById(id);
