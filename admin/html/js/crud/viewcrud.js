@@ -6,16 +6,19 @@ import { CRUD } from './crud.js';
 export class ViewCRUD extends CRUD {
     detail() {
         $("#name-detail").text(`${this.name} Detail for ${this.data[this.nameField]}`);
-        this.table = $('#table').DataTable(  {
-            data: this.keyPairs,
-            paging: false,
-            searching: false,
-            info: false,
-            columns: [
-                { data: "key" },
-                { data: "value" }
-            ]
-        });
+        if (!this.table) {
+            this.table = $('#table').DataTable(  {
+                data: this.keyPairs,
+                paging: false,
+                searching: false,
+                info: false,
+                columns: [
+                    { data: "key" },
+                    { data: "value" }
+                ]
+            });
+        }
+        else this.reloadTable(this.keyPairs);
     }
 
     async fetch() {

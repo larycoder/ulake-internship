@@ -17,8 +17,10 @@ class GroupViewCRUD extends ViewCRUD {
         let entity = this.data;
         entity.users = [];
         select.each(u => { entity.users.push({ id: u.id, userName: u.userName }); });
-        this.api.save(crud.id, entity);
+        await this.api.save(crud.id, entity);
         this.modal.modal('hide');
+        await this.fetch();
+        this.detail();
     }
 
     async initModalTable() {

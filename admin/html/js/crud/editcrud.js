@@ -6,17 +6,20 @@ import { ViewCRUD } from './viewcrud.js';
 export class EditCRUD extends ViewCRUD {
     detail() {
         $("#name-detail").text(`Update ${this.name} Detail for ${this.data[this.nameField]}`);
-        this.table = $('#table').DataTable(  {
-            data: this.keyPairs,
-            paging: false,
-            searching: false,
-            info: false,
-            aoColumns: [
-                { mData: "key" },
-                { mData: "value", render: (data, type, row) =>
-                    `<input class="form-control border-1 small" type="text" value="${data}" data-for="${row.key}" ${row.readonly ? "readonly" : ""}>` }
-            ]
-        });
+        if (!this.table) {
+            this.table = $('#table').DataTable(  {
+                data: this.keyPairs,
+                paging: false,
+                searching: false,
+                info: false,
+                aoColumns: [
+                    { mData: "key" },
+                    { mData: "value", render: (data, type, row) =>
+                        `<input class="form-control border-1 small" type="text" value="${data}" data-for="${row.key}" ${row.readonly ? "readonly" : ""}>` }
+                ]
+            });
+        }
+        else this.reloadTable(this.keyPairs);
     }
 
     async fetch() {

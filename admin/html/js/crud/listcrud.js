@@ -31,11 +31,7 @@ export class ListCRUD extends CRUD {
                 aoColumns: this.listFieldRenderer
             });
         }
-        else {
-            this.table.clear().draw();
-            this.table.rows.add(data);
-            this.table.columns.adjust().draw();
-        }
+        else this.reloadTable(data);
     }
 
     async fetch() {

@@ -69,6 +69,14 @@ export class CRUD {
         return data;
     }
 
+    reloadTable(data) {
+        if (this.table) {
+            this.table.clear().draw();
+            this.table.rows.add(data);
+            this.table.columns.adjust().draw();
+        }
+    }
+
     /**
      * Get the header element for this UI
      */
