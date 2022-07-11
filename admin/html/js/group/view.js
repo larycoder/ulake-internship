@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ViewCRUD } from '../crud/viewcrud.js';
+import { userApi, groupApi } from "../api.js";
 
-class ViewCRUD extends CRUD {
+class GroupViewCRUD extends ViewCRUD {
     constructor () {
         super({
             api: groupApi,
@@ -13,7 +14,7 @@ class ViewCRUD extends CRUD {
 
     async confirm() {
         const select = this.modalTable.rows( { selected: true } ).data();
-        let entity = this.info;
+        let entity = this.data;
         entity.users = [];
         select.each(u => { entity.users.push({ id: u.id, userName: u.userName }); });
         this.api.save(crud.id, entity);
@@ -38,7 +39,7 @@ class ViewCRUD extends CRUD {
     }
 
     listUsers() {
-        const users = this.info.users;
+        const users = this.data.users;
         const table = $("#user-table")
         table.DataTable({data: users,
             paging: false,
@@ -49,15 +50,15 @@ class ViewCRUD extends CRUD {
         });
     }
 
-    async viewReady() {
+    async ready() {
         // prepare modal events
         this.modal = $("#add-table-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
         this.modal.find(".btn-primary").on("click", () => this.confirm());
-        await super.viewReady();
+        await super.ready();
         this.listUsers();
     }
 };
 
-const viewCrud = new ViewCRUD();
-$(document).ready(() => viewCrud.viewReady());
+const crud = new GroupViewCRUD();
+$(document).ready(() => crud.ready());

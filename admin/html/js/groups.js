@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { groupApi } from "./api.js";
 
-class GroupListCRUD extends CRUD {
+class GroupListCRUD extends ListCRUD {
     constructor () {
         super({
             api: groupApi,
@@ -13,13 +14,13 @@ class GroupListCRUD extends CRUD {
                 { mData: "id",
                     render: (data, type, row) =>
                         `<a href="/group/edit?id=${data}"><i class="fas fa-user-cog"></i></a>
-                         <a href="#"><i class="fas fa-users-slash" onclick="groupListCrud.listDeleteItem(${data})"></i></a>`
+                         <a href="#"><i class="fas fa-users-slash" onclick="window.crud.confirm(${data})"></i></a>`
                 }
             ]
         })
     }
 
-    async confirm() {
+    async create() {
         const name = this.modal.find("input").val();
         const group = {
             name: name,
@@ -36,15 +37,15 @@ class GroupListCRUD extends CRUD {
         this.modal.find("input").val("");
     }
 
-    async listReady() {
+    async ready() {
         // prepare modal events
         this.modal = $("#add-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
-        this.modal.find(".btn-primary").on("click", () => this.confirm());
+        this.modal.find(".btn-primary").on("click", () => this.create());
         // prepare toast
-        await super.listReady();
+        await super.ready();
     }
-
 }
-const groupListCrud = new GroupListCRUD();
-$(document).ready(() => groupListCrud.listReady());
+
+window.crud = new GroupListCRUD();
+$(document).ready(() => window.crud.ready());

@@ -5,7 +5,7 @@ import { CRUD } from './crud.js';
  */
 export class ListCRUD extends CRUD {
     /**
-     * Show a delete item modal
+     * Show a delete item modal for confirmation
      * @param {string} id Entity to be deleted
      */
     confirm(id) {

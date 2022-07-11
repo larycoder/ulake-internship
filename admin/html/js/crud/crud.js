@@ -89,4 +89,11 @@ export class CRUD {
     async detail() {
 
     }
+
+    /**
+     * Confirmation, to be overridden by subclasses
+     */
+    async confirm() {
+
+    }
 }
