@@ -86,7 +86,7 @@ ajax = async function (param){
     if (param.headers) headers = param.headers;
     else headers = {};
     const token = getToken();
-    if (token) headers.Authorization = "Bearer " + token;
+    if (token && typeof token === 'string' && token !=='undefined') headers.Authorization = "Bearer " + token;
     param.headers = headers;
     if (!param.method) param.method = "GET";
 

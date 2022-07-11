@@ -95,7 +95,7 @@ class UserApi extends Api {
             userName: userName,
             password: password
         },
-        { "Content-Type": "application/json; charset=utf-8" });
+        { "Content-Type": "application/json" });
     }
 }
 
