@@ -91,7 +91,6 @@ ajax = async function (param){
     if (!param.method) param.method = "GET";
 
     const resp = await fetch(param.url, param);
-    console.log("ajax resp", resp);
     if (!resp.ok) {
         const error = resp.error;
         window.alert(`No response from server. Error: ${JSON.stringify(error)}`);

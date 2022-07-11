@@ -70,10 +70,11 @@ export class CRUD {
     }
 
     /**
-     * Page ready, to be overridden by subclasses
+     * Page ready
      */
     async ready() {
-
+        await this.fetch();
+        await this.detail();
     }
 
     /**

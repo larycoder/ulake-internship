@@ -5,6 +5,7 @@ import { CRUD } from './crud.js';
  */
 export class ViewCRUD extends CRUD {
     async detail() {
+        $("#name-detail").text(`${this.name} Detail for ${this.data[this.nameField]}`);
         this.table = $('#table').DataTable(  {
             data: this.keyPairs,
             paging: false,
@@ -17,12 +18,10 @@ export class ViewCRUD extends CRUD {
         });
     }
 
-    async ready() {
+    async fetch() {
         const params = parseParam("id", this.listUrl);
         this.id = parseInt(params.id);
         this.data = await this.api.one(this.id);
-        $("#name-detail").text(`${this.name} Detail for ${this.data[this.nameField]}`);
         this.keyPairs = toTable(this.data, this.hidden);
-        this.detail();
     }
  }

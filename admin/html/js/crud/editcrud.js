@@ -4,7 +4,8 @@ import { CRUD } from './crud.js';
  * A item detail edit CRUD controller
  */
 export class EditCRUD extends CRUD {
-    async detail() {
+    detail() {
+        $("#name-detail").text(`Update ${this.name} Detail for ${this.data[this.nameField]}`);
         this.table = $('#table').DataTable(  {
             data: this.keyPairs,
             paging: false,
@@ -18,18 +19,20 @@ export class EditCRUD extends CRUD {
         });
     }
 
-    async ready() {
+    async fetch() {
         const params = parseParam("id", this.listUrl);
         this.id = parseInt(params.id);
         this.data = await this.api.one(this.id);
-        $("#name-detail").text(`Update ${this.name} Detail for ${this.data[this.nameField]}`);
         this.keyPairs = toTable(this.data, this.hidden);
         this.keyPairs.forEach((data, index) => {
             if (this.readonly.includes(data.key)) {
                 this.keyPairs[index].readonly = true;
             }
         });
-        this.detail();
+    }
+
+    async ready() {
+        super().ready();
         $("#save").click(() => this.save());
     }
 
