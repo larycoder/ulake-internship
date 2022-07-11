@@ -1,4 +1,5 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { objectApi } from "./api.js";
 
 function formatDate(date) {
     const year = date.getFullYear(),
@@ -11,7 +12,7 @@ function formatDate(date) {
     return `${year}-${month}-${day} ${hourFormatted}:${minuteFormatted}`;
 }
 
-const crud = new CRUD({
+const crud = new ListCRUD({
     api: objectApi,
     listUrl: "/objects",
     name: "Object",
@@ -25,4 +26,4 @@ const crud = new CRUD({
     ]
 });
 
-$(document).ready(() => crud.listReady());
+$(document).ready(() => crud.ready());
