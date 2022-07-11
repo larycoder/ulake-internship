@@ -5,8 +5,7 @@ async function login() {
     console.log(`Logging in as ${uid}, ${pwd}, domain ${getBaseDomain()}`);
     const button = $("form button");
     button.text("").append($(`<i class="fas fa-spinner fa-spin"></i>`));
-    //const data = await userApi.login(uid, pwd);
-    data = {};
+    const data = await userApi.login(uid, pwd);
     if (data && Object.keys(data).length > 0) {
         console.log(`Login ok, token=${data.resp}`);
         setToken(data.resp);
@@ -17,7 +16,7 @@ async function login() {
             setToken(null);
             return;
         }
-        // window.location = "/";
+        window.location = "/";
     }
     else {
         showModal("Error", "Incorrect username/password.");
