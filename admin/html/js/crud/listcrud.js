@@ -24,10 +24,6 @@ export class ListCRUD extends CRUD {
 
     async detail() {
         const data = await this.join(this.data);
-        const _this = this;
-        // const header = $('#table').parents("div h6");
-        // const title = header.text();
-        // header.text()
         if (!this.table) {
             this.table = $('#table').DataTable(  {
                 data: data,
@@ -44,5 +40,9 @@ export class ListCRUD extends CRUD {
 
     async fetch() {
         this.data = await this.api.all();
+    }
+
+    getHeader() {
+        return $('#table').parents("div[class*=card]").find("div h6");
     }
  }

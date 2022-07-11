@@ -44,7 +44,6 @@ class GroupListCRUD extends ListCRUD {
         this.modal = $("#add-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
         this.modal.find(".btn-primary").on("click", () => this.create());
-
         await super.ready();
     }
 }

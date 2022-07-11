@@ -1,9 +1,9 @@
-import { CRUD } from './crud.js';
+import { ViewCRUD } from './viewcrud.js';
 
 /**
  * A item detail edit CRUD controller
  */
-export class EditCRUD extends CRUD {
+export class EditCRUD extends ViewCRUD {
     detail() {
         $("#name-detail").text(`Update ${this.name} Detail for ${this.data[this.nameField]}`);
         this.table = $('#table').DataTable(  {
@@ -20,10 +20,7 @@ export class EditCRUD extends CRUD {
     }
 
     async fetch() {
-        const params = parseParam("id", this.listUrl);
-        this.id = parseInt(params.id);
-        this.data = await this.api.one(this.id);
-        this.keyPairs = toTable(this.data, this.hidden);
+        await super.fetch();
         this.keyPairs.forEach((data, index) => {
             if (this.readonly.includes(data.key)) {
                 this.keyPairs[index].readonly = true;
