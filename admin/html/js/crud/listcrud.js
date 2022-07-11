@@ -14,8 +14,10 @@ export class ListCRUD extends CRUD {
             showModal("Error", `Weird, cannot find ${this.name} with id ${id}`);
         }
         else {
-            showModal("Confirm", `Are you sure to delete ${entity[0][this.nameField]}?`, () => {
-                this.api.deleteOne(entity[0].id);
+            showModal("Confirm", `Are you sure to delete ${entity[0][this.nameField]}?`, async () => {
+                await this.api.deleteOne(entity[0].id);
+                await this.fetch();
+                await this.detail();
             });
         }
     }
@@ -23,14 +25,21 @@ export class ListCRUD extends CRUD {
     async detail() {
         const data = await this.join(this.data);
         const _this = this;
-        const header = $('#table').parents("div h6");
-        const title = header.text();
-        header.text()
-        this.table = $('#table').DataTable(  {
-            data: data,
-            paging: true,
-            aoColumns: this.listFieldRenderer
-        });
+        // const header = $('#table').parents("div h6");
+        // const title = header.text();
+        // header.text()
+        if (!this.table) {
+            this.table = $('#table').DataTable(  {
+                data: data,
+                paging: true,
+                aoColumns: this.listFieldRenderer
+            });
+        }
+        else {
+            this.table.clear().draw();
+            this.table.rows.add(data);
+            this.table.columns.adjust().draw();
+        }
     }
 
     async fetch() {

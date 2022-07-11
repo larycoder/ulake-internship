@@ -30,8 +30,8 @@ class GroupListCRUD extends ListCRUD {
         if (resp && resp.id) {
             this.modal.modal('hide');
             showToast("Info", `Group "${name}" created.`);
-            this.fetch();
-            this.detail();
+            await this.fetch();
+            await this.detail();
         }
     }
 
