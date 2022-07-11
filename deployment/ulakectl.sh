@@ -71,20 +71,25 @@ start_all() {
     done
 }
 
-kill_all () {
-    containers=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
-    docker stop $containers
-    docker rm $containers
+stop () {
+    CONTAINERS=""
+    if [[ "$1" == "" ]]; then
+        CONTAINERS=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
+    else
+        CONTAINERS=ulake-service-$1
+    fi
+    docker stop $CONTAINERS
+    docker rm $CONTAINERS
 }
 
 restart () {
-    containers=""
+    CONTAINERS=""
     if [[ "$1" == "" ]]; then
-        containers=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
+        CONTAINERS=$( docker ps --format "{{.Names}}" -a | grep "^ulake-service" | paste -sd" " )
     else
-        containers=ulake-service-$1
+        CONTAINERS=ulake-service-$1
     fi
-    docker restart $containers
+    docker restart $CONTAINERS
 }
 
 case $1 in
@@ -106,8 +111,8 @@ case $1 in
         restart $@
         ;;
 
-    "kill")
-        kill_all $@
+    "stop")
+        stop $@
         ;;
 esac
 
