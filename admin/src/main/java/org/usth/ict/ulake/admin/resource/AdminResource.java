@@ -14,7 +14,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 
 
@@ -24,9 +23,6 @@ public class AdminResource {
     @Inject
     LakeHttpResponse response;
 
-    @Inject
-    AdminRepository repo;
-
     @GET
     @Path("/stats")
     @RolesAllowed({"User", "Admin"})
@@ -34,13 +30,12 @@ public class AdminResource {
     public Response stats() {
         // get requests from other service
         HashMap<String, Integer> ret = new HashMap<>();
-        ret.put("users", (int) repo.count());
 
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         long uptime = bean.getUptime();
         ret.put("uptime", (int) uptime);
 
-        return response.build(200, "", ret);        
+        return response.build(200, "", ret);
     }
 
 }

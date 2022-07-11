@@ -18,7 +18,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.admin.persistence.AdminRepository;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.UserService;
 
@@ -30,9 +29,6 @@ public class AdminUserResource {
 
     @Inject
     LakeHttpResponse response;
-
-    @Inject
-    AdminRepository repo;
 
     @Inject
     @RestClient
