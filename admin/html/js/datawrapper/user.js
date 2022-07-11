@@ -1,7 +1,7 @@
-import { DataWrapper } from "./base.js";
+import { BaseWrapper } from "./base.js";
 import { userApi } from "../api.js";
 
-export class UserWrapper extends DataWrapper {
+export class UserWrapper extends BaseWrapper {
     constructor (config) {
         if (!config) config = {};
         config.api = userApi;
@@ -10,10 +10,11 @@ export class UserWrapper extends DataWrapper {
 
     transform() {
         return this.data.map(u => { return {
-            name: u.userName,
             id: `u${u.id}`,
+            name: u.userName,
             size: 0,
-            type: "User"
+            type: "User",
+            action: u.id
         }});
     }
 }

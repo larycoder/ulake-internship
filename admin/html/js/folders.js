@@ -9,27 +9,45 @@ class DataCRUD extends ListCRUD {
             api: userApi,
             listUrl: "/folders",
             name: "Folders",
-            nameField: "name",
-            listFieldRenderer: [
-                { mData: "id" },
-                { mData: "name" },
-                { mData: "type" },
-                { mData: "size" },
-                { mData: "id",
-                   render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.delete('${data}')"></i></a>`
-                }
-            ]});
+            nameField: "name"
+        });
+
         this.id = 0;        // default 0: everyone. negative: userid, positive: folderid
         this.path = [ ];    //
 
         this.userWrapper = new UserWrapper();
         this.dataWrapper = this.userWrapper;
+        this.fields = ["id", "name", "type", "size", "action" ];
+        this.updateRenderers()
         $.fn.dataTable.ext.errMode = 'none';
     }
 
+    /**
+     * Update UI renderer whenver we change our data wrapper
+     */
+    updateRenderers() {
+        if (!this.listFieldRenderer) {
+            // create if not exist
+            this.listFieldRenderer = this.fields.map(f => {return {
+                mData: f,
+                render: this.dataWrapper.getRenderer(f)
+            }})
+        }
+        else {
+            // update if there
+            for (const k in this.listFieldRenderer) {
+                this.listFieldRenderer[k].render = this.dataWrapper.getRenderer(k)
+            }
+        }
+    }
+
+    /**
+     * Get transformed data from the data wrapper
+     */
     async fetch() {
         const raw = await this.dataWrapper.fetch();
         this.data = this.dataWrapper.transform(raw);
+        console.log("transformed data", this.data);
     }
 
     delete(id) {
