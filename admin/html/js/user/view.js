@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ViewCRUD } from '../crud/viewcrud.js';
+import { userApi } from "../api.js";
 
-const userCrud = new CRUD({
+const crud = new ViewCRUD({
     api: userApi,
     listUrl: "/users",
     name: "User",
@@ -8,4 +9,4 @@ const userCrud = new CRUD({
     hidden: "department, failedLogins, groups"
 });
 
-$(document).ready(() => userCrud.viewReady());  // to keep proper 'this' context
+$(document).ready(() => crud.ready());

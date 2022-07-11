@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { userApi } from "./api.js";
 
-const userCrud = new CRUD({
+const userCrud = new ListCRUD({
     api: userApi,
     listUrl: "/users",
     name: "User",
@@ -19,4 +20,4 @@ const userCrud = new CRUD({
 });
 
 // TODO: add user - usergroup - group relation
-$(document).ready(() => userCrud.listReady());
+$(document).ready(() => userCrud.ready());

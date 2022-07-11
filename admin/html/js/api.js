@@ -178,3 +178,5 @@ const fileApi = new FileApi();
 const folderApi = new FolderApi();
 
 $("#userName").text(getUserName());
+
+export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi };
