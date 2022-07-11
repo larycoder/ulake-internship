@@ -53,6 +53,7 @@ start() {
                 -v $DEV_DIR:/home/$QUARKUS_SERVICE \
                 -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
                 --network $NET \
+                --rm \
                 -d ulake/service:1.0.0-SNAPSHOT
         fi
     fi
