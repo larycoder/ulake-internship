@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { userApi } from "./api.js";
 
-const userCrud = new ListCRUD({
+window.crud = new ListCRUD({
     api: userApi,
     listUrl: "/users",
     name: "User",
@@ -14,10 +14,9 @@ const userCrud = new ListCRUD({
         { mData: "id",
             render: (data, type, row) =>
                 `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>
-                 <a href="#"><i class="fas fa-trash" onclick="userCrud.listDeleteItem(${data})"></i></a>`
+                 <a href="#"><i class="fas fa-trash" onclick="window.crud.confirm(${data})"></i></a>`
         }
     ]
 });
 
-// TODO: add user - usergroup - group relation
-$(document).ready(() => userCrud.ready());
+$(document).ready(() => window.crud.ready());
