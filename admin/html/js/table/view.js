@@ -1,6 +1,6 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { tableApi } from "../api.js";
 
-drawTable = (resp) => {
+function drawTable(resp) {
     const header = $("thead tr")
     $("#name-detail").html(`Content for table "${resp.name}"`);
 
@@ -23,11 +23,11 @@ drawTable = (resp) => {
     });
 }
 
-async function tableReady() {
+async function ready() {
     const params = parseParam("id", "/tables");
     const id = parseInt(params.id);
     const data = await tableApi.data(id);
     drawTable(data);
 }
 
-$(document).ready(() => tableReady());
+$(document).ready(() => ready());

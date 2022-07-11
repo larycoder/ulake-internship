@@ -1,6 +1,7 @@
-// SSI CRUD: <!--# include virtual="/js/crud.js" -->
+import { ListCRUD } from "./crud/listcrud.js";
+import { userApi, tableApi } from "./api.js";
 
-const tableCrud = new CRUD({
+window.crud = new ListCRUD({
     api: tableApi,
     listUrl: "/tables",
     name: "Table",
@@ -12,7 +13,7 @@ const tableCrud = new CRUD({
         { mData: "format" },
         { mData: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
         { mData: "id",
-            render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="tableCrud.listDeleteItem(${data})"></i></a>`
+            render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.listDeleteItem(${data})"></i></a>`
         }
     ],
     joins: {
@@ -23,4 +24,4 @@ const tableCrud = new CRUD({
     }
 });
 
-$(document).ready(() => tableCrud.listReady());
+$(document).ready(() => window.crud.ready());
