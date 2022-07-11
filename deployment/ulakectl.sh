@@ -24,7 +24,7 @@ start() {
 
     # check native build
     RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
-    if [[ "$RUNNER" != "" ]]; then
+    if [[ -f "$RUNNER" ]]; then
         echo "+ Using native build at $RUNNER"
         TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
         docker run -d --name $HOST \
