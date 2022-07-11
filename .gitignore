@@ -42,3 +42,5 @@ public
 ### customize ###
 dashboard/html/pages/commits/commits.html
 deployment/data
+
+.devcontainer
