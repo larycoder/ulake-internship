@@ -17,4 +17,11 @@ export class UserWrapper extends BaseWrapper {
             action: u.id
         }});
     }
+
+    getAllRenderers() {
+        let ret = super.getAllRenderers();
+        ret.name = (data, type, row) => `<a href="#">${data}</a>`;
+        ret.action = (data, type, row) => `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>`;
+        return ret;
+    }
 }
