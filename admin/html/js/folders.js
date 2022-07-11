@@ -12,9 +12,11 @@ class DataCRUD extends ListCRUD {
             listFieldRenderer: [
                 { mData: "id" },
                 { mData: "name" },
-                { mData: "ownerId" }
-            ]},
-            );
+                { mData: "type" },
+                { mData: "id",
+                   render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.delete('${data}')"></i></a>`
+                }
+            ]});
         this.folderId = 0;  // default at root
         this.folderPath = [ ];
         this.fileApi = fileApi;
@@ -23,10 +25,12 @@ class DataCRUD extends ListCRUD {
 
     async fetch() {
         await super.fetch();
-        if (this.folderId !== 0) {
-            // fetch files for this directory
-            await this.fileApi.many
-        }
+        this.data.map(e => { e.name = e.userName; e.id = `u${e.id}`; e.type = "User"; return e;});
+
+    }
+
+    delete(id) {
+        console.log("nah, not yet", id);
     }
 }
 
