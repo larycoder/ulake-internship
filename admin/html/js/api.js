@@ -80,6 +80,13 @@ class UserApi extends Api {
         const ret = await this.one(id);
         return ret.userName;
     }
+
+    async login(userName, password) {
+        return await this.post(`/api/auth/login`, {
+            userName: uid,
+            password: pwd
+        });
+    }
 }
 
 /**

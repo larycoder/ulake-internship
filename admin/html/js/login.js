@@ -1,17 +1,13 @@
 async function login() {
     const uid = document.querySelector("#uid").value,
-        pwd = document.querySelector("#pwd").value;
+          pwd = document.querySelector("#pwd").value;
+
     console.log(`Logging in as ${uid}, ${pwd}, domain ${getBaseDomain()}`);
-    const resp = await fetch(getUserUrl() + "/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json; charset=utf-8" },
-        body: JSON.stringify({
-            userName: uid,
-            password: pwd
-        })
-    });
-    const data = await resp.json();
-    if (data.code === 200) {
+    const button = $("form button");
+    button.text("").append($(`<i class="fas fa-spinner fa-spin"></i>`));
+    //const data = await userApi.login(uid, pwd);
+    data = {};
+    if (data && Object.keys(data).length > 0) {
         console.log(`Login ok, token=${data.resp}`);
         setToken(data.resp);
         const name = await userApi.getName(getUid());
@@ -21,6 +17,10 @@ async function login() {
             setToken(null);
             return;
         }
-        window.location = "/";
+        // window.location = "/";
+    }
+    else {
+        showModal("Error", "Incorrect username/password.");
+        button.text("Login")
     }
 }
