@@ -13,63 +13,44 @@ help() {
 
 # Start service docker with proper configuration and installation
 start() {
-    QUARKUS_SERVICE="";
-    NATIVE=""
-    NATIVE_CONTAINER="";
-
-    # Parse args
-    while test ${#} -gt 0; do
-        case "$1" in
-            -s) shift
-                QUARKUS_SERVICE="$1"
-                ;;
-            -n) shift
-                NATIVE="YES"
-                ;;
-            --help) echo "ulakectl.sh start -s serviceName [-n]"
-                    echo "Option: -n for Native service"
-                    exit
-                    ;;
-        esac
-        shift
-    done
+    QUARKUS_SERVICE="$1"
 
     # Quarkus service
-    if [[ $QUARKUS_SERVICE != "" ]]; then
-        HOST="$HOSTBASE-$QUARKUS_SERVICE";
-    else
+    if [[ $QUARKUS_SERVICE == "" ]]; then
         echo "Service name is required!"
         return 1
-    fi;
+    fi
+    HOST="$HOSTBASE-$QUARKUS_SERVICE";
 
-    # Main services
-    if [[ $QUARKUS_SERVICE != "core" ]]; then
-        if [[ "$NATIVE" == "" ]]; then
+    # check native build
+    RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
+    if [[ "$RUNNER" != ""]]; then
+        echo "+ Using native build at $RUNNER"
+        TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
+        docker run -d --name $HOST \
+            -v $RUNNER:$TARGET_RUNNER \
+            --network $NET \
+            --rm \
+            --entrypoint $TARGET_RUNNER \
+            registry.access.redhat.com/ubi8/ubi-minimal:8.6
+    else
+        # check if jar build is available
+        if [[ -d "$ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app" ]]; then
+            docker run -d --name $HOST \
+                -v $ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app:/home/$QUARKUS_SERVICE \
+                --network $NET \
+                --rm \
+                -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
+                registry.access.redhat.com/ubi8/openjdk-11
+        else
+            # nah, let's use the default dev build
             docker run --name $HOST \
                 -v $ROOT_DIR/common/src:/home/common/src \
                 -v $ROOT_DIR/$QUARKUS_SERVICE:/home/$QUARKUS_SERVICE \
                 -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
                 --network $NET \
                 -d ulake/service:1.0.0-SNAPSHOT
-        else
-            RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
-            echo "+ Using native build at $RUNNER"
-            TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
-            docker run -d --name $HOST \
-                -v $RUNNER:$TARGET_RUNNER \
-                --network $NET \
-                --rm \
-                --entrypoint $TARGET_RUNNER \
-                registry.access.redhat.com/ubi8/ubi-minimal:8.6
         fi
-    else
-        # core: force JVM build
-        docker run -d --name $HOST \
-                -v $ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app:/home/$QUARKUS_SERVICE \
-                --network $NET \
-                --rm \
-                -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
-                registry.access.redhat.com/ubi8/openjdk-11
     fi
 }
 
@@ -80,7 +61,7 @@ start_all() {
     for i in ${projects[@]}; do
         echo Starting {$i}....
         if [[ "$i" != "common" ]]; then
-		start -s $i $@
+		start -s $i
         fi
     done
 }
@@ -107,9 +88,9 @@ case $1 in
 
     "start")
         shift
-	echo start $1
-        if [[ "$1" == "" || "$1" == "-n" ]]; then
-            start_all $@
+	    echo start $1
+        if [[ "$1" == "" ]]; then
+            start_all
         else
             start $@
         fi
