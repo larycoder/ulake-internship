@@ -53,6 +53,12 @@ class DataCRUD extends ListCRUD {
     delete(id) {
         console.log("nah, not yet", id);
     }
+
+    clickUser(id) {
+        if (id.indexOf("u") === 0) id = id.slice(1);
+        this.id = -parseInt(id);
+        console.log("Switching to folders of user", this.id);
+    }
 }
 
 window.crud = new DataCRUD();
