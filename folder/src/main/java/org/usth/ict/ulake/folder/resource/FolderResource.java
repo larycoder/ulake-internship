@@ -89,6 +89,28 @@ public class FolderResource {
         return response.build(200, null, folder);
     }
 
+    @GET
+    @Path("/{id}/content")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "List content for a folder")
+    public Response list(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("id")
+        @Parameter(description = "Folder id to list") Long id) {
+        var permit = PermissionModel.READ; // <-- permit
+        var folder = repo.findById(id);
+
+        if (folder == null)
+            return response.build(404, "Folder not found");
+
+        if (!AclUtil.verifyFolderAcl(
+                    aclSvc, jwt, folder.id, folder.ownerId, permit))
+            return response.build(403);
+        var folders = repo.find("parentId");
+        logService.post(bearer, new LogModel("Query", "List folder for id " + id));
+        return response.build(200, null, folder);
+    }
+
     /**
      * Provide root folders and files in a virtual folder
      * */
@@ -106,6 +128,14 @@ public class FolderResource {
         } else {
             root.subFolders = repo.listRoot(ownerId);
             root.files = fileRepo.listRoot(ownerId);
+        }
+
+        // don't go too deep.
+        if (root.subFolders != null) {
+            for (var subFolder: root.subFolders) {
+                subFolder.subFolders = null;
+                subFolder.files = null;
+            }
         }
         logService.post(bearer, new LogModel("Query", "Get root folder info"));
         return response.build(200, null, root);
