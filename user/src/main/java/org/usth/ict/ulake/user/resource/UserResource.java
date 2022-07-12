@@ -63,7 +63,7 @@ public class UserResource {
 
     @GET
     @Operation(summary = "List all users")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     public Response all() {
         return response.build(200, "", repo.listAll());
     }
@@ -75,10 +75,12 @@ public class UserResource {
     public Response one(@HeaderParam("Authorization") String bearer,
                         @PathParam("id") @Parameter(description = "User id to search") String id) {
         if (Utils.isNumeric(id)) {
+            // TODO : only allow himself if not admin
             logService.post(bearer, new LogModel("Query", "Get user info for " + id));
             return response.build(200, null, repo.findById(Long.parseLong(id)));
         }
         else {
+            // TODO : only allow himself if not admin
             String idArr[] = id.split(",");
             List<Long> ids = Arrays.asList(idArr).stream()
                 .filter(idStr -> Utils.isNumeric(idStr))
@@ -95,7 +97,7 @@ public class UserResource {
 
     @POST
     @Path("/search")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     @Operation(summary = "Search for users")
     public Response search(@RequestBody(description = "Query to perform search for users") UserSearchQuery query) {
         var results = repo.search(query);
@@ -157,6 +159,8 @@ public class UserResource {
         if (!Utils.isEmpty(newEntity.password)) entity.password = newEntity.password;
         if (newEntity.registerTime != 0) entity.registerTime = newEntity.registerTime;
 
+        // TODO : only allow himself if not admin
+
         logService.post(bearer, new LogModel("Update", "Updated user " + id));
 
         // TODO: allow update department, group
@@ -167,7 +171,7 @@ public class UserResource {
     @GET
     @Path("/stats")
     @Operation(summary = "Some statistics")
-    @RolesAllowed({ "User", "Admin" })
+    @RolesAllowed({ "Admin" })
     public Response stats() {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Integer> regs = new HashMap<>();
