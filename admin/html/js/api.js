@@ -165,6 +165,10 @@ class GroupApi extends Api {
     constructor () {
         super(getFolderUrl(), "/api/folder")
     }
+
+    async root() {
+        return await this.get("/root");
+    }
 }
 
 const userApi = new UserApi();

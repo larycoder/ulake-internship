@@ -20,8 +20,8 @@ export class BaseWrapper {
     /**
      * Transform object to a view-friendly object, for later polymorphs
      */
-    transform() {
-        return this.data;
+    transform(raw) {
+        return raw;
     }
 
     /**

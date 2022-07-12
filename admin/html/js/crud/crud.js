@@ -74,7 +74,7 @@ export class CRUD {
      * Fetch info from server, to be overridden by subclasses
      */
     async fetch() {
-
+        return {};
     }
 
     /**

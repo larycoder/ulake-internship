@@ -8,14 +8,19 @@ export class UserWrapper extends BaseWrapper {
         super(config);
     }
 
-    transform() {
-        return this.data.map(u => { return {
+    transform(raw) {
+        return raw.map(u => { return {
             id: `u${u.id}`,
             name: u.userName,
             size: 0,
             type: "User",
             action: u.id
         }});
+    }
+
+    async fetch(parent) {
+        if (parent < 0) parent = -parent;
+        return super.fetch(parent);
     }
 
     getAllRenderers() {

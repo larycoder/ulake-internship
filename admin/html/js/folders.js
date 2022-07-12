@@ -1,5 +1,6 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserWrapper } from "./datawrapper/user.js";
+import { FolderWrapper } from "./datawrapper/folder.js";
 import { userApi, folderApi, fileApi } from "./api.js";
 
 // data browser, first level is users
@@ -16,6 +17,7 @@ class DataCRUD extends ListCRUD {
         this.path = [ ];    //
 
         this.userWrapper = new UserWrapper();
+        this.folderWrapper = new FolderWrapper();
         this.dataWrapper = this.userWrapper;
         this.fields = ["id", "name", "type", "size", "action" ];
         this.updateRenderers()
@@ -45,7 +47,9 @@ class DataCRUD extends ListCRUD {
      * Get transformed data from the data wrapper
      */
     async fetch() {
-        const raw = await this.dataWrapper.fetch();
+        if (this.id <= 0) this.dataWrapper = this.userWrapper;
+        else this.dataWrapper = this.userWrapper;
+        const raw = await this.dataWrapper.fetch(this.id);
         this.data = this.dataWrapper.transform(raw);
         console.log("transformed data", this.data);
     }
