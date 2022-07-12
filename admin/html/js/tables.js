@@ -6,12 +6,12 @@ window.crud = new ListCRUD({
     name: "Table",
     nameField: "name",
     listFieldRenderer: [
-        { mData: "id" },
-        { mData: "userName" },
-        { mData: "name", render: (data, type, row) => `<a href="/table/view?id=${row.id}">${data}</a>` },
-        { mData: "format" },
-        { mData: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
-        { mData: "id",
+        { data: "id" },
+        { data: "userName" },
+        { data: "name", render: (data, type, row) => `<a href="/table/view?id=${row.id}">${data}</a>` },
+        { data: "format" },
+        { data: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
+        { data: "id",
             render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.listDeleteItem(${data})"></i></a>`
         }
     ],

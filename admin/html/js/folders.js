@@ -20,7 +20,6 @@ class DataCRUD extends ListCRUD {
         this.folderWrapper = new FolderWrapper();
         this.dataWrapper = this.userWrapper;
         this.fields = ["id", "name", "type", "size", "action" ];
-        this.updateRenderers()
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -28,17 +27,20 @@ class DataCRUD extends ListCRUD {
      * Update UI renderer whenver we change our data wrapper
      */
     updateRenderers() {
+        console.log("update renderer");
         if (!this.listFieldRenderer) {
             // create if not exist
             this.listFieldRenderer = this.fields.map(f => {return {
-                mData: f,
+                data: f,
                 render: this.dataWrapper.getRenderer(f)
-            }})
+            }});
+            console.log(`SET render `, this.listFieldRenderer);
         }
         else {
             // update if there
             for (const k in this.listFieldRenderer) {
                 this.listFieldRenderer[k].render = this.dataWrapper.getRenderer(k)
+                console.log(`updating render for ${k} as `, this.listFieldRenderer[k].render);
             }
         }
     }
@@ -56,7 +58,7 @@ class DataCRUD extends ListCRUD {
         }
         const raw = await this.dataWrapper.fetch(this.id);
         this.data = this.dataWrapper.transform(raw);
-        console.log("transformed data", this.data);
+        this.updateRenderers();
     }
 
     delete(id) {

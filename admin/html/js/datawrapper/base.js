@@ -22,7 +22,7 @@ export class BaseWrapper {
      */
     transform(raw) {
         return raw;
-    }
+    };
 
     /**
      * Default DataTable renderer
@@ -54,7 +54,6 @@ export class BaseWrapper {
      * @returns DataTable renderers for a specific field
      */
     getRenderer(field) {
-        console.log("getting renderer for ", field, "out", this.getAllRenderers()[field]);
         return this.getAllRenderers()[field];
     }
 }

@@ -17,11 +17,11 @@ const crud = new ListCRUD({
     name: "Object",
     nameField: "cid",
     listFieldRenderer: [
-        { mData: "id" },
-        { mData: "cid", render: (data, type, row) => `<a href="#">${data}</a>` },
-        { mData: "createTime", render: (data, type, row) => formatDate(new Date(data)) },
-        { mData: "accessTime", render: (data, type, row) => formatDate(new Date(data)) },
-        { mData: "parentId" }
+        { data: "id" },
+        { data: "cid", render: (data, type, row) => `<a href="#">${data}</a>` },
+        { data: "createTime", render: (data, type, row) => formatDate(new Date(data)) },
+        { data: "accessTime", render: (data, type, row) => formatDate(new Date(data)) },
+        { data: "parentId" }
     ]
 });
 

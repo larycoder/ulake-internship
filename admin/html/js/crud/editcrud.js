@@ -12,9 +12,9 @@ export class EditCRUD extends ViewCRUD {
                 paging: false,
                 searching: false,
                 info: false,
-                aoColumns: [
-                    { mData: "key" },
-                    { mData: "value", render: (data, type, row) =>
+                columns: [
+                    { data: "key" },
+                    { data: "value", render: (data, type, row) =>
                         `<input class="form-control border-1 small" type="text" value="${data}" data-for="${row.key}" ${row.readonly ? "readonly" : ""}>` }
                 ]
             });

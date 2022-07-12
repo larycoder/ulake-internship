@@ -29,6 +29,7 @@ export class FolderWrapper extends BaseWrapper {
     }
 
     transform(raw) {
+        console.log("folder transform from ", raw);
         const folders = this.transformFolders(raw.subFolders);
         const files = this.transformFiles(raw.files);
         return folders.concat(files);
@@ -47,8 +48,7 @@ export class FolderWrapper extends BaseWrapper {
 
     getAllRenderers() {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.clickFolder('${row.id}')">${data}</a>`;
-        ret.action = (data, type, row) => `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.id}')">${data}</a>`;
         return ret;
     }
 }

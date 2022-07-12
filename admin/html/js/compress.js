@@ -6,11 +6,11 @@ window.crud = new ListCRUD({
     name: "Compress Requests",
     nameField: "id",
     listFieldRenderer: [
-        { mData: "id", render: (data, type, row) => `<a href="/compress/view?id=${data}">${data}</a>` },
-        { mData: "userName" },
-        { mData: "timestamp", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
-        { mData: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
-        { mData: "id",
+        { data: "id", render: (data, type, row) => `<a href="/compress/view?id=${data}">${data}</a>` },
+        { data: "userName" },
+        { data: "timestamp", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
+        { data: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
+        { data: "id",
             render: (data, type, row) =>
                 row.finishedTime <= 0? "" : `<a href="#"><i class="fas fa-stop" onclick="window.stopJob(${data})"></i></a>`
         }

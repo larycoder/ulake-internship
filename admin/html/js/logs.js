@@ -6,12 +6,12 @@ const crud = new ListCRUD({
     name: "Logs",
     nameField: "content",
     listFieldRenderer: [
-        { mData: "id" },
-        { mData: "userName" },
-        { mData: "content" },
-        { mData: "service" },
-        { mData: "tag" },
-        { mData: "timestamp", render: (data, type, row) => new Date(data).toLocaleDateString() }
+        { data: "id" },
+        { data: "userName" },
+        { data: "content" },
+        { data: "service" },
+        { data: "tag" },
+        { data: "timestamp", render: (data, type, row) => new Date(data).toLocaleDateString() }
     ],
     joins: {
         apiMethod: (a) => userApi.many(a),

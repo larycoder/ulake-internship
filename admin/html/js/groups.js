@@ -8,9 +8,9 @@ class GroupListCRUD extends ListCRUD {
             name: "Group",
             nameField: "name",
             listFieldRenderer: [
-                { mData: "id" },
-                { mData: "name", render: (data, type, row) => `<a href="/group/view?id=${row.id}">${data}</a>` },
-                { mData: "id",
+                { data: "id" },
+                { data: "name", render: (data, type, row) => `<a href="/group/view?id=${row.id}">${data}</a>` },
+                { data: "id",
                     render: (data, type, row) =>
                         `<a href="/group/edit?id=${data}"><i class="fas fa-user-cog"></i></a>
                          <a href="#"><i class="fas fa-users-slash" onclick="window.crud.confirm(${data})"></i></a>`
