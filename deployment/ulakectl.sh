@@ -66,7 +66,7 @@ start_all() {
     for i in ${projects[@]}; do
         echo Starting {$i}....
         if [[ "$i" != "common" ]]; then
-		start -s $i
+		start $i
         fi
     done
 }
