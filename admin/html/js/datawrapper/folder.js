@@ -29,7 +29,6 @@ export class FolderWrapper extends BaseWrapper {
     }
 
     transform(raw) {
-        console.log("folder transform from ", raw);
         const folders = this.transformFolders(raw.subFolders);
         const files = this.transformFiles(raw.files);
         return folders.concat(files);
@@ -41,7 +40,6 @@ export class FolderWrapper extends BaseWrapper {
         }
         else {
             const folder = await this.api.one(parent);
-            console.log('folder returns ', folder);
             return folder;
         }
     }

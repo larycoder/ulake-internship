@@ -61,7 +61,6 @@ class DataCRUD extends ListCRUD {
     async clickUser(id) {
         if (id.indexOf("u") === 0) id = id.slice(1);
         this.id = -parseInt(id);
-        console.log("Switching to folders of user", this.id);
         await this.fetch();
         this.recreateTable();
     }
@@ -69,7 +68,6 @@ class DataCRUD extends ListCRUD {
     async clickFolder(id) {
         if (id.indexOf("F") === 0) id = id.slice(1);
         this.id = parseInt(id);
-        console.log("Going into detail of folder", this.id);
         await this.fetch();
         this.recreateTable();
     }

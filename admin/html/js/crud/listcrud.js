@@ -78,7 +78,6 @@ export class ListCRUD extends CRUD {
     }
 
     async detail() {
-        console.log("list crud data", this.data);
         const data = await this.join(this.data);
         if (!this.table) {
             this.table = $('#table').DataTable(  {
@@ -86,7 +85,6 @@ export class ListCRUD extends CRUD {
                 paging: true,
                 columns: this.listFieldRenderer
             });
-            console.log("create table from listcrud");
         }
         else this.reloadTable(data);
     }
