@@ -58,18 +58,32 @@ class DataCRUD extends ListCRUD {
         console.log("nah, not yet", id);
     }
 
-    async clickUser(id) {
-        if (id.indexOf("u") === 0) id = id.slice(1);
+    async click(id, name) {
+        if (id[0] >= '0' && id[0] <= '9') {
+            // not a valid id. should start with 'u', 'f', or 'F'
+            return;
+        }
+        const type = id[0];
+        id = id.slice(1);
         this.id = -parseInt(id);
+        this.updateBreadcrumb(type, name);
+
         await this.fetch();
         this.recreateTable();
     }
 
-    async clickFolder(id) {
-        if (id.indexOf("F") === 0) id = id.slice(1);
-        this.id = parseInt(id);
-        await this.fetch();
-        this.recreateTable();
+
+    updateBreadcrumb(type, name) {
+        const bclist = $("ol[class=breadcrumb]");
+        if (parseInt(this.id) === 0) {
+            // remove all sub breadcrumbs
+            bclist.find('li:gt(0)').remove();
+        }
+        else {
+            // add a new one
+            const bc = $(`<li class="breadcrumb-item"><a href="#" onclick="window.crud.click('${type}${this.id}')">${name}</a></li>`)
+            bclist.append(bc);
+        }
     }
 }
 
