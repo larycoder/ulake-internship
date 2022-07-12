@@ -47,8 +47,13 @@ class DataCRUD extends ListCRUD {
      * Get transformed data from the data wrapper
      */
     async fetch() {
-        if (this.id <= 0) this.dataWrapper = this.userWrapper;
-        else this.dataWrapper = this.userWrapper;
+        // select the correct adapter
+        if (this.id == 0) {
+            this.dataWrapper = this.userWrapper;
+        }
+        else {
+            this.dataWrapper = this.folderWrapper;
+        }
         const raw = await this.dataWrapper.fetch(this.id);
         this.data = this.dataWrapper.transform(raw);
         console.log("transformed data", this.data);
@@ -58,10 +63,12 @@ class DataCRUD extends ListCRUD {
         console.log("nah, not yet", id);
     }
 
-    clickUser(id) {
+    async clickUser(id) {
         if (id.indexOf("u") === 0) id = id.slice(1);
         this.id = -parseInt(id);
         console.log("Switching to folders of user", this.id);
+        await this.fetch();
+        this.reloadTable(this.data);
     }
 }
 

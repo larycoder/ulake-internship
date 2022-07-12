@@ -115,16 +115,24 @@ public class FolderResource {
      * Provide root folders and files in a virtual folder
      * */
     @GET
-    @Path("/root")
+    @Path("/root/{uid}")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "List root folder")
-    public Response root(@HeaderParam("Authorization") String bearer) {
+    public Response root(@HeaderParam("Authorization") String bearer,
+            @PathParam("uid") @Parameter(description = "User id to list root dir")  Long uid) {
         var ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
         UserFolder root = new UserFolder();
         root.ownerId = ownerId;
         if (jwt.getGroups().contains("Admin")) {
-            root.subFolders = repo.listRoot();
-            root.files = fileRepo.listRoot();
+            if (uid == null) {
+                // all files and folders of all users
+                root.subFolders = repo.listRoot();
+                root.files = fileRepo.listRoot();
+            }
+            else {
+                root.subFolders = repo.listRoot(uid);
+                root.files = fileRepo.listRoot(uid);
+            }
         } else {
             root.subFolders = repo.listRoot(ownerId);
             root.files = fileRepo.listRoot(ownerId);
@@ -139,6 +147,17 @@ public class FolderResource {
         }
         logService.post(bearer, new LogModel("Query", "Get root folder info"));
         return response.build(200, null, root);
+    }
+
+    /**
+     * Provide root folders and files in a virtual folder
+     * */
+    @GET
+    @Path("/root")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "List root folder of current user")
+    public Response root(@HeaderParam("Authorization") String bearer) {
+        return root(bearer, null);
     }
 
     @POST

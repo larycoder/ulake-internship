@@ -8,23 +8,40 @@ export class FolderWrapper extends BaseWrapper {
         super(config);
     }
 
-    transform(raw) {
-        return raw.map(f => { return {
+    transformFolders(folders) {
+        return folders.map(f => { return {
             id: `F${f.id}`,
             name: f.name,
             size: 0,
             type: "Folder",
-            action: u.id
+            action: f.id
         }});
     }
 
+    transformFiles(files) {
+        return files.map(f => { return {
+            id: `f${f.id}`,
+            name: f.name,
+            size: f.size,
+            type: `File (${f.mime})`,
+            action: f.id
+        }});
+    }
+
+    transform(raw) {
+        const folders = this.transformFolders(raw.subFolders);
+        const files = this.transformFiles(raw.files);
+        return folders.concat(files);
+    }
+
     async fetch(parent) {
-        if (parent == 0) {
-            return await this.api.root();
+        if (parent < 0) {
+            return await this.api.root(-parent);
         }
         else {
             const folder = await this.api.one(parent);
-
+            console.log('folder returns ', folder);
+            return folder;
         }
     }
 

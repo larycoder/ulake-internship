@@ -18,11 +18,6 @@ export class UserWrapper extends BaseWrapper {
         }});
     }
 
-    async fetch(parent) {
-        if (parent < 0) parent = -parent;
-        return super.fetch(parent);
-    }
-
     getAllRenderers() {
         let ret = super.getAllRenderers();
         ret.name = (data, type, row) => `<a href="#" onclick="window.crud.clickUser('${row.id}')">${data}</a>`;

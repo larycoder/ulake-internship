@@ -166,8 +166,8 @@ class GroupApi extends Api {
         super(getFolderUrl(), "/api/folder")
     }
 
-    async root() {
-        return await this.get("/root");
+    async root(id) {
+        return await this.get("/root" + (id ? `/${id}` : ""));
     }
 }
 
