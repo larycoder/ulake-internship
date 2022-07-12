@@ -26,23 +26,11 @@ class DataCRUD extends ListCRUD {
     /**
      * Update UI renderer whenver we change our data wrapper
      */
-    updateRenderers() {
-        console.log("update renderer");
-        if (!this.listFieldRenderer) {
-            // create if not exist
-            this.listFieldRenderer = this.fields.map(f => {return {
-                data: f,
-                render: this.dataWrapper.getRenderer(f)
-            }});
-            console.log(`SET render `, this.listFieldRenderer);
-        }
-        else {
-            // update if there
-            for (const k in this.listFieldRenderer) {
-                this.listFieldRenderer[k].render = this.dataWrapper.getRenderer(k)
-                console.log(`updating render for ${k} as `, this.listFieldRenderer[k].render);
-            }
-        }
+    setRenderers() {
+        this.listFieldRenderer = this.fields.map(f => {return {
+            data: f,
+            render: this.dataWrapper.getRenderer(f)
+        }});
     }
 
     /**
@@ -50,15 +38,20 @@ class DataCRUD extends ListCRUD {
      */
     async fetch() {
         // select the correct adapter
-        if (this.id == 0) {
-            this.dataWrapper = this.userWrapper;
-        }
-        else {
-            this.dataWrapper = this.folderWrapper;
-        }
+        if (this.id == 0) this.dataWrapper = this.userWrapper;
+        else this.dataWrapper = this.folderWrapper;
+
         const raw = await this.dataWrapper.fetch(this.id);
         this.data = this.dataWrapper.transform(raw);
-        this.updateRenderers();
+
+        // prepare for detail() to render the table
+        this.setRenderers();
+    }
+
+    recreateTable() {
+        this.table.destroy();
+        this.table = null;
+        this.detail();
     }
 
     delete(id) {
@@ -70,9 +63,18 @@ class DataCRUD extends ListCRUD {
         this.id = -parseInt(id);
         console.log("Switching to folders of user", this.id);
         await this.fetch();
-        this.reloadTable(this.data);
+        this.recreateTable();
+    }
+
+    async clickFolder(id) {
+        if (id.indexOf("F") === 0) id = id.slice(1);
+        this.id = parseInt(id);
+        console.log("Going into detail of folder", this.id);
+        await this.fetch();
+        this.recreateTable();
     }
 }
+
 
 window.crud = new DataCRUD();
 

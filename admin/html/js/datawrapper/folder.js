@@ -48,7 +48,7 @@ export class FolderWrapper extends BaseWrapper {
 
     getAllRenderers() {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.id}')">${data}</a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.clickFolder('${row.id}')">${data}</a>`;
         return ret;
     }
 }
