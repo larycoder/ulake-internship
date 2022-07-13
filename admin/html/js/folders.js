@@ -37,6 +37,7 @@ class DataCRUD extends ListCRUD {
      * Get transformed data from the data wrapper
      */
     async fetch() {
+        this.startSpinner();
         // select the correct adapter
         if (this.id == 0) this.dataWrapper = this.userWrapper;
         else this.dataWrapper = this.folderWrapper;
@@ -46,6 +47,7 @@ class DataCRUD extends ListCRUD {
 
         // prepare for detail() to render the table
         this.setRenderers();
+        this.stopSpinner();
     }
 
     recreateTable() {
@@ -85,6 +87,18 @@ class DataCRUD extends ListCRUD {
             bclist.append(bc);
         }
     }
+
+    startSpinner() {
+        const bclist = $("ol[class=breadcrumb]");
+        bclist.append('<li class="breadcrumb-item"><i class="fas fa-spinner fa-spin"></i></li>');
+    }
+
+    stopSpinner() {
+        const bclist = $("ol[class=breadcrumb]");
+        bclist.find('i[class*="fa-spinner"]').parent().remove();
+    }
+
+
 }
 
 
