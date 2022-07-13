@@ -10,7 +10,7 @@ export class FolderWrapper extends BaseWrapper {
 
     transformFolders(folders) {
         return folders.map(f => { return {
-            id: `F${f.id}`,
+            id: `${f.id}`,
             name: f.name,
             size: 0,
             type: "Folder",
@@ -34,9 +34,9 @@ export class FolderWrapper extends BaseWrapper {
         return folders.concat(files);
     }
 
-    async fetch(parent) {
-        if (parent < 0) {
-            return await this.api.root(-parent);
+    async fetch(type, parent) {
+        if (type === "u") {
+            return await this.api.root(parent);
         }
         else {
             const folder = await this.api.one(parent);
@@ -46,7 +46,7 @@ export class FolderWrapper extends BaseWrapper {
 
     getAllRenderers() {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.id}', '${data}')">${data}</a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('F', '${row.id}', '${data}')">${data}</a>`;
         return ret;
     }
 }

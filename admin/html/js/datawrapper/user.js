@@ -10,7 +10,7 @@ export class UserWrapper extends BaseWrapper {
 
     transform (raw) {
         return raw.map(u => { return {
-            id: `u${u.id}`,
+            id: `${u.id}`,
             name: u.userName,
             size: 0,
             type: "User",
@@ -20,7 +20,7 @@ export class UserWrapper extends BaseWrapper {
 
     getAllRenderers () {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.id}', '${data}')">${data}</a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('u', '${row.id}', '${data}')">${data}</a>`;
         ret.action = (data, type, row) => `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>`;
         return ret;
     }

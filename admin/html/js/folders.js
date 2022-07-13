@@ -2,6 +2,7 @@ import { ListCRUD } from "./crud/listcrud.js";
 import { UserWrapper } from "./datawrapper/user.js";
 import { FolderWrapper } from "./datawrapper/folder.js";
 import { userApi, folderApi, fileApi } from "./api.js";
+import { Breadcrumb } from "./breadcrumb.js"
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {
@@ -13,14 +14,21 @@ class DataCRUD extends ListCRUD {
             nameField: "name"
         });
 
-        this.id = 0;        // default 0: everyone. negative: userid, positive: folderid
+        this.id = 0;        // 0: everyone. else: userid or folderid
+        this.type = "u";    // u, F: user or folder
         this.path = [ ];    //
-
         this.userWrapper = new UserWrapper();
         this.folderWrapper = new FolderWrapper();
         this.dataWrapper = this.userWrapper;
         this.fields = ["id", "name", "type", "size", "action" ];
+
+        this.breadcrumb = new Breadcrumb({
+            name: "Users",
+            click: "window.crud.click('u', '0', 'Users')"
+        });
+        this.breadcrumb.render();
         $.fn.dataTable.ext.errMode = 'none';
+
     }
 
     /**
@@ -39,10 +47,10 @@ class DataCRUD extends ListCRUD {
     async fetch() {
         this.startSpinner();
         // select the correct adapter
-        if (this.id == 0) this.dataWrapper = this.userWrapper;
+        if (this.type === "u" && this.id === 0) this.dataWrapper = this.userWrapper;
         else this.dataWrapper = this.folderWrapper;
 
-        const raw = await this.dataWrapper.fetch(this.id);
+        const raw = await this.dataWrapper.fetch(this.type, this.id);
         this.data = this.dataWrapper.transform(raw);
 
         // prepare for detail() to render the table
@@ -60,32 +68,18 @@ class DataCRUD extends ListCRUD {
         console.log("nah, not yet", id);
     }
 
-    async click(id, name) {
-        if (id[0] >= '0' && id[0] <= '9') {
-            // not a valid id. should start with 'u', 'f', or 'F'
-            return;
-        }
-        const type = id[0];
-        id = id.slice(1);
-        this.id = -parseInt(id);
-        this.updateBreadcrumb(type, name);
+    async click(type, id, name) {
+        this.id = Math.abs(parseInt(id));
+        this.type = type;
+        console.log(`clicked on ${type} ${this.id}`);
+
+        this.breadcrumb.append({
+            name: name,
+            click: `window.crud.click('${type}', '${id}')`
+        })
 
         await this.fetch();
         this.recreateTable();
-    }
-
-
-    updateBreadcrumb(type, name) {
-        const bclist = $("ol[class=breadcrumb]");
-        if (parseInt(this.id) === 0) {
-            // remove all sub breadcrumbs
-            bclist.find('li:gt(0)').remove();
-        }
-        else {
-            // add a new one
-            const bc = $(`<li class="breadcrumb-item"><a href="#" onclick="window.crud.click('${type}${this.id}')">${name}</a></li>`)
-            bclist.append(bc);
-        }
     }
 
     startSpinner() {

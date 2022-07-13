@@ -12,7 +12,7 @@ export class BaseWrapper {
      * @param {parent} parent of the current object
      * @returns list of objects belonging to the parent
      */
-    async fetch(parent) {
+    async fetch(type, parent) {
         this.data = await this.api.all();
         return this.data;
     }
