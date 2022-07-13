@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Content-type: image/webp"
+echo ""
+infile=`sed 's/.webp$//' <<< $DOCUMENT_URI`
+cwebp -q 75 ../html$infile -o -
+exit 0

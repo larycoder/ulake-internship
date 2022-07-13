@@ -1,0 +1,235 @@
+.bg-voiceviet {
+    background-image: url("../images/g5.jpg");
+    background-repeat: repeat;
+    position: relative;
+    max-height: 1000px;
+    align-items: center;
+    background-size: cover;
+    background-position: center center;
+    height: 250px;
+}
+
+.bg-voiceviet-overlay {
+    min-height: 250px;
+    width: 100vw;
+    background: linear-gradient(121deg, rgba(66, 216, 243, 0.5) 0%, rgb(66, 216, 243) 25%, rgba(66, 140, 243, 0.5) 75%);
+}
+
+.form-group.required .control-label:after {
+    content:"*";
+    color:red;
+}
+
+.include-nav {
+    height: 136px;
+}
+
+.invisible {
+    display: none
+}
+
+.icon-small {
+    display: inline;
+    width: 50px;
+    height: 50px;
+}
+
+.icon-medium {
+    width: 100px;
+    height: 100px;
+}
+
+.margin-medium {
+    margin: 20px;
+}
+
+.icon-circle-primary {
+    background: #12bbad;
+    padding: 20px;
+    border-radius: 50%;
+}
+
+.icon-circle-secondary {
+    background: #4f70ce;
+    padding: 20px;
+    border-radius: 50%;
+}
+
+#text-content {
+    min-height: 100px;
+}
+
+.shadow-medium {
+    border-radius: 50px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.fa-6x {
+    font-size: 6em !important;
+}
+
+.fa-7x {
+    font-size: 7em !important;
+}
+
+.fa-8x {
+    font-size: 8em !important;
+}
+
+.navbar-fixed {
+    color: #555 !important;
+    border: 0;
+    padding: 0.625rem 0;
+    box-shadow: 0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+    background-color: #fff !important;
+}
+
+.navbar-trans {
+    color: #FFFFFF !important;
+    box-shadow: none;
+    padding-top: 35px;
+    background-color: transparent !important;
+}
+
+.navbar-fixed-top {
+    z-index: 1100;
+    position: fixed;
+    width: 100%;
+    transition: all 150ms ease 0s;
+    transition-property: all;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+    transition-delay: 0s;
+    text-transform: uppercase;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+
+.navbar-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: 50px;
+    margin-left: auto;
+    align-items: center;
+    padding-left: 15px;
+    margin-right: auto;
+    padding-right: 15px;
+    justify-content: space-between;
+}
+
+@media (min-width: 576px) {
+    .navbar-container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .navbar-container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar-container {
+        max-width: 1140px;
+    }
+}
+
+
+.nav-itrithuc {
+    color: inherit;
+    margin: 0px;
+    padding: 0.9375rem;
+    display: inline-flex;
+    position: relative;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+div#card {
+    margin: -60px 30px 0;
+    box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    z-index: 3;
+    position: relative;
+    background: #FFFFFF;
+}
+
+footer {
+    margin-top: 50px;
+    color: rgb(255, 255, 255);
+    background: rgb(66, 99, 186);
+}
+
+footer #footer-elem {
+    display: flex;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    align-items: center;
+    padding: 20px 60px;
+}
+
+.logo-and-name {
+    max-width: 460px;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-column-gap: 5px;
+}
+
+.logo-and-name img {
+    width: 80px;
+    height: 80px;
+}
+
+.logo-and-name .description {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.copyright {
+    font-size: 0.9rem;
+}
+
+#domains {
+    column-count: 3;
+    list-style: none
+}
+
+#chapters {
+    column-count: 4;
+    list-style: none
+}
+
+#vote-yes-count {
+    margin-right: 16px;
+}
+
+#vote-no-count {
+    margin-left: 16px;
+}
+
+.text-secondary-dark {
+    color: #446aa8
+}
+
+.full-width {
+    width: 100%;
+    height: auto;
+}

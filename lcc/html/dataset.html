@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <title>LCC :: CSDL Cắt lớp vi tính bệnh nhân ung thư phổi</title>
+    <!--# include file="head.html" -->
+</head>
+
+<body>
+<!--# include file="navbar.html" -->
+
+<div class="bg-voiceviet">
+    <div class="bg-voiceviet-overlay"></div>
+</div>
+
+<div id="card">
+    <div class="container text-center">
+        <div class="row py-5">
+            <div class="col-md-12">
+                <h1>Bộ dữ liệu mẫu về Ung thư phổi</h1>
+                <div class="text-left">
+                    <p>Đây là bộ cơ sở dữ liệu ảnh cắt lớp vi tính của bệnh nhân ung thư phổi đã được gán nhãn. Đối
+                        tượng nghiên cứu bao gồm 382 bệnh nhân được chẩn đoán ung thư phổi không tế bào nhỏ nguyên phát
+                        và điều trị tại bệnh viện K, Hà Nội. Dữ liệu được xây dựng bao gồm: </p>
+                    <ul>
+                        <li>Ảnh cắt lớp vi tính</li>
+                        <li>Nhãn vị trí khối u</li>
+                        <li>Nhãn phân loại lành tính hay ác tính</li>
+                    </ul>
+
+                    <p>Dữ liệu được thu thập từ hai loại máy quét, 197 bệnh nhân được chụp từ máy Siemens Emotion 6 và
+                        185 bệnh nhân được chụp từ máy Hitachi Scenaria với số lát cắt đầu ra từ 64 – 128 lát.</p>
+                    <p>Tất cả thông tin cá nhân của bệnh nhân (Protected Health Information - PHI) đều được xóa để bảo
+                        vệ
+                        quyền riêng tư của bệnh nhân.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-3"></div>
+        <div class="col-md-2">
+            <img src="images/small-nodule.jpg" class="full-width"/>
+            Khối u có kích thước 3-30mm
+        </div>
+        <div class="col-md-2">
+            <img src="images/medium-nodule.jpg" class="full-width"/>
+            Khối u có kích thước 30-60mm
+        </div>
+        <div class="col-md-2">
+            <img src="images/large-nodule.jpg" class="full-width"/>
+            Khối u có kích thước ≥ 60 mm
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+
+    <div class="row">
+        <div class="mx-auto"></div>
+        <div class="col-md-6">
+            <hr/>
+        </div>
+        <div class="mx-auto"></div>
+    </div>
+
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Thống Kê</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Thông số</th>
+                        <th>Giá trị</th>
+                    </tr>
+                    </thead>
+                    <tbody id="stat-table">
+                    <tr>
+                        <td>Tổng số bệnh nhân</td>
+                        <td>382</td>
+                    </tr>
+                    <tr>
+                        <td>Số loại máy quét CT</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>Số lát cắt đầu ra</td>
+                        <td>64</td>
+                    </tr>
+                    <tr>
+                        <td>Số u có kích thước 3-30mm</td>
+                        <td>170</td>
+                    </tr>
+                    <tr>
+                        <td>Số u có kích thước 30-60mm</td>
+                        <td>137</td>
+                    </tr>
+                    <tr>
+                        <td>Số u có kích thước ≥ 60 mm</td>
+                        <td>75</td>
+                    </tr>
+                    <tr>
+                        <td>Đường kính trung bình</td>
+                        <td>33.9mm</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+
+
+</div>
+<!--# include file="footer.html" -->
+</body>
+
+</html>

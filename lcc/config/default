@@ -1,0 +1,109 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# https://www.nginx.com/resources/wiki/start/
+# https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+# https://wiki.debian.org/Nginx/DirectoryStructure
+#
+# In most cases, administrators will remove this file from sites-enabled/ and
+# leave it as reference inside of sites-available where it will continue to be
+# updated by the nginx packaging team.
+#
+# This file will automatically load configuration files provided by other
+# applications, such as Drupal or Wordpress. These applications will be made
+# available underneath a path with that package name, such as /drupal8.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=serviceCache:80m max_size=15000m;
+proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
+proxy_cache_valid 200 100d;
+
+server_names_hash_bucket_size 64;
+
+map $http_accept $webp {
+	default "";
+	"~*webp" ".webp";
+}
+
+server {
+	root /var/www/html;
+	index index.html cache.json;
+	server_name lcc.usth.edu.vn; # managed by Certbot
+
+        gzip on;
+        gzip_static on;
+        gzip_comp_level 4;
+        gzip_proxied any;
+        gzip_types image/jpeg image/jpg image/png image/gif image/svg+xml text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+
+	small_light on;
+	small_light_pattern_define wp of=webp;
+
+	location / {
+		location ~* \.(html|js|css|jpg|png)$ {
+			add_header Cache-Control "max-age=31536000";
+		}
+
+		# check if webp is existed or not...
+		location ~* \.webp$ {
+			gzip off;
+			try_files $uri @convert;
+		}
+
+		ssi on;
+		rewrite ^/detect/(.*)$ /detect?$1 last;
+		rewrite ^/classify/(.*)$ /classify?$1 last;
+		try_files $uri $uri.html $uri/ =404;
+	}
+
+	# for webp conversion requests
+	location @convert {
+		gzip off;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_param SCRIPT_FILENAME $document_root/../cgi-bin/test;
+		fastcgi_pass unix:/var/run/fcgiwrap.socket;
+	}
+
+	location ~ small_light[^/]*/(.+)$ {
+		set $file $1;
+		rewrite ^ /$file;
+	}
+
+	# pass detection requests to the backend
+	client_header_timeout 3000;
+	client_body_timeout 3000;
+	client_max_body_size 32m;
+
+	location /service/ {
+		proxy_pass http://192.168.0.222:8999/;
+		proxy_set_header Connection ""; 
+		#proxy_buffering on;
+		#proxy_cache serviceCache;
+		#proxy_cache_bypass $http_cache_control;
+		send_timeout 600;
+		proxy_connect_timeout 600s;
+		proxy_send_timeout 600s;
+		proxy_read_timeout 600s;
+		#try_files $uri cache.json =404;
+	}
+
+	location /data/ {
+		add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+		expires off;
+		try_files $uri $uri.csv $uri/ =404;
+	}
+
+
+
+	listen [::]:443 ssl ipv6only=on; # managed by Certbot
+	listen 443 ssl; # managed by Certbot
+	ssl_certificate /etc/letsencrypt/live/lcc.usth.edu.vn/fullchain.pem; # managed by Certbot
+	ssl_certificate_key /etc/letsencrypt/live/lcc.usth.edu.vn/privkey.pem; # managed by Certbot
+	include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+server {
+    return 301 https://lcc.usth.edu.vn$request_uri;
+}
