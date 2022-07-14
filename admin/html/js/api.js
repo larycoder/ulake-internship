@@ -77,7 +77,7 @@ class Api {
     // create, update, delete
     async create(entity) {
         return await this.post("", entity, { "Content-Type": "application/json; charset=utf-8" });
-    }
+}
 
     async save(id, entity) {
         return await this.put(`/${id}`, entity, { "Content-Type": "application/json; charset=utf-8" });
@@ -193,15 +193,32 @@ class GroupApi extends Api {
 }
 
 /**
- * Specific API for Dashboard CRUD management
+ * Specific API for Dashboard file management
  */
- class DashboardApi extends Api {
+ class DashboardFileApi extends Api {
     constructor () {
-        super(getFolderUrl(), "/api/file")
+        super(getDashboardUrl(), "/api/file")
     }
 
     async upload(fileInfo, file) {
         return await this.post("");
+    }
+}
+
+/**
+ * Specific API for Dashboard folde management
+ */
+ class DashboardFolderApi extends Api {
+    constructor () {
+        super(getDashboardUrl(), "/api/folder")
+    }
+
+    async mkdir(name, parentId) {
+        const info = {
+            name: name,
+            parentId: parentId
+        }
+        return await this.create(info);
     }
 }
 
@@ -214,7 +231,14 @@ class GroupApi extends Api {
     }
 
     async upload(fileInfo, file) {
-        return await this.post("");
+        let formData = new FormData();
+        formData.append("fileInfo", new Blob([JSON.stringify(fileInfo)], {
+            type: "application/json"
+        }));
+        formData.append("file", new File([file], {
+            type: "application/octet-stream"
+        }));
+        return await this.post("", formData);
     }
 }
 
@@ -227,9 +251,10 @@ const logApi = new LogApi();
 const compressApi = new CompressApi();
 const fileApi = new FileApi();
 const folderApi = new FolderApi();
-const dashboardApi = new DashboardApi();
+const dashboardFileApi = new DashboardFileApi();
+const dashboardFolderApi = new DashboardFolderApi();
 const adminApi = new AdminApi();
 
 $("#userName").text(getUserName());
 
-export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi, dashboardApi, adminApi };
+export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi, dashboardFileApi, dashboardFolderApi, adminApi };

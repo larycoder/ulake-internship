@@ -189,7 +189,14 @@ public class FolderResource {
         @RequestBody(description = "Group information")
         FolderModel folder) {
         String bearer = "bearer " + jwt.getRawToken();
-        folder.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+        if (folder.ownerId != null && folder.ownerId != 0 && jwt.getGroups().contains("Admin")) {
+            log.warn("Manually setting owner id {} from admin {}", folder.ownerId, jwtUserId);
+        }
+        else {
+            folder.ownerId = jwtUserId;
+        }
+
         folder.creationTime = new Date().getTime();
         var folderResp = fileSvc.newFolder(bearer, folder);
         return resp.build(200, null, folderResp.getResp());

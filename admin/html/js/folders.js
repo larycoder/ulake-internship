@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserWrapper } from "./datawrapper/user.js";
 import { FolderWrapper } from "./datawrapper/folder.js";
-import { userApi, folderApi, fileApi } from "./api.js";
+import { userApi, adminApi, dashboardFileApi, dashboardFolderApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 
@@ -115,23 +115,37 @@ class DataCRUD extends ListCRUD {
         this.breadcrumb.render();
     }
 
-    upload(folderName) {
+    async upload(folderName) {
+        const file = this.addFolderModal.file;
         console.log("Folder name", folderName);
-        console.log("upload file", this.addFolderModal.file);
+        console.log("Parent id", this.id);
+        console.log("upload file", file);
+        if (file) {
+            const fileInfo = {
+                name: file.name,
+                mime: file.type,
+                size: file.size,
+                parent_id: 0
+            }
+            const ret = await adminApi.upload(fileInfo, file);
+            console.log("uploaded file", ret);
+        }
+        else {
+            let id = this.id;
+            if (this.type ==="u") id = 0;
+            const ret = await dashboardFolderApi.mkdir(folderName, id);
+            console.log("mkdir", ret);
+        }
+    }
 
-
-
-        ajax({
-            url: 'file/destination.html',
-            type: 'POST',
-            data: new FormData($('form input')[0]),
-            processData: false,
-            contentType: false
-          }).done(function(){
-            console.log("Success: Files sent!");
-          }).fail(function(){
-            console.log("An error occurred, the files couldn't be sent!");
-          });
+    add() {
+        console.log("on add", this.id);
+        if (this.id === 0) {
+            showToast("Error", "Please select a user first");
+        }
+        else {
+            this.addFolderModal.modal.modal('show');
+        }
     }
 }
 
