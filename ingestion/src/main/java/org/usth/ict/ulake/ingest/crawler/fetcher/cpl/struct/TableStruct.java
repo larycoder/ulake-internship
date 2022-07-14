@@ -185,12 +185,13 @@ public class TableStruct<T> {
         return newTable;
     }
 
-    public List<List<Object>> extractAsList() {
-        var tableList = new ArrayList<List<Object>>();
-        tableList.add(new ArrayList<Object>(key));
-        for (List<T> row : table)
-            tableList.add(new ArrayList<Object>(row));
-        return tableList;
+    public Map<String, Object> extractAsMap() {
+        var tableClone = clone();
+        var map = new HashMap<String, Object>();
+        map.put(TableMacro.KEY.toString(), tableClone.key);
+        map.put(TableMacro.TABLE.toString(), tableClone.table);
+        map.put(TableMacro.COUNT.toString(), rowSize());
+        return map;
     }
 
     /**
