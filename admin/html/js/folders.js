@@ -16,7 +16,7 @@ class DataCRUD extends ListCRUD {
 
         this.id = 0;        // 0: everyone. else: userid or folderid
         this.type = "u";    // u, F: user or folder
-        this.path = [ ];    //
+        this.path = [ { type: "u", id: 0 }];    //
         this.userWrapper = new UserWrapper();
         this.folderWrapper = new FolderWrapper();
         this.dataWrapper = this.userWrapper;
@@ -25,7 +25,6 @@ class DataCRUD extends ListCRUD {
         this.breadcrumb = new Breadcrumb({
                 name: "Users",
                 click: "window.crud.click('u', '0', 'Users')",
-                data: 0
             });
         this.breadcrumb.render();
         $.fn.dataTable.ext.errMode = 'none';
@@ -74,21 +73,9 @@ class DataCRUD extends ListCRUD {
         this.type = type;
         console.log(`clicked on ${type} ${this.id}`);
 
-
-        this.path.push({
-            type: this.type,
-            id: this.id
-        })
-
-        this.breadcrumb.append({
-            name: name,
-            click: `window.crud.click('${this.type}', '${this.id}', '${this.name}')`,
-        })
-
+        this.updateBreadcrumb(type, id, name);
         await this.fetch();
         this.recreateTable();
-
-        console.log(this.path);
     }
 
     startSpinner() {
@@ -99,6 +86,28 @@ class DataCRUD extends ListCRUD {
     stopSpinner() {
         const bclist = $("ol[class=breadcrumb]");
         bclist.find('i[class*="fa-spinner"]').parent().remove();
+    }
+
+    updateBreadcrumb(type, id, name) {
+        // check if user clicked on an item on the existing path
+        id = parseInt(id);
+        const itemPos = this.path.findIndex(i => i.type === type && i.id === id);
+        if (itemPos >= 0) {
+            this.path = this.path.slice(0, itemPos + 1);
+            this.breadcrumb.keep(itemPos);
+        }
+        else {
+            this.path.push({
+                type: this.type,
+                id: this.id
+            });
+
+            this.breadcrumb.append({
+                name: name,
+                click: `window.crud.click('${this.type}', '${this.id}', '${this.name}')`,
+            });
+        }
+        this.breadcrumb.render();
     }
 }
 

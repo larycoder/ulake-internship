@@ -22,7 +22,15 @@ export class Breadcrumb {
         this.render();
     }
 
-    clear() {
+    /**
+     * Keep only a specific number of first children in the breadcrumb
+     * @param {int} n number of items to keep
+     */
+    keep(n) {
+        this.items = this.items.slice(0, n + 1);
+    }
+
+    empty(n) {
         if (this.defaultItem) {
             this.items = [ this.defaultItem ];
         }
