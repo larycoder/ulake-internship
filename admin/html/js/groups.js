@@ -1,5 +1,6 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { groupApi } from "./api.js";
+import { AddGroupModal } from "./group/add.js";
 
 class GroupListCRUD extends ListCRUD {
     constructor () {
@@ -40,9 +41,7 @@ class GroupListCRUD extends ListCRUD {
 
     async ready() {
         // prepare modal events
-        this.modal = $("#add-modal");
-        this.modal.on("show.bs.modal", () => this.showModal());
-        this.modal.find(".btn-primary").on("click", () => this.create());
+        this.modal = new AddGroupModal(() => this.showModal());
         await super.ready();
     }
 }
