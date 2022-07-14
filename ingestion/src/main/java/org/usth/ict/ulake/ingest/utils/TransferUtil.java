@@ -1,13 +1,12 @@
 package org.usth.ict.ulake.ingest.utils;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,33 +19,36 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ApplicationScoped
 public class TransferUtil {
-    public void streamIO(InputStream is, OutputStream os, byte[] buf) {
+    /**
+     * Transfer from input stream to output stream.
+     * Behavior: method will not close input/output stream.
+     * */
+    public static void streamIO(InputStream is, OutputStream os, byte[] buf) {
         try {
-            int len;
-            while ((len = is.read(buf)) > 0) {
-                os.write(buf, 0, len);
-            }
-            os.flush();
+            is.transferTo(os);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void streamOutputFile(InputStream is, File file, byte[] bytes) {
+    public static void streamOutputFile(InputStream is, File file, byte[] bytes) {
         streamOutputFile(is, file, bytes, true);
     }
 
-    public void streamOutputFile(InputStream is, File file, byte[] buf, boolean createFile) {
+    public static void streamOutputFile(
+        InputStream is, File file, byte[] buf, boolean createFile) {
         try {
             if (createFile) {
                 Path path = Paths.get(file.toString());
                 Files.createDirectories(path.getParent());
                 Files.createFile(path);
             }
+
             OutputStream os = new FileOutputStream(file);
             streamIO(is, os, buf);
             os.close();
@@ -55,35 +57,26 @@ public class TransferUtil {
         }
     }
 
-    public String streamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(
-            new InputStreamReader(is, StandardCharsets.UTF_8));
-        String text = "";
-        try {
-            int c;
-            while ((c = reader.read()) != -1) {
-                text += (char) c;
-            }
+    public static String streamToString(InputStream is) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
+            is.transferTo(baos);
+            return baos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return text;
     }
 
-    public Map streamToJson(InputStream is) {
+    public static Map<String, Object> streamToJson(InputStream is) {
         String jsonString = streamToString(is);
         ObjectMapper om = new ObjectMapper();
-        Map mapResult = new HashMap();
-
-        List listResult;
-        Map tempResult;
-
+        Map<String, Object> mapResult = new HashMap<>();
         try {
             if (jsonString.strip().startsWith("[")) {
-                listResult = om.readValue(jsonString, List.class);
+                var listResult = om.readValue(jsonString, List.class);
                 mapResult.put("data", listResult);
             } else {
-                tempResult = om.readValue(jsonString, Map.class);
+                var tempResult = om.readValue(jsonString, Map.class);
                 mapResult.put("data", tempResult);
             }
         } catch (IOException e) {
@@ -92,7 +85,7 @@ public class TransferUtil {
         return mapResult;
     }
 
-    public InputStream streamFromFile(String path) {
+    public static InputStream streamFromFile(String path) {
         try {
             File file = new File(path);
             return new FileInputStream(file);
@@ -102,25 +95,24 @@ public class TransferUtil {
         }
     }
 
-    public Map stringToMap(String text) {
-        Map map = null;
+    public static Map<Object, Object> stringToMap(String text) {
         try {
             ObjectMapper om = new ObjectMapper();
-            map = om.readValue(text, Map.class);
+            var type = new TypeReference<Map<Object, Object>>() {};
+            return om.readValue(text, type);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return null;
         }
-        return map;
     }
 
-    public String mapToString(Map data) {
-        String text = null;
+    public static String mapToString(Map<?, ?> data) {
         try {
             ObjectMapper om = new ObjectMapper();
-            text = om.writeValueAsString(data);
+            return om.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return null;
         }
-        return text;
     }
 }
