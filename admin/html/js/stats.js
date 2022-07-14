@@ -1,6 +1,8 @@
+import { adminApi } from "./api.js"
+
 // statistics functions
 
-stats = {
+window.stats = {
     userSettings: {
         type: 'line',
         data: {
@@ -99,28 +101,28 @@ stats = {
     },
 
     updateStats: async () => {
-        const userStats = await ajax({url: "/api/admin/users/stats"});
+        const userStats = await adminApi.get("/users/stats");
         if (userStats && userStats.code === 200) {
             console.log(userStats);
-            stats.redrawUserStats(userStats);
+            window.stats.redrawUserStats(userStats);
         }
 
-        const coreStats = await ajax({url: "/api/admin/objects/stats"});
+        const coreStats = await ajax("/objects/stats");
         if (coreStats && coreStats.code === 200) {
             console.log(coreStats);
-            stats.redrawCoreStats(coreStats);
+            window.stats.redrawCoreStats(coreStats);
         }
 
-        const folderStats = await ajax({url: "/api/admin/folders/stats"});
+        const folderStats = await ajax("/folders/stats");
         if (folderStats && folderStats.code === 200) {
             console.log(folderStats);
-            stats.redrawFolderStats(folderStats);
+            window.stats.redrawFolderStats(folderStats);
         }
 
-        const fileStats = await ajax({url: "/api/admin/files/stats"});
+        const fileStats = await ajax("/files/stats");
         if (fileStats && fileStats.code === 200) {
             console.log(fileStats);
-            stats.redrawFileStats(fileStats);
+            window.stats.redrawFileStats(fileStats);
         }
 
     },
@@ -165,4 +167,4 @@ stats = {
 }
 
 
-$(document).ready(stats.updateStats);
+$(document).ready(window.stats.updateStats);

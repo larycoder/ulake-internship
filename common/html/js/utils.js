@@ -33,6 +33,14 @@ function getCompressUrl() {
     return window.location.protocol + "//compress." + getBaseDomain();
 }
 
+function getDashboardUrl() {
+    return window.location.protocol + "//dashboard." + getBaseDomain();
+}
+
+function getAdminUrl() {
+    return window.location.protocol + "//admin." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');
@@ -77,29 +85,6 @@ function getGroups() {
     }
     return [];
 }
-
-/**
- * Ajax function, with token if any
- */
-ajax = async function (param){
-    let headers;
-    if (param.headers) headers = param.headers;
-    else headers = {};
-    const token = getToken();
-    if (token && typeof token === 'string' && token !=='undefined') headers.Authorization = "Bearer " + token;
-    param.headers = headers;
-    if (!param.method) param.method = "GET";
-
-    const resp = await fetch(param.url, param);
-    if (!resp.ok) {
-        const error = resp.error;
-        window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
-        if (error && error.status && error.status === 401) {
-            window.location = "/login";
-        }
-    };
-    return await resp.json();
-};
 
 function setUserName(userName) {
     sessionStorage.setItem("username", userName);

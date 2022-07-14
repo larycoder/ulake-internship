@@ -7,12 +7,33 @@ class Api {
         this.endpoint = endpoint;
     }
 
+    /**
+     * Ajax function, with token if any
+     */
+    async ajax(param){
+        const headers = param.headers || {};
+        const token = getToken();
+        if (token && typeof token === 'string' && token !=='undefined') headers.Authorization = "Bearer " + token;
+        param.headers = headers;
+        if (!param.method) param.method = "GET";
+
+        const resp = await fetch(param.url, param);
+        if (!resp.ok) {
+            const error = resp.error;
+            window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
+            if (error && error.status && error.status === 401) {
+                window.location = "/login";
+            }
+        };
+        return await resp.json();
+    };
+
     async call(url, method, body, headers) {
         const req = { url: this.server + this.endpoint + url };
         if (method) req.method = method;
         if (headers) req.headers = headers;
         if (body) req.body = typeof body === 'string' || body instanceof String? body : JSON.stringify(body);
-        const data = await ajax(req);
+        const data = await this.ajax(req);
         console.log(data);
         if (data && data.code === 200) return data.resp;
         return {};
@@ -171,6 +192,32 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for Dashboard CRUD management
+ */
+ class DashboardApi extends Api {
+    constructor () {
+        super(getFolderUrl(), "/api/file")
+    }
+
+    async upload(fileInfo, file) {
+        return await this.post("");
+    }
+}
+
+/**
+ * Specific API for Admin CRUD management
+ */
+ class AdminApi extends Api {
+    constructor () {
+        super(getAdminUrl(), "/api/admin")
+    }
+
+    async upload(fileInfo, file) {
+        return await this.post("");
+    }
+}
+
 const userApi = new UserApi();
 const authApi = new AuthApi();
 const groupApi = new GroupApi();
@@ -180,7 +227,9 @@ const logApi = new LogApi();
 const compressApi = new CompressApi();
 const fileApi = new FileApi();
 const folderApi = new FolderApi();
+const dashboardApi = new DashboardApi();
+const adminApi = new AdminApi();
 
 $("#userName").text(getUserName());
 
-export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi };
+export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi, dashboardApi, adminApi };
