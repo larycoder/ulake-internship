@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import org.usth.ict.ulake.ingest.utils.PolicyToStringConverter;
 
@@ -15,6 +16,7 @@ public class UserConfigure {
     public Long id;
 
     // TODO: missing JavaTypeDescriptor for custom Policy type
+    @Lob
     @Convert(converter = PolicyToStringConverter.class)
     public Policy query;
 
