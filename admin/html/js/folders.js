@@ -3,7 +3,7 @@ import { UserWrapper } from "./datawrapper/user.js";
 import { FolderWrapper } from "./datawrapper/folder.js";
 import { userApi, folderApi, fileApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
-import { AddModalController } from "./folders/add";
+import { AddFolderFileModal } from "./folders/add.js";
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {
@@ -28,8 +28,8 @@ class DataCRUD extends ListCRUD {
                 click: "window.crud.click('u', '0', 'Users')",
             });
         this.breadcrumb.render();
+        this.addFolderModal = new AddFolderFileModal(() => this.upload());
         $.fn.dataTable.ext.errMode = 'none';
-
     }
 
     /**
@@ -69,11 +69,15 @@ class DataCRUD extends ListCRUD {
         console.log("nah, not yet", id);
     }
 
+    /**
+     * Handles most 
+     * @param {string} type 'u' for user, 'F' for folder
+     * @param {string} id id of the user or folder
+     * @param {*} name
+     */
     async click(type, id, name) {
         this.id = Math.abs(parseInt(id));
         this.type = type;
-        console.log(`clicked on ${type} ${this.id}`);
-
         this.updateBreadcrumb(type, id, name);
         await this.fetch();
         this.recreateTable();
@@ -109,6 +113,10 @@ class DataCRUD extends ListCRUD {
             });
         }
         this.breadcrumb.render();
+    }
+
+    upload() {
+
     }
 }
 
