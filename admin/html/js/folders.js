@@ -28,7 +28,7 @@ class DataCRUD extends ListCRUD {
                 click: "window.crud.click('u', '0', 'Users')",
             });
         this.breadcrumb.render();
-        this.addFolderModal = new AddFolderFileModal(() => this.upload());
+        this.addFolderModal = new AddFolderFileModal(this.upload);
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -70,7 +70,7 @@ class DataCRUD extends ListCRUD {
     }
 
     /**
-     * Handles most 
+     * Handles most
      * @param {string} type 'u' for user, 'F' for folder
      * @param {string} id id of the user or folder
      * @param {*} name
@@ -115,8 +115,8 @@ class DataCRUD extends ListCRUD {
         this.breadcrumb.render();
     }
 
-    upload() {
-
+    upload(folderName) {
+        console.log("Folder name", folderName);
     }
 }
 
