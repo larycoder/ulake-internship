@@ -132,8 +132,12 @@ class DataCRUD extends ListCRUD {
         }
         else {
             let id = this.id;
-            if (this.type ==="u") id = 0;
-            const ret = await dashboardFolderApi.mkdir(folderName, id);
+            let ownerId = null;
+            if (this.type ==="u") {
+                id = 0;
+                ownerId = this.id;
+            }
+            const ret = await dashboardFolderApi.mkdir(folderName, id, ownerId);
             console.log("mkdir", ret);
         }
     }

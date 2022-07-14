@@ -185,6 +185,15 @@ public class FolderResource {
             entity.parent = parent;
         }
 
+        Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+        if (entity.ownerId != null && entity.ownerId != 0 && jwt.getGroups().contains("Admin")) {
+            log.warn("Manually setting owner id {} from admin {}", entity.ownerId, jwtUserId);
+        }
+        else {
+            entity.ownerId = jwtUserId;
+        }
+
+
         repo.persist(entity);
         logService.post(bearer, new LogModel("Add", "Create folder info for id " + entity.id + ", name " + entity.name));
         return response.build(200, "", entity);

@@ -213,11 +213,12 @@ class GroupApi extends Api {
         super(getDashboardUrl(), "/api/folder")
     }
 
-    async mkdir(name, parentId) {
+    async mkdir(name, parentId, ownerId) {
         const info = {
             name: name,
             parentId: parentId
         }
+        if (ownerId) info.ownerId = ownerId;
         return await this.create(info);
     }
 }
