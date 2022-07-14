@@ -28,7 +28,7 @@ class DataCRUD extends ListCRUD {
                 click: "window.crud.click('u', '0', 'Users')",
             });
         this.breadcrumb.render();
-        this.addFolderModal = new AddFolderFileModal((folderName) => this.add(folderName));
+        this.addModal = new AddFolderFileModal((folderName) => this.add(folderName));
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -121,7 +121,7 @@ class DataCRUD extends ListCRUD {
      * @param {String} folderName
      */
     async add(folderName) {
-        const file = this.addFolderModal.file;
+        const file = this.addModal.file;
         console.log("Folder name", folderName);
         console.log("Parent id", this.id);
         console.log("upload file", file);
@@ -139,7 +139,7 @@ class DataCRUD extends ListCRUD {
         const ret = await adminApi.upload(fileInfo, file);
         if (ret && ret.id) {
             // good upload, close and refresh
-            this.AddFolderFileModal.modal.modal("hide");
+            this.addModal.modal.modal("hide");
         }
     }
 
@@ -153,9 +153,9 @@ class DataCRUD extends ListCRUD {
         const ret = await dashboardFolderApi.mkdir(folderName, id, ownerId);
         if (ret && ret.id) {
             // good mkdir, close and refresh
-            this.AddFolderFileModal.modal.modal("hide");
-            this.fetch();
-            this.detail();
+            this.addModal.modal.modal("hide");
+            await this.fetch();
+            this.recreateTable();
         }
     }
 
@@ -165,7 +165,7 @@ class DataCRUD extends ListCRUD {
             showToast("Error", "Please select a user first");
         }
         else {
-            this.addFolderModal.modal.modal('show');
+            this.addModal.modal.modal('show');
         }
     }
 }
