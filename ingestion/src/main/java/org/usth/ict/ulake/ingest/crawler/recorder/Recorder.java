@@ -7,7 +7,7 @@ import org.usth.ict.ulake.ingest.model.macro.Record;
 
 public interface Recorder<T> {
     void setup(Map<Record, String> config);
-    void setup(Storage store);
+    void setup(Storage<String> store);
     void record(T data, Map<Record, String> meta);
-    void info(Map<String, String> carrier, Map<Record, String> meta);
+    Map<String, String> info();
 }
