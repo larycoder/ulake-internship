@@ -23,9 +23,10 @@ class DataCRUD extends ListCRUD {
         this.fields = ["id", "name", "type", "size", "action" ];
 
         this.breadcrumb = new Breadcrumb({
-            name: "Users",
-            click: "window.crud.click('u', '0', 'Users')"
-        });
+                name: "Users",
+                click: "window.crud.click('u', '0', 'Users')",
+                data: 0
+            });
         this.breadcrumb.render();
         $.fn.dataTable.ext.errMode = 'none';
 
@@ -73,13 +74,21 @@ class DataCRUD extends ListCRUD {
         this.type = type;
         console.log(`clicked on ${type} ${this.id}`);
 
+
+        this.path.push({
+            type: this.type,
+            id: this.id
+        })
+
         this.breadcrumb.append({
             name: name,
-            click: `window.crud.click('${type}', '${id}')`
+            click: `window.crud.click('${this.type}', '${this.id}', '${this.name}')`,
         })
 
         await this.fetch();
         this.recreateTable();
+
+        console.log(this.path);
     }
 
     startSpinner() {
@@ -91,8 +100,6 @@ class DataCRUD extends ListCRUD {
         const bclist = $("ol[class=breadcrumb]");
         bclist.find('i[class*="fa-spinner"]').parent().remove();
     }
-
-
 }
 
 

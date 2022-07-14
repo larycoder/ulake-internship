@@ -4,7 +4,8 @@
 export class Breadcrumb {
 
     /**
-     * @param {*} items array of items, with .name and (.url or .click)
+     * @param {item} defaultItem default item, even when there is no other item
+     * @param {*} items array of items, with .name, .data and (.url or .click)
      */
     constructor(defaultItem, items) {
         this.defaultItem = defaultItem;
@@ -34,7 +35,7 @@ export class Breadcrumb {
         this.items.forEach(item => {
             let bcitem;
             if (item.click) {
-                bcitem = $(`<li class="breadcrumb-item"><a href="#" callback="${item.click}">${item.name}</a></li>`)
+                bcitem = $(`<li class="breadcrumb-item"><a href="#" onclick="${item.click}">${item.name}</a></li>`)
             }
             else {
                 bcitem = $(`<li class="breadcrumb-item"><a href="${item.url}">${item.name}</a></li>`)
