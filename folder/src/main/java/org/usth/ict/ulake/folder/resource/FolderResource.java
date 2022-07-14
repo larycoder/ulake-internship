@@ -40,6 +40,8 @@ import org.usth.ict.ulake.folder.persistence.FolderRepository;
 @Path("/folder")
 @Produces(MediaType.APPLICATION_JSON)
 public class FolderResource {
+    private static final Logger log = LoggerFactory.getLogger(FolderResource.class);
+
     @Inject
     JsonWebToken jwt;
 

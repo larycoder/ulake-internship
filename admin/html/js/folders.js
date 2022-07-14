@@ -28,7 +28,7 @@ class DataCRUD extends ListCRUD {
                 click: "window.crud.click('u', '0', 'Users')",
             });
         this.breadcrumb.render();
-        this.addFolderModal = new AddFolderFileModal((folderName) => this.upload(folderName));
+        this.addFolderModal = new AddFolderFileModal((folderName) => this.add(folderName));
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -98,15 +98,16 @@ class DataCRUD extends ListCRUD {
         id = parseInt(id);
         const itemPos = this.path.findIndex(i => i.type === type && i.id === id);
         if (itemPos >= 0) {
+            // yes, strip the remaining
             this.path = this.path.slice(0, itemPos + 1);
             this.breadcrumb.keep(itemPos);
         }
         else {
+            // that's a new entry
             this.path.push({
                 type: this.type,
                 id: this.id
             });
-
             this.breadcrumb.append({
                 name: name,
                 click: `window.crud.click('${this.type}', '${this.id}', '${this.name}')`,
@@ -115,34 +116,50 @@ class DataCRUD extends ListCRUD {
         this.breadcrumb.render();
     }
 
-    async upload(folderName) {
+    /**
+     * Event handler for 'add' button click on modal
+     * @param {String} folderName
+     */
+    async add(folderName) {
         const file = this.addFolderModal.file;
         console.log("Folder name", folderName);
         console.log("Parent id", this.id);
         console.log("upload file", file);
-        if (file) {
-            const fileInfo = {
-                name: file.name,
-                mime: file.type,
-                size: file.size,
-                parent_id: 0
-            }
-            const ret = await adminApi.upload(fileInfo, file);
-            console.log("uploaded file", ret);
+        if (file) this.upload(file);
+        else this.mkdir(folderName);
+    }
+
+    async upload(file) {
+        const fileInfo = {
+            name: file.name,
+            mime: file.type,
+            size: file.size,
+            parent_id: 0
         }
-        else {
-            let id = this.id;
-            let ownerId = null;
-            if (this.type ==="u") {
-                id = 0;
-                ownerId = this.id;
-            }
-            const ret = await dashboardFolderApi.mkdir(folderName, id, ownerId);
-            console.log("mkdir", ret);
+        const ret = await adminApi.upload(fileInfo, file);
+        if (ret && ret.id) {
+            // good upload, close and refresh
+            this.AddFolderFileModal.modal.modal("hide");
         }
     }
 
-    add() {
+    async mkdir(folderName) {
+        let id = this.id;
+        let ownerId = null;
+        if (this.type ==="u") {
+            id = 0;
+            ownerId = this.id;
+        }
+        const ret = await dashboardFolderApi.mkdir(folderName, id, ownerId);
+        if (ret && ret.id) {
+            // good mkdir, close and refresh
+            this.AddFolderFileModal.modal.modal("hide");
+            this.fetch();
+            this.detail();
+        }
+    }
+
+    addClick() {
         console.log("on add", this.id);
         if (this.id === 0) {
             showToast("Error", "Please select a user first");
