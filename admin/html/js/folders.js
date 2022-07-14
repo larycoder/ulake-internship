@@ -2,7 +2,8 @@ import { ListCRUD } from "./crud/listcrud.js";
 import { UserWrapper } from "./datawrapper/user.js";
 import { FolderWrapper } from "./datawrapper/folder.js";
 import { userApi, folderApi, fileApi } from "./api.js";
-import { Breadcrumb } from "./breadcrumb.js"
+import { Breadcrumb } from "./breadcrumb.js";
+import { AddModalController } from "./folders/add";
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {

@@ -54,7 +54,7 @@ class GroupViewCRUD extends ViewCRUD {
 
     async ready() {
         // prepare modal events
-        this.modal = $("#add-table-modal");
+        this.modal = $("#add-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
         this.modal.find(".btn-primary").on("click", () => this.confirm());
         await super.ready();
