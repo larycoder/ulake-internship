@@ -2,6 +2,7 @@ package org.usth.ict.ulake.ingest.crawler.recorder.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ public class ULakeCacheFileRecorderImpl
 
     private Recorder<InputStream, String> file = new FileRecorderImpl();
     private Recorder<InputStream, String> ulake = new ULakeRecorderImpl();
+    private Map<String, String> log = new HashMap<>();
 
     @Override
     public void setup(Map<Record, String> config) {
@@ -27,23 +29,31 @@ public class ULakeCacheFileRecorderImpl
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
-        file.record(data, meta);
-        var fileMeta = new HashMap<Record, String>(meta);
-        for (var entry : file.info().entrySet())
-            fileMeta.put(Record.valueOf(entry.getKey()), entry.getValue());
-
         try {
-            InputStream is = TransferUtil.streamFromFile(
-                                 fileMeta.get(Record.PATH));
-            ulake.record(is, fileMeta);
+            file.record(data, meta);
+
+            // prepare lake meta information
+            var ulakeMeta = new HashMap<Record, String>();
+            for (var e : file.info().entrySet())
+                ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
+
+            // stream data to lake storage
+            String path = Paths.get(ulakeMeta.get(Record.FILE_PATH),
+                                    ulakeMeta.get(Record.FILE_NAME)).toString();
+            InputStream is = TransferUtil.streamFromFile(path);
+            ulake.record(is, ulakeMeta);
+
+            log.putAll(ulake.info());
             is.close();
         } catch (IOException e) {
             e.printStackTrace();
+            log.put(Record.STATUS.toString(),
+                    Boolean.valueOf(false).toString());
         }
     }
 
     @Override
     public Map<String, String> info() {
-        return null;
+        return new HashMap<String, String>(log);
     }
 }

@@ -22,7 +22,7 @@ public class FileRecorderImpl implements Recorder<InputStream, String> {
 
     @Override
     public void setup(Map<Record, String> config) {
-        path = config.get(Record.PATH);
+        path = config.get(Record.FILE_PATH);
     }
 
     public void setup(Storage<String> store) {}
@@ -30,22 +30,11 @@ public class FileRecorderImpl implements Recorder<InputStream, String> {
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
         // file name
-        String name = meta.get(Record.NAME);
-        String link = meta.get(Record.LINK);
-
-        if (name == null || name.isEmpty()) {
-            String[] paths = link.split("/");
-            name = paths[paths.length - 1];
-            name = name.strip();
-        }
-
-        Path path = Paths.get(this.path, name);
+        Path path = Paths.get(this.path, meta.get(Record.FILE_NAME));
         File newFile = path.toFile();
         TransferUtil.streamOutputFile(data, newFile, streamCache);
 
         // update log
-        log.put(Record.PATH.toString(), path.toString());
-        log.put(Record.NAME.toString(), name);
         Long fileSize = 0L;
         try {
             fileSize = Files.size(path);
@@ -53,6 +42,8 @@ public class FileRecorderImpl implements Recorder<InputStream, String> {
             e.printStackTrace();
         }
         log.put(Record.FILE_SIZE.toString(), fileSize.toString());
+        log.put(Record.FILE_PATH.toString(), path.toString());
+        log.put(Record.FILE_NAME.toString(), meta.get(Record.FILE_NAME));
     }
 
     @Override

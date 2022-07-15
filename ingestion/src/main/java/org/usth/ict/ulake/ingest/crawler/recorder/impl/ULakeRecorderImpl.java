@@ -15,20 +15,26 @@ import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 
 public class ULakeRecorderImpl implements Recorder<InputStream, String> {
+    private Map<String, String> log = new HashMap<>();
+    private String tokenAuth;
+    private FileModel fileInfo;
+
     @Inject
     @RestClient
     DashboardService dashboardSvc;
 
     @Override
-    public void setup(Map<Record, String> config) {}
+    public void setup(Map<Record, String> config) {
+        tokenAuth = config.get(Record.TOKEN);
+        // TODO: setup default file info
+    }
 
     @Override
     public void setup(Storage<String> store) {}
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
-        var name = meta.get(Record.NAME);
-        var token = meta.get(Record.TOKEN);
+        var name = meta.get(Record.FILE_NAME);
         var size = Long.parseLong(meta.get(Record.FILE_SIZE));
 
         // setup metadata
@@ -36,15 +42,7 @@ public class ULakeRecorderImpl implements Recorder<InputStream, String> {
         metadata.put("name", name);
         metadata.put("length", size);
 
-        if (token != null) {
-            token = token.replaceAll("[\\n\\t ]", "");
-            token = "Bearer " + token;
-        } else {
-            token = "Bearer missing.token";
-        }
-
         try {
-            FileModel fileInfo = new FileModel();
             fileInfo.name = name;
             fileInfo.size = size;
 
@@ -52,14 +50,18 @@ public class ULakeRecorderImpl implements Recorder<InputStream, String> {
             file.fileInfo = fileInfo;
             file.is = data;
 
-            dashboardSvc.newFile(token, file);
+            dashboardSvc.newFile(tokenAuth, file);
+            log.put(Record.STATUS.toString(),
+                    Boolean.valueOf(true).toString());
         } catch (Exception e) {
             e.printStackTrace();
+            log.put(Record.STATUS.toString(),
+                    Boolean.valueOf(false).toString());
         }
     }
 
     @Override
     public Map<String, String> info() {
-        return null;
+        return new HashMap<String, String>(log);
     }
 }
