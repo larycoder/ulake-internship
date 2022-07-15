@@ -154,6 +154,8 @@ class DataCRUD extends ListCRUD {
     }
 
     async upload(file) {
+        this.addModal.modal.modal("hide");
+        this.startSpinner();
         const fileInfo = {
             name: file.name,
             mime: file.type,
@@ -162,9 +164,15 @@ class DataCRUD extends ListCRUD {
         }
         const ret = await dashboardFileApi.upload(fileInfo, file);
         if (ret && ret.id) {
-            // good upload, close and refresh
-            this.addModal.modal.modal("hide");
+            // good upload, refresh
+            await this.fetch();
+            this.recreateTable();
+            showToast("Info", $(`<span>File ${fileInfo.name} uploaded <i class="far fa-smile"></i>.</span>`));
         }
+        else {
+            showToast("Error", $(`<span>Cannot upload file ${fileInfo.name} <i class="far fa-sad-tear"></i>.</span>`));
+        }
+        this.stopSpinner();
     }
 
     async mkdir(folderName) {

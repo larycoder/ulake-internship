@@ -10,7 +10,7 @@ class Api {
     /**
      * Ajax function, with token if any
      */
-    async ajax(param){
+    async ajax(param) {
         const headers = param.headers || {};
         const token = getToken();
         if (token && typeof token === 'string' && token !=='undefined') headers.Authorization = "Bearer " + token;

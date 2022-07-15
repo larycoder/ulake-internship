@@ -144,7 +144,9 @@ function showModal(title, content, onOk) {
  function showToast(title, content, delay) {
     const toast = $('.toast');
     toast.find("strong").text(title);
-    toast.find(".toast-body").text(content);
+    const body = toast.find(".toast-body");
+    if (content instanceof jQuery) body.empty().append(content);
+    else toast.find(".toast-body").empty().text(content);
     toast.toast('show');
 }
 
