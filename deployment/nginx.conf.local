@@ -37,7 +37,8 @@ http {
     server { # service dashboard
         listen 80;
         # db is for testing
-        server_name dashboard.ulake.sontg.net db.ulake.sontg.net;
+        server_name dashboard.ulake.sontg.net;
+        client_max_body_size 2000M;
 
         location ~* ^/(api|apidoc|q/openapi) {
             proxy_pass http://172.17.0.1:8782;
@@ -52,6 +53,8 @@ http {
     server { # service admin
         listen 80;
         server_name admin.ulake.sontg.net;
+        client_max_body_size 2000M;
+
         location ~* ^/(api|apidoc|q/openapi) {
             proxy_pass http://172.17.0.1:8781;
         }
@@ -97,6 +100,7 @@ http {
     server { # service folder
         listen 80;
         server_name folder.ulake.sontg.net;
+        client_max_body_size 2000M;
         location / {
             proxy_pass http://172.17.0.1:8786;
         }

@@ -66,11 +66,11 @@ class DataCRUD extends ListCRUD {
     }
 
     async delete(type, id) {
+        this.startSpinner();
         if (type === "u") {
-            console.log("nah, not yet", id);
+            showToast("Error", "No, deleting user should not be here...");
         }
         else if (type === "F") {
-            console.log("DELETE folder", id);
             const resp = await dashboardFolderApi.deleteOne(id);
             if (resp) {
                 showToast("Error", "Cannot delete folder. There are still files inside.")
@@ -81,7 +81,6 @@ class DataCRUD extends ListCRUD {
             }
         }
         else if (type === "f") {
-            console.log("DELETE file", id);
             const resp = await dashboardFileApi.deleteOne(id);
             if (resp) {
                 showToast("Error", "Cannot delete file. Permission error?");
@@ -91,6 +90,7 @@ class DataCRUD extends ListCRUD {
                 this.recreateTable();
             }
         }
+        this.stopSpinner();
     }
 
     /**
