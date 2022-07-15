@@ -65,8 +65,14 @@ class DataCRUD extends ListCRUD {
         this.detail();
     }
 
-    delete(id) {
-        console.log("nah, not yet", id);
+    delete(type, id) {
+        if (type === "u") {
+            console.log("nah, not yet", id);
+        }
+        else {
+            console.log("DELETE file", id);
+            dashboardFolderApi.deleteOne(id);
+        }
     }
 
     /**

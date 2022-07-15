@@ -6,7 +6,9 @@ import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -199,6 +202,16 @@ public class FolderResource {
 
         folder.creationTime = new Date().getTime();
         var folderResp = fileSvc.newFolder(bearer, folder);
+        return resp.build(200, null, folderResp.getResp());
+    }
+
+    @DELETE
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Delete a folder")
+    public Response delete(@HeaderParam("Authorization") String bearer,
+        @PathParam("id") @Parameter(description = "Folder id to delete") Long id) {
+        var folderResp = fileSvc.delFolder(bearer, id);
         return resp.build(200, null, folderResp.getResp());
     }
 }

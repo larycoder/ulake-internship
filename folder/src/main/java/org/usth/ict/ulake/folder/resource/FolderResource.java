@@ -86,8 +86,7 @@ public class FolderResource {
         if (folder == null)
             return response.build(404, "Folder not found");
 
-        if (!AclUtil.verifyFolderAcl(
-                    aclSvc, jwt, folder.id, folder.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(aclSvc, jwt, folder.id, folder.ownerId, permit))
             return response.build(403);
         logService.post(bearer, new LogModel("Query", "Get folder info for id " + id));
         return response.build(200, null, folder);
@@ -107,10 +106,8 @@ public class FolderResource {
         if (folder == null)
             return response.build(404, "Folder not found");
 
-        if (!AclUtil.verifyFolderAcl(
-                    aclSvc, jwt, folder.id, folder.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(aclSvc, jwt, folder.id, folder.ownerId, permit))
             return response.build(403);
-        var folders = repo.find("parentId");
         logService.post(bearer, new LogModel("Query", "List folder for id " + id));
         return response.build(200, null, folder);
     }
@@ -183,8 +180,7 @@ public class FolderResource {
             if (parent == null)
                 return response.build(403, "Parent folder is not existed");
 
-            if (!AclUtil.verifyFolderAcl(
-                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+            if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
                 return response.build(403, "Add folder not allowed");
             entity.parent = parent;
         }
@@ -196,7 +192,6 @@ public class FolderResource {
         else {
             entity.ownerId = jwtUserId;
         }
-
 
         repo.persist(entity);
         logService.post(bearer, new LogModel("Add", "Create folder info for id " + entity.id + ", name " + entity.name));
@@ -224,8 +219,7 @@ public class FolderResource {
         if (entity == null)
             return response.build(404, "Folder not found");
 
-        if (!AclUtil.verifyFolderAcl(
-                    aclSvc, jwt, entity.id, entity.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         if (!Utils.isEmpty(data.subFolders)) {
@@ -245,8 +239,7 @@ public class FolderResource {
             if (parent == null)
                 return response.build(403, "Parent folder is not existed");
 
-            if (!AclUtil.verifyFolderAcl(
-                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+            if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
                 return response.build(403, "Move file not allowed");
             entity.parent = parent;
         }
@@ -276,8 +269,7 @@ public class FolderResource {
         if (entity == null)
             return response.build(404);
 
-        if (!AclUtil.verifyFolderAcl(
-                    aclSvc, jwt, entity.id, entity.ownerId, permit))
+        if (!AclUtil.verifyFolderAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
             return response.build(403);
 
         repo.delete(entity);
