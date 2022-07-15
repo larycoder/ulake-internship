@@ -26,4 +26,4 @@
 <map> ::= "MAP"
 
 # end of query
-<return> ::= "RETURN"                                           # "return_string"
+<return> ::= "RETURN" "METHOD" <path> [ <head> ] [ <body> ] "END"    # RETURN "method_string" <path> <head> <body> END
