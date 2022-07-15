@@ -29,6 +29,7 @@ public class HttpRawRequest {
             newReq.headers.get(k).addAll(headers.get(k));
         }
 
+        newReq.conf = this.conf.clone();
         return newReq;
     }
 
