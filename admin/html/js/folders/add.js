@@ -6,7 +6,10 @@ export class AddFolderFileModal extends AddModal {
         const _addModal = this;
         this.header.text("Add folder or file");
         this.folderName = this.body.find("#name");
-        this.modal.on("show.bs.modal", () => this.folderName.val(""));
+        this.modal.on("show.bs.modal", () => {
+            this.folderName.val("");
+            this.modal.find(':file').val(null);
+        });
         this.modal.on("shown.bs.modal", () => this.folderName.focus());
         this.footer.find(".btn-primary").off("click").on("click", () => this.callback(this.folderName.val()));
 
