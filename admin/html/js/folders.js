@@ -65,13 +65,20 @@ class DataCRUD extends ListCRUD {
         this.detail();
     }
 
-    delete(type, id) {
+    async delete(type, id) {
         if (type === "u") {
             console.log("nah, not yet", id);
         }
         else {
             console.log("DELETE file", id);
-            dashboardFolderApi.deleteOne(id);
+            const resp = await dashboardFolderApi.deleteOne(id);
+            if (resp) {
+                showToast("Error", "Cannot delete folder. There are still files inside.")
+            }
+            else {
+                await this.fetch();
+                this.recreateTable();
+            }
         }
     }
 
