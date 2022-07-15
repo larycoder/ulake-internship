@@ -83,7 +83,8 @@ export class ListCRUD extends CRUD {
             this.table = $('#table').DataTable(  {
                 data: data,
                 paging: true,
-                columns: this.listFieldRenderer
+                columns: this.listFieldRenderer,
+                order: []
             });
         }
         else this.reloadTable(data);

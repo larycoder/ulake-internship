@@ -38,6 +38,7 @@ import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
@@ -164,7 +165,13 @@ public class FileResource {
     public Response delete(
         @HeaderParam("Authorization") String bearer,
         @PathParam("fileId") Long fileId) {
-        var file = fileSvc.deleteFile(bearer, fileId).getResp();
-        return resp.build(200, null, file);
+        try {
+            var file = fileSvc.deleteFile(bearer, fileId).getResp();
+            return resp.build(200, null, file);
+        } catch (LakeServiceNotFoundException e) {
+            return resp.build(404);
+        }
+
+
     }
 }
