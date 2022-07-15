@@ -10,67 +10,40 @@ import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.utils.TransferUtil;
 
-public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
-    private Recorder<InputStream> fileRecorder;
-    private Recorder<InputStream> ulakeRecorder;
-    private Map<Record, String> config;
+public class ULakeCacheFileRecorderImpl
+    implements Recorder<InputStream, String> {
+
+    private Recorder<InputStream, String> file = new FileRecorderImpl();
+    private Recorder<InputStream, String> ulake = new ULakeRecorderImpl();
 
     @Override
     public void setup(Map<Record, String> config) {
-        this.config = config;
-
-        var recorderSetting = new HashMap<Record, String>();
-        recorderSetting.put(Record.PATH, config.get(Record.PATH));
-
-        fileRecorder = new FileRecorderImpl();
-        fileRecorder.setup(recorderSetting);
-
-        ulakeRecorder = new ULakeRecorderImpl();
-        ulakeRecorder.setup(recorderSetting);
+        file.setup(config);
+        ulake.setup(config);
     }
 
     @Override
-    public void setup(Storage store) {
-    }
+    public void setup(Storage<String> store) {}
 
-    /**
-     *
-     * Note:
-     * meta includes:
-     *  1. LINK
-     *  2. NAME
-     *  3. TOKEN
-     *
-     */
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
-        fileRecorder.record(data, meta);
+        file.record(data, meta);
+        var fileMeta = new HashMap<Record, String>(meta);
+        for (var entry : file.info().entrySet())
+            fileMeta.put(Record.valueOf(entry.getKey()), entry.getValue());
 
-        var fileRecordLog = new HashMap<String, String>();
-        fileRecorder.info(fileRecordLog, null);
-
-        var fileRecordDetail = new HashMap<Record, String>();
-        for (String key : fileRecordLog.keySet()) {
-            Record newKey = Record.valueOf(key);
-            fileRecordDetail.put(newKey, fileRecordLog.get(key));
-        }
-        fileRecordDetail.put(Record.TOKEN, meta.get(Record.TOKEN));
-
-        TransferUtil util = new TransferUtil();
-        InputStream is = util.streamFromFile(
-                             (String) fileRecordDetail.get(Record.PATH));
-
-        ulakeRecorder.record(is, fileRecordDetail);
-        if (is != null) {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            InputStream is = TransferUtil.streamFromFile(
+                                 fileMeta.get(Record.PATH));
+            ulake.record(is, fileMeta);
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void info(Map<String, String> carrier, Map<Record, String> meta) {
+    public Map<String, String> info() {
+        return null;
     }
 }

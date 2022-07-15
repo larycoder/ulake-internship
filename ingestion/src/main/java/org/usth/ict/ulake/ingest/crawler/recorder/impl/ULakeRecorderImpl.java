@@ -14,18 +14,16 @@ import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 
-public class ULakeRecorderImpl implements Recorder<InputStream> {
+public class ULakeRecorderImpl implements Recorder<InputStream, String> {
     @Inject
     @RestClient
     DashboardService dashboardSvc;
 
     @Override
-    public void setup(Map<Record, String> config) {
-    }
+    public void setup(Map<Record, String> config) {}
 
     @Override
-    public void setup(Storage store) {
-    }
+    public void setup(Storage<String> store) {}
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
@@ -61,6 +59,7 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
     }
 
     @Override
-    public void info(Map<String, String> carrier, Map<Record, String> meta) {
+    public Map<String, String> info() {
+        return null;
     }
 }

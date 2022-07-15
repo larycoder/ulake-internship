@@ -15,7 +15,7 @@ import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.utils.TransferUtil;
 
-public class FileRecorderImpl implements Recorder<InputStream> {
+public class FileRecorderImpl implements Recorder<InputStream, String> {
     private String path; // saving path
     private byte[] streamCache = new byte[1024 * 1024];
     private Map<String, String> log = new HashMap<>(); // log record
