@@ -20,7 +20,7 @@ export class FolderAdapter extends BaseAdapter {
 
     transformFiles(files) {
         return files.map(f => { return {
-            id: `f${f.id}`,
+            id: `${f.id}`,
             name: f.name,
             size: f.size,
             type: `File (${f.mime})`,
@@ -46,8 +46,8 @@ export class FolderAdapter extends BaseAdapter {
 
     getAllRenderers() {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('F', '${row.id}', '${data}')">${data}</a>`;
-        ret.action = (data, type, row) => `<a href="#" onclick="window.crud.delete('F', '${row.id}', '${data}')"><i class="fas fa-trash"></i></a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
+        ret.action = (data, type, row) => `<a href="#" onclick="window.crud.delete('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')"><i class="fas fa-trash"></i></a>`;
         return ret;
     }
 }

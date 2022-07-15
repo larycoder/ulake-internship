@@ -48,6 +48,12 @@ public interface FileService {
     public LakeHttpResponse fileStats(
         @HeaderParam("Authorization") String bearer);
 
+    @DELETE
+    @Path("/file/{fileId}")
+    @Schema(description = "Delete a file")
+    public LakeHttpResponse deleteFile(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("fileId") Long fileId);
 
     @GET
     @Path("/folder")

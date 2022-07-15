@@ -7,7 +7,9 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -152,5 +154,17 @@ public class FileResource {
             log.error("Fail to create new file from object", e);
             return resp.build(500, "Fail to create new file from object");
         }
+    }
+
+    @DELETE
+    @Path("/{fileId}")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Delete a file")
+    public Response delete(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("fileId") Long fileId) {
+        var file = fileSvc.deleteFile(bearer, fileId).getResp();
+        return resp.build(200, null, file);
     }
 }

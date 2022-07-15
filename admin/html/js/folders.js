@@ -69,11 +69,22 @@ class DataCRUD extends ListCRUD {
         if (type === "u") {
             console.log("nah, not yet", id);
         }
-        else {
-            console.log("DELETE file", id);
+        else if (type === "F") {
+            console.log("DELETE folder", id);
             const resp = await dashboardFolderApi.deleteOne(id);
             if (resp) {
                 showToast("Error", "Cannot delete folder. There are still files inside.")
+            }
+            else {
+                await this.fetch();
+                this.recreateTable();
+            }
+        }
+        else if (type === "f") {
+            console.log("DELETE file", id);
+            const resp = await dashboardFileApi.deleteOne(id);
+            if (resp) {
+                showToast("Error", "Cannot delete file. Permission error?");
             }
             else {
                 await this.fetch();
