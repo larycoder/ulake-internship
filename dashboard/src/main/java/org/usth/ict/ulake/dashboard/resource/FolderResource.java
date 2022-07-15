@@ -206,11 +206,12 @@ public class FolderResource {
     }
 
     @DELETE
+    @Path("/{folderId}")
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Delete a folder")
     public Response delete(@HeaderParam("Authorization") String bearer,
-        @PathParam("id") @Parameter(description = "Folder id to delete") Long id) {
+        @PathParam("folderId") @Parameter(description = "Folder id to delete") Long id) {
         var folderResp = fileSvc.delFolder(bearer, id);
         return resp.build(200, null, folderResp.getResp());
     }

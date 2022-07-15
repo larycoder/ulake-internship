@@ -75,8 +75,7 @@ public class AclUtil {
         else if (ownerId.equals(jwtId))
             return true;
         else
-            return verifyShareObject(
-                       aclSvc, jwt, objId, permit, log, Type.FOLDER);
+            return verifyShareObject(aclSvc, jwt, objId, permit, log, Type.FOLDER);
     }
 
     public static Boolean verifyFolderAcl(
