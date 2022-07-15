@@ -197,7 +197,7 @@ public class TableStruct<T> {
     /**
      * Iterating throw each row and return it as map structure.
      * */
-    public Iterable<Map<String, T>> mapRowList() {
+    public Iterable<Map<String, T>> rowList() {
         return () -> new Iterator<Map<String, T>>() {
             int pos = 0;
 
