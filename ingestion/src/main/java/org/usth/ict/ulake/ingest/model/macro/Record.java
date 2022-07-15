@@ -1,9 +1,12 @@
 package org.usth.ict.ulake.ingest.model.macro;
 
 public enum Record {
-    // storing info configuration
-    PATH, HOST,
+    // file
+    FILE_PATH, FILE_SIZE, FILE_NAME,
 
-    // processing info configuration
-    NAME, LINK, TOKEN, FILE_SIZE
+    // ulake
+    TOKEN,
+
+    // status
+    STATUS
 }
