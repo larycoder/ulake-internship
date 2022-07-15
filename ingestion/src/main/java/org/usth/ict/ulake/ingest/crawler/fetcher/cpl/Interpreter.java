@@ -34,9 +34,11 @@ public class Interpreter {
         public Map<String, String> VAR_STACK;
     }
 
-    BufferStack stack;
-    HttpRawRequest client;
-    ObjectMapper mapper;
+    private BufferStack stack;
+    private HttpRawRequest client;
+    private ObjectMapper mapper;
+
+    public ASTNode ret; // return node after parsing
 
     public Interpreter(HttpRawRequest client) {
         this.client = client;
@@ -51,6 +53,10 @@ public class Interpreter {
         this(new HttpRawRequest());
     }
 
+    /**
+     * Execute and generate table from policy.
+     * Special Behavior: do not process
+     * */
     public TableStruct<String> eval(Policy policy) {
         Parser parser = new Parser();
         ASTNode tree = parser.parse(policy);
@@ -75,7 +81,7 @@ public class Interpreter {
         else if (tree.type == Type.REQ) visitReq(tree);
         else if (tree.type == Type.MAP) visitMap(tree);
         else if (tree.type == Type.VAR) visitVar(tree);
-        else if (tree.type == Type.RETURN) visitReturn(tree);
+        else if (tree.type == Type.RETURN) ret = tree; // process independent
         else error("Node type not found, receive: " + tree.token.toString());
     }
 
@@ -135,6 +141,37 @@ public class Interpreter {
     }
 
     private void visitReq(ASTNode node) {
+        List<HttpRawRequest> req = parseNodeToReq(node);
+        while (!req.isEmpty()) {
+            // parse and put result values to temp stack
+            HttpRawResponse resp = LakeHttpClient.send(req.remove(0));
+            try {
+                String respBody = new String(
+                    resp.body.readAllBytes(), StandardCharsets.UTF_8);
+                resp.body.close();
+
+                // try to save response as Map value
+                // if could not convert to Map then save raw String
+                var holder = new HashMap<String, Object>();
+                try {
+                    var respMap = mapper.readValue(respBody, Map.class);
+                    holder.put("data", respMap);
+                } catch (JsonProcessingException e) {
+                    holder.put("data", respBody);
+                }
+
+                stack.TEMP_STACK.add(holder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Helper method to parse request node to http request list.
+     * */
+    private List<HttpRawRequest> parseNodeToReq(ASTNode node) {
+        List<HttpRawRequest> req = new ArrayList<>();
         List<String> path = new ArrayList<>();
         List<String> body = new ArrayList<>();
         HttpRawRequest client = this.client.clone();
@@ -144,11 +181,11 @@ public class Interpreter {
             if (child.type == Type.METHOD) {
                 client.method = child.token.stringValue;
             } else if (child.type == Type.PATH) {
-                visitReqStringPattern(child);
+                parseReqStringPattern(child);
                 while (!stack.TEMP_STACK.isEmpty())
                     path.add(stack.TEMP_STACK.remove(0).toString());
             } else if (child.type == Type.BODY) {
-                visitReqStringPattern(child);
+                parseReqStringPattern(child);
                 while (!stack.TEMP_STACK.isEmpty())
                     body.add(stack.TEMP_STACK.remove(0).toString());
             } else if (child.type == Type.HEAD) {
@@ -166,35 +203,15 @@ public class Interpreter {
             var request = client.clone();
             request.addPath(param.get("path"));
             request.body = param.get("body");
-
-            // parse and put result values to temp stack
-            HttpRawResponse resp = LakeHttpClient.send(request);
-            try {
-                String respBody = new String(
-                    resp.body.readAllBytes(), StandardCharsets.UTF_8);
-                resp.body.close();
-
-                // try to save response as Map value
-                // if could not convert to Map then save raw String
-                var holder = new HashMap<String, Object>();
-                try {
-                    var respMap = mapper.readValue(respBody, Map.class);
-                    holder.put("data", respMap);
-                } catch(JsonProcessingException e) {
-                    holder.put("data", respBody);
-                }
-
-                stack.TEMP_STACK.add(holder);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            req.add(request);
         }
+        return req;
     }
 
     /**
-     * Helper method of visitReq method.
+     * Helper method to parse request pattern to request values.
      * */
-    private void visitReqStringPattern(ASTNode node) {
+    private void parseReqStringPattern(ASTNode node) {
         stack.TEMP_STACK.add(node.token.stringValue);
         for (ASTNode child : node.child)
             visit(child);
@@ -238,10 +255,6 @@ public class Interpreter {
         }
     }
 
-    private void visitReturn(ASTNode node) {
-        // TODO: preserve symbol
-    }
-
     /**
      * Replace all pattern string by new value.
      * Error behavior: if fail on value processing, the original is hold
@@ -251,19 +264,16 @@ public class Interpreter {
         var valueList = new ArrayList<String>();
         var holder = new HashMap<String, Object>();
         var type = new TypeReference<Map<String, Object>>() {};
-        var myVar = node.token.mapValue;
 
-        String key = "\\{" + myVar.getKey() + "\\}";
+        String key = "\\{" + node.token.mapValue.getKey() + "\\}";
 
         // detect and change variable to mere string
-        while (!myVar.getValue().isEmpty()) {
-            String value = myVar.getValue().remove(0);
+        for (String value : node.token.mapValue.getValue()) {
             if (value.startsWith("$"))
                 valueList.add(stack.VAR_STACK.get(value));
             else
                 valueList.add(value);
         }
-        myVar.setValue(valueList);
 
         // replace value by pattern
         while (!stack.TEMP_STACK.isEmpty()) {
@@ -274,7 +284,7 @@ public class Interpreter {
 
                 // replace by pattern and retrieve data from holder
                 // WARNING: process erases type of original object
-                for (String rplc : myVar.getValue()) {
+                for (String rplc : valueList) {
                     String newJson = json.replaceAll(key, rplc);
                     holder.putAll(mapper.readValue(newJson, type));
                     myList.add(holder.get("temp"));
@@ -285,5 +295,16 @@ public class Interpreter {
             }
         }
         stack.TEMP_STACK.addAll(myList);
+    }
+
+    /**
+     * Convert return node to list http request.
+     * @param node return node
+     * @param param parameter to process var in node
+     * */
+    public List<HttpRawRequest> visitReturn(
+        ASTNode node, Map<String, String> param) {
+        stack.VAR_STACK = param;
+        return parseNodeToReq(node);
     }
 }

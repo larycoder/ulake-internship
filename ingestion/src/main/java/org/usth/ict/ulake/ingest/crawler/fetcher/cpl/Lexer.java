@@ -52,7 +52,7 @@ public class Lexer {
             }
 
         if (policy.pReturn != null)
-            addToken(Type.RETURN, "");
+            pReturn(policy.pReturn);
 
         addToken(Type.END, "");
     }
@@ -141,6 +141,24 @@ public class Lexer {
             for (var entry : policyHead.entrySet()) {
                 addToken(Type.VAR, entry);
             }
+
+        addToken(Type.END, "");
+    }
+
+    private void pReturn(PolicyRequest policyReturn) {
+        addToken(Type.RETURN, "");
+
+        if (policyReturn.method != null)
+            addToken(Type.METHOD, policyReturn.method);
+
+        if (policyReturn.path != null)
+            path(policyReturn.path);
+
+        if (policyReturn.head != null)
+            head(policyReturn.head);
+
+        if (policyReturn.body != null)
+            body(policyReturn.body);
 
         addToken(Type.END, "");
     }

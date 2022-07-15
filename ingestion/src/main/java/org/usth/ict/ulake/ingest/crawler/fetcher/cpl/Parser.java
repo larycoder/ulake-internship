@@ -151,6 +151,17 @@ public class Parser {
     private ASTNode returnSymbol() {
         var node = new ASTNode(current_token);
         eat(Type.RETURN);
+
+        node.child.add(new ASTNode(current_token));
+        eat(Type.METHOD);
+
+        node.child.add(pathSymbol());
+        if (current_token.type == Type.HEAD)
+            node.child.add(headSymbol());
+        if (current_token.type == Type.BODY)
+            node.child.add(bodySymbol());
+
+        eat(Type.END);
         return node;
     }
 }
