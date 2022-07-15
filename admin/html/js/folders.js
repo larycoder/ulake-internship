@@ -158,9 +158,9 @@ class DataCRUD extends ListCRUD {
             name: file.name,
             mime: file.type,
             size: file.size,
-            parent_id: 0
+            parent_id: this.id
         }
-        const ret = await adminApi.upload(fileInfo, file);
+        const ret = await dashboardFileApi.upload(fileInfo, file);
         if (ret && ret.id) {
             // good upload, close and refresh
             this.addModal.modal.modal("hide");

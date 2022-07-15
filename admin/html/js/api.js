@@ -32,7 +32,11 @@ class Api {
         const req = { url: this.server + this.endpoint + url };
         if (method) req.method = method;
         if (headers) req.headers = headers;
-        if (body) req.body = typeof body === 'string' || body instanceof String? body : JSON.stringify(body);
+        if (body) {
+            if (typeof body === 'string' || body instanceof String || body instanceof FormData)
+                req.body = body;
+            else req.body = JSON.stringify(body);
+        }
         const data = await this.ajax(req);
         console.log(data);
         if (data && data.code === 200) return data.resp;
@@ -201,12 +205,19 @@ class GroupApi extends Api {
     }
 
     async upload(fileInfo, file) {
-        return await this.post("");
+        let formData = new FormData();
+        formData.append("fileInfo", new Blob([JSON.stringify(fileInfo)], {
+            type: "application/json"
+        }));
+        formData.append("file", new File([file], {
+            type: "application/octet-stream"
+        }));
+        return await this.post("", formData);
     }
 }
 
 /**
- * Specific API for Dashboard folde management
+ * Specific API for Dashboard folder management
  */
  class DashboardFolderApi extends Api {
     constructor () {
@@ -231,16 +242,6 @@ class GroupApi extends Api {
         super(getAdminUrl(), "/api/admin")
     }
 
-    async upload(fileInfo, file) {
-        let formData = new FormData();
-        formData.append("fileInfo", new Blob([JSON.stringify(fileInfo)], {
-            type: "application/json"
-        }));
-        formData.append("file", new File([file], {
-            type: "application/octet-stream"
-        }));
-        return await this.post("", formData);
-    }
 }
 
 const userApi = new UserApi();
