@@ -33,7 +33,7 @@ public class LakeHttpClient {
         var builder = HttpClient.newBuilder();
 
         if (conf.redirectStrategy != null)
-               builder = builder.followRedirects(conf.redirectStrategy);
+            builder = builder.followRedirects(conf.redirectStrategy);
 
         return builder.build();
     }
@@ -60,6 +60,10 @@ public class LakeHttpClient {
 
         HttpRawResponse lakeResp = null;
         try {
+            // delay before request
+            if (req.conf.delayMillsec != null)
+                Thread.sleep(req.conf.delayMillsec);
+
             var resp = client.send(
                            builder.build(), BodyHandlers.ofInputStream());
 
@@ -71,7 +75,6 @@ public class LakeHttpClient {
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-
         return lakeResp;
     }
 
