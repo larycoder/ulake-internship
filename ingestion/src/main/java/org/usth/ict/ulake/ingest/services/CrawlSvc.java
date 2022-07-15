@@ -17,16 +17,7 @@ import org.usth.ict.ulake.ingest.model.macro.Record;
 public class CrawlSvc {
     private static final Logger log = LoggerFactory.getLogger(CrawlSvc.class);
 
-    private FetchConfig fetchMode(String mode) {
-        if (mode.equals("fetch")) {
-            return FetchConfig.FETCH;
-        } else if (mode.equals("download")) {
-            return FetchConfig.DOWNLOAD;
-        }
-        return null;
-    }
-
-    public Map<String, Object> runCrawl(Policy policy, String mode) {
+    public Map<String, Object> runCrawl(Policy policy, FetchConfig mode) {
         log.info("Setup recorder...");
         var recorder = new ULakeCacheFileRecorderImpl();
         Map<Record, String> recordConfig = new HashMap<>();
@@ -36,7 +27,7 @@ public class CrawlSvc {
         log.info("Setup fetcher...");
         var fetcher = new FetcherImpl();
         Map<FetchConfig, String> fetchConfig = new HashMap<>();
-        fetchConfig.put(FetchConfig.MODE, fetchMode(mode).toString());
+        fetchConfig.put(FetchConfig.MODE, mode.toString());
         fetcher.setup(fetchConfig);
 
         log.info("Run fetcher...");
