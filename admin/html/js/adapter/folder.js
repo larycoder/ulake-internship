@@ -1,7 +1,7 @@
-import { BaseWrapper } from "./base.js";
+import { BaseAdapter } from "./base.js";
 import { folderApi } from "../api.js";
 
-export class FolderWrapper extends BaseWrapper {
+export class FolderAdapter extends BaseAdapter {
     constructor (config) {
         if (!config) config = {};
         config.api = folderApi;

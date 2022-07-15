@@ -1,9 +1,9 @@
 
 /**
- * A generic wrapper for data on the backend
+ * A generic adapter for data on the backend
  * For showing all entities in the same data table
  */
-export class BaseWrapper {
+export class BaseAdapter {
     constructor (config) {
         this.api = config.api;
     }

@@ -1,6 +1,6 @@
 import { ListCRUD } from "./crud/listcrud.js";
-import { UserWrapper } from "./datawrapper/user.js";
-import { FolderWrapper } from "./datawrapper/folder.js";
+import { UserAdapter } from "./adapter/user.js";
+import { FolderAdapter } from "./adapter/folder.js";
 import { userApi, adminApi, dashboardFileApi, dashboardFolderApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
@@ -18,9 +18,9 @@ class DataCRUD extends ListCRUD {
         this.id = 0;        // 0: everyone. else: userid or folderid
         this.type = "u";    // u, F: user or folder
         this.path = [ { type: "u", id: 0 }];    //
-        this.userWrapper = new UserWrapper();
-        this.folderWrapper = new FolderWrapper();
-        this.dataWrapper = this.userWrapper;
+        this.userAdapter = new UserAdapter();
+        this.folderAdapter = new FolderAdapter();
+        this.dataAdapter = this.userAdapter;
         this.fields = ["id", "name", "type", "size", "action" ];
 
         this.breadcrumb = new Breadcrumb({
@@ -33,26 +33,26 @@ class DataCRUD extends ListCRUD {
     }
 
     /**
-     * Update UI renderer whenver we change our data wrapper
+     * Update UI renderer whenver we change our data adapter
      */
     setRenderers() {
         this.listFieldRenderer = this.fields.map(f => {return {
             data: f,
-            render: this.dataWrapper.getRenderer(f)
+            render: this.dataAdapter.getRenderer(f)
         }});
     }
 
     /**
-     * Get transformed data from the data wrapper
+     * Get transformed data from the data adapter
      */
     async fetch() {
         this.startSpinner();
         // select the correct adapter
-        if (this.type === "u" && this.id === 0) this.dataWrapper = this.userWrapper;
-        else this.dataWrapper = this.folderWrapper;
+        if (this.type === "u" && this.id === 0) this.dataAdapter = this.userAdapter;
+        else this.dataAdapter = this.folderAdapter;
 
-        const raw = await this.dataWrapper.fetch(this.type, this.id);
-        this.data = this.dataWrapper.transform(raw);
+        const raw = await this.dataAdapter.fetch(this.type, this.id);
+        this.data = this.dataAdapter.transform(raw);
 
         // prepare for detail() to render the table
         this.setRenderers();
