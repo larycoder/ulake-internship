@@ -22,7 +22,7 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
     }
 
     @Override
-    public void setup(Storage<String> store, Recorder<InputStream> consumer) {}
+    public void setup(Storage<String> store, Recorder<InputStream, String> consumer) {}
 
     @Override
     public Map<String, Object> fetch(Policy policy) {

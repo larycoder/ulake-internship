@@ -9,6 +9,6 @@ import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 
 public interface Fetcher<S, R> {
     void setup(Map<FetchConfig, String> config);
-    void setup(Storage<S> store, Recorder<R> consumer);
+    void setup(Storage<S> store, Recorder<R, S> consumer);
     Map<String, Object> fetch(Policy query);
 }
