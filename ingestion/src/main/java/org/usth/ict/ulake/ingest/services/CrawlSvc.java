@@ -21,7 +21,7 @@ public class CrawlSvc {
         log.info("Setup recorder...");
         var recorder = new ULakeCacheFileRecorderImpl();
         Map<Record, String> recordConfig = new HashMap<>();
-        recordConfig.put(Record.PATH, "/tmp/ulake");
+        recordConfig.put(Record.FILE_PATH, "/tmp/ulake");
         recorder.setup(recordConfig);
 
         log.info("Setup fetcher...");
