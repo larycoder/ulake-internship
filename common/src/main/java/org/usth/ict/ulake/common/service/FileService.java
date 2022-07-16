@@ -36,6 +36,14 @@ public interface FileService {
         @PathParam("fileId") Long fileId,
         @HeaderParam("Authorization") String bearer);
 
+    @PUT
+    @Path("/file/{fileId}")
+    @Schema(description = "update file information")
+    public LakeHttpResponse fileUpdate(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("fileId") Long fileId,
+        FileModel file);
+
     @POST
     @Path("/file")
     @Schema(description = "create new file")

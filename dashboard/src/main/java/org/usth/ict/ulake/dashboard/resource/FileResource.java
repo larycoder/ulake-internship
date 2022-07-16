@@ -11,6 +11,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,6 +39,7 @@ import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
 import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
@@ -154,6 +156,27 @@ public class FileResource {
         } catch (Exception e) {
             log.error("Fail to create new file from object", e);
             return resp.build(500, "Fail to create new file from object");
+        }
+    }
+
+    @PUT
+    @Path("/{fileId}")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "update file detail")
+    public Response fileUpdate(
+        @HeaderParam("Authorization") String bearer,
+        @PathParam("fileId") Long fileId,
+        FileModel file) {
+        try {
+            var resp = fileSvc.fileUpdate(bearer, fileId, file);
+            return resp.build(200, null, file);
+        }
+        catch (LakeServiceNotFoundException e) {
+            return resp.build(404);
+        }
+        catch (LakeServiceForbiddenException e) {
+            return resp.build(403);
         }
     }
 
