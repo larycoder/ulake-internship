@@ -24,6 +24,10 @@ public class CrawlSvc {
     @RestClient
     DashboardService svc;
 
+    /**
+     * Start crawl process.
+     * Aware Behavior: file is stored to dir: "/tmp/ulake" before pushed to lake
+     * */
     public Map<String, Object> runCrawl(
         Policy policy, FetchConfig mode, Long folderId, String token) {
         log.info("Setup recorder...");
