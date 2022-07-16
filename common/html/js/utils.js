@@ -41,6 +41,10 @@ function getAdminUrl() {
     return window.location.protocol + "//admin." + getBaseDomain();
 }
 
+function getExtractUrl() {
+    return window.location.protocol + "//extract." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');

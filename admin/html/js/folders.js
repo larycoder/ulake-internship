@@ -30,7 +30,7 @@ class DataCRUD extends ListCRUD {
             });
         this.breadcrumb.render();
         this.addModal = new AddFolderFileModal((folderName) => this.add(folderName));
-        this.renameModal = new RenameModal((name) => this.renameItem(name));
+        this.renameModal = new RenameModal((name) => this.rename(name));
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -67,7 +67,7 @@ class DataCRUD extends ListCRUD {
         this.detail();
     }
 
-    async delete(type, id) {
+    async deleteClick(type, id) {
         this.startSpinner();
         if (type === "u") {
             showToast("Error", "No, deleting user should not be here...");
@@ -157,9 +157,8 @@ class DataCRUD extends ListCRUD {
 
     /**
      * Event handler for 'rename' button click on list
-     * @param {String} folderName new folder name
      */
-    rename(type, id, name) {
+    renameClick(type, id, name) {
         this.renameModal.id = id;
         this.renameModal.type = type;
         this.renameModal.oldName = name;
@@ -167,10 +166,20 @@ class DataCRUD extends ListCRUD {
     }
 
     /**
-     * Event handler for 'rename' button click on rename modal
+     * Event handler for 'extract' button click on list
+     */
+     extractClick(type, id, name) {
+        this.renameModal.id = id;
+        this.renameModal.type = type;
+        this.renameModal.oldName = name;
+        this.renameModal.modal.modal('show');
+    }
+
+    /**
+     * Perform rename file/folder
      * @param {String} folderName new folder name
      */
-    async renameItem(newName) {
+    async rename(newName) {
         console.log(`renaming id ${this.renameModal.id} of type ${this.renameModal.type} to ${newName}`);
         let ret = null;
         if (this.renameModal.type === "f") {

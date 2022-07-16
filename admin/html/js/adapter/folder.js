@@ -24,6 +24,7 @@ export class FolderAdapter extends BaseAdapter {
             name: f.name,
             size: f.size,
             type: `File (${f.mime})`,
+            mime: f.mime,
             action: f.id
         }});
     }
@@ -47,9 +48,17 @@ export class FolderAdapter extends BaseAdapter {
     getAllRenderers() {
         let ret = super.getAllRenderers();
         ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
-        ret.action = (data, type, row) =>
-            `<a href="#" onclick="window.crud.rename('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>
-             <a href="#" onclick="window.crud.delete('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
+        ret.action = (data, type, row) => {
+            let html = "";
+            html += `<a href="#" title="Rename" onclick="window.crud.renameClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>`
+            html += `<a href="#" title="Delete" onclick="window.crud.deleteClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
+            if (row.mime === "application/zip") {
+                html += `<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
+            }
+            console.log(`item ${row.name}: ${row.mime}`);
+            return html;
+        }
+
             ;
         return ret;
     }

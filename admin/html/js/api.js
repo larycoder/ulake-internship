@@ -259,7 +259,15 @@ class GroupApi extends Api {
     constructor () {
         super(getAdminUrl(), "/api/admin")
     }
+}
 
+/**
+ * Specific API for Extract request management
+ */
+ class ExtractApi extends Api {
+    constructor () {
+        super(getExtractUrl(), "/api/extract")
+    }
 }
 
 const userApi = new UserApi();
@@ -274,7 +282,11 @@ const folderApi = new FolderApi();
 const dashboardFileApi = new DashboardFileApi();
 const dashboardFolderApi = new DashboardFolderApi();
 const adminApi = new AdminApi();
+const extractApi = new ExtractApi();
 
 $("#userName").text(getUserName());
 
-export { userApi, authApi, groupApi, objectApi, tableApi, logApi, compressApi, fileApi, folderApi, dashboardFileApi, dashboardFolderApi, adminApi };
+export { userApi, authApi, groupApi, objectApi, tableApi };
+export { logApi, compressApi, fileApi, folderApi };
+export { dashboardFileApi, dashboardFolderApi, adminApi };
+export { extractApi };
