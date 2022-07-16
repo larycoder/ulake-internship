@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.ingest.crawler.recorder.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
@@ -49,14 +50,18 @@ public class ULakeCacheFileRecorderImpl
                 ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
 
             // stream data to lake storage
-            InputStream is = TransferUtil.streamFromFile(
-                                 ulakeMeta.get(Record.FILE_PATH));
+            String pathFile = ulakeMeta.get(Record.FILE_PATH);
+            InputStream is = TransferUtil.streamFromFile(pathFile);
             ulake.record(is, ulakeMeta);
 
             sysLog.debug("Pushed local to lake storage...");
 
             log.putAll(ulake.info());
+
+            // clean temporary file
             if (is != null) is.close();
+            new File(pathFile).delete();
+
         } catch (IOException e) {
             e.printStackTrace();
             log.put(Record.STATUS.toString(),
