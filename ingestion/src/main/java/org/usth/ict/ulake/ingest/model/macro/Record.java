@@ -5,7 +5,7 @@ public enum Record {
     FILE_PATH, FILE_SIZE, FILE_NAME,
 
     // ulake
-    TOKEN,
+    TOKEN, STORAGE_DIR,
 
     // status
     STATUS
