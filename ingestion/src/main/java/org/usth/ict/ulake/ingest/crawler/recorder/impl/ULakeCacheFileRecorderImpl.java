@@ -6,6 +6,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
@@ -14,9 +17,15 @@ import org.usth.ict.ulake.ingest.utils.TransferUtil;
 public class ULakeCacheFileRecorderImpl
     implements Recorder<InputStream, String> {
 
+    private static final Logger sysLog = LoggerFactory.getLogger(ULakeCacheFileRecorderImpl.class);
+
     private Recorder<InputStream, String> file = new FileRecorderImpl();
-    private Recorder<InputStream, String> ulake = new ULakeRecorderImpl();
     private Map<String, String> log = new HashMap<>();
+    private Recorder<InputStream, String> ulake;
+
+    public ULakeCacheFileRecorderImpl(DashboardService svc) {
+        ulake = new ULakeRecorderImpl(svc);
+    }
 
     @Override
     public void setup(Map<Record, String> config) {
@@ -32,19 +41,22 @@ public class ULakeCacheFileRecorderImpl
         try {
             file.record(data, meta);
 
+            sysLog.debug("Loaded file to temporary local...");
+
             // prepare lake meta information
             var ulakeMeta = new HashMap<Record, String>();
             for (var e : file.info().entrySet())
                 ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
 
             // stream data to lake storage
-            String path = Paths.get(ulakeMeta.get(Record.FILE_PATH),
-                                    ulakeMeta.get(Record.FILE_NAME)).toString();
-            InputStream is = TransferUtil.streamFromFile(path);
+            InputStream is = TransferUtil.streamFromFile(
+                                 ulakeMeta.get(Record.FILE_PATH));
             ulake.record(is, ulakeMeta);
 
+            sysLog.debug("Pushed local to lake storage...");
+
             log.putAll(ulake.info());
-            is.close();
+            if (is != null) is.close();
         } catch (IOException e) {
             e.printStackTrace();
             log.put(Record.STATUS.toString(),

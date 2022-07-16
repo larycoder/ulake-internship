@@ -4,29 +4,37 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 
 public class ULakeRecorderImpl implements Recorder<InputStream, String> {
+    private static final Logger sysLog = LoggerFactory.getLogger(ULakeRecorderImpl.class);
     private Map<String, String> log = new HashMap<>();
+    private FileModel fileInfo = new FileModel();
     private String tokenAuth;
-    private FileModel fileInfo;
+    private DashboardService dashboardSvc;
 
-    @Inject
-    @RestClient
-    DashboardService dashboardSvc;
+    public ULakeRecorderImpl(DashboardService svc) {
+        dashboardSvc = svc;
+    }
 
     @Override
     public void setup(Map<Record, String> config) {
         tokenAuth = config.get(Record.TOKEN);
-        // TODO: setup default file info
+
+        // folder holding crawled files
+        if (config.get(Record.STORAGE_DIR) != null) {
+            var dir = new FolderModel();
+            dir.id = Long.parseLong(config.get(Record.STORAGE_DIR));
+            fileInfo.parent = dir;
+        }
     }
 
     @Override
@@ -34,21 +42,15 @@ public class ULakeRecorderImpl implements Recorder<InputStream, String> {
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
-        var name = meta.get(Record.FILE_NAME);
-        var size = Long.parseLong(meta.get(Record.FILE_SIZE));
-
-        // setup metadata
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("name", name);
-        metadata.put("length", size);
-
         try {
-            fileInfo.name = name;
-            fileInfo.size = size;
+            fileInfo.name = meta.get(Record.FILE_NAME);
+            fileInfo.size = Long.parseLong(meta.get(Record.FILE_SIZE));
 
             FileFormModel file = new FileFormModel();
             file.fileInfo = fileInfo;
             file.is = data;
+
+            sysLog.debug("crawl token: " + tokenAuth);
 
             dashboardSvc.newFile(tokenAuth, file);
             log.put(Record.STATUS.toString(),

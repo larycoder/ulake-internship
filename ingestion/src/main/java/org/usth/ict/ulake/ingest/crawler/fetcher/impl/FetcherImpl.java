@@ -80,22 +80,34 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
      * Aware Behavior: filename in header must follow content-disposition syntax
      * */
     private Boolean save(HttpRawRequest request, Map<String, String> meta) {
+        log.debug("Crawl file...");
+
         String filename;
         HttpRawResponse resp = LakeHttpClient.send(request);
 
-        String cd = resp.headers.get("content-disposition").get(0);
-        if (cd != null && cd.contains("filename")) { // filename in header
+        log.debug("Received response:");
+        log.debug("status: " + resp.statusCode);
+        log.debug("path: " + resp.uri);
+        log.debug("headers: " + resp.headers);
+
+        var cd = resp.headers.get("content-disposition");
+        if (cd != null && cd.get(0).contains("filename")) { // filename in header
             // NOTE: disposition string expected example:
             // attachment; filename=Hello_world.txt
-            filename = cd.split("=")[1].strip();
+            filename = cd.get(0).split("=")[1].strip();
         } else { // filename from URI
             String[] uri = resp.uri.split("/");
             filename = uri[uri.length - 1].strip();
         }
 
+        log.debug("Filename: " + filename);
+
         Map<Record, String> myMeta = new HashMap<>();
         myMeta.put(Record.FILE_NAME, filename);
         consumer.record(resp.body, myMeta);
+
+        log.debug("Done save file...");
+
         return Boolean.valueOf(
                    consumer.info().get(Record.STATUS.toString()));
     }
