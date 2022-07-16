@@ -214,7 +214,7 @@ class DataCRUD extends ListCRUD {
     async mkdir(folderName) {
         let id = this.id;
         let ownerId = null;
-        if (this.type ==="u") {
+        if (this.type === "u") {
             id = 0;
             ownerId = this.id;
         }

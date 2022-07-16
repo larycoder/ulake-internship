@@ -235,7 +235,9 @@ class GroupApi extends Api {
     async mkdir(name, parentId, ownerId) {
         const info = {
             name: name,
-            parentId: parentId
+            parent: {
+                id: parentId
+            }
         }
         if (ownerId) info.ownerId = ownerId;
         return await this.create(info);
