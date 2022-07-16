@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.ingest.resources;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.DELETE;
@@ -33,6 +34,7 @@ public class ConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "list all configuration")
     public Response list() {
         return resp.build(200, "", repo.listAll());
@@ -41,6 +43,7 @@ public class ConfigurationResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "get configure by id")
     public Response one(@PathParam("id") Long id) {
         UserConfigure conf = repo.findById(id);
@@ -52,6 +55,7 @@ public class ConfigurationResource {
     @GET
     @Path("/{id}/query")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
     @Operation(summary = "get query by configure id")
     public Response configure(@PathParam("id") Long id) {
         UserConfigure conf = repo.findById(id);
@@ -61,9 +65,10 @@ public class ConfigurationResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "add new configuration")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "add new configuration")
     public Response post(UserConfigure conf) {
         repo.persist(conf);
         return resp.build(200, "", conf);
@@ -71,9 +76,10 @@ public class ConfigurationResource {
 
     @PUT
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "update a configuration")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "update a configuration")
     public Response update(
         @PathParam("id") Long id,
         @RequestBody UserConfigure entity) {
@@ -90,9 +96,10 @@ public class ConfigurationResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "delete a configuration")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "delete a configuration")
     public Response delete (@PathParam("id") Long id) {
         UserConfigure conf = repo.findById(id);
         if (conf == null)
