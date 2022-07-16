@@ -214,6 +214,14 @@ class GroupApi extends Api {
         }));
         return await this.post("", formData);
     }
+
+    async rename(id, name) {
+        const info = {
+            id: id,
+            name: name
+        }
+        return await this.save(id, info);
+    }
 }
 
 /**
@@ -231,6 +239,14 @@ class GroupApi extends Api {
         }
         if (ownerId) info.ownerId = ownerId;
         return await this.create(info);
+    }
+
+    async rename(id, name) {
+        const info = {
+            id: id,
+            name: name
+        }
+        return await this.save(id, info);
     }
 }
 

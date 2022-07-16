@@ -1,7 +1,7 @@
 export class AddModal {
-    constructor(callback) {
+    constructor(callback, modalId) {
         this.callback = callback;
-        this.modal = $("#add-modal");
+        this.modal = $(modalId ? modalId : "#add-modal");
         this.header = this.modal.find(".modal-title");
         this.body = this.modal.find(".modal-body");
         this.footer = this.modal.find(".modal-footer");

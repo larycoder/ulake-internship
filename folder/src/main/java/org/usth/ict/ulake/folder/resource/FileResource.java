@@ -163,6 +163,8 @@ public class FileResource {
 
         if (!Utils.isEmpty(data.mime)) file.mime = data.mime;
         if (!Utils.isEmpty(data.name)) file.name = data.name;
+
+        // TODO: change ownership should be verified carefully.
         if (data.ownerId != null) file.ownerId = data.ownerId;
 
         if (data.parent != null && data.parent.id != null) {
@@ -170,8 +172,7 @@ public class FileResource {
             if (parent == null)
                 return response.build(403, "Parent folder is not existed");
 
-            if (!AclUtil.verifyFolderAcl(
-                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
+            if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
                 return response.build(403, "Move file not allowed");
             file.parent = parent;
         }

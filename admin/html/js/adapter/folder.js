@@ -35,7 +35,7 @@ export class FolderAdapter extends BaseAdapter {
     }
 
     async fetch(type, parent) {
-        if (type === "u") {
+    if (type === "u") {
             return await this.api.root(parent);
         }
         else {
@@ -47,7 +47,10 @@ export class FolderAdapter extends BaseAdapter {
     getAllRenderers() {
         let ret = super.getAllRenderers();
         ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
-        ret.action = (data, type, row) => `<a href="#" onclick="window.crud.delete('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')"><i class="fas fa-trash"></i></a>`;
+        ret.action = (data, type, row) =>
+            `<a href="#" onclick="window.crud.rename('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>
+             <a href="#" onclick="window.crud.delete('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
+            ;
         return ret;
     }
 }

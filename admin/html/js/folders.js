@@ -4,6 +4,7 @@ import { FolderAdapter } from "./adapter/folder.js";
 import { userApi, adminApi, dashboardFileApi, dashboardFolderApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
+import { RenameModal } from "./folders/rename.js";
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {
@@ -29,6 +30,7 @@ class DataCRUD extends ListCRUD {
             });
         this.breadcrumb.render();
         this.addModal = new AddFolderFileModal((folderName) => this.add(folderName));
+        this.renameModal = new RenameModal((name) => this.renameItem(name));
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -153,6 +155,40 @@ class DataCRUD extends ListCRUD {
         else this.mkdir(folderName);
     }
 
+    /**
+     * Event handler for 'rename' button click on list
+     * @param {String} folderName new folder name
+     */
+    rename(type, id, name) {
+        this.renameModal.id = id;
+        this.renameModal.type = type;
+        this.renameModal.oldName = name;
+        this.renameModal.modal.modal('show');
+    }
+
+    /**
+     * Event handler for 'rename' button click on rename modal
+     * @param {String} folderName new folder name
+     */
+    async renameItem(newName) {
+        console.log(`renaming id ${this.renameModal.id} of type ${this.renameModal.type} to ${newName}`);
+        let ret = null;
+        if (this.renameModal.type === "f") {
+            ret = await dashboardFileApi.rename(this.renameModal.id, newName);
+        }
+        else if (this.renameModal.type === "F") {
+            ret = await dashboardFolderApi.rename(this.renameModal.id, newName);
+        }
+        if (ret && ret.id) {
+            // good rename, refresh
+            await this.fetch();
+            this.recreateTable();
+            this.renameModal.modal.modal("hide");
+            showToast("Info", $(`<span>Renamed ${this.renameModal.type === "F"? "folder" : "file"} to ${newName} successfully <i class="far fa-smile"></i>.</span>`));
+        }
+    }
+
+
     async upload(file) {
         this.addModal.modal.modal("hide");
         this.startSpinner();
@@ -192,7 +228,6 @@ class DataCRUD extends ListCRUD {
     }
 
     addClick() {
-        console.log("on add", this.id);
         if (this.id === 0) {
             showToast("Error", "Please select a user first");
         }
