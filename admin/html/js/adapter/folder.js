@@ -55,11 +55,8 @@ export class FolderAdapter extends BaseAdapter {
             if (row.mime === "application/zip") {
                 html += `<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
             }
-            console.log(`item ${row.name}: ${row.mime}`);
             return html;
-        }
-
-            ;
+        };
         return ret;
     }
 }

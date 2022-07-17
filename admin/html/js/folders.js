@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, adminApi, dashboardFileApi, dashboardFolderApi } from "./api.js";
+import { userApi, adminApi, dashboardFileApi, dashboardFolderApi, extractApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
@@ -168,11 +168,14 @@ class DataCRUD extends ListCRUD {
     /**
      * Event handler for 'extract' button click on list
      */
-     extractClick(type, id, name) {
-        this.renameModal.id = id;
-        this.renameModal.type = type;
-        this.renameModal.oldName = name;
-        this.renameModal.modal.modal('show');
+    async extractClick(type, id, name) {
+        const req = {
+            fileId: id,
+            folderId: this.type === "u" ? 0: this.id
+        }
+        const reqId = await extractApi.create(req);
+        console.log(reqId);
+
     }
 
     /**

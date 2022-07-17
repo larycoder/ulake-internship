@@ -1,7 +1,7 @@
 /**
  * Generalized Api class for a specific CRUD endpoint
  */
-class Api {
+export class Api {
     constructor(server, endpoint) {
         this.server = server;
         this.endpoint = endpoint;

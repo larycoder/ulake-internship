@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!--# include virtual="/inc/css.html" -->
+    <title>ULake Extract Task Detail</title>
+</head>
+
+<body id="page-top">
+
+    <!--# include virtual="/inc/tokencheck.html" -->
+    <div id="wrapper">
+
+        <!--# include virtual="/inc/main/sidebar.html" -->
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!--# include virtual="/inc/main/topbar.html" -->
+
+                <div class="container-fluid">
+                    <!-- Content Row -->
+                    <div class="row">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-7">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 id="name-detail" class="m-0 font-weight-bold text-primary">Extraction Task Detail</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table id="table" class="table hover stripe">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Size</th>
+                                                <th>MIME</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--# include virtual="/inc/copyright.html" -->
+        </div>
+    </div>
+
+    <!--# include virtual="/inc/logoutModal.html" -->
+    <!--# include virtual="/inc/scripts.html" -->
+    <script src="/js/extract/view.js" type="module"></script>
+</body>
+
+</html>
