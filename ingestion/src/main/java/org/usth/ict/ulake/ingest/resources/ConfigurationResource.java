@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.ingest.resources;
 
+import java.util.Date;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.ingest.model.UserConfigure;
 import org.usth.ict.ulake.ingest.persistence.UserConfigureRepo;
@@ -70,6 +73,7 @@ public class ConfigurationResource {
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "add new configuration")
     public Response post(UserConfigure conf) {
+        conf.createdTime = conf.updatedTime = new Date().getTime();
         repo.persist(conf);
         return resp.build(200, "", conf);
     }
@@ -88,7 +92,12 @@ public class ConfigurationResource {
             return resp.build(404, "Configuration not found");
 
         if (entity.query != null) conf.query = entity.query;
-        if (entity.ownerId != null) conf.query = entity.query;
+        if (entity.ownerId != null) conf.ownerId = entity.ownerId;
+
+        if (!Utils.isEmpty(entity.description))
+            conf.description = entity.description;
+
+        conf.updatedTime = new Date().getTime();
 
         repo.persist(conf);
         return resp.build(200, "", conf);
