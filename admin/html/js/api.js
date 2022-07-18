@@ -172,6 +172,10 @@ class GroupApi extends Api {
     async countFiles(id) {
         return await this.get(`/${id}/count`);
     }
+
+    async start(id) {
+        return await this.post(`/${id}/start`);
+    }
 }
 
 /**
@@ -235,9 +239,9 @@ class GroupApi extends Api {
     async mkdir(name, parentId, ownerId) {
         const info = {
             name: name,
-            parent: {
-                id: parentId
-            }
+        };
+        if (parentId) {
+            info.parent = { id : parentId };
         }
         if (ownerId) info.ownerId = ownerId;
         return await this.create(info);
@@ -267,6 +271,14 @@ class GroupApi extends Api {
  class ExtractApi extends Api {
     constructor () {
         super(getExtractUrl(), "/api/extract")
+    }
+
+    async start(id) {
+        return await this.post(`/${id}/start`);
+    }
+
+    async result(id) {
+        return await this.get(`/${id}/result`);
     }
 }
 

@@ -173,9 +173,18 @@ class DataCRUD extends ListCRUD {
             fileId: id,
             folderId: this.type === "u" ? 0: this.id
         }
-        const reqId = await extractApi.create(req);
-        console.log(reqId);
-
+        const ret = await extractApi.create(req);
+        console.log(ret);
+        if (ret && ret.id) {
+            const retStart = await extractApi.start(ret.id);
+            if (retStart && retStart.id) {
+                showToast("Info", $('<span>Extracting <i class="fas fa-spinner fa-spin"></i></span>'));
+                this.checkExtractResult(retStart.id);
+            }
+            else {
+                showToast("Error", $('<span>Error while extracting <i class="fas fa-exclamation-circle"></i></span>'));
+            }
+        }
     }
 
     /**
@@ -227,7 +236,7 @@ class DataCRUD extends ListCRUD {
         let id = this.id;
         let ownerId = null;
         if (this.type === "u") {
-            id = 0;
+            id = null;
             ownerId = this.id;
         }
         const ret = await dashboardFolderApi.mkdir(folderName, id, ownerId);
@@ -247,6 +256,25 @@ class DataCRUD extends ListCRUD {
             this.addModal.modal.modal('show');
         }
     }
+
+    async checkExtractResult(extractId) {
+        const ret = await extractApi.result(extractId);
+        if (ret && ret.id) {
+            if (ret.finishedTime > 0) {
+                showToast("Info", $(`Finished!`));
+                await this.fetch();
+                this.recreateTable();
+            }
+            else {
+                showToast("Info", $(`Still sxtracting <i class="fas fa-spinner fa-spin"></i>`));
+                window.setTimeout(() => {
+                    this.checkExtractResult(extractId);
+                }, 5000);
+            }
+        }
+    }
+
+
 }
 
 
