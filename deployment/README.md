@@ -6,7 +6,7 @@ Document version: 0.2.0
 
 ### Interface
 
-1. Reverse proxy (nginx)                       port: 8080
+1. Reverse proxy (nginx)                       port: 18080
 
 ### Services
 

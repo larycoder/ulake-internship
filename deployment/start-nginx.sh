@@ -2,7 +2,7 @@
 
 # Predefine variable
 HOST="ulake-nginx";
-PORT="8080";
+PORT="18080";
 BASE_DIR=$(readlink -f $(dirname $0));
 ROOT_DIR=$(readlink -f $BASE_DIR/../);
 CONF="$BASE_DIR/nginx.conf";
