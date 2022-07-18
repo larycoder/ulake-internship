@@ -5,4 +5,4 @@ tar -xvf ulake.tar;
 mv ulake/* .;
 mv ulake/.* .;
 rm ulake.tar;
-./gradlew build;
+./gradlew jar;
