@@ -41,27 +41,39 @@ public class ExtractTask implements ExtractCallback {
     public void run() {
         // prepare request files and result object
         var req = getRequest();
+        log.info("Going into the request {}...", req);
+
 
         result = new ExtractResult();
         result.requestId = requestId;
         result.ownerId = req.userId;
         result.progress = 0L;
+        log.info("Before persisting result");
         repoResult.persist(result);
+
+        log.info("After persisting result");
 
         // go
         extractor.extract(req, result, this);
+        log.info("After extracting result");
         repoResult.persist(result);
 
         // push all extracted files to dashboard
+        log.info("Before listing extracting result");
         List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", this.requestId);
+        log.info("After listing extracting result");
         for (var file: resultFiles) {
+            log.info("Before pushing local file to server");
             String localFilePath = pushFile(file);
+            log.info("Before deleting local file");
             deleteLocalFile(localFilePath);
         }
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
+        log.info("Before persisting finishedTime for completion");
         repoReq.persist(req);
+        log.info("After persisting finishedTime for completion");
     }
 
     private ExtractRequest getRequest() {

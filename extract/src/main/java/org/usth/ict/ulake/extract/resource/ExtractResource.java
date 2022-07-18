@@ -194,7 +194,13 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        executor.submit(() -> extract(bearer, id));
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                log.info("Starting in the runnable");
+                extract(bearer, id);
+            }
+        });
 
         return response.build(200, "", req);
     }
@@ -231,10 +237,12 @@ public class ExtractResource {
      * @param id Compression request Id
      */
     @Transactional(Transactional.TxType.REQUIRES_NEW)
+    //@Transactional(Transactional.TxType.MANDATORY)
     public void extract(String bearer, Long id) {
         log.info("Start extraction in managed executor");
-        Extractor compressor = new ZipExtractor(bearer, coreService, fileService, dashboardService);
-        ExtractTask task = new ExtractTask(compressor, id, repoReq, repoResFile, repoRes);
+        log.info("Really Start extraction in managed executor");
+        Extractor extractor = new ZipExtractor(bearer, coreService, fileService, dashboardService);
+        ExtractTask task = new ExtractTask(extractor, id, repoReq, repoResFile, repoRes);
         task.run();
     }
 }
