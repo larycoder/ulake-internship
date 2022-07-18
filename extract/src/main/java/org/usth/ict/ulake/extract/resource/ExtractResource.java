@@ -30,6 +30,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -210,7 +211,12 @@ public class ExtractResource {
         //     // extractorBean.token = bearer;
         //     extractorBean.extract(id);
         // });
-        extractorBean.extract(id);
+        try {
+            extractorBean.scheduleNow();
+        } catch (SchedulerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         return response.build(200, "", req);
     }
