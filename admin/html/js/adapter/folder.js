@@ -6,6 +6,7 @@ export class FolderAdapter extends BaseAdapter {
         if (!config) config = {};
         config.api = folderApi;
         super(config);
+        this.zipMime = [ "application/zip", "application/x-zip-compressed" ];
     }
 
     transformFolders(folders) {
@@ -52,7 +53,7 @@ export class FolderAdapter extends BaseAdapter {
             let html = "";
             html += `<a href="#" title="Rename" onclick="window.crud.renameClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>`
             html += `<a href="#" title="Delete" onclick="window.crud.deleteClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
-            if (row.mime === "application/zip") {
+            if (this.zipMime.includes(row.mime)) {
                 html += `<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
             }
             return html;
