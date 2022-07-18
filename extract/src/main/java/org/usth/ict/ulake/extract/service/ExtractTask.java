@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -19,25 +23,30 @@ import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 /**
  * Perform extraction in a background thread
  */
+@ApplicationScoped
 public class ExtractTask implements ExtractCallback {
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
-    private Long requestId;
-    private ExtractRequestRepository repoReq;
-    private ExtractResultFileRepository repoResultFile;
-    private ExtractResultRepository repoResult;
-    private Extractor extractor;
+    Long requestId;
+
+    @Inject
+    ExtractRequestRepository repoReq;
+
+    @Inject
+    ExtractResultFileRepository repoResultFile;
+
+    @Inject
+    ExtractResultRepository repoResult;
+
+    @Inject
+    ZipExtractor extractor;
 
     private ExtractResult result;
 
-    public ExtractTask(Extractor extractor, Long requestId, ExtractRequestRepository repoReq, ExtractResultFileRepository repoReqFile, ExtractResultRepository repoResult) {
-        this.extractor = extractor;
-        this.requestId = requestId;
-        this.repoReq = repoReq;
-        this.repoResultFile = repoReqFile;
-        this.repoResult = repoResult;
+    public ExtractTask() {
     }
 
+    @Transactional
     public void run() {
         // prepare request files and result object
         var req = getRequest();
@@ -110,6 +119,7 @@ public class ExtractTask implements ExtractCallback {
     }
 
     @Override
+    @Transactional
     public void callback(ExtractResultFile file, boolean success, ExtractResult result) {
         log.info("  + callback: file {}, status {}, progress {}", file.fileId, Boolean.valueOf(success), result.progress);
         if (success) {

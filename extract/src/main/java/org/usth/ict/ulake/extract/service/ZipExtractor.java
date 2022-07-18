@@ -5,27 +5,26 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
-import org.usth.ict.ulake.common.service.CoreService;
-import org.usth.ict.ulake.common.service.DashboardService;
-import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@ApplicationScoped
 public class ZipExtractor extends Extractor {
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
-
-    public ZipExtractor(String token, CoreService coreService, FileService fileService, DashboardService dashboardService) {
-        super(token, coreService, fileService, dashboardService);
+    public ZipExtractor() {
+        super();
     }
 
     @Override

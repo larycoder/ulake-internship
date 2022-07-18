@@ -6,6 +6,11 @@ import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,6 +43,7 @@ import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 import org.usth.ict.ulake.extract.service.ExtractTask;
 import org.usth.ict.ulake.extract.service.Extractor;
+import org.usth.ict.ulake.extract.service.ExtractorBean;
 import org.usth.ict.ulake.extract.service.ZipExtractor;
 
 
@@ -72,6 +78,12 @@ public class ExtractResource {
     @Inject
     @RestClient
     DashboardService dashboardService;
+
+    @Inject
+    ExtractorBean extractorBean;
+
+    @Inject
+    TransactionManager transactionManager;
 
     @Inject
     ManagedExecutor executor;
@@ -194,13 +206,11 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                log.info("Starting in the runnable");
-                extract(bearer, id);
-            }
-        });
+        // executor.submit(() -> {
+        //     // extractorBean.token = bearer;
+        //     extractorBean.extract(id);
+        // });
+        extractorBean.extract(id);
 
         return response.build(200, "", req);
     }
@@ -230,19 +240,5 @@ public class ExtractResource {
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoResFile.count());
         return response.build(200, "", ret);
-    }
-
-    /**
-     * Start extraction service in background with specified id
-     * @param id Compression request Id
-     */
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
-    //@Transactional(Transactional.TxType.MANDATORY)
-    public void extract(String bearer, Long id) {
-        log.info("Start extraction in managed executor");
-        log.info("Really Start extraction in managed executor");
-        Extractor extractor = new ZipExtractor(bearer, coreService, fileService, dashboardService);
-        ExtractTask task = new ExtractTask(extractor, id, repoReq, repoResFile, repoRes);
-        task.run();
     }
 }
