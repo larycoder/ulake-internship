@@ -31,14 +31,14 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.dashboard.FolderEntry;
+import org.usth.ict.ulake.common.model.dashboard.FolderInfo;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
-import org.usth.ict.ulake.dashboard.model.FolderEntry;
-import org.usth.ict.ulake.dashboard.model.FolderInfo;
 
 @Path("/folder")
 @Tag(name = "Folder")

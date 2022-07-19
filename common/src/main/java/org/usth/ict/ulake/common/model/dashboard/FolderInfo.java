@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.dashboard.model;
+package org.usth.ict.ulake.common.model.dashboard;
 
 /**
  * Hold only folder info without detail of
