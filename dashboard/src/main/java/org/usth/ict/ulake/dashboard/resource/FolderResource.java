@@ -214,7 +214,7 @@ public class FolderResource {
         boolean ret = true;
         for (var file: parent.files) {
             var delFile = fileSvc.deleteFile(bearer, file.id).getResp();
-            if (file.id != delFile.id) {
+            if (delFile != null && file.id != delFile.id) {
                 log.error("Cannot delete file {}", file.id);
                 ret = false;
             }
