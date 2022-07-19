@@ -28,21 +28,23 @@ public class ZipExtractor extends Extractor {
     }
 
     @Override
-    public void extract(ExtractRequest request, ExtractResult result, ExtractCallback callback) {
-
+    public void extract(String bearer, ExtractRequest request, ExtractResult result, ExtractCallback callback) {
         FileModel fileModel = null;
         FolderModel parent = null;
         try {
-            var info = dashboardService.fileInfo(request.fileId, token);
+            log.info("Before getting file info {}", request.fileId, bearer);
+            var info = dashboardService.fileInfo(request.fileId, bearer);
+            log.info("after getting file info, resp {}", info.getResp().toString());
             fileModel = mapper.convertValue(info.getResp(), FileModel.class);
         }
         catch (LakeServiceException e) {
             result.progress = -1L;  // indicates an error
+            e.printStackTrace();
             return;
         }
 
         try {
-            var info = dashboardService.folderInfo(token, request.folderId);
+            var info = dashboardService.folderInfo(bearer, request.folderId);
             parent = mapper.convertValue(info.getResp(), FolderModel.class);
         }
         catch (LakeServiceException e) {
@@ -52,13 +54,13 @@ public class ZipExtractor extends Extractor {
 
         log.info("   + ZIP file cid {}, name {}", fileModel.cid, fileModel.name);
         log.info("   + Preparing to fetch file id {} from core", fileModel.id);
-        InputStream fis = coreService.objectDataByFileId(fileModel.id, token);
+        InputStream fis = coreService.objectDataByFileId(fileModel.id, bearer);
         ZipInputStream zis = new ZipInputStream(fis);
         try {
             ZipEntry entry = zis.getNextEntry();
             while (entry != null) {
                 log.info("Zip dir {}, entry {}", entry.isDirectory(), entry.getName());
-                save(zis, entry, parent);
+                save(bearer, zis, entry, parent);
                 entry = zis.getNextEntry();
              }
             zis.closeEntry();
@@ -76,14 +78,14 @@ public class ZipExtractor extends Extractor {
      * @return
      * @throws IOException
      */
-    private Object save(ZipInputStream zis, ZipEntry entry, FolderModel parent) throws IOException {
+    private Object save(String bearer, ZipInputStream zis, ZipEntry entry, FolderModel parent) throws IOException {
         // TODO: nested directory support
         if (entry.isDirectory()) {
             // make a new dir
             FolderModel folder = new FolderModel();
             folder.name = entry.getName();
             folder.parent = parent;
-            var resp = dashboardService.newFolder(token, folder).getResp();
+            var resp = dashboardService.newFolder(bearer, folder).getResp();
             return mapper.convertValue(resp, FolderModel.class);
         }
         else {
@@ -95,7 +97,7 @@ public class ZipExtractor extends Extractor {
             FileFormModel fileModel = new FileFormModel();
             fileModel.fileInfo = file;
             fileModel.is = zis;
-            var resp = dashboardService.newFile(token, fileModel);
+            var resp = dashboardService.newFile(bearer, fileModel);
             return mapper.convertValue(resp, FolderModel.class);
         }
     }

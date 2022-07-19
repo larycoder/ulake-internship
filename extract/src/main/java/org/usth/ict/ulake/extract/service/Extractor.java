@@ -19,8 +19,6 @@ import org.usth.ict.ulake.extract.model.ExtractResult;
 public abstract class Extractor {
     protected static final Logger log = LoggerFactory.getLogger(Extractor.class);
 
-    public String token;
-
     @Inject
     @RestClient
     protected CoreService coreService;
@@ -36,6 +34,6 @@ public abstract class Extractor {
     public Extractor() {
     }
 
-    public abstract void extract(ExtractRequest request, ExtractResult result, ExtractCallback callback);
+    public abstract void extract(String bearer, ExtractRequest request, ExtractResult result, ExtractCallback callback);
 }
 

@@ -38,8 +38,6 @@ import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 public class ExtractTask implements ExtractCallback {
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
-    Long requestId;
-
     @Inject
     Scheduler quartz;
 
@@ -65,47 +63,41 @@ public class ExtractTask implements ExtractCallback {
      * @param id
      */
     @Transactional
-    public void run(Long id) {
-        this.requestId = id;
+    public void run(String bearer, Long id) {
         // prepare request files and result object
-        var req = getRequest();
-        log.info("Going into the request {}...", req);
-
-
+        var req = getRequest(id);
         result = new ExtractResult();
-        result.requestId = requestId;
+        result.requestId = id;
         result.ownerId = req.userId;
         result.progress = 0L;
-        log.info("Before persisting result");
         repoResult.persist(result);
 
         log.info("After persisting result");
 
         // go
-        extractor.extract(req, result, this);
+        extractor.extract(bearer, req, result, this);
         log.info("After extracting result");
         repoResult.persist(result);
 
         // push all extracted files to dashboard
         log.info("Before listing extracting result");
-        List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", this.requestId);
+        List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", id);
         log.info("After listing extracting result");
         for (var file: resultFiles) {
             log.info("Before pushing local file to server");
-            String localFilePath = pushFile(file);
+            String localFilePath = pushFile(bearer, file);
             log.info("Before deleting local file");
             deleteLocalFile(localFilePath);
         }
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
-        log.info("Before persisting finishedTime for completion");
         repoReq.persist(req);
-        log.info("After persisting finishedTime for completion");
+        log.info("Job finished successfully");
     }
 
-    private ExtractRequest getRequest() {
-        return repoReq.findById(requestId);
+    private ExtractRequest getRequest(Long id) {
+        return repoReq.findById(id);
     }
 
     /**
@@ -114,11 +106,11 @@ public class ExtractTask implements ExtractCallback {
      * @param result
      * @return local file name
      */
-    private String pushFile(ExtractResultFile resultFile) {
+    private String pushFile(String bearer, ExtractResultFile resultFile) {
         String ret = result.url;
         try {
             FileInputStream fis = new FileInputStream(new File(result.url));
-            LakeHttpResponse resp = extractor.coreService.newTemp(extractor.token, fis);
+            LakeHttpResponse resp = extractor.coreService.newTemp(bearer, fis);
             if (resp.getCode() != 200) {
                 return null;
             }
@@ -154,8 +146,9 @@ public class ExtractTask implements ExtractCallback {
      * Schedules and starts the extract task in a background thread, managed by quartz
      * @throws SchedulerException
      */
-    public void start(Long id) throws SchedulerException {
+    public void start(String bearer, Long id) throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("bearer", bearer);
         jobDataMap.put("id", id.intValue());
         JobDetail job = JobBuilder.newJob(ExtractJob.class)
                 .withIdentity("extract", "extract-job")
@@ -178,13 +171,13 @@ public class ExtractTask implements ExtractCallback {
 
         public void execute(JobExecutionContext context) throws JobExecutionException {
             Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
-            if (id == null) {
+            String bearer = (String) context.getJobDetail().getJobDataMap().get("bearer");
+            if (id == null || bearer == null) {
                 log.error("Cannot retrieve job details for extract Id");
                 return;
             }
             log.info("id {}", id);
-            task.run(Long.valueOf(id));
+            task.run(bearer, Long.valueOf(id));
         }
-
     }
 }

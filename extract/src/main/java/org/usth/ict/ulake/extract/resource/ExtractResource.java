@@ -194,7 +194,7 @@ public class ExtractResource {
         }
 
         try {
-            extractTask.start(id);
+            extractTask.start(bearer, id);
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
@@ -228,6 +228,4 @@ public class ExtractResource {
         ret.put("fileCount", repoResFile.count());
         return response.build(200, "", ret);
     }
-
-
 }
