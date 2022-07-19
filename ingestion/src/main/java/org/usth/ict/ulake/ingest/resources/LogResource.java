@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.ingest.model.FileLog;
 import org.usth.ict.ulake.ingest.model.ProcessLog;
 import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
 import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
@@ -18,7 +19,7 @@ import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
 @Path("/processLog")
 public class LogResource {
     @Inject
-    LakeHttpResponse resp;
+    LakeHttpResponse<Object> resp;
 
     @Inject
     ProcessLogRepo processLogRepo;
@@ -52,6 +53,9 @@ public class LogResource {
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "get crawled files of process id")
     public Response files(@PathParam("id") Long id) {
-        return resp.build(200, "", fileLogRepo.findByProcessId(id));
+        var listFileLog = fileLogRepo.findByProcessId(id);
+        for (var log : listFileLog)
+            log.process = null;
+        return resp.build(200, "", listFileLog);
     }
 }
