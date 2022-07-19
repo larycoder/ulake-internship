@@ -133,6 +133,7 @@ public class FileResource {
             output.metadata = mapper.writeValueAsString(objMeta);
         } catch (JsonProcessingException e) {
             output.metadata = null;
+            log.info("Could not parse metadata to string ", e);
         }
 
         if (output.is == null || output.metadata == null || fileInfo == null) {
