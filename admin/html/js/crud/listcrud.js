@@ -79,7 +79,7 @@ export class ListCRUD extends CRUD {
 
     async detail() {
         const data = await this.join(this.data);
-        if (!this.table && data && data.length) {
+        if (!this.table && data) {
             this.table = $('#table').DataTable(  {
                 data: data,
                 paging: true,
