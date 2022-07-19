@@ -60,6 +60,9 @@ public class FolderResource {
     LakeHttpResponse resp;
 
     @Inject
+    LakeHttpResponse<FolderModel> respFolder;
+
+    @Inject
     JsonWebToken jwt;
 
     private <T> List<T> filter(List<T> data, List<String> filterStr)
@@ -170,20 +173,6 @@ public class FolderResource {
         return resp.build(200, null, update);
     }
 
-    @PUT
-    @Path("/{folderId}/entries")
-    @RolesAllowed({"User", "Admin"})
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "update folder entries")
-    public Response entries(
-        @PathParam("folderId") Long folderId,
-        @RequestBody FolderEntry data) {
-        String bearer = "bearer " + jwt.getRawToken();
-        var folder = mapper.convertValue(data, FolderModel.class);
-        var update = fileSvc.updateFolder(bearer, folderId, folder).getResp();
-        return resp.build(200, null, update);
-    }
-
     @POST
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
@@ -212,7 +201,51 @@ public class FolderResource {
     @Operation(summary = "Delete a folder")
     public Response delete(@HeaderParam("Authorization") String bearer,
         @PathParam("folderId") @Parameter(description = "Folder id to delete") Long id) {
-        var folderResp = fileSvc.delFolder(bearer, id);
-        return resp.build(200, null, folderResp.getResp());
+        var folder = fileSvc.delFolder(bearer, id).getResp();
+        return respFolder.build(200, null, folder);
+    }
+
+    private FolderModel getFolderEntry(String bearer, Long folderId) {
+        return fileSvc.folderInfo(bearer, folderId).getResp();
+    }
+
+    private boolean deleteFolderRecursively(String bearer, FolderModel parent) {
+        boolean ret = true;
+        log.info("Deleting folder {}", parent.name);
+        for (var file: parent.files) {
+            log.info("- Deleting file {}", file.name);
+            // var delFile = fileSvc.deleteFile(bearer, file.id).getResp();
+            // if (file.id != delFile.id) {
+            //     log.error("Cannot delete file {}", file.id);
+            //     ret = false;
+            // }
+        }
+        for (var folder: parent.subFolders) {
+            ret |= deleteFolderRecursively(bearer, folder);
+        }
+        // var delFolder = fileSvc.delFolder(bearer, parent.id).getResp();
+        // if (delFolder.id != parent.id) {
+        //     log.error("Cannot delete folder {}", parent.id);
+        //     ret = false;
+        // }
+        return ret;
+    }
+
+    @DELETE
+    @Path("/{folderId}/recursive")
+    @RolesAllowed({"User", "Admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Delete a folder, recursively!!!")
+    public Response deleteRecursive(@HeaderParam("Authorization") String bearer,
+        @PathParam("folderId") @Parameter(description = "Folder id to delete") Long id) {
+
+        var folder = getFolderEntry(bearer, id);
+        var ret = deleteFolderRecursively(bearer, folder);
+
+        //var folder = fileSvc.delFolder(bearer, id).getResp();
+        if (ret)
+            return respFolder.build(200);
+        else
+            return respFolder.build(403);
     }
 }

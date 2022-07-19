@@ -26,20 +26,20 @@ public interface FileService {
     @GET
     @Path("/file")
     @Schema(description = "get list of files")
-    public LakeHttpResponse fileList(
+    public LakeHttpResponse<FileModel> fileList(
         @HeaderParam("Authorization") String bearer);
 
     @GET
     @Path("/file/{fileId}")
     @Schema(description = "get file information")
-    public LakeHttpResponse fileInfo(
+    public LakeHttpResponse<FileModel> fileInfo(
         @PathParam("fileId") Long fileId,
         @HeaderParam("Authorization") String bearer);
 
     @PUT
     @Path("/file/{fileId}")
     @Schema(description = "update file information")
-    public LakeHttpResponse fileUpdate(
+    public LakeHttpResponse<FileModel> fileUpdate(
         @HeaderParam("Authorization") String bearer,
         @PathParam("fileId") Long fileId,
         FileModel file);
@@ -47,7 +47,7 @@ public interface FileService {
     @POST
     @Path("/file")
     @Schema(description = "create new file")
-    public LakeHttpResponse newFile(
+    public LakeHttpResponse<FileModel> newFile(
         @HeaderParam("Authorization") String bearer, FileModel file);
 
     @GET
@@ -59,7 +59,7 @@ public interface FileService {
     @DELETE
     @Path("/file/{fileId}")
     @Schema(description = "Delete a file")
-    public LakeHttpResponse deleteFile(
+    public LakeHttpResponse<FileModel> deleteFile(
         @HeaderParam("Authorization") String bearer,
         @PathParam("fileId") Long fileId);
 
@@ -72,7 +72,7 @@ public interface FileService {
     @GET
     @Path("/folder/{id}")
     @Schema(description = "get folder info")
-    public LakeHttpResponse folderInfo(
+    public LakeHttpResponse<FolderModel> folderInfo(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id);
 
@@ -85,20 +85,20 @@ public interface FileService {
     @POST
     @Path("/folder")
     @Schema(description = "create new folder")
-    public LakeHttpResponse newFolder(
+    public LakeHttpResponse<FolderModel> newFolder(
         @HeaderParam("Authorization") String bearer, FolderModel file);
 
     @DELETE
     @Path("/folder/{id}")
     @Schema(description = "delete folder")
-    public LakeHttpResponse delFolder(
+    public LakeHttpResponse<FolderModel> delFolder(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id);
 
     @PUT
     @Path("/folder/{id}")
     @Schema(description = "update folder")
-    public LakeHttpResponse updateFolder(
+    public LakeHttpResponse<FolderModel> updateFolder(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id,
         @RequestBody FolderModel newData);
