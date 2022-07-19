@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -24,6 +25,10 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.model.folder.FolderModel;
+import org.usth.ict.ulake.common.service.DashboardService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
 import org.usth.ict.ulake.extract.model.ExtractResultFile;
@@ -31,12 +36,17 @@ import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Perform extraction in a background thread
  */
 @ApplicationScoped
 public class ExtractTask implements ExtractCallback {
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
+
+    @Inject
+    ObjectMapper mapper;
 
     @Inject
     Scheduler quartz;
@@ -49,6 +59,10 @@ public class ExtractTask implements ExtractCallback {
 
     @Inject
     ExtractResultRepository repoResult;
+
+    @Inject
+    @RestClient
+    protected DashboardService dashboardService;
 
     @Inject
     ZipExtractor extractor;
@@ -66,38 +80,72 @@ public class ExtractTask implements ExtractCallback {
     public void run(String bearer, Long id) {
         // prepare request files and result object
         var req = getRequest(id);
+
+        // make a new folder for the request
+        Long destFolderId = 0L;
+        try {
+            FileModel file = dashboardService.fileInfo(req.fileId, bearer).getResp();
+
+            String extractDirName = file.name;
+            if (extractDirName.contains(".")) {
+                extractDirName = extractDirName.substring(0, extractDirName.lastIndexOf("."));
+            }
+            else {
+                extractDirName += "-extracted";
+            }
+            destFolderId = this.mkdir(bearer, extractDirName);
+            log.info("Created folder id {}, name {} as destination folder", destFolderId, extractDirName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        req.folderId = destFolderId;
+        repoReq.persist(req);
+
         result = new ExtractResult();
         result.requestId = id;
         result.ownerId = req.userId;
         result.progress = 0L;
         repoResult.persist(result);
 
-        log.info("After persisting result");
-
         // go
+
         extractor.extract(bearer, req, result, this);
-        log.info("After extracting result");
         repoResult.persist(result);
 
         // push all extracted files to dashboard
-        log.info("Before listing extracting result");
         List<ExtractResultFile> resultFiles = repoResultFile.list("requestId", id);
-        log.info("After listing extracting result");
         for (var file: resultFiles) {
-            log.info("Before pushing local file to server");
             String localFilePath = pushFile(bearer, file);
-            log.info("Before deleting local file");
             deleteLocalFile(localFilePath);
         }
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
         repoReq.persist(req);
-        log.info("Job finished successfully");
+        log.info("Extraction job {} finished", req.id);
     }
 
     private ExtractRequest getRequest(Long id) {
         return repoReq.findById(id);
+    }
+
+    /**
+     * Create a new folder for the destination
+     */
+    private Long mkdir(String bearer, String name) {
+        try {
+            FolderModel folder = new FolderModel();
+            folder.name = name;
+            LakeHttpResponse info = dashboardService.newFolder(bearer, folder);
+            var createdFolder = mapper.convertValue(info.getResp(), FolderModel.class);
+            if (createdFolder != null)
+                return createdFolder.id;
+            else
+                return 0L;
+        } catch (LakeServiceException e) {
+            return 0L;
+        }
     }
 
     /**
@@ -176,7 +224,7 @@ public class ExtractTask implements ExtractCallback {
                 log.error("Cannot retrieve job details for extract Id");
                 return;
             }
-            log.info("id {}", id);
+            log.info("Start extract job for id {}", id);
             task.run(bearer, Long.valueOf(id));
         }
     }

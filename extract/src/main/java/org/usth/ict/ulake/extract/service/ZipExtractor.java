@@ -12,15 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
-import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @ApplicationScoped
 public class ZipExtractor extends Extractor {
-    private ObjectMapper mapper = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
     public ZipExtractor() {
@@ -29,31 +25,10 @@ public class ZipExtractor extends Extractor {
 
     @Override
     public void extract(String bearer, ExtractRequest request, ExtractResult result, ExtractCallback callback) {
-        FileModel fileModel = null;
-        FolderModel parent = null;
-        try {
-            log.info("Before getting file info {}", request.fileId, bearer);
-            var info = dashboardService.fileInfo(request.fileId, bearer);
-            log.info("after getting file info, resp {}", info.getResp().toString());
-            fileModel = mapper.convertValue(info.getResp(), FileModel.class);
-        }
-        catch (LakeServiceException e) {
-            result.progress = -1L;  // indicates an error
-            e.printStackTrace();
-            return;
-        }
+        log.info("{} starting extract for id {}", this.getClass().getName(), request.id);
+        FileModel fileModel = dashboardService.fileInfo(request.fileId, bearer).getResp();
+        FolderModel parent = dashboardService.folderInfo(bearer, request.folderId).getResp();
 
-        try {
-            var info = dashboardService.folderInfo(bearer, request.folderId);
-            parent = mapper.convertValue(info.getResp(), FolderModel.class);
-        }
-        catch (LakeServiceException e) {
-            result.progress = -2L;  // indicates an error
-            return;
-        }
-
-        log.info("   + ZIP file cid {}, name {}", fileModel.cid, fileModel.name);
-        log.info("   + Preparing to fetch file id {} from core", fileModel.id);
         InputStream fis = coreService.objectDataByFileId(fileModel.id, bearer);
         ZipInputStream zis = new ZipInputStream(fis);
         try {
@@ -85,8 +60,7 @@ public class ZipExtractor extends Extractor {
             FolderModel folder = new FolderModel();
             folder.name = entry.getName();
             folder.parent = parent;
-            var resp = dashboardService.newFolder(bearer, folder).getResp();
-            return mapper.convertValue(resp, FolderModel.class);
+            return dashboardService.newFolder(bearer, folder).getResp();
         }
         else {
             FileModel file = new FileModel();
@@ -97,8 +71,7 @@ public class ZipExtractor extends Extractor {
             FileFormModel fileModel = new FileFormModel();
             fileModel.fileInfo = file;
             fileModel.is = zis;
-            var resp = dashboardService.newFile(bearer, fileModel);
-            return mapper.convertValue(resp, FolderModel.class);
+            return dashboardService.newFile(bearer, fileModel);
         }
     }
 }
