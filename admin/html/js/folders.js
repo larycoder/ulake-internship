@@ -73,7 +73,7 @@ class DataCRUD extends ListCRUD {
             showToast("Error", "No, deleting user should not be here...");
         }
         else if (type === "F") {
-            const resp = await dashboardFolderApi.deleteOne(id);
+            const resp = await dashboardFolderApi.deleteRecursive(id);
             if (resp) {
                 showToast("Error", "Cannot delete folder. There are still files inside.")
             }

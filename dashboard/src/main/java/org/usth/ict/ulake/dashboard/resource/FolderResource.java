@@ -223,7 +223,7 @@ public class FolderResource {
             ret |= deleteFolderRecursively(bearer, folder);
         }
         var delFolder = fileSvc.delFolder(bearer, parent.id).getResp();
-        if (delFolder.id != parent.id) {
+        if (delFolder != null && delFolder.id != parent.id) {
             log.error("Cannot delete folder {}", parent.id);
             ret = false;
         }

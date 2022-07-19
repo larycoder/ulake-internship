@@ -91,6 +91,10 @@ export class Api {
         return await this.delete(`/${id}`);
     }
 
+    async deleteRecursive(id) {
+        return await this.delete(`/${id}/recursive`);
+    }
+
 }
 
 /**
