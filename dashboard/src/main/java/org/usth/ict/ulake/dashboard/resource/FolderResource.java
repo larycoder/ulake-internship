@@ -206,28 +206,27 @@ public class FolderResource {
     }
 
     private FolderModel getFolderEntry(String bearer, Long folderId) {
+        log.info("Looking for folder {} from folder service", folderId);
         return fileSvc.folderInfo(bearer, folderId).getResp();
     }
 
     private boolean deleteFolderRecursively(String bearer, FolderModel parent) {
         boolean ret = true;
-        log.info("Deleting folder {}", parent.name);
         for (var file: parent.files) {
-            log.info("- Deleting file {}", file.name);
-            // var delFile = fileSvc.deleteFile(bearer, file.id).getResp();
-            // if (file.id != delFile.id) {
-            //     log.error("Cannot delete file {}", file.id);
-            //     ret = false;
-            // }
+            var delFile = fileSvc.deleteFile(bearer, file.id).getResp();
+            if (file.id != delFile.id) {
+                log.error("Cannot delete file {}", file.id);
+                ret = false;
+            }
         }
         for (var folder: parent.subFolders) {
             ret |= deleteFolderRecursively(bearer, folder);
         }
-        // var delFolder = fileSvc.delFolder(bearer, parent.id).getResp();
-        // if (delFolder.id != parent.id) {
-        //     log.error("Cannot delete folder {}", parent.id);
-        //     ret = false;
-        // }
+        var delFolder = fileSvc.delFolder(bearer, parent.id).getResp();
+        if (delFolder.id != parent.id) {
+            log.error("Cannot delete folder {}", parent.id);
+            ret = false;
+        }
         return ret;
     }
 
@@ -241,8 +240,6 @@ public class FolderResource {
 
         var folder = getFolderEntry(bearer, id);
         var ret = deleteFolderRecursively(bearer, folder);
-
-        //var folder = fileSvc.delFolder(bearer, id).getResp();
         if (ret)
             return respFolder.build(200);
         else

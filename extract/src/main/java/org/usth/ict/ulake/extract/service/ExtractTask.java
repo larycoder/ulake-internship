@@ -137,8 +137,7 @@ public class ExtractTask implements ExtractCallback {
         try {
             FolderModel folder = new FolderModel();
             folder.name = name;
-            LakeHttpResponse info = dashboardService.newFolder(bearer, folder);
-            var createdFolder = mapper.convertValue(info.getResp(), FolderModel.class);
+            var createdFolder = dashboardService.newFolder(bearer, folder).getResp();
             if (createdFolder != null)
                 return createdFolder.id;
             else
