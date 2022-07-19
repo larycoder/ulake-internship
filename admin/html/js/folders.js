@@ -216,8 +216,10 @@ class DataCRUD extends ListCRUD {
         const fileInfo = {
             name: file.name,
             mime: file.type,
-            size: file.size,
-            parent_id: this.id
+            size: file.size
+        }
+        if (this.id !== 0 && this.type === "F") {
+            fileInfo.parent = { id: this.id };
         }
         const ret = await dashboardFileApi.upload(fileInfo, file);
         if (ret && ret.id) {
