@@ -10,14 +10,25 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
-import org.usth.ict.ulake.extract.model.ExtractResultFile;
 import org.usth.ict.ulake.extract.model.ExtractResult;
-import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
+import org.usth.ict.ulake.extract.model.ExtractResultFile;
 import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
+import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 
 /**
@@ -28,6 +39,9 @@ public class ExtractTask implements ExtractCallback {
     private static final Logger log = LoggerFactory.getLogger(ExtractTask.class);
 
     Long requestId;
+
+    @Inject
+    Scheduler quartz;
 
     @Inject
     ExtractRequestRepository repoReq;
@@ -46,8 +60,13 @@ public class ExtractTask implements ExtractCallback {
     public ExtractTask() {
     }
 
+    /**
+     * Performs the extract task in current thread
+     * @param id
+     */
     @Transactional
-    public void run() {
+    public void run(Long id) {
+        this.requestId = id;
         // prepare request files and result object
         var req = getRequest();
         log.info("Going into the request {}...", req);
@@ -129,5 +148,43 @@ public class ExtractTask implements ExtractCallback {
             log.info("  + persisted result: id {}, progress {}/total {}", result.id, result.progress, result.totalFiles);
         }
         // TODO: what to do when failed?
+    }
+
+    /**
+     * Schedules and starts the extract task in a background thread, managed by quartz
+     * @throws SchedulerException
+     */
+    public void start(Long id) throws SchedulerException {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("id", id.intValue());
+        JobDetail job = JobBuilder.newJob(ExtractJob.class)
+                .withIdentity("extract", "extract-job")
+                .setJobData(jobDataMap)
+                .build();
+        var scheduler = SimpleScheduleBuilder.simpleSchedule()
+                .withIntervalInSeconds(1);
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("myTrigger", "extract-trigger")
+                .startNow()
+                .withSchedule(scheduler)
+                .build();
+        quartz.scheduleJob(job, trigger);
+    }
+
+    // A new instance of ExtractJob is created by Quartz for every job execution
+    public static class ExtractJob implements Job {
+        @Inject
+        ExtractTask task;
+
+        public void execute(JobExecutionContext context) throws JobExecutionException {
+            Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
+            if (id == null) {
+                log.error("Cannot retrieve job details for extract Id");
+                return;
+            }
+            log.info("id {}", id);
+            task.run(Long.valueOf(id));
+        }
+
     }
 }

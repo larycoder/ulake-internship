@@ -6,11 +6,6 @@ import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -23,7 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -43,9 +37,6 @@ import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
 import org.usth.ict.ulake.extract.service.ExtractTask;
-import org.usth.ict.ulake.extract.service.Extractor;
-import org.usth.ict.ulake.extract.service.ExtractorBean;
-import org.usth.ict.ulake.extract.service.ZipExtractor;
 
 
 @Path("/extract")
@@ -81,13 +72,7 @@ public class ExtractResource {
     DashboardService dashboardService;
 
     @Inject
-    ExtractorBean extractorBean;
-
-    @Inject
-    TransactionManager transactionManager;
-
-    @Inject
-    ManagedExecutor executor;
+    ExtractTask extractTask;
 
     /**
      * Check if an userId is valid for the current request
@@ -207,14 +192,10 @@ public class ExtractResource {
         if (!checkOwner(req.userId)) {
             return response.build(403);
         }
-        // executor.submit(() -> {
-        //     // extractorBean.token = bearer;
-        //     extractorBean.extract(id);
-        // });
+
         try {
-            extractorBean.scheduleNow();
+            extractTask.start(id);
         } catch (SchedulerException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -247,4 +228,6 @@ public class ExtractResource {
         ret.put("fileCount", repoResFile.count());
         return response.build(200, "", ret);
     }
+
+
 }
