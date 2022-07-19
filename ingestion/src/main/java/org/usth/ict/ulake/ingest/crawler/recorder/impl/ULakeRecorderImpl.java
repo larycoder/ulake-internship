@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
@@ -19,7 +17,6 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
     private static final Logger sysLog = LoggerFactory.getLogger(ULakeRecorderImpl.class);
     private Map<String, String> log = new HashMap<>();
     private FileModel fileInfo = new FileModel();
-    private ObjectMapper mapper = new ObjectMapper();
     private String tokenAuth;
     private DashboardService dashboardSvc;
 
@@ -51,10 +48,8 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
 
             sysLog.debug("crawl token: " + tokenAuth);
 
-            var resp = dashboardSvc.newFile(tokenAuth, file);
-            var objId = mapper.convertValue(resp.getResp(), FileModel.class).id;
-
-            log.put(Record.OBJECT_ID.toString(), objId.toString());
+            var resp = dashboardSvc.newFile(tokenAuth, file).getResp();
+            log.put(Record.OBJECT_ID.toString(), resp.id.toString());
             log.put(Record.STATUS.toString(), Boolean.valueOf(true).toString());
         } catch (Exception e) {
             e.printStackTrace();
