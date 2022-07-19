@@ -1,8 +1,5 @@
 package org.usth.ict.ulake.common.model.core;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
-
-@RegisterForReflection
 public class ObjectModel {
     public Long id;
     public Long parentId;
