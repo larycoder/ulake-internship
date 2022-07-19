@@ -2,29 +2,48 @@ package org.usth.ict.ulake.ingest.crawler.fetcher.impl;
 
 import java.io.InputStream;
 import java.net.http.HttpClient.Redirect;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
+import org.usth.ict.ulake.ingest.model.FileLog;
+import org.usth.ict.ulake.ingest.model.IngestLog;
 import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.http.HttpConfigure;
 import org.usth.ict.ulake.ingest.model.http.HttpRawRequest;
 import org.usth.ict.ulake.ingest.model.http.HttpRawResponse;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 import org.usth.ict.ulake.ingest.model.macro.Record;
+import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
 import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
 
-public class FetcherImpl implements Fetcher<String, InputStream> {
-    private static final Logger log = LoggerFactory.getLogger(FetcherImpl.class);
-    private FetchConfig mode;
-    private Recorder<InputStream, String> consumer;
+public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
     private HttpRawRequest baseReq;
+    private FetchConfig mode;
+
+    private Map<StoreMacro, String> reqProcConf = new HashMap<>();
+    {
+        reqProcConf.put(StoreMacro.LOG_TYPE, StoreMacro.PROCESS_LOG.toString());
+    }
+
+    private Map<StoreMacro, String> storeFileConf = new HashMap<>();
+    {
+        storeFileConf.put(StoreMacro.LOG_TYPE, StoreMacro.FILE_LOG.toString());
+        storeFileConf.put(StoreMacro.STORE_OPT, StoreMacro.CREATE.toString());
+    }
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    private Recorder<InputStream> consumer;
+    private Storage<IngestLog> db;
 
     /**
      * Initialize default fetcher.
@@ -40,12 +59,14 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
     @Override
     public void setup(Map<FetchConfig, String> config) {
         mode = FetchConfig.valueOf(config.get(FetchConfig.MODE));
+        reqProcConf.put(StoreMacro.LOG_ID, config.get(FetchConfig.PROCESS_ID));
     }
 
     @Override
     public void setup(
-        Storage<String> store, Recorder<InputStream, String> consumer) {
+        Storage<IngestLog> store, Recorder<InputStream> consumer) {
         this.consumer = consumer;
+        this.db = store;
     }
 
     @Override
@@ -60,7 +81,6 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
         } else if (mode == FetchConfig.DOWNLOAD) {
             while (resultTable.rowSize() > 0) {
                 Map<String, String> param = resultTable.stackPopJson();
-                // TODO: param does not show list of request in resp status
                 for (var request : engine.visitReturn(engine.ret, param)) {
                     param.put(FetchConfig.STATUS.toString(),
                               save(request, param).toString());
@@ -80,15 +100,8 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
      * Aware Behavior: filename in header must follow content-disposition syntax
      * */
     private Boolean save(HttpRawRequest request, Map<String, String> meta) {
-        log.debug("Crawl file...");
-
         String filename;
         HttpRawResponse resp = LakeHttpClient.send(request);
-
-        log.debug("Received response:");
-        log.debug("status: " + resp.statusCode);
-        log.debug("path: " + resp.uri);
-        log.debug("headers: " + resp.headers);
 
         var cd = resp.headers.get("content-disposition");
         if (cd != null && cd.get(0).contains("filename")) { // filename in header
@@ -100,15 +113,31 @@ public class FetcherImpl implements Fetcher<String, InputStream> {
             filename = uri[uri.length - 1].strip();
         }
 
-        log.debug("Filename: " + filename);
-
         Map<Record, String> myMeta = new HashMap<>();
         myMeta.put(Record.FILE_NAME, filename);
         consumer.record(resp.body, myMeta);
 
-        log.debug("Done save file...");
+        // store crawl file status to log database
+        Map<String, String> info = consumer.info();
+        var log = db.get(reqProcConf);
+        log.file = new FileLog();
+        log.file.process = log.process;
+        log.file.uploadTime = new Date().getTime();
+        log.file.status = Boolean.parseBoolean(
+                              info.get(Record.STATUS.toString()));
 
-        return Boolean.valueOf(
-                   consumer.info().get(Record.STATUS.toString()));
+        // record object id only if successfully saved
+        if (log.file.status)
+            log.file.fileId = Long.parseLong(
+                                  info.get(Record.OBJECT_ID.toString()));
+
+        try {
+            log.file.setMeta(mapper.writeValueAsString(meta));
+        } catch (JsonProcessingException e) {
+            log.file.meta = null;
+        }
+
+        db.store(log, storeFileConf);
+        return log.file.status;
     }
 }
