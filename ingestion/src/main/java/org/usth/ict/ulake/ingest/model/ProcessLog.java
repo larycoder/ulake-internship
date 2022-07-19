@@ -25,8 +25,11 @@ public class ProcessLog {
     @Schema(description = "Execution query")
     public Policy query;
 
+    @Schema(description = "Folder holding crawled file")
+    public Long folderId;
+
     @Schema(description = "Short explanation of process")
-    String description;
+    public String description;
 
     @Schema(description = "Starting time of process")
     public Long creationTime;

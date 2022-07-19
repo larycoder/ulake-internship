@@ -6,6 +6,6 @@ import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
 
 public interface Storage<T> {
     void setup(Map<StoreMacro, String> config);
-    void store(T data, Map<StoreMacro, String> meta);
+    Map<String, String> store(T data, Map<StoreMacro, String> meta);
     T get(Map<StoreMacro, String> meta);
 }

@@ -13,8 +13,9 @@ public class EmptyStorageImpl implements Storage<Object> {
     }
 
     @Override
-    public void store(Object data, Map<StoreMacro, String> meta) {
+    public Map<String, String> store(Object data, Map<StoreMacro, String> meta) {
         // TODO Empty
+        return null;
     }
 
     @Override
