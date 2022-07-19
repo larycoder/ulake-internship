@@ -1,7 +1,10 @@
 package org.usth.ict.ulake.common.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.vertx.core.net.TCPSSLOptions;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
@@ -11,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
-public class LakeHttpResponse {
+public class LakeHttpResponse<T> {
     ObjectMapper mapper = new ObjectMapper();
     final Map<Integer, String> codeMap;
 
@@ -29,9 +32,9 @@ public class LakeHttpResponse {
 
     int code;
     String msg;
-    Object resp;
+    T resp;
 
-    public LakeHttpResponse(int code, String msg, Object resp) {
+    public LakeHttpResponse(int code, String msg, T resp) {
         this.code = code;
         this.msg = msg;
         this.resp = resp;
@@ -55,21 +58,21 @@ public class LakeHttpResponse {
         this.msg = msg;
     }
 
-    public Object getResp() {
+    public T getResp() {
         return resp;
     }
 
-    public void setResp(Object resp) {
+    public void setResp(T resp) {
         this.resp = resp;
     }
 
-    public Response build(int code, String msg, Object resp, Map.Entry<String, String> header) {
+    public Response build(int code, String msg, T resp, Map.Entry<String, String> header) {
         ResponseBuilder rb = Response.status(code).entity(toString(code, msg, resp));
         rb.header(header.getKey(), header.getValue());
         return rb.build();
     }
 
-    public Response build(int code, String msg, Object resp, Map<String, String> headers) {
+    public Response build(int code, String msg, T resp, Map<String, String> headers) {
         ResponseBuilder rb = Response.status(code).entity(toString(code, msg, resp));
         for (var header : headers.entrySet()) {
             rb.header(header.getKey(), header.getValue());
@@ -77,7 +80,7 @@ public class LakeHttpResponse {
         return rb.build();
     }
 
-    public Response build(int code, String msg, Object resp) {
+    public Response build(int code, String msg, T resp) {
         return Response.status(code).entity(toString(code, msg, resp)).build();
     }
 
@@ -89,14 +92,20 @@ public class LakeHttpResponse {
         return build(code, null);
     }
 
-    public String toString(int code, String msg, Object resp) {
-        this.code = code;
-        if (msg != null && !msg.isEmpty()) {
-            this.msg = msg;
-        } else {
-            this.msg = codeMap.get(code);
-        }
-        this.resp = mapper.valueToTree(resp);
+    public String toString(int code, String msg, T resp) {
+        // this.code = code;
+        // if (msg != null && !msg.isEmpty()) {
+        //     this.msg = msg;
+        // } else {
+        //     this.msg = codeMap.get(code);
+        // }
+        // //this.resp =
+        // var converted = mapper.valueToTree(resp);
+        // try {
+        //     this.resp = (T) converted;
+        // } catch (Exception e) {
+        //     return "{}";
+        // }
 
         try {
             return mapper.writeValueAsString(new LakeHttpResponse(code, msg, resp));
