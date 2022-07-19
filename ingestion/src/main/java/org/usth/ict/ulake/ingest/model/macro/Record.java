@@ -1,12 +1,12 @@
 package org.usth.ict.ulake.ingest.model.macro;
 
 public enum Record {
-    // file
+    // local file
     FILE_PATH, FILE_SIZE, FILE_NAME,
 
     // ulake
-    TOKEN, STORAGE_DIR,
+    TOKEN, STORAGE_DIR, OBJECT_ID,
 
-    // status
+    // crawl process
     STATUS
 }
