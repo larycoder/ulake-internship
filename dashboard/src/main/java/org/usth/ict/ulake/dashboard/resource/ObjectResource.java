@@ -26,9 +26,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.core.ObjectModel;
+import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.CoreService;
+import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
 import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
@@ -56,6 +60,10 @@ public class ObjectResource {
     @Inject
     @RestClient
     CoreService coreSvc;
+
+    @Inject
+    @RestClient
+    FileService fileSvc;
 
     @Inject
     LakeHttpResponse resp;
@@ -145,6 +153,25 @@ public class ObjectResource {
         }
         bearer = "Bearer " + localJwt.getRawToken();
 
+        // get mime and file name from file service
+        String mime = "text/html";
+        String fileName = "data.html";
+        try {
+            FileModel fileInfo = fileSvc.fileInfo(fileId, bearer).getResp();
+            if (!Utils.isEmpty(fileInfo.mime)) mime = fileInfo.mime;
+            if (!Utils.isEmpty(fileInfo.name)) fileName = fileInfo.name;
+        } catch (LakeServiceNotFoundException e) {
+            return resp.build(404);
+        }
+
+        // only return inline response if it's PDF, otherwise let's go attachment
+        if (mime.equals("application/pdf")) {
+            fileName = "inline; filename=\"" + fileName + "\"";
+        }
+        else {
+            fileName = "attachment; filename=\"" + fileName + "\"";
+        }
+
         // get binary data from core
         InputStream is;
         try {
@@ -158,6 +185,9 @@ public class ObjectResource {
                 is.transferTo(os);
             }
         };
-        return Response.ok(stream).build();
+        return Response.ok(stream)
+            .header("Content-Type", mime)
+            .header("Content-Disposition", fileName)
+            .build();
     }
 }
