@@ -31,7 +31,7 @@ import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
  * */
 public class CrawlSvc {
     private static final Logger log = LoggerFactory.getLogger(CrawlSvc.class);
-    private DashboardService svc = null;
+    private DashboardService svc;
     private JsonWebToken jwt;
     private ProcessLogRepo processRepo;
     private FileLogRepo fileRepo;
@@ -65,7 +65,7 @@ public class CrawlSvc {
         Map<Record, String> recordConfig = new HashMap<>();
         recordConfig.put(Record.FILE_PATH, "/tmp/ulake");
         recordConfig.put(Record.STORAGE_DIR, context.folderId.toString());
-        recordConfig.put(Record.TOKEN, jwt.getRawToken());
+        recordConfig.put(Record.TOKEN, "Bearer " + jwt.getRawToken());
         context.recordObj.setup(recordConfig);
     }
 
