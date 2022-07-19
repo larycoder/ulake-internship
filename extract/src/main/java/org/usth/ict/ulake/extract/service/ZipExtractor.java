@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
+import org.usth.ict.ulake.extract.model.ExtractResultFile;
 
 @ApplicationScoped
 public class ZipExtractor extends Extractor {
@@ -35,7 +37,19 @@ public class ZipExtractor extends Extractor {
             ZipEntry entry = zis.getNextEntry();
             while (entry != null) {
                 log.info("Zip dir {}, entry {}", entry.isDirectory(), entry.getName());
-                save(bearer, zis, entry, parent);
+                try {
+                    Object ret = save(bearer, zis, entry, parent);
+                    if (ret instanceof FileModel) {
+                        FileModel extractedFileModel = (FileModel) ret;
+                        ExtractResultFile resultFile = new ExtractResultFile();
+                        resultFile.fileId = extractedFileModel.id;
+
+                    }
+                } catch (LakeServiceException e) {
+                }
+
+
+
                 entry = zis.getNextEntry();
              }
             zis.closeEntry();
@@ -53,7 +67,7 @@ public class ZipExtractor extends Extractor {
      * @return
      * @throws IOException
      */
-    private Object save(String bearer, ZipInputStream zis, ZipEntry entry, FolderModel parent) throws IOException {
+    private Object save(String bearer, ZipInputStream zis, ZipEntry entry, FolderModel parent) throws LakeServiceException {
         // TODO: nested directory support
         if (entry.isDirectory()) {
             // make a new dir
@@ -71,7 +85,7 @@ public class ZipExtractor extends Extractor {
             FileFormModel fileModel = new FileFormModel();
             fileModel.fileInfo = file;
             fileModel.is = zis;
-            return dashboardService.newFile(bearer, fileModel);
+            return dashboardService.newFile(bearer, fileModel).getResp();
         }
     }
 }

@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, adminApi, dashboardFileApi, dashboardFolderApi, extractApi } from "./api.js";
+import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
@@ -104,9 +104,15 @@ class DataCRUD extends ListCRUD {
     async click(type, id, name) {
         this.id = Math.abs(parseInt(id));
         this.type = type;
-        this.updateBreadcrumb(type, id, name);
-        await this.fetch();
-        this.recreateTable();
+        console.log(`clicked on item type ${type}`);
+        if (type === "F" || type === "u") {
+            this.updateBreadcrumb(type, id, name);
+            await this.fetch();
+            this.recreateTable();
+        }
+        else {
+            this.downloadFile(id);
+        }
     }
 
     startSpinner() {
@@ -274,6 +280,22 @@ class DataCRUD extends ListCRUD {
                 }, 5000);
             }
         }
+    }
+
+    /**
+     * Download a file from dashboard, using POST bearer body
+     * @param {Long} id file id to download
+     */
+    async downloadFile(id) {
+        console.log(`we should start downloading ${id} here`);
+        const url = `${getDashboardUrl()}/api/object/${id}/fileData`;
+        var idInput = $('<input type="hidden" name="bearer">').val(getToken());
+        $('<form method="post" target="_blank"></form>')
+                .attr("action", url)
+                .append(idInput)
+                .appendTo('body')
+                .submit()
+                .remove();
     }
 
 

@@ -2,9 +2,15 @@
  * Generalized Api class for a specific CRUD endpoint
  */
 export class Api {
-    constructor(server, endpoint) {
+    constructor(server, endpoint, processJson) {
         this.server = server;
         this.endpoint = endpoint;
+
+        // default processing json response
+        if (processJson === undefined || processJson === null) {
+            processJson = true;
+        }
+        this.processJson = processJson;
     }
 
     /**
@@ -39,8 +45,11 @@ export class Api {
         }
         const data = await this.ajax(req);
         console.log(data);
-        if (data && data.code === 200) return data.resp;
-        return {};
+        if (this.processJson) {
+            if (data && data.code === 200) return data.resp;
+            return {};
+        }
+        return data;
     }
 
     // general http methods
@@ -261,6 +270,20 @@ class GroupApi extends Api {
 }
 
 /**
+ * Specific API for Dashboard object management
+ */
+ class DashboardObjectApi extends Api {
+    constructor () {
+        super(getDashboardUrl(), "/api/object", false);
+    }
+
+    async download(id) {
+        return await this.get(`${id}/fileData`);
+    }
+}
+
+
+/**
  * Specific API for Admin CRUD management
  */
  class AdminApi extends Api {
@@ -297,6 +320,7 @@ const fileApi = new FileApi();
 const folderApi = new FolderApi();
 const dashboardFileApi = new DashboardFileApi();
 const dashboardFolderApi = new DashboardFolderApi();
+const dashboardObjectApi = new DashboardObjectApi();
 const adminApi = new AdminApi();
 const extractApi = new ExtractApi();
 
@@ -304,5 +328,5 @@ $("#userName").text(getUserName());
 
 export { userApi, authApi, groupApi, objectApi, tableApi };
 export { logApi, compressApi, fileApi, folderApi };
-export { dashboardFileApi, dashboardFolderApi, adminApi };
-export { extractApi };
+export { dashboardFileApi, dashboardFolderApi, dashboardObjectApi };
+export { extractApi, adminApi };
