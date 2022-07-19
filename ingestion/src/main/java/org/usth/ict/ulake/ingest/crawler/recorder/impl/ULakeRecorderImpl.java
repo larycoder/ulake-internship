@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
@@ -11,13 +13,13 @@ import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
-import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 
-public class ULakeRecorderImpl implements Recorder<InputStream, String> {
+public class ULakeRecorderImpl implements Recorder<InputStream> {
     private static final Logger sysLog = LoggerFactory.getLogger(ULakeRecorderImpl.class);
     private Map<String, String> log = new HashMap<>();
     private FileModel fileInfo = new FileModel();
+    private ObjectMapper mapper = new ObjectMapper();
     private String tokenAuth;
     private DashboardService dashboardSvc;
 
@@ -38,9 +40,6 @@ public class ULakeRecorderImpl implements Recorder<InputStream, String> {
     }
 
     @Override
-    public void setup(Storage<String> store) {}
-
-    @Override
     public void record(InputStream data, Map<Record, String> meta) {
         try {
             fileInfo.name = meta.get(Record.FILE_NAME);
@@ -52,13 +51,14 @@ public class ULakeRecorderImpl implements Recorder<InputStream, String> {
 
             sysLog.debug("crawl token: " + tokenAuth);
 
-            dashboardSvc.newFile(tokenAuth, file);
-            log.put(Record.STATUS.toString(),
-                    Boolean.valueOf(true).toString());
+            var resp = dashboardSvc.newFile(tokenAuth, file);
+            var objId = mapper.convertValue(resp.getResp(), FileModel.class).id;
+
+            log.put(Record.OBJECT_ID.toString(), objId.toString());
+            log.put(Record.STATUS.toString(), Boolean.valueOf(true).toString());
         } catch (Exception e) {
             e.printStackTrace();
-            log.put(Record.STATUS.toString(),
-                    Boolean.valueOf(false).toString());
+            log.put(Record.STATUS.toString(), Boolean.valueOf(false).toString());
         }
     }
 

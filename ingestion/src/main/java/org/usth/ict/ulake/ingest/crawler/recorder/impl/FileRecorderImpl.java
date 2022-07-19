@@ -1,7 +1,6 @@
 package org.usth.ict.ulake.ingest.crawler.recorder.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -11,11 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
-import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.utils.TransferUtil;
 
-public class FileRecorderImpl implements Recorder<InputStream, String> {
+public class FileRecorderImpl implements Recorder<InputStream> {
     private String path; // saving path
     private byte[] streamCache = new byte[1024 * 1024];
     private Map<String, String> log = new HashMap<>(); // log record
@@ -24,8 +22,6 @@ public class FileRecorderImpl implements Recorder<InputStream, String> {
     public void setup(Map<Record, String> config) {
         path = config.get(Record.FILE_PATH);
     }
-
-    public void setup(Storage<String> store) {}
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {

@@ -3,7 +3,6 @@ package org.usth.ict.ulake.ingest.crawler.recorder.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,18 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
-import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.utils.TransferUtil;
 
-public class ULakeCacheFileRecorderImpl
-    implements Recorder<InputStream, String> {
+public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
 
     private static final Logger sysLog = LoggerFactory.getLogger(ULakeCacheFileRecorderImpl.class);
 
-    private Recorder<InputStream, String> file = new FileRecorderImpl();
     private Map<String, String> log = new HashMap<>();
-    private Recorder<InputStream, String> ulake;
+
+    private Recorder<InputStream> file = new FileRecorderImpl();
+    private Recorder<InputStream> ulake;
 
     public ULakeCacheFileRecorderImpl(DashboardService svc) {
         ulake = new ULakeRecorderImpl(svc);
@@ -35,11 +33,9 @@ public class ULakeCacheFileRecorderImpl
     }
 
     @Override
-    public void setup(Storage<String> store) {}
-
-    @Override
     public void record(InputStream data, Map<Record, String> meta) {
         try {
+            // TODO: modify filename to avoid duplicate
             file.record(data, meta);
 
             sysLog.debug("Loaded file to temporary local...");
