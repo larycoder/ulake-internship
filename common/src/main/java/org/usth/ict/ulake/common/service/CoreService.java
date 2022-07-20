@@ -21,6 +21,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.core.GroupObjectModel;
 import org.usth.ict.ulake.common.model.core.ObjectFormModel;
+import org.usth.ict.ulake.common.model.core.ObjectModel;
 
 @Path("/api")
 @RegisterRestClient(configKey = "core-api")
@@ -30,13 +31,13 @@ public interface CoreService {
     @GET
     @Path("/object")
     @Schema(description = "list all object of user")
-    public LakeHttpResponse objectList(
+    public LakeHttpResponse<ObjectModel> objectList(
         @HeaderParam("Authorization") String bearer);
 
     @GET
     @Path("/object/{cid}")
     @Schema(description = "get object information")
-    public LakeHttpResponse objectInfo(
+    public LakeHttpResponse<ObjectModel> objectInfo(
         @PathParam("cid") String cid,
         @HeaderParam("Authorization") String bearer);
 
@@ -59,28 +60,28 @@ public interface CoreService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Schema(description = "upload new object")
-    public LakeHttpResponse newObject(
+    public LakeHttpResponse<ObjectModel> newObject(
         @HeaderParam("Authorization") String bearer,
         @MultipartForm ObjectFormModel output);
 
     @GET
     @Path("/group/{id}")
     @Schema(description = "get group info")
-    public LakeHttpResponse groupInfo(
+    public LakeHttpResponse<GroupObjectModel> groupInfo(
         @PathParam("id") Long id,
         @HeaderParam("Authorization") String bearer);
 
     @POST
     @Path("/group")
     @Schema(description = "create new group")
-    public LakeHttpResponse newGroup(
+    public LakeHttpResponse<GroupObjectModel> newGroup(
         @RequestBody GroupObjectModel entity,
         @HeaderParam("Authorization") String bearer);
 
     @PUT
     @Path("/group/{id}")
     @Schema(description = "update group")
-    public LakeHttpResponse updateGroup(
+    public LakeHttpResponse<GroupObjectModel> updateGroup(
         @PathParam("id") Long id,
         @RequestBody GroupObjectModel newEntity,
         @HeaderParam("Authorization") String bearer);
@@ -88,14 +89,14 @@ public interface CoreService {
     @DELETE
     @Path("/group/{id}")
     @Schema(description = "delete group")
-    public LakeHttpResponse delGroup(
+    public LakeHttpResponse<GroupObjectModel> delGroup(
         @PathParam("id") Long id,
         @HeaderParam("Authorization") String bearer);
 
     @GET
     @Path("/object/stats")
     @Schema(description = "Get all statistics from core service")
-    public LakeHttpResponse stats(
+    public LakeHttpResponse<Object> stats(
         @HeaderParam("Authorization") String bearer);
 
     @GET
@@ -110,14 +111,14 @@ public interface CoreService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Schema(description = "upload new temporary binary object")
-    public LakeHttpResponse newTemp(
+    public LakeHttpResponse<String> newTemp(
         @HeaderParam("Authorization") String bearer,
         InputStream output);
 
     @DELETE
     @Path("/temp/{cid}")
     @Schema(description = "delete temporary binary daya")
-    public LakeHttpResponse delTemp(
+    public LakeHttpResponse<String> delTemp(
         @PathParam("cid") Long cid,
         @HeaderParam("Authorization") String bearer);
 
