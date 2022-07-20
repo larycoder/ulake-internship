@@ -44,6 +44,14 @@ class DataCRUD extends ListCRUD {
         }});
     }
 
+    async detail() {
+        await super.detail();
+        if (this.table) {
+            // allow ctrl-click to select multiple row
+            this.table.select.style("os");
+        }
+    }
+
     /**
      * Get transformed data from the data adapter
      */
@@ -297,8 +305,6 @@ class DataCRUD extends ListCRUD {
                 .submit()
                 .remove();
     }
-
-
 }
 
 
