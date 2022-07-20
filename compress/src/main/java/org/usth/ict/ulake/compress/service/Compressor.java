@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
-import org.usth.ict.ulake.compress.model.RequestFile;
-import org.usth.ict.ulake.compress.model.Result;
+import org.usth.ict.ulake.compress.model.CompressRequestFile;
+import org.usth.ict.ulake.compress.model.CompressResult;
 
 /**
  * General compressor interface
@@ -25,5 +25,5 @@ public abstract class Compressor {
         this.fileService = fileService;
     }
 
-    public abstract void compress(List<RequestFile> files, Result result, CompressCallback callback);
+    public abstract void compress(List<CompressRequestFile> files, CompressResult result, CompressCallback callback);
 }

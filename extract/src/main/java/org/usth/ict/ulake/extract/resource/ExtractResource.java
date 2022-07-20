@@ -46,13 +46,13 @@ public class ExtractResource {
     private static final Logger log = LoggerFactory.getLogger(ExtractResource.class);
 
     @Inject
-    LakeHttpResponse<ExtractRequest> resp;
+    LakeHttpResponse<ExtractRequest> respReq;
 
     @Inject
-    LakeHttpResponse<ExtractResultFile> respFiles;
+    LakeHttpResponse<ExtractResultFile> respReqFile;
 
     @Inject
-    LakeHttpResponse<ExtractResult> respResult;
+    LakeHttpResponse<ExtractResult> respRes;
 
     @Inject
     LakeHttpResponse<Object> respObject;
@@ -99,10 +99,10 @@ public class ExtractResource {
     public Response all() {
         Set<String> groups = jwt.getGroups();
         if (groups.contains("Admin")) {
-            return resp.build(200, "", repoReq.listAll());
+            return respReq.build(200, "", repoReq.listAll());
         }
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-        return resp.build(200, "", repoReq.list("userId", userId));
+        return respReq.build(200, "", repoReq.list("userId", userId));
     }
 
     @GET
@@ -112,9 +112,9 @@ public class ExtractResource {
     public Response one(@PathParam("id") @Parameter(description = "Request id to search") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
-            return resp.build(200, null, req);
+            return respReq.build(200, null, req);
         }
-        return resp.build(403);
+        return respReq.build(403);
     }
 
     @GET
@@ -124,10 +124,10 @@ public class ExtractResource {
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return resp.build(403);
+            return respReq.build(403);
         }
         ExtractResult resp = repoRes.find("requestId=?1 order by id desc", id).firstResult();
-        return respResult.build(200, null, resp);
+        return respRes.build(200, null, resp);
     }
 
     @POST
@@ -144,7 +144,7 @@ public class ExtractResource {
         entity.timestamp = new Date().getTime();
         entity.finishedTime = 0L;
         repoReq.persist(entity);
-        return resp.build(200, "", entity);
+        return respReq.build(200, "", entity);
     }
 
     @GET
@@ -157,13 +157,13 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return resp.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return resp.build(403);
+            return respReq.build(403);
         }
         var files = repoResFile.list("requestId", id);
-        return respFiles.build(200, "", files);
+        return respReqFile.build(200, "", files);
     }
 
     @GET
@@ -176,10 +176,10 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return resp.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return resp.build(403);
+            return respReq.build(403);
         }
         var count = repoResFile.count("requestId", id);
         return respObject.build(200, "", count);
@@ -197,10 +197,10 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return resp.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return resp.build(403);
+            return respReq.build(403);
         }
 
         try {
@@ -209,7 +209,7 @@ public class ExtractResource {
             e.printStackTrace();
         }
 
-        return resp.build(200, "", req);
+        return respReq.build(200, "", req);
     }
 
     @DELETE
@@ -221,11 +221,11 @@ public class ExtractResource {
     public Response delete(@PathParam("id") @Parameter(description = "Request id to stop") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return resp.build(403);
+            return respReq.build(403);
         }
         req.finishedTime = -1L;  // indicates that this one is stopped
-        repoReq.persist(req);
-        return resp.build(200, "", req);
+    repoReq.persist(req);
+        return respReq.build(200, "", req);
     }
 
     @GET

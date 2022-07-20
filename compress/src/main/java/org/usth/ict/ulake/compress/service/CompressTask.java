@@ -6,12 +6,16 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.compress.model.Request;
-import org.usth.ict.ulake.compress.model.RequestFile;
-import org.usth.ict.ulake.compress.model.Result;
+import org.usth.ict.ulake.compress.model.CompressRequest;
+import org.usth.ict.ulake.compress.model.CompressRequestFile;
+import org.usth.ict.ulake.compress.model.CompressResult;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
@@ -19,31 +23,32 @@ import org.usth.ict.ulake.compress.persistence.ResultRepository;
 /**
  * Perform compression in a background thread
  */
+@ApplicationScoped
 public class CompressTask implements CompressCallback {
     private static final Logger log = LoggerFactory.getLogger(CompressTask.class);
 
-    private Long requestId;
-    private RequestRepository repoReq;
-    private RequestFileRepository repoReqFile;
-    private ResultRepository repoResult;
-    private Compressor compressor;
+    @Inject
+    RequestRepository repoReq;
 
-    private Result result;
+    @Inject
+    RequestFileRepository repoReqFile;
 
-    public CompressTask(Compressor compressor, Long requestId, RequestRepository repoReq, RequestFileRepository repoReqFile, ResultRepository repoResult) {
-        this.compressor = compressor;
-        this.requestId = requestId;
-        this.repoReq = repoReq;
-        this.repoReqFile = repoReqFile;
-        this.repoResult = repoResult;
+    @Inject ResultRepository repoResult;
+
+    @Inject ZipCompressor compressor;
+
+    private CompressResult result;
+
+    public CompressTask() {
     }
 
-    public void run() {
+    @Transactional
+    public void run(String bearer, Long id) {
         // prepare request files and result object
-        var req = getRequest();
-        var files = getFiles();
-        result = new Result();
-        result.requestId = requestId;
+        var req = getRequest(id);
+        var files = getFiles(id);
+        result = new CompressResult();
+        result.requestId = id;
         result.ownerId = req.userId;
         result.totalFiles = (long) files.size();
         repoResult.persist(result);
@@ -58,12 +63,12 @@ public class CompressTask implements CompressCallback {
         repoReq.persist(req);
     }
 
-    private Request getRequest() {
-        return repoReq.findById(requestId);
+    private CompressRequest getRequest(Long id) {
+        return repoReq.findById(id);
     }
 
-    private List<RequestFile> getFiles() {
-        return repoReqFile.list("requestId", requestId);
+    private List<CompressRequestFile> getFiles(Long id) {
+        return repoReqFile.list("requestId", id);
     }
 
     /**
@@ -71,7 +76,7 @@ public class CompressTask implements CompressCallback {
      * @param result
      * @return local file name
      */
-    private String pushCore(Result result) {
+    private String pushCore(CompressResult result) {
         String ret = result.url;
         try {
             FileInputStream fis = new FileInputStream(new File(result.url));
@@ -95,7 +100,7 @@ public class CompressTask implements CompressCallback {
     }
 
     @Override
-    public void callback(RequestFile file, boolean success, Result result) {
+    public void callback(CompressRequestFile file, boolean success, CompressResult result) {
         log.info("  + callback: file {}, status {}, progress {}", file.fileId, Boolean.valueOf(success), result.progress);
         if (success) {
             if (result.progress == null) result.progress = 0L;

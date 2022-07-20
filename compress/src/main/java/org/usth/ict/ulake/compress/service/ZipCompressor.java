@@ -13,8 +13,8 @@ import java.util.zip.ZipOutputStream;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
-import org.usth.ict.ulake.compress.model.RequestFile;
-import org.usth.ict.ulake.compress.model.Result;
+import org.usth.ict.ulake.compress.model.CompressRequestFile;
+import org.usth.ict.ulake.compress.model.CompressResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,7 +25,7 @@ public class ZipCompressor extends Compressor {
     }
 
     @Override
-    public void compress(List<RequestFile> files, Result result, CompressCallback callback) {
+    public void compress(List<CompressRequestFile> files, CompressResult result, CompressCallback callback) {
         Path temp = createTempZipFile();
         ZipOutputStream zipOut = null;
         FileOutputStream fos = null;
@@ -65,7 +65,7 @@ public class ZipCompressor extends Compressor {
      * @param zipOut output stream to zip
      * @param file file metadata to be compressed
      */
-    private boolean addFileToZip(RequestFile file, ZipOutputStream zipOut, CompressCallback callback, Result result) {
+    private boolean addFileToZip(CompressRequestFile file, ZipOutputStream zipOut, CompressCallback callback, CompressResult result) {
         // get file info from FileResource
         var fileInfo = fileService.fileInfo(file.fileId, token);
         if (fileInfo.getCode() != 200) {

@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 // represent a compression result
 @Entity
-public class Result {
+public class CompressResult {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;

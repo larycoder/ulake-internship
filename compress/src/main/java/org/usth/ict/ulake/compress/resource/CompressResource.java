@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
-import org.usth.ict.ulake.compress.model.Request;
-import org.usth.ict.ulake.compress.model.RequestFile;
-import org.usth.ict.ulake.compress.model.Result;
+import org.usth.ict.ulake.compress.model.CompressRequest;
+import org.usth.ict.ulake.compress.model.CompressRequestFile;
+import org.usth.ict.ulake.compress.model.CompressResult;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
@@ -47,13 +47,13 @@ public class CompressResource {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
-    LakeHttpResponse<Request> respReq;
+    LakeHttpResponse<CompressRequest> respReq;
 
     @Inject
-    LakeHttpResponse<Result> respResult;
+    LakeHttpResponse<CompressResult> respRes;
 
     @Inject
-    LakeHttpResponse<RequestFile> respFiles;
+    LakeHttpResponse<CompressRequestFile> respReqFile;
 
     @Inject
     LakeHttpResponse<Object> respObject;
@@ -107,7 +107,7 @@ public class CompressResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get one request info")
     public Response one(@PathParam("id") @Parameter(description = "Request id to search") Long id) {
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
             return respReq.build(200, null, req);
         }
@@ -119,12 +119,12 @@ public class CompressResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Check a compression request result")
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
             return respReq.build(403);
         }
-        Result resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
-        return respResult.build(200, null, resp);
+        CompressResult resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
+        return respRes.build(200, null, resp);
     }
 
     @POST
@@ -134,10 +134,10 @@ public class CompressResource {
     @Operation(summary = "Create a new compression request")
     public Response post(
         @RequestBody(description = "New compression request to save")
-        Request entity) {
+        CompressRequest entity) {
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
         if (entity == null) {
-            entity = new Request();
+            entity = new CompressRequest();
         }
         entity.userId = userId;
         entity.timestamp = new Date().getTime();
@@ -155,9 +155,9 @@ public class CompressResource {
     public Response postFile(
         @PathParam("id") @Parameter(description = "Request id to add into") Long id,
         @RequestBody(description = "New file to add into compression request")
-        RequestFile entity) {
+        CompressRequestFile entity) {
         // check if request is valid
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (req == null) {
             return respReq.build(404);
         }
@@ -166,7 +166,7 @@ public class CompressResource {
         }
         entity.requestId = id;
         repoReqFile.persist(entity);
-        return respFiles.build(200, "", entity);
+        return respReqFile.build(200, "", entity);
     }
 
     @GET
@@ -177,7 +177,7 @@ public class CompressResource {
     @Operation(summary = "List all files in a compression request")
     public Response getFiles(@PathParam("id") @Parameter(description = "Request id to list") Long id) {
         // check if request is valid
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (req == null) {
             return respReq.build(404);
         }
@@ -185,7 +185,7 @@ public class CompressResource {
             return respReq.build(403);
         }
         var files = repoReqFile.list("requestId", id);
-        return respFiles.build(200, "", files);
+        return respReqFile.build(200, "", files);
     }
 
     @GET
@@ -196,7 +196,7 @@ public class CompressResource {
     @Operation(summary = "Count number of files in a compression request")
     public Response countFiles(@PathParam("id") @Parameter(description = "Request id to count") Long id) {
         // check if request is valid
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (req == null) {
             return respReq.build(404);
         }
@@ -217,7 +217,7 @@ public class CompressResource {
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") @Parameter(description = "Request id to start") Long id) {
         // check if request is valid
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (req == null) {
             return respReq.build(404);
         }
@@ -236,7 +236,7 @@ public class CompressResource {
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Stop an on-going compression request")
     public Response delete(@PathParam("id") @Parameter(description = "Request id to stop") Long id) {
-        Request req = repoReq.findById(id);
+        CompressRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
             return respReq.build(403);
         }
@@ -260,7 +260,7 @@ public class CompressResource {
      * Start compression service in background with specified id
      * @param id Compression request Id
      */
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Transactional
     public void compress(String bearer, Long id) {
         log.info("Start compression in managed executor");
         Compressor compressor = new ZipCompressor(bearer, coreService, fileService);

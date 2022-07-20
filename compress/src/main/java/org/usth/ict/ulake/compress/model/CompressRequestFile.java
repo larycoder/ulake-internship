@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 // represent a file info in the compression request
 @Entity
-public class RequestFile {
+public class CompressRequestFile {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;

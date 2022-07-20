@@ -2,10 +2,10 @@ package org.usth.ict.ulake.compress.persistence;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.usth.ict.ulake.compress.model.RequestFile;
+import org.usth.ict.ulake.compress.model.CompressRequestFile;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
-public class RequestFileRepository implements PanacheRepository<RequestFile> {
+public class RequestFileRepository implements PanacheRepository<CompressRequestFile> {
 }
