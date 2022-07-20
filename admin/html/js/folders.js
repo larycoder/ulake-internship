@@ -336,7 +336,7 @@ class DataCRUD extends ListCRUD {
         // add files into this request
         for (var item of items) {
             console.log(`adding file ${item.name} into request ${resp.id}`);
-            const itemResp = compressApi.add(resp.id, item.type, item.id);
+            const itemResp = await compressApi.add(resp.id, item.type, item.id);
             if (!itemResp || !itemResp.id) {
                 showToast("Error", `Cannot add file to compression request`);
                 return;

@@ -192,10 +192,10 @@ class GroupApi extends Api {
 
     async add(reqId, type, id) {
         if (type === "f") {
-            return await this.post(`${reqId}/file`, { fileId: id } );
+            return await this.post(`/${reqId}/file`, { fileId: id }, { "Content-Type": "application/json; charset=utf-8" } );
         }
         else if (type === "F") {
-            return await this.post(`${reqId}/folder`, { folderId: id } );
+            return await this.post(`/${reqId}/folder`, { folderId: id }, { "Content-Type": "application/json; charset=utf-8" } );
         }
     }
 
