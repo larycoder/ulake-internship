@@ -290,6 +290,22 @@ class GroupApi extends Api {
     constructor () {
         super(getAdminUrl(), "/api/admin")
     }
+
+    async coreStats() {
+        return await this.get("/objects/stats");
+    }
+
+    async userStats() {
+        return await this.get("/users/stats");
+    }
+
+    async folderStats() {
+        return await this.get("/folders/stats");
+    }
+
+    async fileStats() {
+        return await this.get("/files/stats");
+    }
 }
 
 /**

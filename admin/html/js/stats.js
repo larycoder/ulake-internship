@@ -101,26 +101,26 @@ window.stats = {
     },
 
     updateStats: async () => {
-        const userStats = await adminApi.get("/users/stats");
-        if (userStats && userStats.code === 200) {
+        const userStats = await adminApi.userStats();
+        if (userStats) {
             console.log(userStats);
             window.stats.redrawUserStats(userStats);
         }
 
-        const coreStats = await ajax("/objects/stats");
-        if (coreStats && coreStats.code === 200) {
+        const coreStats = await adminApi.coreStats();
+        if (coreStats) {
             console.log(coreStats);
             window.stats.redrawCoreStats(coreStats);
         }
 
-        const folderStats = await ajax("/folders/stats");
-        if (folderStats && folderStats.code === 200) {
+        const folderStats = await adminApi.folderStats();
+        if (folderStats) {
             console.log(folderStats);
             window.stats.redrawFolderStats(folderStats);
         }
 
-        const fileStats = await ajax("/files/stats");
-        if (fileStats && fileStats.code === 200) {
+        const fileStats = await adminApi.fileStats();
+        if (fileStats) {
             console.log(fileStats);
             window.stats.redrawFileStats(fileStats);
         }
@@ -128,40 +128,40 @@ window.stats = {
     },
 
     redrawUserStats: (data) => {
-        const ctx = document.getElementById("userStatChart");
+        const ctx = $("#userStatChart");
         const chart = structuredClone(stats.userSettings);
-        chart.data.labels = Object.keys(data.resp.regs);
-        chart.data.datasets[0].data = Object.values(data.resp.regs);
-        document.querySelector("#user-footer").textContent = `Total ${data.resp.count} users`
+        chart.data.labels = Object.keys(data.regs);
+        chart.data.datasets[0].data = Object.values(data.regs);
+        $("#user-footer").text(`Total ${data.count} users`);
         new Chart(ctx, chart);
     },
 
     redrawCoreStats: (data) => {
-        const ctx = document.getElementById("coreStatChart");
+        const ctx = $("#coreStatChart");
         const chart = structuredClone(stats.coreSettings);
         chart.data.labels = [ "Used storage", "Remaining" ];
-        chart.data.datasets[0].data = [ parseInt(data.resp.stats.presentCapacity / 1048576), parseInt(data.resp.stats.capacity / 1048576) ];
-        document.querySelector("#core-footer").textContent = `Total capacity ${parseInt(data.resp.stats.capacity / 1072147864)} GB <br/>Data replication: ${parseInt(data.resp.stats.replication)} times.`;
+        chart.data.datasets[0].data = [ parseInt(data.stats.presentCapacity / 1048576), parseInt(data.stats.capacity / 1048576) ];
+        $("#core-footer").text("").append($(`<span>Total capacity ${parseInt(data.stats.capacity / 1072147864)} GB <br/>Data replication: ${parseInt(data.stats.replication)} times.</span>`));
         new Chart(ctx, chart);
     },
 
     redrawFolderStats: (data) => {
-        const ctx = document.getElementById("folderStatChart");
+        const ctx = $("#folderStatChart");
         const chart = structuredClone(stats.userSettings);
-        chart.data.labels = Object.keys(data.resp.newFolders);
-        chart.data.datasets[0].data = Object.values(data.resp.newFolders);
+        chart.data.labels = Object.keys(data.newFolders);
+        chart.data.datasets[0].data = Object.values(data.newFolders);
         chart.data.datasets[0].label = "New folders per day";
-        document.querySelector("#folder-footer").textContent = `Total ${data.resp.count} folders`
+        $("#folder-footer").text(`Total ${data.count} folders`);
         new Chart(ctx, chart);
     },
 
     redrawFileStats: (data) => {
-        const ctx = document.getElementById("fileStatChart");
+        const ctx = $("#fileStatChart");
         const chart = structuredClone(stats.userSettings);
-        chart.data.labels = Object.keys(data.resp.newFiles);
-        chart.data.datasets[0].data = Object.values(data.resp.newFiles);
+        chart.data.labels = Object.keys(data.newFiles);
+        chart.data.datasets[0].data = Object.values(data.newFiles);
         chart.data.datasets[0].label = "New files per day";
-        document.querySelector("#file-footer").textContent = `Total ${data.resp.count} files`
+        $("#file-footer").text(`Total ${data.count} files`)
         new Chart(ctx, chart);
     },
 }
