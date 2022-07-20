@@ -33,6 +33,7 @@ import org.usth.ict.ulake.common.service.DashboardService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.extract.model.ExtractRequest;
 import org.usth.ict.ulake.extract.model.ExtractResult;
+import org.usth.ict.ulake.extract.model.ExtractResultFile;
 import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
@@ -45,7 +46,16 @@ public class ExtractResource {
     private static final Logger log = LoggerFactory.getLogger(ExtractResource.class);
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<ExtractRequest> resp;
+
+    @Inject
+    LakeHttpResponse<ExtractResultFile> respFiles;
+
+    @Inject
+    LakeHttpResponse<ExtractResult> respResult;
+
+    @Inject
+    LakeHttpResponse<Object> respObject;
 
     @Inject
     ExtractRequestRepository repoReq;
@@ -89,10 +99,10 @@ public class ExtractResource {
     public Response all() {
         Set<String> groups = jwt.getGroups();
         if (groups.contains("Admin")) {
-            return response.build(200, "", repoReq.listAll());
+            return resp.build(200, "", repoReq.listAll());
         }
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-        return response.build(200, "", repoReq.list("userId", userId));
+        return resp.build(200, "", repoReq.list("userId", userId));
     }
 
     @GET
@@ -102,9 +112,9 @@ public class ExtractResource {
     public Response one(@PathParam("id") @Parameter(description = "Request id to search") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
-            return response.build(200, null, req);
+            return resp.build(200, null, req);
         }
-        return response.build(403);
+        return resp.build(403);
     }
 
     @GET
@@ -114,10 +124,10 @@ public class ExtractResource {
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return resp.build(403);
         }
         ExtractResult resp = repoRes.find("requestId=?1 order by id desc", id).firstResult();
-        return response.build(200, null, resp);
+        return respResult.build(200, null, resp);
     }
 
     @POST
@@ -134,7 +144,7 @@ public class ExtractResource {
         entity.timestamp = new Date().getTime();
         entity.finishedTime = 0L;
         repoReq.persist(entity);
-        return response.build(200, "", entity);
+        return resp.build(200, "", entity);
     }
 
     @GET
@@ -147,13 +157,13 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return resp.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return resp.build(403);
         }
         var files = repoResFile.list("requestId", id);
-        return response.build(200, "", files);
+        return respFiles.build(200, "", files);
     }
 
     @GET
@@ -166,13 +176,13 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return resp.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return resp.build(403);
         }
         var count = repoResFile.count("requestId", id);
-        return response.build(200, "", count);
+        return respObject.build(200, "", count);
     }
 
     @POST
@@ -187,10 +197,10 @@ public class ExtractResource {
         // check if request is valid
         ExtractRequest req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return resp.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return resp.build(403);
         }
 
         try {
@@ -199,7 +209,7 @@ public class ExtractResource {
             e.printStackTrace();
         }
 
-        return response.build(200, "", req);
+        return resp.build(200, "", req);
     }
 
     @DELETE
@@ -211,11 +221,11 @@ public class ExtractResource {
     public Response delete(@PathParam("id") @Parameter(description = "Request id to stop") Long id) {
         ExtractRequest req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return resp.build(403);
         }
         req.finishedTime = -1L;  // indicates that this one is stopped
         repoReq.persist(req);
-        return response.build(200, "", req);
+        return resp.build(200, "", req);
     }
 
     @GET
@@ -226,6 +236,6 @@ public class ExtractResource {
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoResFile.count());
-        return response.build(200, "", ret);
+        return respObject.build(200, "", ret);
     }
 }

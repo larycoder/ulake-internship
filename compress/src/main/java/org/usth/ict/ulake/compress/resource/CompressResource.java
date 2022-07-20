@@ -47,16 +47,16 @@ public class CompressResource {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
-    LakeHttpResponse<Request> response;
+    LakeHttpResponse<Request> respReq;
 
     @Inject
-    LakeHttpResponse<Result> responseResult;
+    LakeHttpResponse<Result> respResult;
 
     @Inject
-    LakeHttpResponse<RequestFile> responseFiles;
+    LakeHttpResponse<RequestFile> respFiles;
 
     @Inject
-    LakeHttpResponse<Object> responseObject;
+    LakeHttpResponse<Object> respObject;
 
     @Inject
     RequestRepository repoReq;
@@ -96,10 +96,10 @@ public class CompressResource {
     public Response all() {
         Set<String> groups = jwt.getGroups();
         if (groups.contains("Admin")) {
-            return response.build(200, "", repoReq.listAll());
+            return respReq.build(200, "", repoReq.listAll());
         }
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-        return response.build(200, "", repoReq.list("userId", userId));
+        return respReq.build(200, "", repoReq.list("userId", userId));
     }
 
     @GET
@@ -109,9 +109,9 @@ public class CompressResource {
     public Response one(@PathParam("id") @Parameter(description = "Request id to search") Long id) {
         Request req = repoReq.findById(id);
         if (checkOwner(req.userId)) {
-            return response.build(200, null, req);
+            return respReq.build(200, null, req);
         }
-        return response.build(403);
+        return respReq.build(403);
     }
 
     @GET
@@ -121,10 +121,10 @@ public class CompressResource {
     public Response status(@PathParam("id") @Parameter(description = "Request id to check status") Long id) {
         Request req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         Result resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
-        return responseResult.build(200, null, resp);
+        return respResult.build(200, null, resp);
     }
 
     @POST
@@ -136,11 +136,14 @@ public class CompressResource {
         @RequestBody(description = "New compression request to save")
         Request entity) {
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        if (entity == null) {
+            entity = new Request();
+        }
         entity.userId = userId;
         entity.timestamp = new Date().getTime();
         entity.finishedTime = 0L;
         repoReq.persist(entity);
-        return response.build(200, "", entity);
+        return respReq.build(200, "", entity);
     }
 
     @POST
@@ -156,14 +159,14 @@ public class CompressResource {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         entity.requestId = id;
         repoReqFile.persist(entity);
-        return responseFiles.build(200, "", entity);
+        return respFiles.build(200, "", entity);
     }
 
     @GET
@@ -176,13 +179,13 @@ public class CompressResource {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         var files = repoReqFile.list("requestId", id);
-        return responseFiles.build(200, "", files);
+        return respFiles.build(200, "", files);
     }
 
     @GET
@@ -195,13 +198,13 @@ public class CompressResource {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         var count = repoReqFile.count("requestId", id);
-        return responseObject.build(200, "", count);
+        return respObject.build(200, "", count);
     }
 
     @POST
@@ -216,14 +219,14 @@ public class CompressResource {
         // check if request is valid
         Request req = repoReq.findById(id);
         if (req == null) {
-            return response.build(404);
+            return respReq.build(404);
         }
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         executor.submit(() -> compress(bearer, id));
 
-        return response.build(200, "", req);
+        return respReq.build(200, "", req);
     }
 
     @DELETE
@@ -235,11 +238,11 @@ public class CompressResource {
     public Response delete(@PathParam("id") @Parameter(description = "Request id to stop") Long id) {
         Request req = repoReq.findById(id);
         if (!checkOwner(req.userId)) {
-            return response.build(403);
+            return respReq.build(403);
         }
         req.finishedTime = -1L;  // indicates that this one is stopped
         repoReq.persist(req);
-        return response.build(200, "", req);
+        return respReq.build(200, "", req);
     }
 
     @GET
@@ -250,7 +253,7 @@ public class CompressResource {
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoReqFile.count());
-        return responseObject.build(200, "", ret);
+        return respObject.build(200, "", ret);
     }
 
     /**
