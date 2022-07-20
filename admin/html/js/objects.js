@@ -12,7 +12,7 @@ function formatDate(date) {
     return `${year}-${month}-${day} ${hourFormatted}:${minuteFormatted}`;
 }
 
-const crud = new ListCRUD({
+window.crud = new ListCRUD({
     api: objectApi,
     name: "Object",
     nameField: "cid",
@@ -25,4 +25,4 @@ const crud = new ListCRUD({
     ]
 });
 
-$(document).ready(() => crud.ready());
+$(document).ready(() => window.crud.ready());

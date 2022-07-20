@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { userApi, logApi } from "./api.js";
 
-const crud = new ListCRUD({
+window.crud = new ListCRUD({
     api: logApi,
     name: "Logs",
     nameField: "content",
@@ -21,4 +21,4 @@ const crud = new ListCRUD({
     }
 });
 
-$(document).ready(() => crud.ready());
+$(document).ready(() => window.crud.ready());

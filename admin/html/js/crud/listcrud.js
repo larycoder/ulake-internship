@@ -84,6 +84,7 @@ export class ListCRUD extends CRUD {
                 data: data,
                 paging: true,
                 columns: this.listFieldRenderer,
+                buttons: [ 'csv' ],
                 order: []
             });
         }
