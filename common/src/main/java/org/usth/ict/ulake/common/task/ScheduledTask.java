@@ -2,6 +2,7 @@ package org.usth.ict.ulake.common.task;
 
 import javax.inject.Inject;
 
+import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -24,7 +25,7 @@ public class ScheduledTask {
      * Schedules and starts the extract task in a background thread, managed by quartz
      * @throws SchedulerException
      */
-    public void start(String bearer, Long id, Class jobClass ) throws SchedulerException {
+    public void start(String bearer, Long id, Class<? extends Job> jobClass ) throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("bearer", bearer);
         jobDataMap.put("id", id.intValue());
