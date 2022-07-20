@@ -1,17 +1,15 @@
 package org.usth.ict.ulake.common.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vertx.core.net.TCPSSLOptions;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ApplicationScoped
 public class LakeHttpResponse<T> {
@@ -80,37 +78,51 @@ public class LakeHttpResponse<T> {
         return rb.build();
     }
 
+    public Response build(int code, String msg, List<T> resp) {
+        return Response.status(code).entity(toString(code, msg, resp)).build();
+    }
+
     public Response build(int code, String msg, T resp) {
         return Response.status(code).entity(toString(code, msg, resp)).build();
     }
 
     public Response build(int code, String msg) {
-        return build(code, msg, null);
+        T ret = null;
+        return build(code, msg, ret);
     }
 
     public Response build(int code) {
         return build(code, null);
     }
 
-    public String toString(int code, String msg, T resp) {
-        // this.code = code;
-        // if (msg != null && !msg.isEmpty()) {
-        //     this.msg = msg;
-        // } else {
-        //     this.msg = codeMap.get(code);
-        // }
-        // //this.resp =
-        // var converted = mapper.valueToTree(resp);
-        // try {
-        //     this.resp = (T) converted;
-        // } catch (Exception e) {
-        //     return "{}";
-        // }
+    // this.code = code;
+    // if (msg != null && !msg.isEmpty()) {
+    //     this.msg = msg;
+    // } else {
+    //     this.msg = codeMap.get(code);
+    // }
+    // //this.resp =
+    // var converted = mapper.valueToTree(resp);
+    // try {
+    //     this.resp = (T) converted;
+    // } catch (Exception e) {
+    //     return "{}";
+    // }
 
+    public String toString(int code, String msg, T resp) {
         try {
-            return mapper.writeValueAsString(new LakeHttpResponse(code, msg, resp));
+            return mapper.writeValueAsString(new LakeHttpResponse<T>(code, msg, resp));
         } catch (JsonProcessingException e) {
             return "{}";
         }
     }
+
+    public String toString(int code, String msg, List<T> resp) {
+        try {
+            return mapper.writeValueAsString(new LakeHttpResponse<List<T>>(code, msg, resp));
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
+    }
+
 }
