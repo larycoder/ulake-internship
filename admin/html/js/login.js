@@ -18,7 +18,7 @@ window.login = async () => {
             setToken(null);
             return;
         }
-        window.location = "/";
+        window.location = "/folders";
     }
     else {
         showModal("Error", "Incorrect username/password.");
