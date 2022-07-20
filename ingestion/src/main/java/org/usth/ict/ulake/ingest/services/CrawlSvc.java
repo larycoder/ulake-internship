@@ -29,23 +29,22 @@ import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
 
 /**
  * Service to process crawl.
- * Aware Behavior: not thread-safe
  * */
 @ApplicationScoped
 public class CrawlSvc {
     private static final Logger log = LoggerFactory.getLogger(CrawlSvc.class);
     @Inject
     @RestClient
-    private DashboardService svc;
+    DashboardService svc;
 
     @Inject
-    private JsonWebToken jwt;
+    JsonWebToken jwt;
 
     @Inject
-    private ProcessLogRepo processRepo;
+    ProcessLogRepo processRepo;
 
     @Inject
-    private FileLogRepo fileRepo;
+    FileLogRepo fileRepo;
 
     public class CrawlContext {
         public Policy policy;
@@ -57,13 +56,11 @@ public class CrawlSvc {
         public Fetcher<IngestLog, InputStream> fetchObj;
     }
 
-    private CrawlContext context = new CrawlContext();
-
-    private void buildStore() {
+    private void buildStore(CrawlContext context) {
         context.storeObj = new SqlLogStorageImpl(processRepo, fileRepo);
     }
 
-    private void buildRecord() {
+    private void buildRecord(CrawlContext context) {
         context.recordObj = new ULakeCacheFileRecorderImpl(svc);
         Map<Record, String> recordConfig = new HashMap<>();
         recordConfig.put(Record.FILE_PATH, "/tmp/ulake");
@@ -72,7 +69,7 @@ public class CrawlSvc {
         context.recordObj.setup(recordConfig);
     }
 
-    private void buildFetch() {
+    private void buildFetch(CrawlContext context) {
         context.fetchObj = new FetcherImpl();
         Map<FetchConfig, String> fetchConfig = new HashMap<>();
         fetchConfig.put(FetchConfig.MODE, context.mode.toString());
@@ -87,6 +84,8 @@ public class CrawlSvc {
      * */
     public Map<String, Object> runCrawl(
         Policy policy, FetchConfig mode, Long folderId, String desc) {
+
+        var context = new CrawlContext();
 
         context.policy = policy;
         context.mode = mode;
@@ -105,9 +104,9 @@ public class CrawlSvc {
         }
 
         log.info("Setup crawl components...");
-        buildStore();
-        buildRecord();
-        buildFetch();
+        buildStore(context);
+        buildRecord(context);
+        buildFetch(context);
 
         log.info("Run crawl process");
         var resp = context.fetchObj.fetch(policy);
@@ -115,6 +114,9 @@ public class CrawlSvc {
         log.info("Done crawl process...");
         if (mode == FetchConfig.DOWNLOAD) {
             var processLog = processRepo.findById(context.processId);
+
+            log.info("processLog: " + context.processId);
+
             processLog.endTime = new Date().getTime();
             processRepo.persist(processLog);
         }
