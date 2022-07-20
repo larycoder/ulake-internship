@@ -182,12 +182,29 @@ class GroupApi extends Api {
         super(getCompressUrl(), "/api/compress")
     }
 
-    async countFiles(id) {
+    async count(id) {
         return await this.get(`/${id}/count`);
+    }
+
+    async list(id) {
+        return await this.get(`/${id}/files`);
+    }
+
+    async add(reqId, type, id) {
+        if (type === "f") {
+            return await this.post(`${reqId}/file`, { fileId: id } );
+        }
+        else if (type === "F") {
+            return await this.post(`${reqId}/folder`, { folderId: id } );
+        }
     }
 
     async start(id) {
         return await this.post(`/${id}/start`);
+    }
+
+    async stop(id) {
+        return await this.delete(`/${id}`);
     }
 }
 

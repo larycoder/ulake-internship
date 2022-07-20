@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi } from "./api.js";
+import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi } from "./api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
@@ -313,8 +313,39 @@ class DataCRUD extends ListCRUD {
                 .remove();
     }
 
-    compressClick() {
-        console.log("Should start compression now");
+    async compressClick() {
+        // get selected items and convert to a readable array of models
+        const select = this.table.rows({ selected: true }).data();
+        const items = [];
+        select.each(i => {
+            items.push({
+                id: i.id,
+                type: i.type === "Folder"? "F":"f",
+                name: i.name
+            });
+        });
+
+        // make a new compression request
+        const resp = await compressApi.create();
+        if (!resp || !resp.id) {
+            showToast("Error", "Cannot create new compression request");
+            return;
+        }
+        console.log(`Created compression request ${resp.id}`);
+
+        // add files into this request
+        for (var item of items) {
+            console.log(`adding file ${item.name} into request ${resp.id}`);
+            const itemResp = compressApi.add(resp.id, item.type, item.id);
+            if (!itemResp || !itemResp.id) {
+                showToast("Error", `Cannot add file to compression request`);
+                return;
+            }
+        }
+        console.log("finished, prepare to start");
+
+        // alright lets go
+        compressApi.start(resp.id);
     }
 }
 
