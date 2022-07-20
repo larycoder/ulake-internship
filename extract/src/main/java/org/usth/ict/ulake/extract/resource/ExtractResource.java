@@ -37,6 +37,7 @@ import org.usth.ict.ulake.extract.model.ExtractResultFile;
 import org.usth.ict.ulake.extract.persistence.ExtractRequestRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultFileRepository;
 import org.usth.ict.ulake.extract.persistence.ExtractResultRepository;
+import org.usth.ict.ulake.extract.service.ExtractJob;
 import org.usth.ict.ulake.extract.service.ExtractTask;
 
 
@@ -204,7 +205,7 @@ public class ExtractResource {
         }
 
         try {
-            extractTask.start(bearer, id);
+            extractTask.start(bearer, id, ExtractJob.class);
         } catch (SchedulerException e) {
             e.printStackTrace();
         }

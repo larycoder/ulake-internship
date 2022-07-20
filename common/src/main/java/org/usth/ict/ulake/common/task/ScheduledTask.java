@@ -25,7 +25,8 @@ public class ScheduledTask {
      * Schedules and starts the extract task in a background thread, managed by quartz
      * @throws SchedulerException
      */
-    public void start(String bearer, Long id, Class<? extends Job> jobClass ) throws SchedulerException {
+    public void start(String bearer, Long id, Class<? extends Job> jobClass) throws SchedulerException {
+        log.info("Starting a new job {}", jobClass.getSimpleName());
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("bearer", bearer);
         jobDataMap.put("id", id.intValue());

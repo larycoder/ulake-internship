@@ -31,6 +31,7 @@ public class ZipExtractor extends Extractor {
         FileModel fileModel = dashboardService.fileInfo(request.fileId, bearer).getResp();
         FolderModel parent = dashboardService.folderInfo(bearer, request.folderId).getResp();
 
+        // everything is done on streams, so no local file
         InputStream fis = coreService.objectDataByFileId(fileModel.id, bearer);
         ZipInputStream zis = new ZipInputStream(fis);
         try {
@@ -43,13 +44,9 @@ public class ZipExtractor extends Extractor {
                         FileModel extractedFileModel = (FileModel) ret;
                         ExtractResultFile resultFile = new ExtractResultFile();
                         resultFile.fileId = extractedFileModel.id;
-
                     }
                 } catch (LakeServiceException e) {
                 }
-
-
-
                 entry = zis.getNextEntry();
              }
             zis.closeEntry();
