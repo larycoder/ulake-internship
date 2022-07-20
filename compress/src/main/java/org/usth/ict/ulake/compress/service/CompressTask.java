@@ -1,8 +1,5 @@
 package org.usth.ict.ulake.compress.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -12,8 +9,6 @@ import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.common.service.CoreService;
-import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
 import org.usth.ict.ulake.common.task.ScheduledTask;
 import org.usth.ict.ulake.compress.model.CompressRequest;
 import org.usth.ict.ulake.compress.model.CompressRequestFile;
@@ -37,9 +32,6 @@ public class CompressTask extends ScheduledTask implements CompressCallback {
 
     @Inject
     ResultRepository repoResult;
-
-    @Inject
-    CoreService coreService;
 
     @Inject
     ZipCompressor compressor;

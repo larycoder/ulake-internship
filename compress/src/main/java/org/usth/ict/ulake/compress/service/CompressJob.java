@@ -19,10 +19,10 @@ public class CompressJob implements Job {
         Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
         String bearer = (String) context.getJobDetail().getJobDataMap().get("bearer");
         if (id == null || bearer == null) {
-            log.error("Cannot retrieve job details for extract Id");
+            log.error("Cannot retrieve job details for compress Id");
             return;
         }
-        log.info("Start extract job for id {}", id);
+        log.info("Start compress job for id {}", id);
         task.run(bearer, Long.valueOf(id));
     }
 }

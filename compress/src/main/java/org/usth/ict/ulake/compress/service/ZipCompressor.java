@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.compress.model.CompressRequestFile;
 import org.usth.ict.ulake.compress.model.CompressResult;
 
+@ApplicationScoped
 public class ZipCompressor extends Compressor {
 
     public ZipCompressor() {
@@ -79,6 +82,7 @@ public class ZipCompressor extends Compressor {
      * @return
      */
     private Path createTempZipFile() {
+        // TODO: create temp on core Temp service
         Path temp;
         try {
             temp = Files.createTempFile("compress-", ".zip");
