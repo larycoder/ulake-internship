@@ -69,7 +69,10 @@ public class ObjectResource {
     GroupRepository groupRepo;
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<LakeObject> resp;
+
+    @Inject
+    LakeHttpResponse<Object> respObject;
 
     @Inject
     JsonWebToken jwt;
@@ -92,7 +95,7 @@ public class ObjectResource {
     @Operation(summary = "List all objects")
     public Response all(@HeaderParam("Authorization") String bearer) {
         logService.post(bearer, new LogModel("Query", "List all objects"));
-        return response.build(200, null, repo.listAll());
+        return resp.build(200, null, repo.listAll());
     }
 
     @GET
@@ -104,10 +107,10 @@ public class ObjectResource {
                         @PathParam("cid") @Parameter(description = "Content id to lookup") String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
-            return response.build(404);
+            return resp.build(404);
         }
         logService.post(bearer, new LogModel("Query", "Get info for object cid=" + cid));
-        return response.build(200, "", object);
+        return resp.build(200, "", object);
     }
 
     @GET
@@ -127,20 +130,20 @@ public class ObjectResource {
             var fileResp = fileSvc.fileInfo(
                                fileId, "bearer " + jwt.getRawToken());
             if (fileResp == null || fileResp.getResp() == null)
-                return response.build(404, "File not found");
+                return resp.build(404, "File not found");
 
             var file = mapper.convertValue(
                            fileResp.getResp(), FileModel.class);
             if (!AclUtil.verifyFileAcl(
                         aclSvc, jwt, file.id, file.ownerId, filePermit))
-                return response.build(403);
+                return resp.build(403);
 
             cid = file.cid;
         } catch (LakeServiceForbiddenException e) {
-            return response.build(403, "File forbidden");
+            return resp.build(403, "File forbidden");
         } catch (Exception e) {
             log.error("File process error", e);
-            return response.build(500, "Internal error");
+            return resp.build(500, "Internal error");
         }
         logService.post(bearer, new LogModel("Extract", "Get object data for file id " + fileId));
         return streamOutData(bearer, cid);
@@ -179,7 +182,7 @@ public class ObjectResource {
         }
 
         if (meta == null || is == null) {
-            return response.build(403);
+            return resp.build(403);
         }
 
         // make a new object, if any
@@ -192,7 +195,7 @@ public class ObjectResource {
         String cid = fs.create(meta.getName(), meta.getLength(), is);
         log.info("POST: object storage returned cid={}", cid);
         if (cid == null)
-            return response.build(500, "Internal error");
+            return resp.build(500, "Internal error");
 
         // save a new object to metadata RDBMS
         LakeObject object = new LakeObject();
@@ -204,7 +207,7 @@ public class ObjectResource {
         object.setGroup(group);
         repo.persist(object);
         logService.post(bearer, new LogModel("Add", "Added a new file with name " + meta.getName()));
-        return response.build(200, null, object);
+        return resp.build(200, null, object);
     }
 
     @POST
@@ -221,9 +224,9 @@ public class ObjectResource {
 
         logService.post(bearer, new LogModel("Query", "Search for object, query keyword " + query.getKeyword()));
         if (result.isEmpty())
-            return response.build(404);
+            return resp.build(404);
         else
-            return response.build(200, null, result);
+            return resp.build(200, null, result);
     }
 
     @GET
@@ -234,7 +237,7 @@ public class ObjectResource {
     public Response stats(@HeaderParam("Authorization") String bearer) {
         var stats = fs.stats();
         logService.post(bearer, new LogModel("Query", "Get object stats"));
-        return response.build(200, null, stats);
+        return respObject.build(200, null, stats);
     }
 
     /**
@@ -246,11 +249,11 @@ public class ObjectResource {
     private Response streamOutData(@HeaderParam("Authorization") String bearer, String cid) {
         LakeObject object = repo.find("cid", cid).firstResult();
         if (object == null) {
-            return response.build(404);
+            return resp.build(404);
         }
         InputStream is = fs.get(cid);
         if (is == null) {
-            return response.build(403);
+            return resp.build(403);
         }
         StreamingOutput stream = new StreamingOutput() {
             @Override

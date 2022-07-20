@@ -48,7 +48,7 @@ public class TempResource {
     JsonWebToken jwt;
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<String> response;
 
     @Inject
     @RestClient
