@@ -158,6 +158,10 @@ sup {
   top: -.5em;
 }
 
+tr.selected td > a {
+  color: #e3e6f0;
+}
+
 a {
   color: #4e73df;
   text-decoration: none;
