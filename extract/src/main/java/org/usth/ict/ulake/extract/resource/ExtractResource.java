@@ -225,7 +225,7 @@ public class ExtractResource {
             return respReq.build(403);
         }
         req.finishedTime = -1L;  // indicates that this one is stopped
-    repoReq.persist(req);
+        repoReq.persist(req);
         return respReq.build(200, "", req);
     }
 

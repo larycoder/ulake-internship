@@ -6,26 +6,22 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.usth.ict.ulake.common.model.folder.FileModel;
-import org.usth.ict.ulake.common.service.CoreService;
-import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.compress.model.CompressRequestFile;
 import org.usth.ict.ulake.compress.model.CompressResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class ZipCompressor extends Compressor {
 
-    public ZipCompressor(String token, CoreService coreService, FileService fileService) {
-        super(token, coreService, fileService);
+    public ZipCompressor() {
+        super();
     }
 
     @Override
-    public void compress(List<CompressRequestFile> files, CompressResult result, CompressCallback callback) {
+    public void compress(String bearer, List<CompressRequestFile> files, CompressResult result, CompressCallback callback) {
         Path temp = createTempZipFile();
         ZipOutputStream zipOut = null;
         FileOutputStream fos = null;
@@ -43,7 +39,7 @@ public class ZipCompressor extends Compressor {
         // compress files
         for (var file: files) {
             log.info("  + Zip compressing file id {}", file.fileId);
-            addFileToZip(file, zipOut, callback, result);
+            addFileToZip(bearer, file, zipOut, callback, result);
         }
 
         // clean up and return
@@ -65,25 +61,17 @@ public class ZipCompressor extends Compressor {
      * @param zipOut output stream to zip
      * @param file file metadata to be compressed
      */
-    private boolean addFileToZip(CompressRequestFile file, ZipOutputStream zipOut, CompressCallback callback, CompressResult result) {
+    private boolean addFileToZip(String bearer, CompressRequestFile file, ZipOutputStream zipOut, CompressCallback callback, CompressResult result) {
         // get file info from FileResource
-        var fileInfo = fileService.fileInfo(file.fileId, token);
-        if (fileInfo.getCode() != 200) {
-            log.error("   + Cannot find file with id {}", file.fileId);
+        try {
+            FileModel fileModel = fileService.fileInfo(file.fileId, bearer).getResp();
+            log.info("   + File cid {}, name {}", fileModel.cid, fileModel.name);
+            boolean success = addObjectToZip(bearer, fileModel.id, fileModel.name, zipOut);
+            callback.callback(file, success, result);
+        } catch (LakeServiceException e) {
             return false;
         }
-        if (fileInfo.getResp() instanceof Map) {
-            // get file model from response
-            final var map = (Map<String, Object>) fileInfo.getResp();
-            final ObjectMapper mapper = new ObjectMapper();
-            FileModel fileModel = mapper.convertValue(map, FileModel.class);
-
-            log.info("   + File cid {}, name {}", fileModel.cid, fileModel.name);
-            boolean success = addObjectToZip(fileModel.id, fileModel.name, zipOut);
-            callback.callback(file, success, result);
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -108,9 +96,9 @@ public class ZipCompressor extends Compressor {
      * @param zipOut    output stream
      * @return
      */
-    private boolean addObjectToZip(Long fileId, String fileName, ZipOutputStream zipOut) {
+    private boolean addObjectToZip(String bearer, Long fileId, String fileName, ZipOutputStream zipOut) {
         log.info("  + Preparing to fetch file id {} from core", fileId);
-        InputStream fis = coreService.objectDataByFileId(fileId, token);
+        InputStream fis = coreService.objectDataByFileId(fileId, bearer);
         log.info("  + Finished fetching file id {} from core", fileId);
         ZipEntry zipEntry = new ZipEntry(fileName);
         log.info("  + Start adding {}", fileName);

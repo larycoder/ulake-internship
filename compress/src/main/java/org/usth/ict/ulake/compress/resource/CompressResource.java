@@ -18,13 +18,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -36,9 +36,8 @@ import org.usth.ict.ulake.compress.model.CompressResult;
 import org.usth.ict.ulake.compress.persistence.RequestFileRepository;
 import org.usth.ict.ulake.compress.persistence.RequestRepository;
 import org.usth.ict.ulake.compress.persistence.ResultRepository;
+import org.usth.ict.ulake.compress.service.CompressJob;
 import org.usth.ict.ulake.compress.service.CompressTask;
-import org.usth.ict.ulake.compress.service.Compressor;
-import org.usth.ict.ulake.compress.service.ZipCompressor;
 
 
 @Path("/compress")
@@ -79,7 +78,7 @@ public class CompressResource {
     FileService fileService;
 
     @Inject
-    ManagedExecutor executor;
+    CompressTask compressTask;
 
     /**
      * Check if an userId is valid for the current request
@@ -224,7 +223,11 @@ public class CompressResource {
         if (!checkOwner(req.userId)) {
             return respReq.build(403);
         }
-        executor.submit(() -> compress(bearer, id));
+        try {
+            compressTask.start(bearer, id, CompressJob.class);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
 
         return respReq.build(200, "", req);
     }
@@ -256,15 +259,4 @@ public class CompressResource {
         return respObject.build(200, "", ret);
     }
 
-    /**
-     * Start compression service in background with specified id
-     * @param id Compression request Id
-     */
-    @Transactional
-    public void compress(String bearer, Long id) {
-        log.info("Start compression in managed executor");
-        Compressor compressor = new ZipCompressor(bearer, coreService, fileService);
-        CompressTask task = new CompressTask(compressor, id, repoReq, repoReqFile, repoResp);
-        task.run();
-    }
 }

@@ -36,7 +36,7 @@ import org.usth.ict.ulake.core.backend.impl.Hdfs;
 @Path("/temp")
 @Tag(name = "Temp Storage")
 public class TempResource {
-    private static final Logger log = LoggerFactory.getLogger(ObjectResource.class);
+    private static final Logger log = LoggerFactory.getLogger(TempResource.class);
 
     @ConfigProperty(name = "hdfs.core.temp")
     String tempDir;
@@ -122,4 +122,6 @@ public class TempResource {
         logService.post(bearer, new LogModel("Delete", "Delete temp data for cid " + cid));
         return response.build(200, null, cid);
     }
+
+    // TODO: cleanup temp data periodically
 }
