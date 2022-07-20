@@ -47,7 +47,16 @@ public class CompressResource {
     private static final Logger log = LoggerFactory.getLogger(CompressResource.class);
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<Request> response;
+
+    @Inject
+    LakeHttpResponse<Result> responseResult;
+
+    @Inject
+    LakeHttpResponse<RequestFile> responseFiles;
+
+    @Inject
+    LakeHttpResponse<Object> responseObject;
 
     @Inject
     RequestRepository repoReq;
@@ -115,7 +124,7 @@ public class CompressResource {
             return response.build(403);
         }
         Result resp = repoResp.find("requestId=?1 order by id desc", id).firstResult();
-        return response.build(200, null, resp);
+        return responseResult.build(200, null, resp);
     }
 
     @POST
@@ -154,7 +163,7 @@ public class CompressResource {
         }
         entity.requestId = id;
         repoReqFile.persist(entity);
-        return response.build(200, "", entity);
+        return responseFiles.build(200, "", entity);
     }
 
     @GET
@@ -173,9 +182,9 @@ public class CompressResource {
             return response.build(403);
         }
         var files = repoReqFile.list("requestId", id);
-        return response.build(200, "", files);
+        return responseFiles.build(200, "", files);
     }
-    
+
     @GET
     @Path("/{id}/count")
     @Transactional
@@ -192,7 +201,7 @@ public class CompressResource {
             return response.build(403);
         }
         var count = repoReqFile.count("requestId", id);
-        return response.build(200, "", count);
+        return responseObject.build(200, "", count);
     }
 
     @POST
@@ -241,7 +250,7 @@ public class CompressResource {
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("count", repoReq.count());
         ret.put("fileCount", repoReqFile.count());
-        return response.build(200, "", ret);
+        return responseObject.build(200, "", ret);
     }
 
     /**
