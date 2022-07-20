@@ -12,3 +12,7 @@
 .fade {
     transition-duration: 0.3s;
 }
+
+tr.selected td > a {
+    color: #e3e6f0;
+}
