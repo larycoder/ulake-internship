@@ -34,7 +34,7 @@ Document version: 0.2.0
 ### Tool
 
 1. Phpmyadmin (docker)               port: 8081 swarm_port: 80
-2. Sensu (docker monitor) 	     port: 3000
+2. Sensu (docker monitor)            port: 28080 swarm_port: 8080
 
 ## Note
 
