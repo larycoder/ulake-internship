@@ -34,8 +34,12 @@
                                     <nav aria-label="breadcrumb">
                                         <ol class="breadcrumb"></ol>
                                     </nav>
-                                    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="window.crud.addClick()">
-                                        <i class="fas fa-plus fa-sm text-white-50"></i> Add</a>
+                                    <span>
+                                        <a id="compress" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm disabled" onclick="window.crud.compressClick()">
+                                            <i class="fas fa-file-archive fa-sm text-white-50"></i> Compress</a>
+                                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="window.crud.addClick()">
+                                            <i class="fas fa-plus fa-sm text-white-50"></i> Add</a>
+                                    </span>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">

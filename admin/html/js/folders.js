@@ -49,6 +49,13 @@ class DataCRUD extends ListCRUD {
         if (this.table) {
             // allow ctrl-click to select multiple row
             this.table.select.style("os");
+            if (this.type === "u" && this.id === 0)  {
+                $("#compress").addClass("disabled");
+            }
+            else {
+                this.table.off("select").on("select", () => $("#compress").removeClass("disabled"));
+                this.table.off("deselect").on("deselect", () => $("#compress").addClass("disabled"));
+            }
         }
     }
 
@@ -304,6 +311,10 @@ class DataCRUD extends ListCRUD {
                 .appendTo('body')
                 .submit()
                 .remove();
+    }
+
+    compressClick() {
+        console.log("Should start compression now");
     }
 }
 
