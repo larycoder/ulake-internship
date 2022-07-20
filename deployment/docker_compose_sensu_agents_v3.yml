@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  ulake-sensu-agent:
+    image: sensu/sensu:latest
+    networks:
+      - ulake-network
+    command: sensu-agent start --backend-url ws://ulake-sensu:8081 --deregister --keepalive-interval=5 --keepalive-warning-timeout=10 --subscriptions linux
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+
+networks:
+  ulake-network:
+    external:
+      name: ulake-network
