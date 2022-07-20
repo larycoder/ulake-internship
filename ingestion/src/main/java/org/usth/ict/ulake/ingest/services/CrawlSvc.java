@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.service.DashboardService;
@@ -29,11 +31,20 @@ import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
  * Service to process crawl.
  * Aware Behavior: not thread-safe
  * */
+@ApplicationScoped
 public class CrawlSvc {
     private static final Logger log = LoggerFactory.getLogger(CrawlSvc.class);
+    @Inject
+    @RestClient
     private DashboardService svc;
+
+    @Inject
     private JsonWebToken jwt;
+
+    @Inject
     private ProcessLogRepo processRepo;
+
+    @Inject
     private FileLogRepo fileRepo;
 
     public class CrawlContext {
@@ -47,14 +58,6 @@ public class CrawlSvc {
     }
 
     private CrawlContext context = new CrawlContext();
-
-    public CrawlSvc(DashboardService svc, JsonWebToken jwt,
-                    ProcessLogRepo processRepo, FileLogRepo fileRepo) {
-        this.svc = svc;
-        this.jwt = jwt;
-        this.processRepo = processRepo;
-        this.fileRepo = fileRepo;
-    }
 
     private void buildStore() {
         context.storeObj = new SqlLogStorageImpl(processRepo, fileRepo);
