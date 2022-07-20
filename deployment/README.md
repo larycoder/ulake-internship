@@ -34,6 +34,7 @@ Document version: 0.2.0
 ### Tool
 
 1. Phpmyadmin (docker)               port: 8081 swarm_port: 80
+2. Sensu (docker monitor) 	     port: 3000
 
 ## Note
 
@@ -47,3 +48,4 @@ Document version: 0.2.0
 8. Hadoop will run on cluster base on docker swarm
 9. Services will run on docker build from dockerfile and mount volume to outside
 10. Services, Hadoop and Mysql will share same network
+11. Sensu is monitor platform for docker, it is mounted to docker volume "ulake-sensu-*"
