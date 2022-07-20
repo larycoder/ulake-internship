@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +36,18 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
         try {
-            // TODO: modify filename to avoid duplicate
-            file.record(data, meta);
+            // modify filename to avoid duplicate in temp folder
+            String filename = meta.get(Record.FILE_NAME);
+            meta.put(Record.FILE_NAME, filename + "_" + UUID.randomUUID());
 
+            file.record(data, meta);
             sysLog.debug("Loaded file to temporary local...");
 
             // prepare lake meta information
             var ulakeMeta = new HashMap<Record, String>();
             for (var e : file.info().entrySet())
                 ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
+            ulakeMeta.put(Record.FILE_NAME, filename);
 
             // stream data to lake storage
             String pathFile = ulakeMeta.get(Record.FILE_PATH);
