@@ -104,12 +104,13 @@ public class CrawlTask extends ScheduledTask {
      * */
     @Transactional
     public void runCrawl(String bearer, Long processId) {
-        var context = new CrawlContext();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        var context = new CrawlContext();
         var processLog = processRepo.findById(processId);
 
         context.policy = processLog.query;

@@ -113,6 +113,8 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             filename = uri[uri.length - 1].strip();
         }
 
+        System.out.println(resp.headers);
+
         Map<Record, String> myMeta = new HashMap<>();
         myMeta.put(Record.FILE_NAME, filename);
         consumer.record(resp.body, myMeta);
