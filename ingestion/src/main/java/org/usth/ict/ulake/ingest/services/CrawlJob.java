@@ -23,7 +23,7 @@ public class CrawlJob implements Job {
             log.error("Cannot retrieve job details for crawl process Id");
             return;
         }
-        log.info("Start extract job for id {}", id);
+        log.info("Start crawl job for id {}", id);
         task.runCrawl(tok, Long.valueOf(id));
     }
 }

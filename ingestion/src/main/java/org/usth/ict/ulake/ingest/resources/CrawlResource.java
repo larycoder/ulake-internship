@@ -19,6 +19,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.ProcessLog;
@@ -29,6 +31,8 @@ import org.usth.ict.ulake.ingest.services.CrawlTask;
 @Path("/ingest")
 @Produces(MediaType.APPLICATION_JSON)
 public class CrawlResource {
+    private static final Logger log = LoggerFactory.getLogger(CrawlResource.class);
+
     @Inject
     CrawlTask task;
 
@@ -61,7 +65,7 @@ public class CrawlResource {
         processLog.folderId = folderId;
         processLog.description = desc;
         processLog.creationTime = new Date().getTime();
-        repo.persistAndFlush(processLog);
+        repo.persist(processLog);
 
         try {
             task.start(token, processLog.id, CrawlJob.class);
