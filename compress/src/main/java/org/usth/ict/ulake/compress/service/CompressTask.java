@@ -1,5 +1,8 @@
 package org.usth.ict.ulake.compress.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -7,8 +10,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.core.ObjectFormModel;
+import org.usth.ict.ulake.common.model.core.ObjectModel;
+import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
+import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.service.CoreService;
+import org.usth.ict.ulake.common.service.DashboardService;
+import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.common.task.ScheduledTask;
 import org.usth.ict.ulake.compress.model.CompressRequest;
 import org.usth.ict.ulake.compress.model.CompressRequestFile;
@@ -36,6 +49,10 @@ public class CompressTask extends ScheduledTask implements CompressCallback {
     @Inject
     ZipCompressor compressor;
 
+    @Inject
+    @RestClient
+    DashboardService dashboardService;
+
     private CompressResult result;
 
     public CompressTask() {
@@ -54,6 +71,7 @@ public class CompressTask extends ScheduledTask implements CompressCallback {
 
         // go
         compressor.compress(bearer, files, result, this);
+        push(bearer, result.url, req.folderId);
 
         // mark as finished in the request object
         req.finishedTime = new Date().getTime();
@@ -67,6 +85,37 @@ public class CompressTask extends ScheduledTask implements CompressCallback {
     private List<CompressRequestFile> getFiles(Long id) {
         return repoReqFile.list("requestId", id);
     }
+
+    /**
+     * Push a compressed file to server
+     * @param bearer
+     * @param fileName
+     * @param folderId
+     */
+    private void push(String bearer, String fileName, Long folderId) {
+        try {
+            File f = new File(fileName);
+            FileFormModel formModel = new FileFormModel();
+            formModel.is = new FileInputStream(f);
+            formModel.fileInfo = new FileModel();
+            formModel.fileInfo.name = f.getName();
+            formModel.fileInfo.mime = "application/zip";
+            formModel.fileInfo.size = f.length();
+            var file = dashboardService.newFile(bearer, formModel).getResp();
+            formModel.is.close();
+            log.info("- Successfully pushed zip file to dashboard, fileId={}", file.id);
+        } catch (IOException e) {
+            log.error("   + Cannot open zip file {}: {}", result.url, e.getMessage());
+        } catch (LakeServiceException e) {
+           log.error("   + Cannot push zip file {}: {}", result.url, e.getMessage());
+        }
+    }
+
+    private boolean deleteLocalFile(String filePath) {
+        File file = new File(filePath);
+        return file.delete();
+    }
+
 
     @Override
     public void callback(CompressRequestFile file, boolean success, CompressResult result) {
