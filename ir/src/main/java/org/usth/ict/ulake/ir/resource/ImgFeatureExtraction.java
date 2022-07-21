@@ -16,14 +16,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.ir.service.HistogramCal;
+
 
 @Path("/ir") 
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,6 +40,8 @@ public class ImgFeatureExtraction {
   @RestClient
   CoreService coreService;
 
+
+
   @GET
   @Path("/extract/{id}")
   @Operation(summary = "Extract uploaded img")
@@ -49,7 +51,7 @@ public class ImgFeatureExtraction {
     InputStream inputFile;
     // only file id
     try {
-      OutputStream outFile = Files.newOutputStream(Paths.get("output.jpeg"));
+      OutputStream outFile = Files.newOutputStream(Paths.get("/tmp/output.jpeg"));
       inputFile = coreService.objectDataByFileId(fileId, bearer);
       long length = inputFile.transferTo(outFile);
 
@@ -64,6 +66,10 @@ public class ImgFeatureExtraction {
     //     inputFile.transferTo(os);
     //   }
     // };
+    HistogramCal histogramCal= new HistogramCal();
+    histogramCal.run("/tmp/output.jpeg");
+    
+    
     return response.build(200, "");
   }
 }
