@@ -7,12 +7,14 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.service.DashboardService;
+import org.usth.ict.ulake.common.task.ScheduledTask;
 import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
 import org.usth.ict.ulake.ingest.crawler.fetcher.impl.FetcherImpl;
 import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
@@ -21,7 +23,6 @@ import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.crawler.storage.impl.SqlLogStorageImpl;
 import org.usth.ict.ulake.ingest.model.IngestLog;
 import org.usth.ict.ulake.ingest.model.Policy;
-import org.usth.ict.ulake.ingest.model.ProcessLog;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
@@ -31,8 +32,9 @@ import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
  * Service to process crawl.
  * */
 @ApplicationScoped
-public class CrawlSvc {
-    private static final Logger log = LoggerFactory.getLogger(CrawlSvc.class);
+public class CrawlTask extends ScheduledTask {
+    private static final Logger log = LoggerFactory.getLogger(CrawlTask.class);
+
     @Inject
     @RestClient
     DashboardService svc;
@@ -51,6 +53,7 @@ public class CrawlSvc {
         public FetchConfig mode;
         public Long processId;
         public Long folderId;
+        public String token;
         public Storage<IngestLog> storeObj;
         public Recorder<InputStream> recordObj;
         public Fetcher<IngestLog, InputStream> fetchObj;
@@ -60,12 +63,16 @@ public class CrawlSvc {
         context.storeObj = new SqlLogStorageImpl(processRepo, fileRepo);
     }
 
+    /**
+     * Create recorder object.
+     * Aware Behavior: file is stored to dir: "/tmp/ulake" before pushed to lake
+     * */
     private void buildRecord(CrawlContext context) {
         context.recordObj = new ULakeCacheFileRecorderImpl(svc);
         Map<Record, String> recordConfig = new HashMap<>();
         recordConfig.put(Record.FILE_PATH, "/tmp/ulake");
         recordConfig.put(Record.STORAGE_DIR, context.folderId.toString());
-        recordConfig.put(Record.TOKEN, "Bearer " + jwt.getRawToken());
+        recordConfig.put(Record.TOKEN, context.token);
         context.recordObj.setup(recordConfig);
     }
 
@@ -73,35 +80,38 @@ public class CrawlSvc {
         context.fetchObj = new FetcherImpl();
         Map<FetchConfig, String> fetchConfig = new HashMap<>();
         fetchConfig.put(FetchConfig.MODE, context.mode.toString());
-        fetchConfig.put(FetchConfig.PROCESS_ID, context.processId.toString());
+        if (context.processId != null)
+            fetchConfig.put(FetchConfig.PROCESS_ID,
+                            context.processId.toString());
         context.fetchObj.setup(fetchConfig);
         context.fetchObj.setup(context.storeObj, context.recordObj);
     }
 
+    public Map<String, Object> runFetch(Policy policy) {
+        var context = new CrawlContext();
+        context.policy = policy;
+        context.mode = FetchConfig.FETCH;
+
+        log.info("Setup fetch components...");
+        buildFetch(context);
+
+        log.info("Run fetch process");
+        return context.fetchObj.fetch(policy);
+    }
+
     /**
      * Start crawl process.
-     * Aware Behavior: file is stored to dir: "/tmp/ulake" before pushed to lake
      * */
-    public Map<String, Object> runCrawl(
-        Policy policy, FetchConfig mode, Long folderId, String desc) {
-
+    @Transactional
+    public void runCrawl(String bearer, Long processId) {
         var context = new CrawlContext();
+        var processLog = processRepo.findById(processId);
 
-        context.policy = policy;
-        context.mode = mode;
-        context.folderId = folderId;
-
-        log.info("Start crawl process...");
-        if (mode == FetchConfig.DOWNLOAD) {
-            var processLog = new ProcessLog();
-            processLog.ownerId = Long.parseLong(jwt.getName());
-            processLog.query = policy;
-            processLog.folderId = folderId;
-            processLog.description = desc;
-            processLog.creationTime = new Date().getTime();
-            processRepo.persist(processLog);
-            context.processId = processLog.id;
-        }
+        context.policy = processLog.query;
+        context.mode = FetchConfig.DOWNLOAD;
+        context.processId = processId;
+        context.folderId = processLog.folderId;
+        context.token = bearer;
 
         log.info("Setup crawl components...");
         buildStore(context);
@@ -109,18 +119,10 @@ public class CrawlSvc {
         buildFetch(context);
 
         log.info("Run crawl process");
-        var resp = context.fetchObj.fetch(policy);
+        context.fetchObj.fetch(context.policy);
 
-        log.info("Done crawl process...");
-        if (mode == FetchConfig.DOWNLOAD) {
-            var processLog = processRepo.findById(context.processId);
-
-            log.info("processLog: " + context.processId);
-
-            processLog.endTime = new Date().getTime();
-            processRepo.persist(processLog);
-        }
-
-        return resp;
+        log.info("Done crawl process, record to log...");
+        processLog.endTime = new Date().getTime();
+        processRepo.persist(processLog);
     }
 }
