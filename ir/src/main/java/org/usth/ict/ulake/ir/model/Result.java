@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.compress.model;
+package org.usth.ict.ulake.ir.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

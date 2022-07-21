@@ -1,8 +1,8 @@
-package org.usth.ict.ulake.compress.persistence;
+package org.usth.ict.ulake.ir.persistence;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.usth.ict.ulake.compress.model.Result;
+import org.usth.ict.ulake.ir.model.Result;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 

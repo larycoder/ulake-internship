@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.compress.model;
+package org.usth.ict.ulake.ir.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,16 +7,16 @@ import javax.persistence.Id;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-// represent a file info in the compression request
+// represent a compression request
 @Entity
-public class RequestFile {
+public class Request {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;
 
-    @Schema(description = "Id of the request")
-    public Long requestId;
+    @Schema(description = "Id of the requested user")
+    public Long userId;
 
-    @Schema(description = "Requested file id")
-    public Long fileId;
+    @Schema(description = "Requested time")
+    public Long timestamp;
 }
