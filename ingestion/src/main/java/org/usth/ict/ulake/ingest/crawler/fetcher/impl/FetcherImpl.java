@@ -9,6 +9,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.struct.TableStruct;
@@ -98,6 +99,7 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
      * Aware Behavior: filename is discovered from header
      * Aware Behavior: if header fail, filename is discovered from URI
      * Aware Behavior: filename in header must follow content-disposition syntax
+     * Aware Behavior: file mime is retrieved from content-type
      * */
     private Boolean save(HttpRawRequest request, Map<String, String> meta) {
         String filename;
@@ -113,10 +115,14 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             filename = uri[uri.length - 1].strip();
         }
 
-        System.out.println(resp.headers);
+        String contentType = null;
+        var contentTypeList = resp.headers.get("content-type");
+        if (!Utils.isEmpty(contentTypeList))
+            contentType = contentTypeList.get(0);
 
         Map<Record, String> myMeta = new HashMap<>();
         myMeta.put(Record.FILE_NAME, filename);
+        myMeta.put(Record.FILE_MIME, contentType);
         consumer.record(resp.body, myMeta);
 
         // store crawl file status to log database

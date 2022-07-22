@@ -45,6 +45,8 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
 
             // prepare lake meta information
             var ulakeMeta = new HashMap<Record, String>();
+
+            ulakeMeta.putAll(meta);
             for (var e : file.info().entrySet())
                 ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
             ulakeMeta.put(Record.FILE_NAME, filename);

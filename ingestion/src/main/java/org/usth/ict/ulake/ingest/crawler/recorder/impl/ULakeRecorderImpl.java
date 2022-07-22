@@ -40,6 +40,7 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
     public void record(InputStream data, Map<Record, String> meta) {
         try {
             fileInfo.name = meta.get(Record.FILE_NAME);
+            fileInfo.mime = meta.get(Record.FILE_MIME);
             fileInfo.size = Long.parseLong(meta.get(Record.FILE_SIZE));
 
             FileFormModel file = new FileFormModel();
