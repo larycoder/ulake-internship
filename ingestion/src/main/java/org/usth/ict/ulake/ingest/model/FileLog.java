@@ -32,7 +32,7 @@ public class FileLog {
     @ManyToOne
     @JoinColumn
     @Schema(description = "Process which create this file")
-    public ProcessLog process;
+    public CrawlRequest process;
 
     public FileLog() {}
 

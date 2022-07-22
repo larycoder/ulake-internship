@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.ingest.model.Policy;
-import org.usth.ict.ulake.ingest.model.ProcessLog;
-import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
+import org.usth.ict.ulake.ingest.model.CrawlRequest;
+import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
 import org.usth.ict.ulake.ingest.services.CrawlJob;
 import org.usth.ict.ulake.ingest.services.CrawlTask;
 
@@ -37,7 +37,7 @@ public class CrawlResource {
     CrawlTask task;
 
     @Inject
-    ProcessLogRepo repo;
+    CrawlRequestRepo repo;
 
     @Inject
     JsonWebToken jwt;
@@ -58,7 +58,7 @@ public class CrawlResource {
         @QueryParam("desc") String desc,
         @RequestBody(description = "instruction of crawl") Policy policy) {
 
-        var processLog = new ProcessLog();
+        var processLog = new CrawlRequest();
         processLog.ownerId = Long.parseLong(jwt.getName());
         processLog.query = policy;
         processLog.folderId = folderId;
@@ -87,7 +87,7 @@ public class CrawlResource {
     }
 
     @Transactional
-    public void createProcess(ProcessLog log) {
+    public void createProcess(CrawlRequest log) {
         repo.persist(log);
     }
 }

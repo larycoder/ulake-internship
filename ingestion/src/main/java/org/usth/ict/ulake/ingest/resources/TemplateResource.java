@@ -21,16 +21,20 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.ingest.model.UserConfigure;
-import org.usth.ict.ulake.ingest.persistence.UserConfigureRepo;
+import org.usth.ict.ulake.ingest.model.Policy;
+import org.usth.ict.ulake.ingest.model.CrawlTemplate;
+import org.usth.ict.ulake.ingest.persistence.CrawlTemplateRepo;
 
-@Path("/configure")
-public class ConfigurationResource {
+@Path("/template")
+public class TemplateResource {
     @Inject
-    LakeHttpResponse resp;
+    LakeHttpResponse<CrawlTemplate> resp;
 
     @Inject
-    UserConfigureRepo repo;
+    LakeHttpResponse<Policy> respPolicy;
+
+    @Inject
+    CrawlTemplateRepo repo;
 
     @Inject
     ObjectMapper mapper;
@@ -38,7 +42,7 @@ public class ConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "list all configuration")
+    @Operation(summary = "list all templates")
     public Response list() {
         return resp.build(200, "", repo.listAll());
     }
@@ -47,11 +51,11 @@ public class ConfigurationResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "get configure by id")
+    @Operation(summary = "get template by id")
     public Response one(@PathParam("id") Long id) {
-        UserConfigure conf = repo.findById(id);
+        CrawlTemplate conf = repo.findById(id);
         if (conf == null)
-            return resp.build(404, "Configuration not found");
+            return resp.build(404, "template not found");
         return resp.build(200, "", conf);
     }
 
@@ -59,20 +63,20 @@ public class ConfigurationResource {
     @Path("/{id}/query")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "get query by configure id")
+    @Operation(summary = "get query by template id")
     public Response configure(@PathParam("id") Long id) {
-        UserConfigure conf = repo.findById(id);
+        CrawlTemplate conf = repo.findById(id);
         if (conf == null)
-            return resp.build(404, "Configuration not found");
-        return resp.build(200, "", conf.query);
+            return resp.build(404, "template not found");
+        return respPolicy.build(200, "", conf.query);
     }
 
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "add new configuration")
-    public Response post(UserConfigure conf) {
+    @Operation(summary = "add new template")
+    public Response post(CrawlTemplate conf) {
         conf.createdTime = conf.updatedTime = new Date().getTime();
         repo.persist(conf);
         return resp.build(200, "", conf);
@@ -83,13 +87,13 @@ public class ConfigurationResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "update a configuration")
+    @Operation(summary = "update a template")
     public Response update(
         @PathParam("id") Long id,
-        @RequestBody UserConfigure entity) {
-        UserConfigure conf = repo.findById(id);
+        @RequestBody CrawlTemplate entity) {
+        CrawlTemplate conf = repo.findById(id);
         if (conf == null)
-            return resp.build(404, "Configuration not found");
+            return resp.build(404, "template not found");
 
         if (entity.query != null) conf.query = entity.query;
         if (entity.ownerId != null) conf.ownerId = entity.ownerId;
@@ -108,14 +112,14 @@ public class ConfigurationResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
-    @Operation(summary = "delete a configuration")
+    @Operation(summary = "delete a template")
     public Response delete (@PathParam("id") Long id) {
-        UserConfigure conf = repo.findById(id);
+        CrawlTemplate conf = repo.findById(id);
         if (conf == null)
-            return resp.build(404, "Configuration not found");
+            return resp.build(404, "Template not found");
         if (repo.deleteById(id))
             return resp.build(200, "", conf);
         else
-            return resp.build(500, "Fail to delete configuration", conf);
+            return resp.build(500, "Fail to delete template", conf);
     }
 }

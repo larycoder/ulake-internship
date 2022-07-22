@@ -12,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.usth.ict.ulake.ingest.utils.PolicyToStringConverter;
 
 @Entity
-public class UserConfigure {
+public class CrawlTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
@@ -30,11 +30,11 @@ public class UserConfigure {
     @Schema(description = "Explanation of crawl template")
     public String description;
 
-    @Schema(description = "Created time of configure")
+    @Schema(description = "Created time of template")
     public Long createdTime;
 
-    @Schema(description = "Updated time of configure")
+    @Schema(description = "Updated time of template")
     public Long updatedTime;
 
-    public UserConfigure() {}
+    public CrawlTemplate() {}
 }

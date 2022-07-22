@@ -7,16 +7,16 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.model.FileLog;
 import org.usth.ict.ulake.ingest.model.IngestLog;
-import org.usth.ict.ulake.ingest.model.ProcessLog;
+import org.usth.ict.ulake.ingest.model.CrawlRequest;
 import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
 import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
-import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
+import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
 
 public class SqlLogStorageImpl implements Storage<IngestLog> {
-    private ProcessLogRepo processLog;
+    private CrawlRequestRepo processLog;
     private FileLogRepo fileLog;
 
-    public SqlLogStorageImpl(ProcessLogRepo processLog, FileLogRepo fileLog) {
+    public SqlLogStorageImpl(CrawlRequestRepo processLog, FileLogRepo fileLog) {
         this.processLog = processLog;
         this.fileLog = fileLog;
     }
@@ -64,8 +64,8 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
         return ingestLog;
     }
 
-    private void updateProcess(ProcessLog entry) {
-        ProcessLog log = processLog.findById(entry.id);
+    private void updateProcess(CrawlRequest entry) {
+        CrawlRequest log = processLog.findById(entry.id);
 
         if (entry.ownerId != null) log.ownerId = entry.ownerId;
         if (entry.folderId != null) log.folderId = entry.folderId;

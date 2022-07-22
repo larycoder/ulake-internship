@@ -26,7 +26,7 @@ import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
-import org.usth.ict.ulake.ingest.persistence.ProcessLogRepo;
+import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
 
 /**
  * Service to process crawl.
@@ -43,7 +43,7 @@ public class CrawlTask extends ScheduledTask {
     JsonWebToken jwt;
 
     @Inject
-    ProcessLogRepo processRepo;
+    CrawlRequestRepo processRepo;
 
     @Inject
     FileLogRepo fileRepo;

@@ -11,12 +11,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.usth.ict.ulake.ingest.utils.PolicyToStringConverter;
 
 @Entity
-public class ProcessLog {
+public class CrawlRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @Schema(description = "Owner of crawl process")
+    @Schema(description = "Owner of crawl request")
     public Long ownerId;
 
     // TODO: missing JavaTypeDescriptor for custom Policy type
@@ -28,14 +28,14 @@ public class ProcessLog {
     @Schema(description = "Folder holding crawled file")
     public Long folderId;
 
-    @Schema(description = "Short explanation of process")
+    @Schema(description = "Short explanation of request")
     public String description;
 
-    @Schema(description = "Starting time of process")
+    @Schema(description = "Starting time of request")
     public Long creationTime;
 
-    @Schema(description = "Finishing time of process")
+    @Schema(description = "Finishing time of request")
     public Long endTime;
 
-    public ProcessLog() {}
+    public CrawlRequest() {}
 }
