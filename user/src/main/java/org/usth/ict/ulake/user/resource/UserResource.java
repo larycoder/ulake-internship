@@ -49,7 +49,10 @@ public class UserResource {
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<User> resp;
+
+    @Inject
+    LakeHttpResponse<Object> respObject;
 
     @Inject
     UserRepository repo;
@@ -65,7 +68,7 @@ public class UserResource {
     @Operation(summary = "List all users")
     @RolesAllowed({ "Admin" })
     public Response all() {
-        return response.build(200, "", repo.listAll());
+        return resp.build(200, "", repo.listAll());
     }
 
     @GET
@@ -77,7 +80,7 @@ public class UserResource {
         if (Utils.isNumeric(id)) {
             // TODO : only allow himself if not admin
             logService.post(bearer, new LogModel("Query", "Get user info for " + id));
-            return response.build(200, null, repo.findById(Long.parseLong(id)));
+            return resp.build(200, null, repo.findById(Long.parseLong(id)));
         }
         else {
             // TODO : only allow himself if not admin
@@ -102,9 +105,9 @@ public class UserResource {
     public Response search(@RequestBody(description = "Query to perform search for users") UserSearchQuery query) {
         var results = repo.search(query);
         if (results.isEmpty()) {
-            return response.build(404);
+            return resp.build(404);
         }
-        return response.build(200, null, results);
+        return resp.build(200, null, results);
     }
 
 
@@ -116,13 +119,13 @@ public class UserResource {
     public Response post(@HeaderParam("Authorization") String bearer,
             @RequestBody(description = "New user info to save") User entity) {
         if (entity == null) {
-            return response.build(400, "", entity);
+            return resp.build(400, "", entity);
         }
 
         // check existence
         var exist = repo.find("userName", entity.userName).firstResult();
         if (exist != null) {
-            return response.build(409, "", entity);
+            return resp.build(409, "", entity);
         }
 
         entity.isAdmin = false;
@@ -131,7 +134,7 @@ public class UserResource {
         repo.persist(entity);
 
         logService.post(bearer, new LogModel("Insert", "Created new user " + entity.userName));
-        return response.build(200, "", entity);
+        return resp.build(200, "", entity);
     }
 
     @PUT
@@ -145,7 +148,7 @@ public class UserResource {
                            @RequestBody(description = "New user info to update") User newEntity) {
         User entity = repo.findById(id);
         if (entity == null) {
-            return response.build(404);
+            return resp.build(404);
         }
 
         // only admin token could modify admin field
@@ -165,7 +168,7 @@ public class UserResource {
 
         // TODO: allow update department, group
         repo.persist(entity);
-        return response.build(200);
+        return resp.build(200);
     }
 
     @GET
@@ -184,6 +187,6 @@ public class UserResource {
         }
         ret.put("regs", regs);
         ret.put("count", count);
-        return response.build(200, "", ret);
+        return respObject.build(200, "", ret);
     }
 }
