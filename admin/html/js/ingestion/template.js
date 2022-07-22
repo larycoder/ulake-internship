@@ -1,14 +1,14 @@
-import { ListCRUD } from "./crud/listcrud.js";
+import { ListCRUD } from "../crud/listcrud.js";
 import { userApi, ingestionTemplateApi } from "../api.js";
 
 window.crud = new ListCRUD({
     api: ingestionTemplateApi,
-    name: "Data collection templates",
+    name: "Data Collection Templates",
     nameField: "id",
     listFieldRenderer: [
         { data: "id" },
         { data: "userName" },
-        { data: "description", render: (data, type, row) => `<a href="/ingesttemplate/view?id=${data}">${data}</a>` },
+        { data: "description", render: (data, type, row) => `<a href="/ingestion/add?id=${row.id}">${data}</a>` },
         { data: "updatedTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
         { data: "id",
             render: (data, type, row) =>

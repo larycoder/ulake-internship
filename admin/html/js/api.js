@@ -367,8 +367,8 @@ class IngestionApi extends Api {
         super(getIngestionUrl(), "/api/ingest")
     }
 
-    async crawl(policy, folderId) {
-        return await this.create(`/crawl`, policy);
+    async crawl(query, folderId, desc) {
+        return await this.post(`/crawl?folderId=${folderId}&desc=${encodeURI(desc)}`, query, { "Content-Type": "application/json; charset=utf-8" });
     }
 
     async fetch(policy) {

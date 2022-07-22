@@ -108,11 +108,11 @@ function getUserName() {
  * @param {array} field exclusions
  * @returns
  */
- function toTable(object, excludes) {
+function toTable(object, excludes) {
     var table = [];
     for (var key in object) {
-        if (!excludes || (excludes && excludes.indexOf(key) < 0 )) {
-            table.push( {
+        if (!excludes || (excludes && excludes.indexOf(key) < 0)) {
+            table.push({
                 key: key,
                 value: object[key]
             });
@@ -149,7 +149,7 @@ function showModal(title, content, onOk) {
  * @param {string} content of the toast
  * @param {int} delay
  */
- function showToast(title, content, delay) {
+function showToast(title, content, delay) {
     const toast = $('.toast');
     toast.find("strong").text(title);
     const body = toast.find(".toast-body");
@@ -167,7 +167,7 @@ function showModal(title, content, onOk) {
 function parseParam(requiredParams, defaultLocation) {
     let urlParams = new URLSearchParams(location.search);
     if (requiredParams) {
-        if (!Array.isArray(requiredParams)) requiredParams = [ requiredParams ];
+        if (!Array.isArray(requiredParams)) requiredParams = [requiredParams];
         for (const requiredParam of requiredParams) {
             if (!urlParams.has(requiredParam)) {
                 window.location = defaultLocation;
@@ -189,22 +189,35 @@ function isEmpty(o) {
         (typeof o === "string" && (o === "" || o === "null"));
 }
 
-function humanFileSize(bytes, si=true, dp=1) {
+function humanFileSize(bytes, si = true, dp = 1) {
     const thresh = si ? 1000 : 1024;
 
     if (Math.abs(bytes) < thresh) {
-      return bytes + ' B';
+        return bytes + ' B';
     }
 
     const units = si
-      ? ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-      : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+        ? ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
     let u = -1;
-    const r = 10**dp;
+    const r = 10 ** dp;
 
     do {
-      bytes /= thresh;
-      ++u;
+        bytes /= thresh;
+        ++u;
     } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
     return bytes.toFixed(dp) + ' ' + units[u];
-  }
+}
+
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    const strTime = hours + ':' + minutes + ':' + seconds;
+    return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
+}

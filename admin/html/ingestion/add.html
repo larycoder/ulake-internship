@@ -3,7 +3,7 @@
 
 <head>
     <!--# include virtual="/inc/css.html" -->
-    <title>ULake Data Collection Requests</title>
+    <title>ULake Data Collection</title>
 </head>
 
 <body id="page-top">
@@ -21,34 +21,32 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Data Collection Request Management</h1>
-                        <!--# include virtual="/inc/main/export.html" -->
+                        <h1 class="h3 mb-0 text-gray-800">Create a new ingestion request</h1>
                     </div>
+
 
                     <!-- Content Row -->
                     <div class="row">
-                        <div class="col-xl-12 col-lg-7">
-                            <div class="card shadow mb-7">
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Data Collection Requests</h6>
-                                    <a href="/ingestion/template" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" >
-                                        <i class="fas fa-plus fa-sm text-white-50"></i> Add</a>
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 id="name-detail" class="m-0 font-weight-bold text-primary">Parameters</h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
-                                    <table id="table" class="table hover stripe">
+                                    <table id="param-table" class="table hover stripe">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>User</th>
-                                                <th>Description</th>
-                                                <th>Start</th>
-                                                <th>Finish</th>
-                                                <th>Destination</th>
+                                                <th>Field</th>
+                                                <th>Value</th>
                                             </tr>
                                         </thead>
                                     </table>
+                                    <a id="save" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="window.crud.add()"><i
+                                        class="fas fa-plus fa-sm text-white-50"></i> Add</a>
+                                    <a href="/ingestion/template" class="d-none d-sm-inline-block btn btn-sm btn shadow-sm"><i
+                                            class="fas fa-times fa-sm text-black-50"></i> Cancel</a>
                                 </div>
                             </div>
                         </div>
@@ -63,7 +61,7 @@
     <!--# include virtual="/inc/confirmModal.html" -->
     <!--# include virtual="/inc/logoutModal.html" -->
     <!--# include virtual="/inc/scripts.html" -->
-    <script src="js/ingestions.js" type="module"></script>
+    <script src="../js/ingestion/add.js" type="module"></script>
 </body>
 
 </html>
