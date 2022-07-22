@@ -209,15 +209,11 @@ function humanFileSize(bytes, si = true, dp = 1) {
     return bytes.toFixed(dp) + ' ' + units[u];
 }
 
+function nstr(n, digits) {
+    return String(n).padStart(digits, "0");
+}
+
 function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
-    const strTime = hours + ':' + minutes + ':' + seconds;
-    return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
+    const d = new Date(timestamp);
+    return `${nstr(d.getFullYear(), 4)}-${nstr(d.getMonth() + 1, 2)}-${nstr(d.getDate(), 2)} ${nstr(d.getHours(), 2)}:${nstr(d.getMinutes(), 2)}:${nstr(d.getSeconds(), 2)}`;
 }

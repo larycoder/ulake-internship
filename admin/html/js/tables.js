@@ -10,7 +10,7 @@ window.crud = new ListCRUD({
         { data: "userName" },
         { data: "name", render: (data, type, row) => `<a href="/table/view?id=${row.id}">${data}</a>` },
         { data: "format" },
-        { data: "creationTime", render: (data, type, row) => new Date(data).toLocaleDateString() },
+        { data: "creationTime", render: (data, type, row) => formatTime(data) },
         { data: "id",
             render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.listDeleteItem(${data})"></i></a>`
         }

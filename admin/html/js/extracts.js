@@ -8,8 +8,8 @@ window.crud = new ListCRUD({
     listFieldRenderer: [
         { data: "id", render: (data, type, row) => `<a href="/extract/view?id=${data}">${data}</a>` },
         { data: "userName" },
-        { data: "timestamp", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
-        { data: "finishedTime", render: (data, type, row) => data ? new Date(data).toLocaleDateString() : "In progress" },
+        { data: "timestamp", render: (data, type, row) => data ? formatTime(data) : "In progress" },
+        { data: "finishedTime", render: (data, type, row) => data ? formatTime(data) : "In progress" },
         { data: "id",
             render: (data, type, row) =>
                 row.finishedTime <= 0? `<a href="#"><i class="fas fa-stop" onclick="window.stopJob(${data})"></i></a>` : ""
