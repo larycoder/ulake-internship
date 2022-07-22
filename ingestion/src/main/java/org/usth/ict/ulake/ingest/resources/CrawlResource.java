@@ -50,7 +50,6 @@ public class CrawlResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"User", "Admin"})
     @Operation(summary = "run crawl process")
-    @Transactional
     public Response crawl(
         @HeaderParam("Authorization") String token,
         @Parameter(description = "folder to store crawled files")
@@ -65,7 +64,7 @@ public class CrawlResource {
         processLog.folderId = folderId;
         processLog.description = desc;
         processLog.creationTime = new Date().getTime();
-        repo.persist(processLog);
+        createProcess(processLog);
 
         try {
             task.start(token, processLog.id, CrawlJob.class);
@@ -85,5 +84,10 @@ public class CrawlResource {
     public Response fetch(
         @RequestBody(description = "instruction of crawl") Policy policy) {
         return resp.build(200, "", task.runFetch(policy));
+    }
+
+    @Transactional
+    public void createProcess(ProcessLog log) {
+        repo.persist(log);
     }
 }

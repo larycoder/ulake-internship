@@ -104,13 +104,6 @@ public class CrawlTask extends ScheduledTask {
      * */
     @Transactional
     public void runCrawl(String bearer, Long processId) {
-        // Wait for hibernate prepared its context else findById will null.
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         var context = new CrawlContext();
         var processLog = processRepo.findById(processId);
 
