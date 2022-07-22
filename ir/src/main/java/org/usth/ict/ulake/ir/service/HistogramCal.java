@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HistogramCal {
-  public void run(String filename) {
+  public List<Integer> run(String filename) {
     Mat src = Imgcodecs.imread(filename);
     if (src.empty()) {
         System.err.println("Cannot read image: " + filename);
-        return;
+        return null;
     }
 
     List<Mat> bgrPlanes = new ArrayList<>();
@@ -34,7 +34,14 @@ public class HistogramCal {
     Imgproc.calcHist(bgrPlanes, new MatOfInt(1), new Mat(), gHist, new MatOfInt(histSize), histRange, accumulate);
     Imgproc.calcHist(bgrPlanes, new MatOfInt(2), new Mat(), rHist, new MatOfInt(histSize), histRange, accumulate);
 
-    System.out.println(bHist.dump());
-    return;
+    List<Integer> featureValues = new ArrayList<>();
+
+    for (int i = 0; i < bHist.rows(); i++) {
+        for (int j = 0; j < bHist.cols(); j++) {
+            featureValues.add((int)bHist.get(i,j)[0]);
+        }
+    }
+
+    return featureValues;
 }
 }

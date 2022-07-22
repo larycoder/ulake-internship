@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import javax.annotation.security.RolesAllowed;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -22,54 +23,57 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
+import org.usth.ict.ulake.common.service.exception.LakeServiceException;
+import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
+import org.usth.ict.ulake.common.service.exception.LakeServiceInternalException;
+import org.usth.ict.ulake.ir.model.ImgFeature;
+import org.usth.ict.ulake.ir.persistence.ImgFeatureRepo;
 import org.usth.ict.ulake.ir.service.HistogramCal;
 
-
-@Path("/ir") 
+@Path("/ir")
 @Produces(MediaType.APPLICATION_JSON)
 public class ImgFeatureExtraction {
 
   @Inject
-  LakeHttpResponse response;
+  LakeHttpResponse<Object> response;
 
   @Inject
   @RestClient
   FileService fileService;
-  
+
   @Inject
   @RestClient
   CoreService coreService;
 
-
+  @Inject
+  ImgFeatureRepo repo;
 
   @GET
   @Path("/extract/{id}")
   @Operation(summary = "Extract uploaded img")
-  @RolesAllowed({"User", "Admin"})
-  public Response extractFeature (@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
+  @RolesAllowed({ "User", "Admin" })
+  @Transactional
+  public Response extractFeature(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
 
     InputStream inputFile;
-    // only file id
     try {
       OutputStream outFile = Files.newOutputStream(Paths.get("/tmp/output.jpeg"));
       inputFile = coreService.objectDataByFileId(fileId, bearer);
-      long length = inputFile.transferTo(outFile);
+      inputFile.transferTo(outFile);
 
-    } catch(Exception e) {
-      return response.build(500, e.getMessage());
+    } catch (IOException e) {
+      return response.build(500, "Cannot get File", e.getMessage());
     }
-    // read img data from stream
-    // TODO: add extract algorithm 
-    // var stream = new StreamingOutput() {
-    //   @Override
-    //   public void write(OutputStream os) throws IOException {
-    //     inputFile.transferTo(os);
-    //   }
-    // };
-    HistogramCal histogramCal= new HistogramCal();
-    histogramCal.run("/tmp/output.jpeg");
-    
-    
-    return response.build(200, "");
+
+    HistogramCal histogramCal = new HistogramCal();
+    String imgValue = histogramCal.run("/tmp/output.jpeg").toString();
+
+    var newImg = new ImgFeature();
+    newImg.fid = fileId;
+    newImg.featureValue = imgValue;
+
+    repo.persist(newImg);
+
+    return response.build(200, "Image Feature extract  succesfull", newImg.id);
   }
 }
