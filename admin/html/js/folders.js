@@ -117,10 +117,10 @@ class DataCRUD extends ListCRUD {
      * @param {*} name
      */
     async click(type, id, name) {
-        this.id = Math.abs(parseInt(id));
-        this.type = type;
         console.log(`clicked on item type ${type}`);
         if (type === "F" || type === "u") {
+            this.id = Math.abs(parseInt(id));
+            this.type = type;
             this.updateBreadcrumb(type, id, name);
             await this.fetch();
             this.recreateTable();
@@ -281,7 +281,7 @@ class DataCRUD extends ListCRUD {
     }
 
     async checkExtractResult(extractId) {
-        const ret = await extractApi.result(extractId);
+        const ret = await extractApi.one(extractId);
         if (ret && ret.id) {
             if (ret.finishedTime > 0) {
                 showToast("Info", $(`Finished!`));
@@ -289,10 +289,11 @@ class DataCRUD extends ListCRUD {
                 this.recreateTable();
             }
             else {
-                showToast("Info", $(`Still sxtracting <i class="fas fa-spinner fa-spin"></i>`));
+                const result = await extractApi.result(extractId);
+                showToast("Info", $(`Extracted ${result.progress} files <i class="fas fa-spinner fa-spin"></i>`));
                 window.setTimeout(() => {
                     this.checkExtractResult(extractId);
-                }, 5000);
+                }, 3000);
             }
         }
     }
@@ -314,6 +315,8 @@ class DataCRUD extends ListCRUD {
     }
 
     async compressClick() {
+        showToast("Info", $('<span>Compressing <i class="fas fa-spinner fa-spin"></i></span>'));
+
         // get selected items and convert to a readable array of models
         const select = this.table.rows({ selected: true }).data();
         const items = [];
@@ -327,6 +330,7 @@ class DataCRUD extends ListCRUD {
 
         // make a new compression request
         const compReq = { folderId: this.type === "F" ? this.id : 0 };
+        console.log("compressing to target folder", compReq.folderId);
         const resp = await compressApi.create(compReq);
         if (!resp || !resp.id) {
             showToast("Error", "Cannot create new compression request");
@@ -347,6 +351,30 @@ class DataCRUD extends ListCRUD {
 
         // alright lets go
         compressApi.start(resp.id);
+
+        window.setTimeout(() => {
+            this.checkCompressResult(resp.id);
+        }, 3000);
+    }
+
+    async checkCompressResult(compressId) {
+        console.log("check compress result for comp id", compressId);
+        const ret = await compressApi.result(compressId);
+        if (ret && ret.id) {
+            if (!ret.progress) ret.progress = 0;
+            console.log(`finished ${ret.progress}/${ret.totalFiles}`);
+            if (ret.progress == ret.totalFiles) {
+                showToast("Info", $(`<span>Compression finished! <i class="far fa-smile"></i></span>`));
+                await this.fetch();
+                this.recreateTable();
+            }
+            else {
+                showToast("Info", $(`<span>Still compressing, ${ret.progress}/${ret.totalFiles} <i class="fas fa-spinner fa-spin"></i></span>`));
+                window.setTimeout(() => {
+                    this.checkCompressResult(compressId);
+                }, 3000);
+            }
+        }
     }
 }
 

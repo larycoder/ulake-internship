@@ -206,6 +206,10 @@ class GroupApi extends Api {
     async stop(id) {
         return await this.delete(`/${id}`);
     }
+
+    async result(id) {
+        return await this.get(`/${id}/result`);
+    }
 }
 
 /**
