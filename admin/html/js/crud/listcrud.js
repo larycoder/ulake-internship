@@ -24,6 +24,7 @@ export class ListCRUD extends CRUD {
         // extract unique foreign keys from data
         const uniqIds = data.map(entry => entry[joinOptions.fkField])
             .filter((value, index, self) => self.indexOf(value) === index && value);
+        console.log("joining", uniqIds);
         let others = await joinOptions.apiMethod(uniqIds);
         if (!Array.isArray(others)) others = [ others ];
 

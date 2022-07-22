@@ -28,7 +28,7 @@ async function ready() {
         nameField: "id",
         listFieldRenderer: [
             { data: "fileId" },
-            { data: "fileName" },
+            { data: "name" },
             { data: "uploadTime", render: (data, type, row) => formatTime(data) },
             { data: "status", render: (data, type, row) => data ? "Done" : "Failed" }
         ],
@@ -36,7 +36,7 @@ async function ready() {
             apiMethod: a => fileApi.many(a),
             fkField: "fileId",
             targetId: "id",
-            targetField: "fileName"
+            targetField: "name"
         }
     });
 
@@ -56,7 +56,6 @@ async function ready() {
             { data: "value" }
         ]
     });
-
 
     // go.
     window.crud.ready();
