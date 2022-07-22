@@ -126,7 +126,7 @@ class DataCRUD extends ListCRUD {
             this.recreateTable();
         }
         else {
-            this.downloadFile(id, name);
+            downloadFile(id, name);
         }
     }
 
@@ -296,24 +296,6 @@ class DataCRUD extends ListCRUD {
                 }, 3000);
             }
         }
-    }
-
-    /**
-     * Download a file from dashboard, using POST bearer body
-     * @param {Long} id file id to download
-     */
-    async downloadFile(id, name) {
-        console.log(`we should start downloading ${id} here`);
-        const url = `${getDashboardUrl()}/api/object/content/${name}`;
-        var bearerInput = $('<input type="hidden" name="bearer">').val(getToken());
-        var idInput = $('<input type="hidden" name="id">').val(id);
-        $('<form method="post" target="_blank"></form>')
-                .attr("action", url)
-                .append(idInput)
-                .append(bearerInput)
-                .appendTo('body')
-                .submit()
-                .remove();
     }
 
     async compressClick() {

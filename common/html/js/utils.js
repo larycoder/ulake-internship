@@ -218,3 +218,20 @@ function formatTime(timestamp) {
     const d = new Date(timestamp);
     return `${nstr(d.getFullYear(), 4)}-${nstr(d.getMonth() + 1, 2)}-${nstr(d.getDate(), 2)} ${nstr(d.getHours(), 2)}:${nstr(d.getMinutes(), 2)}:${nstr(d.getSeconds(), 2)}`;
 }
+
+/**
+ * Download a file from dashboard, using POST bearer body
+ * @param {Long} id file id to download
+ */
+function downloadFile(id, name) {
+    const url = `${getDashboardUrl()}/api/object/content/${name}`;
+    var bearerInput = $('<input type="hidden" name="bearer">').val(getToken());
+    var idInput = $('<input type="hidden" name="id">').val(id);
+    $('<form method="post" target="_blank"></form>')
+            .attr("action", url)
+            .append(idInput)
+            .append(bearerInput)
+            .appendTo('body')
+            .submit()
+            .remove();
+}
