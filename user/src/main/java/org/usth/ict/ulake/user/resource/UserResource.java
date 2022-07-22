@@ -1,5 +1,13 @@
 package org.usth.ict.ulake.user.resource;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -32,15 +41,6 @@ import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/user")
 @Tag(name = "Users")
@@ -78,12 +78,10 @@ public class UserResource {
     public Response one(@HeaderParam("Authorization") String bearer,
                         @PathParam("id") @Parameter(description = "User id to search") String id) {
         if (Utils.isNumeric(id)) {
-            // TODO : only allow himself if not admin
             logService.post(bearer, new LogModel("Query", "Get user info for " + id));
             return resp.build(200, null, repo.findById(Long.parseLong(id)));
         }
         else {
-            // TODO : only allow himself if not admin
             String idArr[] = id.split(",");
             List<Long> ids = Arrays.asList(idArr).stream()
                 .filter(idStr -> Utils.isNumeric(idStr))

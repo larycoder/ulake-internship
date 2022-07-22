@@ -54,7 +54,7 @@ public class FolderResource {
     FileRepository fileRepo;
 
     @Inject
-    LakeHttpResponse response;
+    LakeHttpResponse<UserFolder> response;
 
     @Inject
     @RestClient

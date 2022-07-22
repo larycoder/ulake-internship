@@ -49,6 +49,7 @@ export class FolderAdapter extends BaseAdapter {
     getAllRenderers() {
         let ret = super.getAllRenderers();
         ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
+        ret.size = (data, type, row) => `${humanFileSize(data)}`;
         ret.action = (data, type, row) => {
             let html = "";
             html += `<a href="#" title="Rename" onclick="window.crud.renameClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>`
