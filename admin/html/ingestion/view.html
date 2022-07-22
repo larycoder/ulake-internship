@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!--# include virtual="/inc/css.html" -->
+    <title>ULake Data Collection</title>
+</head>
+
+<body id="page-top">
+
+    <!--# include virtual="/inc/tokencheck.html" -->
+    <div id="wrapper">
+
+        <!--# include virtual="/inc/main/sidebar.html" -->
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!--# include virtual="/inc/main/topbar.html" -->
+
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Ingestion request details</h1>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 id="name-detail" class="m-0 font-weight-bold text-primary">General information</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table id="param-table" class="table hover stripe">
+                                        <thead>
+                                            <tr>
+                                                <th>Field</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 id="name-detail" class="m-0 font-weight-bold text-primary">Ingested files</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table id="table" class="table hover stripe">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>File name</th>
+                                                <th>Ingested time</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--# include virtual="/inc/copyright.html" -->
+        </div>
+    </div>
+
+    <!--# include virtual="/inc/confirmModal.html" -->
+    <!--# include virtual="/inc/logoutModal.html" -->
+    <!--# include virtual="/inc/scripts.html" -->
+    <script src="../js/ingestion/view.js" type="module"></script>
+</body>
+
+</html>

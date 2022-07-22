@@ -362,7 +362,7 @@ class IngestionTemplateApi extends Api {
 /**
  * Specific API for Ingestion Progress CRUD management
  */
-class IngestionApi extends Api {
+export class IngestionApi extends Api {
     constructor () {
         super(getIngestionUrl(), "/api/ingest")
     }

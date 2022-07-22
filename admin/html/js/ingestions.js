@@ -8,7 +8,7 @@ window.crud = new ListCRUD({
     listFieldRenderer: [
         { data: "id" },
         { data: "userName" },
-        { data: "description", render: (data, type, row) => `<a href="/ingestion/view?id=${data}">${data}</a>` },
+        { data: "description", render: (data, type, row) => `<a href="/ingestion/view?id=${row.id}">${data}</a>` },
         { data: "creationTime", render: (data, type, row) => formatTime(data) },
         { data: "endTime", render: (data, type, row) => formatTime(data) },
         { data: "folderId" }
