@@ -106,15 +106,16 @@ function getUserName() {
  * Convert an object to an array of key/value pairs
  * @param {object} object to convert
  * @param {array} field exclusions
+ * @param {func} transformers transform the object to another value
  * @returns
  */
-function toTable(object, excludes) {
+function toTable(object, excludes, transformers) {
     var table = [];
     for (var key in object) {
         if (!excludes || (excludes && excludes.indexOf(key) < 0)) {
             table.push({
                 key: key,
-                value: object[key]
+                value: (transformers && transformers[key]) ? transformers[key](object[key]) : object[key]
             });
         }
     }

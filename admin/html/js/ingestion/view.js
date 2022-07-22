@@ -42,7 +42,10 @@ async function ready() {
 
     // show current ingestion request info
     const ingestion = await window.crud.api.one(id);
-    const keyPairs = toTable(ingestion, ["query"]);
+    const keyPairs = toTable(ingestion, ["query"], {
+        creationTime: (d) => formatTime(d),
+        endTime: (d) => formatTime(d)
+    });
     $('#param-table').DataTable(  {
         data: keyPairs,
         paging: false,
