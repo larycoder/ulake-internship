@@ -1,4 +1,4 @@
-import { AddModal } from "../addModal/modal.js";
+import { AddModal } from "../modal/add.js";
 
 export class AddFolderFileModal extends AddModal {
     constructor(callback) {
