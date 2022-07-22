@@ -24,12 +24,10 @@ export class ListCRUD extends CRUD {
         // extract unique foreign keys from data
         const uniqIds = data.map(entry => entry[joinOptions.fkField])
             .filter((value, index, self) => self.indexOf(value) === index && value);
-        console.log("joining", uniqIds);
         let others = await joinOptions.apiMethod(uniqIds);
         if (!Array.isArray(others)) others = [ others ];
 
         // join on client side
-        console.log("blah");
         data = data.map(entry => {
             // get the value on other object
             const other = others.filter(o => o[joinOptions.targetId] == entry[joinOptions.fkField]);
@@ -42,10 +40,8 @@ export class ListCRUD extends CRUD {
                 }
                 else entry[f]="";
             }
-            console.log(entry);
             return entry;
         });
-        console.log("after joining", data);
         return data;
     }
 
