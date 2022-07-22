@@ -326,7 +326,8 @@ class DataCRUD extends ListCRUD {
         });
 
         // make a new compression request
-        const resp = await compressApi.create();
+        const compReq = { folderId: this.type === "F" ? this.id : 0 };
+        const resp = await compressApi.create(compReq);
         if (!resp || !resp.id) {
             showToast("Error", "Cannot create new compression request");
             return;
