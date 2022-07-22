@@ -21,14 +21,14 @@ class GroupListCRUD extends ListCRUD {
     }
 
     async create() {
-        const name = this.modal.find("input").val();
+        const name = this.modal.modal.find("input").val();
         const group = {
             name: name,
             users: []
         }
         const resp = await this.api.create(group);
         if (resp && resp.id) {
-            this.modal.modal('hide');
+            this.modal.modal.modal('hide');
             showToast("Info", `Group "${name}" created.`);
             await this.fetch();
             await this.detail();
@@ -36,12 +36,12 @@ class GroupListCRUD extends ListCRUD {
     }
 
     async showModal() {
-        this.modal.find("input").val("");
+        this.modal.modal.find("input").val("");
     }
 
     async ready() {
         // prepare modal events
-        this.modal = new AddGroupModal(() => this.showModal());
+        this.modal = new AddGroupModal(() => this.create());
         await super.ready();
     }
 }
