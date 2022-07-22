@@ -45,6 +45,10 @@ function getExtractUrl() {
     return window.location.protocol + "//extract." + getBaseDomain();
 }
 
+function getIngestionUrl() {
+    return window.location.protocol + "//ingest." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');

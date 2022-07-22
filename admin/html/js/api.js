@@ -346,6 +346,40 @@ class GroupApi extends Api {
     }
 }
 
+/**
+ * Specific API for Ingestion Configuration CRUD management
+ */
+class IngestionTemplateApi extends Api {
+    constructor () {
+        super(getIngestionUrl(), "/api/template")
+    }
+
+    async query(id) {
+        return await this.get(`/${id}/query`);
+    }
+}
+
+/**
+ * Specific API for Ingestion Progress CRUD management
+ */
+class IngestionApi extends Api {
+    constructor () {
+        super(getIngestionUrl(), "/api/ingest")
+    }
+
+    async crawl(policy, folderId) {
+        return await this.create(`/crawl`, policy);
+    }
+
+    async fetch(policy) {
+        return await this.create(`/fetch`, policy);
+    }
+
+    async files(id) {
+        return await this.get(`/${id}/files`);
+    }
+}
+
 const userApi = new UserApi();
 const authApi = new AuthApi();
 const groupApi = new GroupApi();
@@ -360,10 +394,12 @@ const dashboardFolderApi = new DashboardFolderApi();
 const dashboardObjectApi = new DashboardObjectApi();
 const adminApi = new AdminApi();
 const extractApi = new ExtractApi();
+const ingestionApi = new IngestionApi();
+const ingestionTemplateApi = new IngestionTemplateApi();
 
 $("#userName").text(getUserName());
 
 export { userApi, authApi, groupApi, objectApi, tableApi };
 export { logApi, compressApi, fileApi, folderApi };
 export { dashboardFileApi, dashboardFolderApi, dashboardObjectApi };
-export { extractApi, adminApi };
+export { extractApi, adminApi, ingestionApi, ingestionTemplateApi };
