@@ -137,11 +137,14 @@ public class ObjectResource {
         return Response.ok(stream).build();
     }
 
+    // TODO: hieplnc updates this to a cookie-based request
     @POST
-    @Path("/{fileId}/fileData")
+    @Path("/content/{filename}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(summary = "get object data by file id. POST body is in form 'bearer=token' This is used for downloading binary files without bearer in the header.")
-    public Response objectDataByFileIdPOST(@PathParam("fileId") Long fileId,
+    public Response objectDataByFileIdPOST(
+        @PathParam("filename") String unusedFileName,
+        @FormParam("id") Long fileId,
         @FormParam("bearer") String bearer) {
         // verify the passed bearer jwt
         JsonWebToken localJwt;

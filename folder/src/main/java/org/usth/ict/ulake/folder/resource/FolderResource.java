@@ -54,7 +54,10 @@ public class FolderResource {
     FileRepository fileRepo;
 
     @Inject
-    LakeHttpResponse<UserFolder> response;
+    LakeHttpResponse<UserFolder> resp;
+
+    @Inject
+    LakeHttpResponse<Object> respObject;
 
     @Inject
     @RestClient
@@ -69,7 +72,7 @@ public class FolderResource {
     @Operation(summary = "List all folders")
     public Response all(@HeaderParam("Authorization") String bearer) {
         logService.post(bearer, new LogModel("Query", "Get all folders"));
-        return response.build(200, "", repo.listAll());
+        return resp.build(200, "", repo.listAll());
     }
 
     @GET
@@ -84,12 +87,12 @@ public class FolderResource {
         var folder = repo.findById(id);
 
         if (folder == null)
-            return response.build(404, "Folder not found");
+            return resp.build(404, "Folder not found");
 
         if (!AclUtil.verifyFolderAcl(aclSvc, jwt, folder.id, folder.ownerId, permit))
-            return response.build(403);
+            return resp.build(403);
         logService.post(bearer, new LogModel("Query", "Get folder info for id " + id));
-        return response.build(200, null, folder);
+        return resp.build(200, null, folder);
     }
 
     @GET
@@ -104,12 +107,12 @@ public class FolderResource {
         var folder = repo.findById(id);
 
         if (folder == null)
-            return response.build(404, "Folder not found");
+            return resp.build(404, "Folder not found");
 
         if (!AclUtil.verifyFolderAcl(aclSvc, jwt, folder.id, folder.ownerId, permit))
-            return response.build(403);
+            return resp.build(403);
         logService.post(bearer, new LogModel("Query", "List folder for id " + id));
-        return response.build(200, null, folder);
+        return resp.build(200, null, folder);
     }
 
     /**
@@ -147,7 +150,7 @@ public class FolderResource {
             }
         }
         logService.post(bearer, new LogModel("Query", "Get root folder info"));
-        return response.build(200, null, root);
+        return resp.build(200, null, root);
     }
 
     /**
@@ -173,15 +176,15 @@ public class FolderResource {
         var parentPermit = PermissionModel.ADD; // <-- permit
 
         if (!AclUtil.verifyFolderAcl(aclSvc, jwt, null, entity.ownerId, permit))
-            return response.build(403, "Create folder not allowed");
+            return resp.build(403, "Create folder not allowed");
 
         if (entity.parent != null && entity.parent.id != null) {
             var parent = repo.findById(entity.parent.id);
             if (parent == null)
-                return response.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
             if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
-                return response.build(403, "Add folder not allowed");
+                return resp.build(403, "Add folder not allowed");
             entity.parent = parent;
         }
 
@@ -195,7 +198,7 @@ public class FolderResource {
 
         repo.persist(entity);
         logService.post(bearer, new LogModel("Add", "Create folder info for id " + entity.id + ", name " + entity.name));
-        return response.build(200, "", entity);
+        return resp.build(200, "", entity);
     }
 
     @PUT
@@ -217,10 +220,10 @@ public class FolderResource {
         UserFolder entity = repo.findById(id);
 
         if (entity == null)
-            return response.build(404, "Folder not found");
+            return resp.build(404, "Folder not found");
 
         if (!AclUtil.verifyFolderAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
-            return response.build(403);
+            return resp.build(403);
 
         if (!Utils.isEmpty(data.subFolders)) {
             entity.subFolders = repo.load(data.subFolders);
@@ -237,10 +240,10 @@ public class FolderResource {
         if (data.parent != null && data.parent.id != null) {
             var parent = repo.findById(data.parent.id);
             if (parent == null)
-                return response.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
             if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
-                return response.build(403, "Move file not allowed");
+                return resp.build(403, "Move file not allowed");
             entity.parent = parent;
         }
 
@@ -251,7 +254,7 @@ public class FolderResource {
 
         repo.persist(entity);
         logService.post(bearer, new LogModel("Update", "Update folder info for id " + id));
-        return response.build(200, null, entity);
+        return resp.build(200, null, entity);
     }
 
     @DELETE
@@ -267,14 +270,14 @@ public class FolderResource {
         var permit = PermissionModel.WRITE; // <-- permit
         UserFolder entity = repo.findById(id);
         if (entity == null)
-            return response.build(404);
+            return resp.build(404);
 
         if (!AclUtil.verifyFolderAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
-            return response.build(403);
+            return resp.build(403);
 
         repo.delete(entity);
         logService.post(bearer, new LogModel("Delete", "Delete file info for id " + id));
-        return response.build(200);
+        return resp.build(200);
     }
 
     @GET
@@ -298,6 +301,6 @@ public class FolderResource {
         ret.put("newFolders", folderCount);
         ret.put("count", count);
         logService.post(bearer, new LogModel("Query", "Get folder statistics"));
-        return response.build(200, "", ret);
+        return respObject.build(200, "", ret);
     }
 }
