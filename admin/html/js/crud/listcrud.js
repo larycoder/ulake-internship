@@ -29,17 +29,23 @@ export class ListCRUD extends CRUD {
         if (!Array.isArray(others)) others = [ others ];
 
         // join on client side
+        console.log("blah");
         data = data.map(entry => {
             // get the value on other object
             const other = others.filter(o => o[joinOptions.targetId] == entry[joinOptions.fkField]);
 
             // join, if valid
-            if (other && other.length && other[0][joinOptions.targetField]) {
-                entry[joinOptions.targetField] = other[0][joinOptions.targetField];
+            if (!Array.isArray(joinOptions.targetField)) joinOptions.targetField = [ joinOptions.targetField ];
+            for (const f of joinOptions.targetField) {
+                if (other && other.length && other[0][f]) {
+                    entry[f] = other[0][f];
+                }
+                else entry[f]="";
             }
-            else entry[joinOptions.targetField]="";
+            console.log(entry);
             return entry;
         });
+        console.log("after joining", data);
         return data;
     }
 

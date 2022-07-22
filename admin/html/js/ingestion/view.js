@@ -29,6 +29,7 @@ async function ready() {
         listFieldRenderer: [
             { data: "fileId" },
             { data: "name" },
+            { data: "mime" },
             { data: "uploadTime", render: (data, type, row) => formatTime(data) },
             { data: "status", render: (data, type, row) => data ? "Done" : "Failed" }
         ],
@@ -36,7 +37,7 @@ async function ready() {
             apiMethod: a => fileApi.many(a),
             fkField: "fileId",
             targetId: "id",
-            targetField: "name"
+            targetField: ["name", "mime"]
         }
     });
 
