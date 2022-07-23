@@ -1,9 +1,11 @@
 import { ingestionTemplateApi, ingestionApi } from "../api.js";
+import { FolderModal } from "../modal/folder.js";
 
 class AddIngestionRequest {
     constructor () {
         this.api = ingestionApi;
         this.templateApi = ingestionTemplateApi;
+        this.folderModal = new FolderModal(() => this.folderSelected());
     }
 
     async ready() {
@@ -32,7 +34,9 @@ class AddIngestionRequest {
             columns: [
                 { data: "key" },
                 { data: "value", render: (data, type, row) =>
-                            `<input class="form-control border-1 small" type="text" value="${data}"}>` }
+                    row.key === "folder"
+                    ? `<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="window.crud.selectFolder()"><i class="fas fa-folder-open fa-sm text-white-50"></i> Select</a>`
+                    : `<input class="form-control border-1 small" type="text" value="${data}"}>` }
             ]
         });
     }
@@ -66,6 +70,14 @@ class AddIngestionRequest {
                 //
             })
         }
+    }
+
+    selectFolder() {
+        this.folderModal.modal.modal("show");
+    }
+
+    async folderSelected() {
+        console.log("folder selected");
     }
 }
 

@@ -7,6 +7,8 @@ export class FolderAdapter extends BaseAdapter {
         config.api = folderApi;
         super(config);
         this.zipMime = [ "application/zip", "application/x-zip-compressed" ];
+        this.itemClick = config.itemClick || "window.crud.click";
+        this.itemTypes = config.itemTypes || [ "folders", "files"]
     }
 
     transformFolders(folders) {
@@ -31,13 +33,17 @@ export class FolderAdapter extends BaseAdapter {
     }
 
     transform(raw) {
-        const folders = this.transformFolders(raw.subFolders);
-        const files = this.transformFiles(raw.files);
-        return folders.concat(files);
+        let ret = [];
+        for (const type of this.itemTypes) {
+            console.log("transforming type", type);
+            if (type === "folders") ret = ret.concat(this.transformFolders(raw.subFolders));
+            if (type === "files") ret = ret.concat(this.transformFiles(raw.files));
+        }
+        return ret;
     }
 
     async fetch(type, parent) {
-    if (type === "u") {
+        if (type === "u") {
             return await this.api.root(parent);
         }
         else {
@@ -48,7 +54,7 @@ export class FolderAdapter extends BaseAdapter {
 
     getAllRenderers() {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
+        ret.name = (data, type, row) => `<a href="#" onclick="${this.itemClick}('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${data}')">${data}</a>`;
         ret.size = (data, type, row) => `${humanFileSize(data)}`;
         ret.action = (data, type, row) => {
             let html = "";

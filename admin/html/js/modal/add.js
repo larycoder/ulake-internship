@@ -1,3 +1,4 @@
+// TODO: refactor to BaseModal
 export class AddModal {
     constructor(callback, modalId) {
         this.callback = callback;
