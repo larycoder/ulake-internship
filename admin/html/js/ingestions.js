@@ -1,5 +1,5 @@
 import { ListCRUD } from "./crud/listcrud.js";
-import { userApi, ingestionApi } from "./api.js";
+import { userApi, ingestionApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 window.crud = new ListCRUD({
     api: ingestionApi,

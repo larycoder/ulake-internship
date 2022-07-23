@@ -1,5 +1,5 @@
 import { ListCRUD } from "./crud/listcrud.js";
-import { objectApi } from "./api.js";
+import { objectApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 function formatDate(date) {
     const year = date.getFullYear(),

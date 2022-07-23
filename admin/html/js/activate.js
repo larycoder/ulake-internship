@@ -1,4 +1,4 @@
-import { userApi } from "./api.js";
+import { userApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 function showMsg(msg) {
     if (typeof msg === "string") {

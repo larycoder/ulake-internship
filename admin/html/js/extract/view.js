@@ -1,5 +1,5 @@
 import { ListCRUD } from "../crud/listcrud.js";
-import { Api } from "../api.js";
+import { Api } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 /**
  * Specific API for Extract Task management

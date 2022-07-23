@@ -1,5 +1,5 @@
 import { ListCRUD } from "../crud/listcrud.js";
-import { fileApi, IngestionApi } from "../api.js";
+import { fileApi, IngestionApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 /**
  * Specific API for Ingestion File management

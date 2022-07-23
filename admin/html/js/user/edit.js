@@ -1,5 +1,5 @@
 import { EditCRUD } from '../crud/editcrud.js';
-import { userApi } from "../api.js";
+import { userApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 const crud = new EditCRUD({
     api: userApi,

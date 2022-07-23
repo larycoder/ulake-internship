@@ -1,4 +1,4 @@
-import { authApi, userApi } from "./api.js";
+import { authApi, userApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 
 window.login = async () => {
     const uid = document.querySelector("#uid").value,

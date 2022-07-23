@@ -1,5 +1,5 @@
 import { ListCRUD } from "./crud/listcrud.js";
-import { groupApi } from "./api.js";
+import { groupApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 import { AddGroupModal } from "./group/add.js";
 
 class GroupListCRUD extends ListCRUD {

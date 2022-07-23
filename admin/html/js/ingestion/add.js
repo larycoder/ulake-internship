@@ -1,4 +1,4 @@
-import { ingestionTemplateApi, ingestionApi, folderApi } from "../api.js";
+import { ingestionTemplateApi, ingestionApi, folderApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 import { FolderModal } from "../modal/folder.js";
 
 class AddIngestionRequest {
