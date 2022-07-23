@@ -11,4 +11,8 @@ import org.usth.ict.ulake.common.model.folder.FileModel;
 public class FolderEntry {
     public List<FolderInfo> subFolders;
     public List<FileModel> files;
+
+    public FolderEntry() {
+
+    }
 }
