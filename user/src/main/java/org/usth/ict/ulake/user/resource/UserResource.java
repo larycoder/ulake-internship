@@ -159,9 +159,11 @@ public class UserResource {
         entity.status = false;
         repo.persist(entity);
 
-        String title = "[ ULAKE ] Activate account email";
-        String body = activateEmail.data("userName", entity.userName, "code", entity.code).render();
-        mailer.send(Mail.withHtml(entity.email, title, body));
+        String template = activateEmail.data("userName", entity.userName,
+                                             "code", entity.code).render();
+        String title = template.split("\n", 2)[0];
+        String body = template.split("\n", 2)[1];
+        mailer.send(Mail.withText(entity.email, title, body));
 
         logService.post(bearer, new LogModel("Insert", "Created new inactivate user " + entity.userName));
         return resp.build(200, "", entity);
