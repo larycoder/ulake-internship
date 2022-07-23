@@ -41,6 +41,7 @@ import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
+import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
 @Path("/user")
@@ -115,7 +116,6 @@ public class UserResource {
     @Path("/activate/{code}")
     @Transactional
     @PermitAll
-    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Activate a new user")
     public Response mailValidate(
         @HeaderParam("Authorization") String bearer,
@@ -156,9 +156,9 @@ public class UserResource {
         entity.status = false;
         repo.persist(entity);
 
-        logService.post(bearer, new LogModel("Insert", "Created new inactivate user " + entity.userName));
+        mailer.send(Mail.withHtml(entity.email, "Test mail", "Test mail body"));
 
-        // TODO: send validate code to user email
+        logService.post(bearer, new LogModel("Insert", "Created new inactivate user " + entity.userName));
         return resp.build(200, "", entity);
     }
 
