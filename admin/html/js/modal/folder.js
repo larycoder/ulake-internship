@@ -4,7 +4,10 @@ import { Breadcrumb } from "../breadcrumb.js";
 
 export class FolderModal extends AddModal {
     constructor(callback) {
-        super(callback, "#folder-modal");
+        super(() => {
+            this.modal.modal("hide");
+            callback(this.id);
+        }, "#folder-modal");
         this.modal.on("show.bs.modal", () => {
             this.id = 0;
             this.detail();
@@ -56,8 +59,7 @@ export class FolderModal extends AddModal {
                 data: f,
                 render: this.adapter.getRenderer(f)
             }});
-            console.log("preparing data table");
-            this.table = $('#folder-table').DataTable(  {
+            this.table = $('#folder-table').DataTable({
                 data: entries,
                 paging: false,
                 searching: false,
