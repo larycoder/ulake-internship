@@ -118,6 +118,10 @@ class UserApi extends Api {
         const ret = await this.one(id);
         return ret.userName;
     }
+
+    async activate(code) {
+        return await this.get(`/activate/${code}`);
+    }
 }
 
 /**

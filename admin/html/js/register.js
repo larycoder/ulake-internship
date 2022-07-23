@@ -58,7 +58,7 @@ window.register = async function () {
         window.location = "/registered";
     }
     else {
-        showModal("Error", "Cannot register at the moment.");
-        button.text("Login")
+        showError("Cannot register at the moment.");
+        button.text("Register Account");
     }
 }
