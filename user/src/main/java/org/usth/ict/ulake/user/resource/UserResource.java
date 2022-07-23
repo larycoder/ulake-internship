@@ -43,6 +43,7 @@ import org.usth.ict.ulake.user.persistence.UserRepository;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
+import io.quarkus.qute.Template;
 
 @Path("/user")
 @Tag(name = "Users")
@@ -61,6 +62,9 @@ public class UserResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    Template activateEmail;
 
     @Inject
     Mailer mailer;
@@ -98,7 +102,6 @@ public class UserResource {
             return search(query);
         }
     }
-
 
     @POST
     @Path("/search")
@@ -156,7 +159,9 @@ public class UserResource {
         entity.status = false;
         repo.persist(entity);
 
-        mailer.send(Mail.withHtml(entity.email, "Test mail", "Test mail body"));
+        String title = "[ ULAKE ] Activate account email";
+        String body = activateEmail.data("userName", entity.userName, "code", entity.code).render();
+        mailer.send(Mail.withHtml(entity.email, title, body));
 
         logService.post(bearer, new LogModel("Insert", "Created new inactivate user " + entity.userName));
         return resp.build(200, "", entity);

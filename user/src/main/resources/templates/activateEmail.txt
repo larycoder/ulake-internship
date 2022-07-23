@@ -1,0 +1,5 @@
+Hello {userName},
+
+You registered an account on Ulake, before being able to use your account you need to verify that this is your email address by clicking here: http://admin.dev.ulake.sontg.net/activate?code={code}
+
+Kind Regards, ICT USTH
