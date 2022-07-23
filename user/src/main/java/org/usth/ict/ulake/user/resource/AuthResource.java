@@ -115,7 +115,7 @@ public class AuthResource {
 
     private Response privLogin(LoginCredential cred, boolean skipPassword) {
         User user = repo.checkLogin(cred, skipPassword);
-        if (user == null) {
+        if (user == null || user.status == null || user.status == false) {
             return response.build(401);
         }
 
