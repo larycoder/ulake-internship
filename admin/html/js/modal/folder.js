@@ -1,17 +1,48 @@
 import { AddModal } from "./add.js";
 import { FolderAdapter } from "../adapter/folder.js";
+import { Breadcrumb } from "../breadcrumb.js";
 
 export class FolderModal extends AddModal {
     constructor(callback) {
         super(callback, "#folder-modal");
-        this.modal.on("show.bs.modal", () => this.detail());
-        this.id = 0;
+        this.modal.on("show.bs.modal", () => {
+            this.id = 0;
+            this.detail();
+        });
         this.adapter = new FolderAdapter({
             itemClick: "window.crud.folderModal.click",
             itemTypes: ["folders"]
         });
         this.fields = [ "id", "name" ];
-        this.path = [ 0 ];
+        this.path = [ { type: "u", id: 0 } ];
+        this.breadcrumb = new Breadcrumb({
+            name: "Root",
+            click: "window.crud.folderModal.click('u', '0', 'Root')",
+        });
+        this.breadcrumb.render();
+    }
+
+    updateBreadcrumb(type, id, name) {
+        // check if user clicked on an item on the existing path
+        id = parseInt(id);
+        const itemPos = this.path.findIndex(i => i.id === id);
+        if (itemPos >= 0) {
+            // yes, strip the remaining
+            this.path = this.path.slice(0, itemPos + 1);
+            this.breadcrumb.keep(itemPos);
+        }
+        else {
+            // that's a new entry
+            this.path.push({
+                type: this.type,
+                id: this.id
+            });
+            this.breadcrumb.append({
+                name: name,
+                click: `window.crud.folderModal.click('${this.type}', '${this.id}', '${this.name}')`,
+            });
+        }
+        this.breadcrumb.render();
     }
 
     async detail() {
@@ -28,7 +59,9 @@ export class FolderModal extends AddModal {
             console.log("preparing data table");
             this.table = $('#folder-table').DataTable(  {
                 data: entries,
-                paging: true,
+                paging: false,
+                searching: false,
+                info: false,
                 columns: this.listFieldRenderer,
                 order: []
             });
@@ -46,8 +79,10 @@ export class FolderModal extends AddModal {
 
     click(type, id, name) {
         console.log(`clicked ${type}, ${id}, ${name}`);
+        if (typeof id === "string") id = parseInt(id);
         this.path.push(id);
         this.id = id;
+        this.updateBreadcrumb(type, id, name);
         this.detail();
     }
 }

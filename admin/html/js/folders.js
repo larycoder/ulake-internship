@@ -18,7 +18,7 @@ class DataCRUD extends ListCRUD {
 
         this.id = 0;        // 0: everyone. else: userid or folderid
         this.type = "u";    // u, F: user or folder
-        this.path = [ { type: "u", id: 0 }];    //
+        this.path = [ { type: "u", id: 0 } ];    //
         this.userAdapter = new UserAdapter();
         this.folderAdapter = new FolderAdapter();
         this.dataAdapter = this.userAdapter;

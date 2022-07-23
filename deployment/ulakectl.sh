@@ -49,7 +49,7 @@ start() {
             DEV_DIR="$ROOT_DIR/$QUARKUS_SERVICE"
             echo "+ Using dev build at $DEV_DIR"
             docker run --name $HOST \
-                -v $ROOT_DIR/common:/home/common \
+                -v $ROOT_DIR/common/src:/home/common/src \
                 -v $DEV_DIR:/home/$QUARKUS_SERVICE \
                 -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
                 --network $NET \
