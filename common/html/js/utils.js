@@ -49,6 +49,10 @@ function getIngestionUrl() {
     return window.location.protocol + "//ingest." + getBaseDomain();
 }
 
+function getSearchUrl() {
+    return window.location.protocol + "//search." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');

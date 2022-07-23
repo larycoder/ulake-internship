@@ -88,8 +88,6 @@ class AddIngestionRequest {
         else {
             $("#btn-select-folder").empty().text("Root").val(id);
         }
-
-
     }
 }
 

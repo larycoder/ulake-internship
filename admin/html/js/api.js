@@ -384,6 +384,27 @@ export class IngestionApi extends Api {
     }
 }
 
+/**
+ * Specific API for Search management
+ */
+export class SearchApi extends Api {
+    constructor () {
+        super(getSearchUrl(), "/api/search")
+    }
+
+    async file(query) {
+        return await this.post("/file", query, { "Content-Type": "application/json; charset=utf-8" });
+    }
+
+    async user(query) {
+        return await this.post("/user", query, { "Content-Type": "application/json; charset=utf-8" });
+    }
+
+    async all() {
+        return await this.user(this.query);
+    }
+}
+
 const userApi = new UserApi();
 const authApi = new AuthApi();
 const groupApi = new GroupApi();
@@ -400,6 +421,7 @@ const adminApi = new AdminApi();
 const extractApi = new ExtractApi();
 const ingestionApi = new IngestionApi();
 const ingestionTemplateApi = new IngestionTemplateApi();
+const searchApi = new SearchApi();
 
 $("#userName").text(getUserName());
 
@@ -407,3 +429,4 @@ export { userApi, authApi, groupApi, objectApi, tableApi };
 export { logApi, compressApi, fileApi, folderApi };
 export { dashboardFileApi, dashboardFolderApi, dashboardObjectApi };
 export { extractApi, adminApi, ingestionApi, ingestionTemplateApi };
+export { searchApi };
