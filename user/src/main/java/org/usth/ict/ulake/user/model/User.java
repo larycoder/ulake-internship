@@ -15,6 +15,8 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 @Entity
@@ -38,10 +40,19 @@ public class User extends PanacheEntityBase {
     @Column(columnDefinition = "varchar(5000)")
     @JsonIgnore
     public String accessToken;
+
     @JsonIgnore
     public String refreshToken;
+
     @JsonIgnore
     public Long refreshTokenExpire;
+
+    @Schema(description = "Status of activate account")
+    public Boolean status;
+
+    @JsonIgnore
+    @Schema(description = "Activate code sent by mail")
+    public String code;
 
     // @JsonBackReference("department")
     @ManyToOne

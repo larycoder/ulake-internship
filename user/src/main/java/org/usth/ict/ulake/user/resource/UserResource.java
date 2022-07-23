@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
@@ -23,7 +24,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -41,6 +41,7 @@ import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
+import io.quarkus.mailer.Mailer;
 
 @Path("/user")
 @Tag(name = "Users")
@@ -59,6 +60,9 @@ public class UserResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    Mailer mailer;
 
     @Inject
     @RestClient
@@ -80,14 +84,13 @@ public class UserResource {
         if (Utils.isNumeric(id)) {
             logService.post(bearer, new LogModel("Query", "Get user info for " + id));
             return resp.build(200, null, repo.findById(Long.parseLong(id)));
-        }
-        else {
+        } else {
             String idArr[] = id.split(",");
             List<Long> ids = Arrays.asList(idArr).stream()
-                .filter(idStr -> Utils.isNumeric(idStr))
-                .mapToLong(Long::parseLong)
-                .boxed()
-                .collect(Collectors.toList());
+                             .filter(idStr -> Utils.isNumeric(idStr))
+                             .mapToLong(Long::parseLong)
+                             .boxed()
+                             .collect(Collectors.toList());
             UserSearchQuery query = new UserSearchQuery();
             query.ids = ids;
             logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
@@ -108,6 +111,26 @@ public class UserResource {
         return resp.build(200, null, results);
     }
 
+    @GET
+    @Path("/activate/{code}")
+    @Transactional
+    @PermitAll
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Activate a new user")
+    public Response mailValidate(
+        @HeaderParam("Authorization") String bearer,
+        @Parameter(description = "Activate code to validate account")
+        @PathParam("code") String code) {
+        User user = repo.find("code", code).firstResult();
+        if (user == null) {
+            return resp.build(404, "User not found");
+        } else {
+            user.status = true;
+            repo.persist(user);
+            logService.post(bearer, new LogModel("Update", "Validated new user " + user.userName));
+            return resp.build(200, "", user);
+        }
+    }
 
     @POST
     @Transactional
@@ -115,7 +138,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Create a new user")
     public Response post(@HeaderParam("Authorization") String bearer,
-            @RequestBody(description = "New user info to save") User entity) {
+                         @RequestBody(description = "New user info to save") User entity) {
         if (entity == null) {
             return resp.build(400, "", entity);
         }
@@ -128,10 +151,14 @@ public class UserResource {
 
         entity.isAdmin = false;
         entity.password = BcryptUtil.bcryptHash(entity.password);
-        entity.registerTime = new Date().getTime()/1000;
+        entity.registerTime = new Date().getTime() / 1000;
+        entity.code = UUID.randomUUID().toString();
+        entity.status = false;
         repo.persist(entity);
 
-        logService.post(bearer, new LogModel("Insert", "Created new user " + entity.userName));
+        logService.post(bearer, new LogModel("Insert", "Created new inactivate user " + entity.userName));
+
+        // TODO: send validate code to user email
         return resp.build(200, "", entity);
     }
 
@@ -179,7 +206,7 @@ public class UserResource {
         var stats = repo.getUserRegistrationByDate();
         Integer count = (int) repo.count();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        for (var stat: stats) {
+        for (var stat : stats) {
             String text = df.format(stat.getDate());
             regs.put(text, stat.getCount());
         }
