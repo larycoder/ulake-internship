@@ -15,7 +15,12 @@ window.crud = new ListCRUD({
 function resultReady() {
     const param = parseParam("query", "/");
     if (isEmpty(param.query)) window.location = "/";
-    searchApi.query = param.query;
+    console.log(`query is "${param.query}"`);
+    searchApi.query = {
+        userQuery: {
+            keywords: [param.query]
+        }
+    };
     window.crud.ready();
 }
 
