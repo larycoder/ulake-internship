@@ -36,6 +36,7 @@ public interface DashboardService {
     @Path("/file/{fileId}")
     @Schema(description = "get file information")
     public LakeHttpResponse<FileModel> fileInfo(
+        // TODO: HiepLNC refactors ASAP.
         @PathParam("fileId") Long fileId,
         @HeaderParam("Authorization") String bearer);
 
@@ -57,7 +58,6 @@ public interface DashboardService {
     @Path("/folder/{id}")
     @Schema(description = "get folder info")
     public LakeHttpResponse<FolderModel> folderInfo(
-        // TODO: HiepLNC refactors ASAP.
         @HeaderParam("Authorization") String bearer,
         @PathParam("id") Long id);
 

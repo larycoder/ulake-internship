@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.common.service;
 
+import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -17,6 +19,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
 
 @Path("/api")
 @RegisterRestClient(configKey = "folder-api")
@@ -62,6 +65,12 @@ public interface FileService {
     public LakeHttpResponse<FileModel> deleteFile(
         @HeaderParam("Authorization") String bearer,
         @PathParam("fileId") Long fileId);
+
+    @POST
+    @Path("/file/search")
+    @Schema(description = "Search list of file")
+    public LakeHttpResponse<List<FileModel>> search(
+        @HeaderParam("Authorization") String bearer, UserFileSearchQuery fileId);
 
     @GET
     @Path("/folder")

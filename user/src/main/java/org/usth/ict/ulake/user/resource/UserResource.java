@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.log.LogModel;
+import org.usth.ict.ulake.common.model.user.UserSearchQuery;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.user.model.User;
-import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.persistence.UserRepository;
 
 import io.quarkus.elytron.security.common.BcryptUtil;

@@ -13,8 +13,8 @@ import javax.persistence.EntityManager;
 
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.StatsByDate;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.model.UserFile;
-import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 

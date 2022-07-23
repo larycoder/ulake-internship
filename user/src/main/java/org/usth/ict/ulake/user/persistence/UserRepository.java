@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.StatsByDate;
+import org.usth.ict.ulake.common.model.user.UserSearchQuery;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
-import org.usth.ict.ulake.user.model.UserSearchQuery;
 import org.usth.ict.ulake.user.resource.AuthResource;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

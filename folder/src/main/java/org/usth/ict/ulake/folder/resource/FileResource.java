@@ -29,11 +29,11 @@ import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
 import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.folder.model.UserFile;
-import org.usth.ict.ulake.folder.model.UserFileSearchQuery;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
 import org.usth.ict.ulake.folder.persistence.FolderRepository;
 

@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.folder.model;
+package org.usth.ict.ulake.common.model.folder;
 
 import java.util.List;
 
@@ -19,4 +19,6 @@ public class UserFileSearchQuery {
 
     @Schema(description = "MIME keyword that the file MIME must contain.")
     public String mime;
+
+    public UserFileSearchQuery () {}
 }

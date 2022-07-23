@@ -1,8 +1,8 @@
-package org.usth.ict.ulake.user.model;
-
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+package org.usth.ict.ulake.common.model.user;
 
 import java.util.List;
+
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public class UserSearchQuery {
     @Schema(description = "List of user ids allowed")
@@ -14,9 +14,6 @@ public class UserSearchQuery {
     @Schema(description = "List of group ids to search users from")
     public List<Integer> groups;
 
-    /*@Schema(description = "List of institution ids to search users from")
-    public List<Integer> institutions;*/
-
     @Schema(description = "List of department ids to search users from")
     public List<Integer> departments;
 
@@ -25,4 +22,6 @@ public class UserSearchQuery {
 
     @Schema(description = "Maximum register time (epoch). -1 means ignored.")
     public Long maxRegisterTime;
+
+    public UserSearchQuery(){}
 }
