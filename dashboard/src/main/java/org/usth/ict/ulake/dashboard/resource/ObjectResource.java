@@ -168,7 +168,7 @@ public class ObjectResource {
         }
 
         // only return inline response if it's PDF, otherwise let's go attachment
-        if (mime.equals("application/pdf") || mime.startsWith("image/")) {
+        if (mime.equals("application/pdf") || mime.startsWith("image/") || mime.startsWith("text/")) {
             fileName = "inline; filename=\"" + fileName + "\"";
         }
         else {
