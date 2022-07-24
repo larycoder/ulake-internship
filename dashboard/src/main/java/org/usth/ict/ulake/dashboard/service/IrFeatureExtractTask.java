@@ -28,13 +28,6 @@ public class IrFeatureExtractTask extends ScheduledTask implements IrFeatureExtr
      * @param id
      */
     public void run(String bearer, Long id) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        log.info("loading file for feature extraction {}", id);
         irService.extract(bearer, id);
     }
 
