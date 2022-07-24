@@ -45,6 +45,16 @@ public class FileRepository implements PanacheRepository<UserFile> {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
+        if (query.ids != null && !query.ids.isEmpty()) {
+            var ids = new ArrayList<Long>();
+            for (var id : query.ids) {
+                if (id >= 0)
+                    ids.add(id);
+            }
+            conditions.add("(id in (:ids))");
+            params.put("ids", ids);
+        }
+
         if (query.ownerIds != null && !query.ownerIds.isEmpty()) {
             var ownerIds = new ArrayList<Long>();
             for (var ownerId : query.ownerIds) {

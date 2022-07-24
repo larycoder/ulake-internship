@@ -5,6 +5,9 @@ import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public class UserFileSearchQuery {
+    @Schema(description = "Filter by file ids")
+    public List<Long> ids;
+
     @Schema(description = "Filter by file ownerId")
     public List<Long> ownerIds;
 

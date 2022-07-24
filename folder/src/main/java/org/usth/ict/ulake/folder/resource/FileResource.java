@@ -3,7 +3,10 @@ package org.usth.ict.ulake.folder.resource;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,6 +28,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -41,6 +46,8 @@ import org.usth.ict.ulake.folder.persistence.FolderRepository;
 @Path("/file")
 @Produces(MediaType.APPLICATION_JSON)
 public class FileResource {
+    private static final Logger log = LoggerFactory.getLogger(FileResource.class);
+
     @Inject
     FileRepository repo;
 
@@ -75,22 +82,40 @@ public class FileResource {
     @GET
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Get a single file info")
+    @Operation(summary = "Get one ore multiple file info")
     public Response one(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id")
-        @Parameter(description = "File id to search") Long id) {
+        @Parameter(description = "File id to search") String ids) {
         var permit = PermissionModel.READ; // <-- permit
-        var file = repo.findById(id);
 
-        if (file == null)
-            return respFile.build(404, "File not found");
+        log.info("getting file info for {}", ids);
+        if (Utils.isNumeric(ids)) {
 
-        if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
-            return respFile.build(403);
+            Long id = Long.parseLong(ids);
+            var file = repo.findById(id);
 
-        logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
-        return respFile.build(200, null, file);
+            if (file == null)
+                return respFile.build(404, "File not found");
+
+            if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
+                return respFile.build(403);
+
+            logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
+            return respFile.build(200, null, file);
+        } else {
+            String idArr[] = ids.split(",");
+            List<Long> idList = Arrays.asList(idArr).stream()
+                             .filter(idStr -> Utils.isNumeric(idStr))
+                             .mapToLong(Long::parseLong)
+                             .boxed()
+                             .collect(Collectors.toList());
+            UserFileSearchQuery query = new UserFileSearchQuery();
+            query.ids = idList;
+            logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
+            var files = repo.search(query);
+            return respFile.build(200, null, files);
+        }
     }
 
     @POST
