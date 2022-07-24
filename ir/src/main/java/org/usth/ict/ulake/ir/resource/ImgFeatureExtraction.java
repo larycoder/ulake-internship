@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
+import org.usth.ict.ulake.common.model.ir.DistanceRes;
 import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.ir.model.ImgFeature;
@@ -74,13 +75,10 @@ public class ImgFeatureExtraction {
     newImg.featureValue = imgValue;
 
     repo.persist(newImg);
-    return response.build(200, "Image Feature extract  succesfull", newImg.id);
+    return response.build(200, "", newImg.id);
   }
 
-  public class DistanceRes {
-    public Long fid;
-    public Double distance;
-  }
+
 
   @GET
   @Path("/search/{id}")
@@ -121,10 +119,10 @@ public class ImgFeatureExtraction {
 
     } catch (IOException e) {
       e.printStackTrace();
-      return response.build(500, "Can not get result list");
+      return response.build(500, "Cannot get result list");
     }
 
-    return response.build(200, "Image Feature extract  succesfull", resultList);
+    return response.build(200, "", resultList);
   }
 
   private double calculateDistance(List<Integer> array1, List<Integer> array2) {
