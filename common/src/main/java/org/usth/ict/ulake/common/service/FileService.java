@@ -20,6 +20,7 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
 
 @Path("/api")
 @RegisterRestClient(configKey = "folder-api")
@@ -71,6 +72,14 @@ public interface FileService {
     @Schema(description = "Search list of file")
     public LakeHttpResponse<List<FileModel>> search(
         @HeaderParam("Authorization") String bearer, UserFileSearchQuery fileId);
+
+    @POST
+    @Path("/file/search/v2")
+    @Schema(description = "Search list of file v2")
+    public LakeHttpResponse<List<FileModel>> searchV2(
+        @HeaderParam("Authorization") String bearer,
+        UserFileSearchQueryV2 fileId);
+
 
     @GET
     @Path("/folder")

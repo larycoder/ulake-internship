@@ -15,6 +15,7 @@ import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.user.AuthModel;
 import org.usth.ict.ulake.common.model.user.User;
 import org.usth.ict.ulake.common.model.user.UserSearchQuery;
+import org.usth.ict.ulake.common.model.user.UserSearchQueryV2;
 
 @Path("/api")
 @RegisterRestClient(configKey = "user-api")
@@ -34,4 +35,10 @@ public interface UserService {
     @Path("/user/search")
     public LakeHttpResponse<List<User>> search(
         @HeaderParam("Authorization") String bearer, UserSearchQuery query);
+
+    @POST
+    @Path("/user/search/v2")
+    public LakeHttpResponse<List<User>> searchV2(
+        @HeaderParam("Authorization") String bearer, UserSearchQueryV2 query);
+
 }
