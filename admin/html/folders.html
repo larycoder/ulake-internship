@@ -4,6 +4,13 @@
 <head>
     <!--# include virtual="/inc/css.html" -->
     <title>ULake Data Management</title>
+
+<!--# if expr="$host=/dev./" -->
+        <!--#set var="common" value="common.dev.ulake.sontg.net" -->
+<!--# else -->
+        <!--#set var="common" value="common.ulake.sontg.net" -->
+<!--# endif -->
+    <link href="http://<!--#echo var = 'common' -->/vendor/flex-gallery/flex-gallery.min.css" rel="stylesheet" type="text/css">
 </head>
 
 <body id="page-top">
@@ -68,12 +75,14 @@
     <!--# set var="addModalBody" value="folder.html" -->
     <!--# include virtual="/inc/addModal.html" -->
 
+    <!--# include virtual="/inc/irModal.html" -->
     <!--# include virtual="/inc/renameModal.html" -->
     <!--# include virtual="/inc/confirmModal.html" -->
     <!--# include virtual="/inc/logoutModal.html" -->
     <!--# include virtual="/inc/toast.html" -->
     <!--# include virtual="/inc/scripts.html" -->
     <script src="js/folders.js" type="module"></script>
+    <script src="http://<!--#echo var = 'common' -->/vendor/flex-gallery/flex-gallery.min.js"></script>
 </body>
 
 </html>

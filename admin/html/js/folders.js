@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { fileApi, userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
@@ -369,7 +369,10 @@ class DataCRUD extends ListCRUD {
         const resp = await irApi.search(id);
         console.log("image search results", resp);
         if (resp && resp.length) {
-            // redirect to show search results
+            // get file details
+            const ids = [... new Set(resp.map(f => f.fid))];
+            const files = await fileApi.many(ids);
+            console.log(files);
         }
     }
 }
