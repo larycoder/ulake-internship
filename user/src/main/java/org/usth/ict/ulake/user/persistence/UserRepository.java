@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.StatsByDate;
 import org.usth.ict.ulake.common.model.user.UserSearchQuery;
+import org.usth.ict.ulake.common.model.user.UserSearchQueryV2;
+import org.usth.ict.ulake.common.query.HqlResult;
 import org.usth.ict.ulake.user.model.LoginCredential;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.resource.AuthResource;
@@ -54,7 +56,7 @@ public class UserRepository implements PanacheRepository<User> {
         ArrayList<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
-        if(query.ids != null && !query.ids.isEmpty()) {
+        if (query.ids != null && !query.ids.isEmpty()) {
             conditions.add("(id in (:ids))");
             params.put("ids", query.ids);
         }
@@ -78,7 +80,6 @@ public class UserRepository implements PanacheRepository<User> {
             params.put("maxRegisterTime", query.maxRegisterTime);
         }
 
-
         if (query.groups != null && !query.groups.isEmpty()) {
             conditions.add("(groups.id in :groupIds)");
             params.put("groupIds", query.groups);
@@ -93,11 +94,15 @@ public class UserRepository implements PanacheRepository<User> {
         return list(hql, params);
     }
 
+    public List<User> search(UserSearchQueryV2 query) {
+        HqlResult myQuery = query.getHQL("");
+        return list(myQuery.hql, myQuery.params);
+    }
 
     public List<StatsByDate> getUserRegistrationByDate() {
         List<Object[]> counts = em.createNativeQuery("SELECT count(userName) as count, DATE(FROM_UNIXTIME(`registerTime`)) as date FROM User GROUP BY date;").getResultList();
         List<StatsByDate> ret = new ArrayList<>();
-        for (var count: counts) {
+        for (var count : counts) {
             StatsByDate stat = new StatsByDate((Date) count[1], ((BigInteger) count[0]).intValue());
             ret.add(stat);
         }

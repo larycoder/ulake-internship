@@ -36,6 +36,7 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.model.user.UserSearchQuery;
+import org.usth.ict.ulake.common.model.user.UserSearchQueryV2;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.user.model.User;
 import org.usth.ict.ulake.user.persistence.UserRepository;
@@ -108,6 +109,20 @@ public class UserResource {
     @RolesAllowed({ "Admin" })
     @Operation(summary = "Search for users")
     public Response search(@RequestBody(description = "Query to perform search for users") UserSearchQuery query) {
+        var results = repo.search(query);
+        if (results.isEmpty()) {
+            return resp.build(404);
+        }
+        return resp.build(200, null, results);
+    }
+
+    @POST
+    @Path("/search/v2")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Search for users")
+    public Response searchV2(
+            @RequestBody(description = "Query to perform search for users")
+            UserSearchQueryV2 query) {
         var results = repo.search(query);
         if (results.isEmpty()) {
             return resp.build(404);
