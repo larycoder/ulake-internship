@@ -2,6 +2,7 @@ package org.usth.ict.ulake.search.resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,16 +20,22 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
 import org.usth.ict.ulake.common.model.search.FilterModel;
 import org.usth.ict.ulake.common.model.user.User;
 import org.usth.ict.ulake.common.model.user.UserSearchQuery;
+import org.usth.ict.ulake.common.model.user.UserSearchQueryV2;
+import org.usth.ict.ulake.common.query.Queryable;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.UserService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
+import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
 import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
+import org.usth.ict.ulake.search.service.SearchParser;
 
 @Path("/search")
 @Produces(MediaType.APPLICATION_JSON)
@@ -49,6 +56,9 @@ public class SearchResource {
     @Inject
     @RestClient
     FileService fileSvc;
+
+    @Inject
+    SearchParser parser;
 
     private List<User> searchUser(String bearer, UserSearchQuery query) {
         try {
@@ -149,6 +159,66 @@ public class SearchResource {
             return response.build(404, "not found error");
         } else {
             return response.build(200, null, files);
+        }
+    }
+
+    @POST
+    @Path("/file/v2")
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "Search file information")
+    public Response fileV2(@HeaderParam("Authorization") String bearer,
+                           Map<String, Object> filter) {
+        Map<String, Queryable> query = parser.parse(filter);
+        var userSearch = (UserSearchQueryV2) query.get("user");
+        var fileSearch = (UserFileSearchQueryV2) query.get("file");
+
+        try {
+            if (!parser.isEmpty(query.get("user"))) {
+                List<User> users = userSvc.searchV2(bearer, userSearch).getResp();
+                if (Utils.isEmpty(fileSearch.ownerIds.in) && !Utils.isEmpty(users))
+                    fileSearch.ownerIds.in = new ArrayList<Long>();
+                for (var user : users)
+                    fileSearch.ownerIds.in.add(user.id);
+            }
+            var searchResult = fileSvc.searchV2(bearer, fileSearch).getResp();
+            return response.build(200, "", searchResult);
+        } catch (LakeServiceNotFoundException e) {
+            return response.build(404, "Object not found");
+        } catch (LakeServiceForbiddenException e) {
+            return response.build(403, "Forbidden query");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return response.build(500);
+        }
+    }
+
+    @POST
+    @Path("/user/v2")
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "Search user information")
+    public Response userV2(@HeaderParam("Authorization") String bearer,
+                           Map<String, Object> filter) {
+        Map<String, Queryable> query = parser.parse(filter);
+        var userSearch = (UserSearchQueryV2) query.get("user");
+        var fileSearch = (UserFileSearchQueryV2) query.get("file");
+
+        try {
+            if (!parser.isEmpty(query.get("file"))) {
+                List<FileModel> files = fileSvc.searchV2(bearer, fileSearch).getResp();
+                if (Utils.isEmpty(fileSearch.ownerIds.in) && !Utils.isEmpty(files))
+                    userSearch.id.in = new ArrayList<Long>();
+                for (var file : files)
+                    userSearch.id.in.add(file.ownerId);
+            }
+            var searchResult = userSvc.searchV2(bearer, userSearch).getResp();
+            return response.build(200, "", searchResult);
+        } catch (LakeServiceNotFoundException e) {
+            return response.build(404, "Object not found");
+        } catch (LakeServiceForbiddenException e) {
+            return response.build(403, "Forbidden query");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return response.build(500);
         }
     }
 }
