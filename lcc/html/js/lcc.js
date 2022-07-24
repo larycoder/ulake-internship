@@ -19,8 +19,7 @@ function routeReady() {
 }
 
 function initNavbar() {
-	let currPos = window.location.pathname;
-	$(`.nav-link[href="${currPos}"]`).addClass('active');
+	$("span.user-name").text(getUserName() || "Xin chào!!");
 }
 
 // index functions
@@ -33,19 +32,22 @@ function datasetReady() {
 
 // patients functions
 function patientReady() {
-	$.ajax({
-		url: "/data/patients3cm",
-		success: data => {
-			const patients = $.csv.toObjects(data.replace(/^\s*[\r\n]/gm, ""));
-			if (Array.isArray(patients) && patients.length > 0) {
-				const t = document.querySelector("tbody");
-				while (t.firstChild) t.removeChild(t.firstChild);
-				patients.forEach(p => {
-					t.appendChild($(tplPatientRow(p))[0]);
-				});
+	window.setTimeout(function () {
+		$.ajax({
+			url: "/data/patients3cm",
+			success: data => {
+				const patients = $.csv.toObjects(data.replace(/^\s*[\r\n]/gm, ""));
+				if (Array.isArray(patients) && patients.length > 0) {
+					const t = document.querySelector("tbody");
+					while (t.firstChild) t.removeChild(t.firstChild);
+					patients.forEach(p => {
+						t.appendChild($(tplPatientRow(p))[0]);
+					});
+				}
+				$("h6 i.fa-spinner").remove();
 			}
-		}
-	});
+	})
+	}, 1000);
 }
 
 // detect functions

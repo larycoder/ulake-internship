@@ -1,49 +1,84 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html dir="ltr" lang="en">
+
 <head>
-    <title>LCC :: Đánh dấu</title>
-    <!--# include file="head.html" -->
+    <!--# include virtual="/inc/main/css.html" -->
+    <title>Công cụ gán nhãn</title>
 </head>
 
 <body>
-<!--# include file="navbar.html" -->
-
-<div class="bg-voiceviet">
-    <div class="bg-voiceviet-overlay"></div>
-</div>
-
-<div id="card">
-    <div class="container text-center">
-        <div class="row py-5">
-            <div class="col-md-12">
-                <h1>Công cụ gán nhãn Lung Tumor Marker</h1>
-                <div class="text-left">
-                    <p>Lung Tumor Marker là sản phẩm mẫu hỗ trợ bác sỹ trong việc phân tích và gán nhãn dữ liệu ảnh cắt
-                        lớp vi tính về ung thư phổi. Sản phẩm bao gồm các chức năng sau phục vụ cho việc xây dựng bộ cơ
-                        sở dữ liệu về ảnh cắt lớp vi tính cho ung thư phổi:</p>
-                    <ul>
-                        <li>Đánh dấu vị trí, kích thước các khối u</li>
-                        <li>Đánh dấu các khối u là u lành tính hay u ác tính</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <img src="images/annotation.jpg" id="annotation-sample"/>
-                </div>
-                <div class="text-left pt-5">
-                    <p>
-                        Tải xuống: <i class="fa fa-download"></i>
-                    </p>
-                    <ul>
-                        <li><a href="/download/ltm.2019.11.14.exe">Bộ cài đặt <i class="fa fa-cogs"></i></a></li>
-                        <li><a href="/download/ltm.hdsd.pdf">Tài liệu hướng dẫn sử dụng <i class="fa fa-file-text-o"></i></a></li>
-                    </ul>
-                </div>
-            </div>
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
         </div>
     </div>
-</div>
-<!--# include file="footer.html" -->
+    <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
+
+        <!--# include virtual="/inc/main/topbar.html" -->
+        <!--# include virtual="/inc/main/sidebar.html" -->
+
+
+        <div class="page-wrapper">
+            <div class="container-fluid">
+                <!-- Content Row -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-8">
+                        <div class="card shadow mb-7">
+                            <div
+                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Công cụ gán nhãn Lung Tumor Marker</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Lung Tumor Marker là sản phẩm mẫu hỗ trợ bác sỹ trong việc phân tích và gán nhãn dữ liệu ảnh cắt
+                                    lớp vi tính về ung thư phổi. Sản phẩm bao gồm các chức năng sau phục vụ cho việc xây dựng bộ cơ
+                                    sở dữ liệu về ảnh cắt lớp vi tính cho ung thư phổi:</p>
+                                <ul>
+                                    <li>Đánh dấu vị trí, kích thước các khối u</li>
+                                    <li>Đánh dấu các khối u là u lành tính hay u ác tính</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-8">
+                        <div class="card shadow mb-7">
+                            <div
+                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Giao diện trực quan</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <img src="/assets/images/annotation.jpg" class="mw-100"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-8">
+                        <div class="card shadow mb-7">
+                            <div
+                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Tải xuống</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul>
+                                    <li><a href="/download/ltm.2019.11.14.exe">Bộ cài đặt <i class="fa fa-cogs"></i></a></li>
+                                    <li><a href="/download/ltm.hdsd.pdf">Tài liệu hướng dẫn sử dụng <i class="fa fa-file-text-o"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--# include virtual="/inc/main/footer.html" -->
+        </div>
+    </div>
+
+    <!--# include virtual="/inc/main/scripts.html" -->
 </body>
 
 </html>
