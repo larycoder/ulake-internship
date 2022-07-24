@@ -13,7 +13,7 @@ public class KeywordOpt extends Operation<Object> {
 
     @Override
     public HqlResult getHQL(String property) {
-        String clazz = this.getClass().getName();
+        String clazz = this.getClass().getName().replaceAll("\\.", "_");
         List<String> hql = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
@@ -22,8 +22,8 @@ public class KeywordOpt extends Operation<Object> {
             for (String value : values) {
                 List<String> subHql = new ArrayList<>();
                 for (String field : fields) {
-                    subHql.add(where(field, "like", clazz + ".field." + field));
-                    params.put(clazz + ".field." + field, "%" + value + "%");
+                    subHql.add(where(field, "like", clazz + "_field_" + field));
+                    params.put(clazz + "_field_" + field, "%" + value + "%");
                 }
                 hql.add("(" + String.join(" OR ", subHql) + ")");
             }

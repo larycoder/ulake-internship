@@ -16,7 +16,7 @@ public class Operation<T extends Object> implements Queryable {
 
     @Override
     public HqlResult getHQL(String property) {
-        String clazz = this.getClass().getName();
+        String clazz = this.getClass().getName().replaceAll("\\.", "_");
         return getHQL(clazz, property);
     }
 
@@ -29,28 +29,28 @@ public class Operation<T extends Object> implements Queryable {
         Map<String, Object> params = new HashMap<>();
 
         if (eq != null) {
-            hql.add(where(property, "=", clazz + ".eq"));
-            params.put(clazz + ".eq", eq);
+            hql.add(where(property, "=", clazz + "_eq"));
+            params.put(clazz + "_eq", eq);
         }
 
         if (neq != null) {
-            hql.add(where(property, "!=", clazz + ".neq"));
-            params.put(clazz + ".neq", neq);
+            hql.add(where(property, "!=", clazz + "_neq"));
+            params.put(clazz + "_neq", neq);
         }
 
         if (gt != null) {
-            hql.add(where(property, ">", clazz + ".gt"));
-            params.put(clazz + ".gt", gt);
+            hql.add(where(property, ">", clazz + "_gt"));
+            params.put(clazz + "_gt", gt);
         }
 
         if (lt != null) {
-            hql.add(where(property, "<", clazz + ".lt"));
-            params.put(clazz + ".lt", lt);
+            hql.add(where(property, "<", clazz + "_lt"));
+            params.put(clazz + "_lt", lt);
         }
 
         if (!Utils.isEmpty(in)) {
-            hql.add(where(property, "in", clazz + ".in"));
-            params.put(clazz + ".in", in);
+            hql.add(where(property, "in", clazz + "_in"));
+            params.put(clazz + "_in", in);
         }
 
         return new HqlResult(String.join(" AND ", hql), params);

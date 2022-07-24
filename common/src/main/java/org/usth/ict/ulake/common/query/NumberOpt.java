@@ -13,7 +13,7 @@ public class NumberOpt<T extends Number> extends Operation<T> {
 
     @Override
     public HqlResult getHQL(String property) {
-        String clazz = this.getClass().getName();
+        String clazz = this.getClass().getName().replaceAll("\\.", "_");
         return getHQL(clazz, property);
     }
 
@@ -28,13 +28,13 @@ public class NumberOpt<T extends Number> extends Operation<T> {
         }
 
         if (min != null) {
-            hql.add(where(property, ">=", clazz + ".min"));
-            params.put(clazz + ".min", min);
+            hql.add(where(property, ">=", clazz + "_min"));
+            params.put(clazz + "_min", min);
         }
 
         if (max != null) {
-            hql.add(where(property, "<=", clazz + ".max"));
-            params.put(clazz + ".max", max);
+            hql.add(where(property, "<=", clazz + "_max"));
+            params.put(clazz + "_max", max);
         }
 
         return new HqlResult(String.join(" AND ", hql), params);
