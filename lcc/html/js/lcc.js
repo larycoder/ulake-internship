@@ -118,6 +118,7 @@ function detectResultReady(data, id) {
 	summary.removeClass("invisible");
     $("span[data-bind=name]").text(id);
 	$("span[data-bind=count]").text(data.pre_results.length);
+	$("a.btn-primary").removeClass("disabled");
 }
 
 // classify functions

@@ -16,6 +16,8 @@ const tplDetectResultRow = (d) => `
                     Vị trí : lát cắt thứ ${d.slice}
                     <br/>
                     <img src="data:image/png;base64,${d.data}" class="full-width"/>
+                    <br/>
+                    <input type="checkbox" text="Đánh dấu nếu đồng thuận.">
                 </div>
             </div>
         </div>
@@ -42,6 +44,8 @@ const tplClassifyResultRow = (d) => `
                     Xác suất ác tính : ${d.confidence} %
                     <br/>
                     <img src="data:image/png;base64,${d.data}" class="full-width"/>
+                    <br/>
+                    <input type="checkbox" text="Đánh dấu nếu đồng thuận.">
                 </div>
             </div>
         </div>
