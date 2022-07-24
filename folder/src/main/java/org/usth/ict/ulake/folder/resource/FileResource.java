@@ -30,6 +30,7 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
 import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.LogService;
@@ -99,6 +100,22 @@ public class FileResource {
         UserFileSearchQuery query) {
         // TODO: allow normal user search
         var results = repo.search(query);
+        if (results.isEmpty()) {
+            return response.build(404);
+        }
+        logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
+        return response.build(200, null, results);
+    }
+
+    @POST
+    @Path("/search/v2")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Search for files")
+    public Response searchV2(
+        @HeaderParam("Authorization") String bearer,
+        @RequestBody(description = "Query to perform search for user files")
+        UserFileSearchQueryV2 query) {
+        var results = repo.searchV2(query);
         if (results.isEmpty()) {
             return response.build(404);
         }

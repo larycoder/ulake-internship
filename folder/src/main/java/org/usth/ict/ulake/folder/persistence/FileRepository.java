@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.StatsByDate;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
+import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
+import org.usth.ict.ulake.common.query.HqlResult;
 import org.usth.ict.ulake.folder.model.UserFile;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -76,6 +78,11 @@ public class FileRepository implements PanacheRepository<UserFile> {
         return list(hql, params);
     }
 
+    public List<UserFile> searchV2(UserFileSearchQueryV2 query) {
+        HqlResult myQuery = query.getHQL("");
+        return list(myQuery.hql, myQuery.params);
+    }
+
     public List<UserFile> listRoot(Long ownerId) {
         return list("(parent = NULL) AND (ownerId = ?1)", ownerId);
     }
@@ -87,7 +94,7 @@ public class FileRepository implements PanacheRepository<UserFile> {
     public List<StatsByDate> getNewFilesByDate() {
         List<Object[]> counts = em.createNativeQuery("SELECT count(name) as count, DATE(FROM_UNIXTIME(`creationTime`)) as date FROM UserFile GROUP BY date;").getResultList();
         List<StatsByDate> ret = new ArrayList<>();
-        for (var count: counts) {
+        for (var count : counts) {
             StatsByDate stat = new StatsByDate((Date) count[1], ((BigInteger) count[0]).intValue());
             ret.add(stat);
         }
