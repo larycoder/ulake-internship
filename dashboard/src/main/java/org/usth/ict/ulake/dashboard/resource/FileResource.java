@@ -30,6 +30,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -45,6 +46,8 @@ import org.usth.ict.ulake.dashboard.filter.FilterModel;
 import org.usth.ict.ulake.dashboard.filter.QueryException;
 import org.usth.ict.ulake.dashboard.filter.impl.FilterServiceImpl;
 import org.usth.ict.ulake.dashboard.model.ObjectMeta;
+import org.usth.ict.ulake.dashboard.service.IrFeatureExtractJob;
+import org.usth.ict.ulake.dashboard.service.IrFeatureExtractTask;
 
 @Path("/file")
 @Tag(name = "File")
@@ -61,6 +64,9 @@ public class FileResource {
     @Inject
     @RestClient
     CoreService coreSvc;
+
+    @Inject
+    IrFeatureExtractTask irTask;
 
     @Inject
     LakeHttpResponse resp;
@@ -149,15 +155,25 @@ public class FileResource {
             return resp.build(500, e.toString());
         }
 
+        FileModel fileResp;
         try {
             fileInfo.cid = obj.cid;
             fileInfo.creationTime = new Date().getTime();
-            var fileResp = fileSvc.newFile(bearer, fileInfo);
-            return resp.build(200, null, fileResp.getResp());
+            fileResp = fileSvc.newFile(bearer, fileInfo).getResp();
         } catch (Exception e) {
             log.error("Fail to create new file from object", e);
             return resp.build(500, "Fail to create new file from object");
         }
+
+        // check mime and perform feature extraction
+        if (fileResp.mime.startsWith("image/")) {
+            try {
+                irTask.start(bearer, fileResp.id, IrFeatureExtractJob.class);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
+        return resp.build(200, null, fileResp);
     }
 
     @PUT
@@ -195,7 +211,5 @@ public class FileResource {
         } catch (LakeServiceNotFoundException e) {
             return resp.build(404);
         }
-
-
     }
 }
