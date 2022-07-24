@@ -47,7 +47,7 @@ function patientReady() {
 				$("h6 i.fa-spinner").remove();
 			}
 	})
-	}, 1000);
+	}, 500);
 }
 
 // detect functions
@@ -64,9 +64,11 @@ function detectReady() {
 }
 
 function detectResultReady(data, id) {
+	if (typeof data === "string") data = JSON.parse(data);
 	if (!data.pre_results || !Array.isArray(data.pre_results)) return;
 	const result = document.querySelector("#result");
 	while (result.firstChild) result.removeChild(result.firstChild);
+	$("i.fa-spinner").remove()
 	let idx = 0;
 	data.pre_results.forEach(candidate => {
 		let c = {
@@ -80,10 +82,8 @@ function detectResultReady(data, id) {
 
 	const summary = $("#summary");
 	summary.removeClass("invisible");
-    $.bindings({
-		count: data.pre_results.length,
-		name: id
-    });
+    $("span[data-bind=name]").text(id);
+	$("span[data-bind=count]").text(data.pre_results.length);
 }
 
 // classify functions
