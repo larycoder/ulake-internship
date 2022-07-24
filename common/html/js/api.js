@@ -405,6 +405,20 @@ export class SearchApi extends Api {
     }
 }
 
+/**
+ * Specific API for Indexing and Retrieval management
+ */
+ export class IrApi extends Api {
+    constructor () {
+        super(getIrUrl(), "/api/ir")
+    }
+
+    async search(id) {
+        return await this.get(`/search/${id}`);
+    }
+}
+
+
 const userApi = new UserApi();
 const authApi = new AuthApi();
 const groupApi = new GroupApi();
@@ -422,6 +436,7 @@ const extractApi = new ExtractApi();
 const ingestionApi = new IngestionApi();
 const ingestionTemplateApi = new IngestionTemplateApi();
 const searchApi = new SearchApi();
+const irApi = new IrApi();
 
 $("#userName").text(getUserName());
 
@@ -429,4 +444,4 @@ export { userApi, authApi, groupApi, objectApi, tableApi };
 export { logApi, compressApi, fileApi, folderApi };
 export { dashboardFileApi, dashboardFolderApi, dashboardObjectApi };
 export { extractApi, adminApi, ingestionApi, ingestionTemplateApi };
-export { searchApi };
+export { searchApi, irApi };

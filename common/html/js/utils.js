@@ -53,6 +53,10 @@ function getSearchUrl() {
     return window.location.protocol + "//search." + getBaseDomain();
 }
 
+function getIrUrl() {
+    return window.location.protocol + "//ir." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');
