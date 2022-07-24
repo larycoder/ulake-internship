@@ -8,6 +8,7 @@ function routeReady() {
         "^/$": indexReady,
         "^/dataset": datasetReady,
         "^/patients": patientReady,
+		"^/list": listReady,
         "^/team": teamReady,
         "^/detect": detectReady,
         "^/classify": classifyReady,
@@ -42,6 +43,26 @@ function patientReady() {
 					while (t.firstChild) t.removeChild(t.firstChild);
 					patients.forEach(p => {
 						t.appendChild($(tplPatientRow(p))[0]);
+					});
+				}
+				$("h6 i.fa-spinner").remove();
+			}
+	})
+	}, 500);
+}
+
+// list image functions
+function listReady() {
+	window.setTimeout(function () {
+		$.ajax({
+			url: "/data/patients3cm",
+			success: data => {
+				const patients = $.csv.toObjects(data.replace(/^\s*[\r\n]/gm, ""));
+				if (Array.isArray(patients) && patients.length > 0) {
+					const t = document.querySelector("tbody");
+					while (t.firstChild) t.removeChild(t.firstChild);
+					patients.forEach(p => {
+						t.appendChild($(tplListRow(p))[0]);
 					});
 				}
 				$("h6 i.fa-spinner").remove();

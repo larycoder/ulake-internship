@@ -56,6 +56,15 @@ const tplPatientRow = (p) => `
         <td>${p.Modality}</td>
         <td>${p.StudyDate}</td>
         <td><a class="btn btn-sm btn-primary" href="/detect/${p.ID}">Định vị khối u</a></td>
-        <td><a class="btn btn-sm btn-primary" href="/classify/${p.ID}">Phân loại</a></td>
+    </tr>
+`;
+
+const tplListRow = (p) => `
+    <tr>
+        <td>${p.ID}</td>
+        <td>${p.ID}</td>
+        <td>${p.Sex}</td>
+        <td>${p.Modality}</td>
+        <td>${p.StudyDate}</td>
     </tr>
 `;
