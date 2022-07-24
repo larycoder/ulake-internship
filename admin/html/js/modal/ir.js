@@ -59,7 +59,7 @@ export class IrModal extends BaseModal {
                 media.texts.push(file.name);
             }
         }
-        const gallery = $("<div></div>");
+        const gallery = $("<div id='flex-gallery-container'></div>");
         this.body.empty().append(gallery);
         gallery.addFlexImages(media).flexGallery();
     }

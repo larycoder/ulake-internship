@@ -20,7 +20,7 @@ var autoAdjusted = false;
             minHeightRatioWindow: null,
             minHeightRatioScreen: null,
             fadeInDuration: 1000,
-            checkPeriod: 100, 
+            checkPeriod: 100,
             autoAdjust: true
         }, options);
         /**
@@ -67,6 +67,7 @@ var autoAdjusted = false;
                     *
                     * However, naturalWidth and naturalHeight do not work in IE8 or below
                     */
+                    var urlCreator = window.URL || window.webkitURL;
                     $(fgItem).find(".fg-img")
                         .css("display", "none")
                         .on('load', (e) => {
@@ -98,7 +99,9 @@ var autoAdjusted = false;
                                     });
                                 }
                             }, settings.checkPeriod);
-                            $(fgImg).attr("src", $(fgImg).attr("fg-img-src"));
+                            let data = $(fgImg).data("fg-img-src");
+                            if (data instanceof Blob) data = urlCreator.createObjectURL(data);
+                            $(fgImg).attr("src", data);
                         });
                     /**
                      * Hide the descriptions initially.
@@ -155,11 +158,11 @@ var autoAdjusted = false;
                 /**
                  * Creates and inserts <a> with <img> in the container.
                  */
-                $("#container").addClass("fg-container").append(
+                $("#flex-gallery-container").addClass("fg-container").append(
                     $("<div>").addClass("fg-item").append(
                         $("<a>").attr("href", links[index]).append(
-                            $("<img>").addClass("fg-img")
-                                      .attr("fg-img-src", images[index])  //** this image is a thumbnail
+                            $(`<img id="flex-image-${index}">`).addClass("fg-img")
+                                      .data("fg-img-src", images[index])  //** this image is a thumbnail
                         )
                     ).append(
                         $("<span>").addClass("fg-text")
