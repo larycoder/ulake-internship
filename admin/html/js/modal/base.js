@@ -1,5 +1,5 @@
-// TODO: refactor to BaseModal
-export class AddModal {
+
+export class BaseModal {
     constructor(callback, modalId) {
         this.callback = callback;
         this.modal = $(modalId ? modalId : "#add-modal");

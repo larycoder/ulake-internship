@@ -1,9 +1,9 @@
-import { AddModal } from "../modal/add.js";
+import { BaseModal } from "../modal/base.js";
 
-export class AddFolderFileModal extends AddModal {
+export class AddFolderFileModal extends BaseModal {
     constructor(callback) {
         super(callback);
-        const _addModal = this;
+        const _baseModal = this;
         this.header.text("Add folder or file");
         this.folderName = this.body.find("#name");
         this.modal.on("show.bs.modal", () => {
@@ -18,7 +18,7 @@ export class AddFolderFileModal extends AddModal {
             if (file.size > 500 * Math.pow(2,20)) {
                 showToast("Error", "Please select a file not exceeding 500MB");
             }
-            _addModal.file = file;
+            _baseModal.file = file;
         });
     }
 }

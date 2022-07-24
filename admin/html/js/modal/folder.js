@@ -1,8 +1,8 @@
-import { AddModal } from "./add.js";
+import { BaseModal } from "./base.js";
 import { FolderAdapter } from "../adapter/folder.js";
 import { Breadcrumb } from "../breadcrumb.js";
 
-export class FolderModal extends AddModal {
+export class FolderModal extends BaseModal {
     constructor(callback) {
         super(() => {
             this.modal.modal("hide");

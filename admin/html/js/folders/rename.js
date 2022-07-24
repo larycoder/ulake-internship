@@ -1,9 +1,9 @@
-import { AddModal } from "../modal/add.js";
+import { BaseModal } from "../modal/base.js";
 
-export class RenameModal extends AddModal {
+export class RenameModal extends BaseModal {
     constructor(callback) {
         super(callback, "#rename-modal");
-        const _addModal = this;
+        const _baseModal = this;
         this.name = this.body.find("#name");
         this.modal.on("show.bs.modal", () => this.name.val(this.oldName));
         this.modal.on("shown.bs.modal", () => this.name.focus());

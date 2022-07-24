@@ -1,6 +1,6 @@
-import { AddModal } from "../modal/add.js";
+import { BaseModal } from "../modal/base.js";
 
-export class AddGroupModal extends AddModal {
+export class AddGroupModal extends BaseModal {
     constructor(callback) {
         super(callback);
         this.modal.on("show.bs.modal", () => this.body.find("#name").val(""));
