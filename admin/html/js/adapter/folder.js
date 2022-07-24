@@ -64,10 +64,8 @@ export class FolderAdapter extends BaseAdapter {
                 html += `<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
             }
             if (row.mime && row.mime.startsWith("image/")) {
-                console.log("is image");
                 html += `<a href="#" title="Find" onclick="window.crud.findClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-search"></i></a>`
             }
-            console.log(row.name, row.mime);
             return html;
         };
         return ret;

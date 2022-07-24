@@ -2,15 +2,15 @@
  * Generalized Api class for a specific CRUD endpoint
  */
 export class Api {
-    constructor(server, endpoint, processJson) {
+    constructor(server, endpoint, expectJson) {
         this.server = server;
         this.endpoint = endpoint;
 
         // default processing json response
-        if (processJson === undefined || processJson === null) {
-            processJson = true;
+        if (expectJson === undefined || expectJson === null) {
+            expectJson = true;
         }
-        this.processJson = processJson;
+        this.expectJson = expectJson;
     }
 
     /**
@@ -31,7 +31,8 @@ export class Api {
                 window.location = "/login";
             }
         };
-        return await resp.json();
+        if (this.expectJson) return await resp.json();
+        else return await resp.blob();
     };
 
     async call(url, method, body, headers) {
@@ -45,7 +46,7 @@ export class Api {
         }
         const data = await this.ajax(req);
         console.log(data);
-        if (this.processJson) {
+        if (this.expectJson) {
             if (data && data.code === 200) return data.resp;
             return {};
         }
@@ -90,7 +91,7 @@ export class Api {
     // create, update, delete
     async create(entity) {
         return await this.post("", entity, { "Content-Type": "application/json; charset=utf-8" });
-}
+    }
 
     async save(id, entity) {
         return await this.put(`/${id}`, entity, { "Content-Type": "application/json; charset=utf-8" });
@@ -303,7 +304,7 @@ class GroupApi extends Api {
     }
 
     async download(id) {
-        return await this.get(`${id}/fileData`);
+        return await this.get(`/${id}/fileData`);
     }
 }
 

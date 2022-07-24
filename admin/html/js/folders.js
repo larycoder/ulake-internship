@@ -1,10 +1,11 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { fileApi, userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.sontg.net/js/api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
+import { IrModal } from "./modal/ir.js";
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {
@@ -31,6 +32,7 @@ class DataCRUD extends ListCRUD {
         this.breadcrumb.render();
         this.addModal = new AddFolderFileModal((folderName) => this.add(folderName));
         this.renameModal = new RenameModal((name) => this.rename(name));
+        this.irModal = new IrModal();
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -367,12 +369,8 @@ class DataCRUD extends ListCRUD {
             return;
         }
         const resp = await irApi.search(id);
-        console.log("image search results", resp);
         if (resp && resp.length) {
-            // get file details
-            const ids = [... new Set(resp.map(f => f.fid))];
-            const files = await fileApi.many(ids);
-            console.log(files);
+            this.irModal.show(resp);
         }
     }
 }
