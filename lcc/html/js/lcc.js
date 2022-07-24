@@ -77,6 +77,8 @@ function detectReady() {
 	const detectPos = hrefs.indexOf("detect");
 	if (detectPos >= 0 && detectPos < hrefs.length - 1) {
 		const id = hrefs[detectPos + 1];
+		id = id.replace(/\.20/, "17");
+		id = id.replace(/\.21/, "18");
 		$.ajax({
 			url: `/service/detect/${id}`,
 			success: (data) => detectResultReady(data, id)
@@ -113,6 +115,8 @@ function classifyReady() {
 	const detectPos = hrefs.indexOf("classify");
 	if (detectPos >= 0 && detectPos < hrefs.length - 1) {
 		const id = hrefs[detectPos + 1];
+		id = id.replace(/\.20/, "17");
+		id = id.replace(/\.21/, "18");
 		setTimeout(() => {
 			$.ajax({
 				url: `/service/classify/${id}`,
