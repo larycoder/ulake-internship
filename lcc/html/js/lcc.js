@@ -102,7 +102,7 @@ function detectResultReady(data, id) {
 	if (!data.pre_results || !Array.isArray(data.pre_results)) return;
 	const result = document.querySelector("#result");
 	while (result.firstChild) result.removeChild(result.firstChild);
-	$("i.fa-spinner").remove()
+	$("i.fa-spinner").remove();
 	let idx = 0;
 	data.pre_results.forEach(candidate => {
 		let c = {

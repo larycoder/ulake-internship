@@ -17,7 +17,7 @@ const tplDetectResultRow = (d) => `
                     <br/>
                     <img src="data:image/png;base64,${d.data}" class="full-width"/>
                     <br/>
-                    <input type="checkbox" text="Đánh dấu nếu đồng thuận.">
+                    <input type="checkbox"><label>"Đánh dấu nếu đồng thuận."</label>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@ const tplClassifyResultRow = (d) => `
                     <br/>
                     <img src="data:image/png;base64,${d.data}" class="full-width"/>
                     <br/>
-                    <input type="checkbox" text="Đánh dấu nếu đồng thuận.">
+                    <input type="checkbox"><label>"Đánh dấu nếu đồng thuận."</label>
                 </div>
             </div>
         </div>
