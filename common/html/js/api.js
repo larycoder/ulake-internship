@@ -26,7 +26,7 @@ export class Api {
         const resp = await fetch(param.url, param);
         if (!resp.ok) {
             const error = resp.error;
-            window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
+            /// window.alert(`No response from server. Error: ${JSON.stringify(error)}`);
             if (error && error.status && error.status === 401) {
                 window.location = "/login";
             }
