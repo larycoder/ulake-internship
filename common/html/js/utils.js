@@ -59,7 +59,12 @@ function getToken() {
 }
 
 function setToken(token) {
-    sessionStorage.setItem("jwt", token);
+    if (token) {
+        sessionStorage.setItem("jwt", token);
+    }
+    else {
+        sessionStorage.removeItem("jwt");
+    }
 }
 
 /**

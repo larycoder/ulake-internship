@@ -1,6 +1,7 @@
 $(document).ready(() => {
     initNavbar();
     routeReady();
+	initSidebar();
 });
 
 function routeReady() {
@@ -23,6 +24,13 @@ function initNavbar() {
 	$("span.user-name").text(getUserName() || "Xin chào!!");
 }
 
+function initSidebar() {
+	if (getToken()) {
+		$("span.btn-login").text("Đăng xuất");
+		$("a.sidebar-link.btn-login").prop("href", "/logout");
+	}
+}
+
 // index functions
 function indexReady() {
 }
@@ -33,6 +41,7 @@ function datasetReady() {
 
 // patients functions
 function patientReady() {
+	if (!getToken()) window.location = "/login";
 	window.setTimeout(function () {
 		$.ajax({
 			url: "/data/patients3cm",
@@ -53,6 +62,7 @@ function patientReady() {
 
 // list image functions
 function listReady() {
+	if (!getToken()) window.location = "/login";
 	window.setTimeout(function () {
 		$.ajax({
 			url: "/data/patients3cm",
@@ -73,6 +83,7 @@ function listReady() {
 
 // detect functions
 function detectReady() {
+	if (!getToken()) window.location = "/login";
 	const hrefs = window.location.href.split("/");
 	const detectPos = hrefs.indexOf("detect");
 	if (detectPos >= 0 && detectPos < hrefs.length - 1) {
@@ -111,6 +122,7 @@ function detectResultReady(data, id) {
 
 // classify functions
 function classifyReady() {
+	if (!getToken()) window.location = "/login";
 	const hrefs = window.location.href.split("/");
 	const detectPos = hrefs.indexOf("classify");
 	if (detectPos >= 0 && detectPos < hrefs.length - 1) {
@@ -185,4 +197,10 @@ function cacheLastId() {
 			}
 		})
 	}
+}
+
+window.topbarLogin = function () {
+    if (getToken() === null) {
+        window.location = "/login";
+    }
 }

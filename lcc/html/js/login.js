@@ -25,10 +25,10 @@ window.login = async () => {
     }
 }
 
-window.topbarLogin = function () {
-    if (getToken() === null) {
-        window.location = "/login";
+window.ready = function () {
+    if (getToken()) {
+        window.location = "/";
     }
 }
 
-
+$(document).ready(window.ready);
