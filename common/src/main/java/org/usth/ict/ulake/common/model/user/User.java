@@ -13,6 +13,7 @@ public class User {
     public Boolean status;
     public Department department;
     public Set<UserGroup> groups;
+    public Long failedLogins;
 
     public User(){}
 }
