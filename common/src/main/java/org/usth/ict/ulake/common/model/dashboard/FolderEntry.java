@@ -13,6 +13,5 @@ public class FolderEntry {
     public List<FileModel> files;
 
     public FolderEntry() {
-
     }
 }
