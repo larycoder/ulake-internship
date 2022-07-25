@@ -10,4 +10,12 @@ export class BaseModal {
             if (typeof callback === 'function') callback();
         });
     }
+
+    startSpinner() {
+        this.body.empty().append(`<i class="fa fa-spinner fa-spin 2x"></i>`);
+    }
+
+    stopSpinner() {
+        this.body.find(`i.fa-spinner.fa-spin`).remove();
+    }
 }

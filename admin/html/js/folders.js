@@ -6,6 +6,7 @@ import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
 import { IrModal } from "./modal/ir.js";
+import { AclModal } from "./modal/acl.js";
 
 // data browser, first level is users
 class DataCRUD extends ListCRUD {
@@ -33,6 +34,7 @@ class DataCRUD extends ListCRUD {
         this.addModal = new AddFolderFileModal((folderName) => this.add(folderName));
         this.renameModal = new RenameModal((name) => this.rename(name));
         this.irModal = new IrModal();
+        this.aclModal = new AclModal();
         $.fn.dataTable.ext.errMode = 'none';
     }
 
@@ -372,6 +374,10 @@ class DataCRUD extends ListCRUD {
         if (resp && resp.length) {
             this.irModal.show(resp);
         }
+    }
+
+    shareClick(type, id, name) {
+        this.aclModal.show(type, id, name);
     }
 }
 

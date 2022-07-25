@@ -57,6 +57,10 @@ function getIrUrl() {
     return window.location.protocol + "//ir." + getBaseDomain();
 }
 
+function getAclUrl() {
+    return window.location.protocol + "//acl." + getBaseDomain();
+}
+
 function getToken() {
     // todo: don't use session storage to prevent XSS attacks
     return sessionStorage.getItem('jwt');

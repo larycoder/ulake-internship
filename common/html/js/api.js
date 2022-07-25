@@ -424,11 +424,19 @@ export class SearchApi extends Api {
  */
  export class AclApi extends Api {
     constructor () {
-        super(getIrUrl(), "/api/acl")
+        super(getAclUrl(), "/api/acl")
     }
 
-    async search(id) {
-        return await this.get(`/search/${id}`);
+    async folder(id) {
+        const userFolderAcl = await this.get(`/user/folder/${id}`);
+        const groupFolderAcl = await this.get(`/group/folder/${id}`);
+        return { user: userFolderAcl, group: groupFolderAcl };
+    }
+
+    async file(id) {
+        const userFileAcl = await this.get(`/user/file/${id}`);
+        const groupFileAcl = await this.get(`/group/file/${id}`);
+        return { user: userFileAcl, group: groupFileAcl };
     }
 }
 
