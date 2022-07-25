@@ -5,18 +5,18 @@ import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.usth.ict.ulake.common.model.PermissionModel;
 
-public class Acl {
+public class MultiAcl {
     @Schema(description = "Object ID from file management")
     public Long objectId;
 
-    @Schema(description = "User to check permission")
+    @Schema(description = "Owner of object")
     public Long ownerId;
 
-    @Schema(description = "Group IDs from user management")
-    public List<Long> groupIds;
+    @Schema(description = "User to check permission")
+    public Long userId;
 
-    @Schema(description = "Permission of object for corresponding user")
-    public PermissionModel permission;
+    @Schema(description = "Permissions of object for corresponding user")
+    public List<PermissionModel> permissions;
 
-    public Acl() {}
+    public MultiAcl() {}
 }
