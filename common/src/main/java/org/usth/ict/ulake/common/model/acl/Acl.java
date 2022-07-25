@@ -9,10 +9,10 @@ public class Acl {
     @Schema(description = "Object ID from file management")
     public Long objectId;
 
-    @Schema(description = "User to check permission")
-    public Long ownerId;
+    @Schema(description = "User for permission")
+    public Long userId;
 
-    @Schema(description = "Group IDs from user management")
+    @Schema(description = "Group IDs for permission")
     public List<Long> groupIds;
 
     @Schema(description = "Permission of object for corresponding user")

@@ -21,12 +21,12 @@ public interface AclService {
     @POST
     @Path("/validation/file")
     @Schema(description = "validate file")
-    public LakeHttpResponse validateFile(
+    public LakeHttpResponse<Boolean> validateFile(
         @HeaderParam("Authorization") String bearer, @RequestBody Acl file);
 
     @POST
     @Path("/validation/folder")
     @Schema(description = "validate folder")
-    public LakeHttpResponse validateFolder(
+    public LakeHttpResponse<Boolean> validateFolder(
         @HeaderParam("Authorization") String bearer, @RequestBody Acl folder);
 }

@@ -9,10 +9,7 @@ public class MultiAcl {
     @Schema(description = "Object ID from file management")
     public Long objectId;
 
-    @Schema(description = "Owner of object")
-    public Long ownerId;
-
-    @Schema(description = "User to check permission")
+    @Schema(description = "User for permission")
     public Long userId;
 
     @Schema(description = "Permissions of object for corresponding user")

@@ -21,7 +21,7 @@ public class AclUtil {
 
         Acl acl = new Acl();
         acl.objectId = objId;
-        acl.ownerId = Long.parseLong(jwt.getName());
+        acl.userId = Long.parseLong(jwt.getName());
         acl.permission = permit;
         try {
             LakeHttpResponse resp;
@@ -42,14 +42,14 @@ public class AclUtil {
 
     public static Boolean verifyFileAcl(
         AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long ownerId,
+        Long objId, Long userId,
         PermissionModel permit, Logger log) {
         Set<String> groups = jwt.getGroups();
         Long jwtId = Long.parseLong(jwt.getName());
 
         if (groups.contains("Admin"))
             return true;
-        else if (ownerId.equals(jwtId))
+        else if (userId.equals(jwtId))
             return true;
         else
             return verifyShareObject(
@@ -58,21 +58,21 @@ public class AclUtil {
 
     public static Boolean verifyFileAcl(
         AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long ownerId,
+        Long objId, Long userId,
         PermissionModel permit) {
-        return verifyFileAcl(aclSvc, jwt, objId, ownerId, permit, log);
+        return verifyFileAcl(aclSvc, jwt, objId, userId, permit, log);
     }
 
     public static Boolean verifyFolderAcl(
         AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long ownerId,
+        Long objId, Long userId,
         PermissionModel permit, Logger log) {
         Set<String> groups = jwt.getGroups();
         Long jwtId = Long.parseLong(jwt.getName());
 
         if (groups.contains("Admin"))
             return true;
-        else if (ownerId.equals(jwtId))
+        else if (userId.equals(jwtId))
             return true;
         else
             return verifyShareObject(aclSvc, jwt, objId, permit, log, Type.FOLDER);
@@ -80,8 +80,8 @@ public class AclUtil {
 
     public static Boolean verifyFolderAcl(
         AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long ownerId,
+        Long objId, Long userId,
         PermissionModel permit) {
-        return verifyFileAcl(aclSvc, jwt, objId, ownerId, permit, log);
+        return verifyFileAcl(aclSvc, jwt, objId, userId, permit, log);
     }
 }
