@@ -25,7 +25,7 @@ drawTable = (resp) => {
 
 
 fetchTable = async (tid) => {
-    const data = await ajax({url: `http://table.ulake.sontg.net/api/table/${tid}/data`});
+    const data = await ajax({url: `http://table.ulake.usth.edu.vn/api/table/${tid}/data`});
     // console.log(data);
     if (!data && data.code !== 200 || !data.resp.columns || !data.resp.rows) {
         console.log(`Error fetching table ${tid}`);

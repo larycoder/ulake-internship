@@ -1,5 +1,5 @@
 import { ViewCRUD } from '../crud/viewcrud.js';
-import { userApi, groupApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { userApi, groupApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 class GroupViewCRUD extends ViewCRUD {
     constructor () {

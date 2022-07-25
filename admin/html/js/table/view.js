@@ -1,4 +1,4 @@
-import { tableApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { tableApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 function drawTable(resp) {
     const header = $("thead tr")

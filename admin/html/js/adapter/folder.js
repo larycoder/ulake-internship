@@ -1,5 +1,5 @@
 import { BaseAdapter } from "./base.js";
-import { folderApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { folderApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 export class FolderAdapter extends BaseAdapter {
     constructor (config) {

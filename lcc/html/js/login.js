@@ -1,4 +1,4 @@
-import { authApi, userApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { authApi, userApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 function showError(msg) {
     $(".text-danger").text(msg);

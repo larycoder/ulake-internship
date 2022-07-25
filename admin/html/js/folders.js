@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";

@@ -1,5 +1,5 @@
 import { BaseModal } from "./base.js";
-import { fileApi, dashboardObjectApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { fileApi, aclApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 /**
  * A modal for showing image retrieval results
@@ -7,12 +7,6 @@ import { fileApi, dashboardObjectApi } from "http://common.dev.ulake.sontg.net/j
 export class AclModal extends BaseModal {
     constructor(callback) {
         super(callback, "#acl-modal");
-        console.log(this.modal);
-        // this.spinner = $(`<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>`);
-        // this.modal.on("show.bs.modal", () => {
-        //     // starts with a spinner
-        //     this.body.empty().append(this.spinner);
-        // });
     }
 
     /**

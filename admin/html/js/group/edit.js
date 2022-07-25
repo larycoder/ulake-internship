@@ -1,5 +1,5 @@
 import { EditCRUD } from '../crud/editcrud.js';
-import { groupApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { groupApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 const crud = new EditCRUD({
     api: groupApi,

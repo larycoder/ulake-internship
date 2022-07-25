@@ -1,4 +1,4 @@
-import { adminApi } from "http://common.dev.ulake.sontg.net/js/api.js"
+import { adminApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js"
 
 // statistics functions
 

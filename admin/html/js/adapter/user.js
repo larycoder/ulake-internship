@@ -1,5 +1,5 @@
 import { BaseAdapter } from "./base.js";
-import { userApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { userApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 export class UserAdapter extends BaseAdapter {
     constructor (config) {

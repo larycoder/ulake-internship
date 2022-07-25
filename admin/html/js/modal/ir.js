@@ -1,5 +1,5 @@
 import { BaseModal } from "./base.js";
-import { fileApi, dashboardObjectApi } from "http://common.dev.ulake.sontg.net/js/api.js";
+import { fileApi, dashboardObjectApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 /**
  * A modal for showing image retrieval results
