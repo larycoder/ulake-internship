@@ -83,7 +83,10 @@ public class AclRepo implements PanacheRepository<AclModel> {
         String hql = "type = ?1 and objectId = ?2 and userId = ?3";
 
         String delHql = hql + " and permission not in ?4";
-        delete (delHql, type, acl.objectId, acl.userId, acl.permissions);
+        if (Utils.isEmpty(acl.permissions))
+            this.delete(hql, type, acl.objectId, acl.userId);
+        else
+            this.delete(delHql, type, acl.objectId, acl.userId, acl.permissions);
 
         List<PermissionModel> permits = find(hql, type, acl.objectId, acl.userId)
                                         .list().stream().map((a) -> a.permission)
