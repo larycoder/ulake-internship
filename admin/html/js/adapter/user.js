@@ -10,17 +10,22 @@ export class UserAdapter extends BaseAdapter {
 
     transform (raw) {
         return raw.map(u => { return {
-            id: `${u.id}`,
+            id: u.id,
             name: u.userName,
             size: 0,
             type: "User",
+            firstName: u.firstName,
+            lastName: u.lastName,
             action: u.id
         }});
     }
 
     getAllRenderers () {
         let ret = super.getAllRenderers();
-        ret.name = (data, type, row) => `<a href="#" onclick="window.crud.click('u', '${row.id}', '${data}')">${data}</a>`;
+        ret.name = (data, type, row) => {
+            const fullName = row.firstName || row.lastName ? ` (${row.firstName} ${row.lastName})` : "";
+            return `<a href="#" onclick="window.crud.click('u', '${row.id}', '${data}')">${data}${fullName}</a>`
+        };
         ret.action = (data, type, row) => `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>`;
         return ret;
     }

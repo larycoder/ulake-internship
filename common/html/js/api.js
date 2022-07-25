@@ -438,6 +438,18 @@ export class SearchApi extends Api {
         const groupFileAcl = await this.get(`/group/file/${id}`);
         return { user: userFileAcl, group: groupFileAcl };
     }
+
+    async saveFolder(folderId, aclUsers, aclGroups) {
+        const ret1 = await this.post(`/user/folder/${folderId}`, aclUsers, { "Content-Type": "application/json; charset=utf-8" });
+        const ret2 = await this.post(`/group/folder/${folderId}`, aclGroups, { "Content-Type": "application/json; charset=utf-8" });
+        return { userResp: ret1, groupResp: ret2 };
+    }
+
+    async saveFile(fileId, aclUsers, aclGroups) {
+        const ret1 = await this.post(`/user/file/${fileId}`, aclUsers, { "Content-Type": "application/json; charset=utf-8" });
+        const ret2 = await this.post(`/group/file/${fileId}`, aclGroups, { "Content-Type": "application/json; charset=utf-8" });
+        return { userResp: ret1, groupResp: ret2 };
+    }
 }
 
 const userApi = new UserApi();

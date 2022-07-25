@@ -6,56 +6,86 @@ import { fileApi, userApi, groupApi, aclApi } from "http://common.dev.ulake.usth
  */
 export class AclModal extends BaseModal {
     constructor(callback) {
-        super(() => {
-            this.save();
-        }, "#acl-modal");
+        super(callback, "#acl-modal");
+        this.footer.find(".btn-primary").off().on("click", () => {
+            this.save(this.dataType, this.dataId, this.dataName);
+        });
     }
 
      /**
      * Show permission modal for a specific file or folder
-     * @param {char} type F for folder, f for file. u (user) is unsupported
-     * @param {int} id id of file/folder to manage permission
-     * @param {string} name name of file/folder to manage permission
+     * @param {char} datatype F for folder, f for file. u (user) is unsupported
+     * @param {int} dataId id of file/folder to manage permission
+     * @param {string} dataName name of file/folder to manage permission
      * @returns
      */
-    async show(type, id, name) {
+    async show(datatype, dataId, dataName) {
         this.startSpinner();
-        const data = await this.fetch(type, id, name);
-        const entries = this.transform(type, id, name, data.acls)
+        // these fields are only for saving... We try to make this modal as stateless as we can
+        this.dataType = dataType;
+        this.dataId = dataId;
+        this.dataName = dataName;
+
+        const data = await this.fetch(datatype, dataId, dataName);
+        const entries = this.transform(datatype, dataId, dataName, data.acls)
         this.stopSpinner();
-        this.render(type, id, name, entries);
+        this.render(datatype, dataId, dataName, entries);
         this.modal.modal("show");
     }
 
     /**
-     * Make a new data-table entry from acl row
-     * @param {char} type u for user, g for group
-     * @param {*} entry
+     * Make a new data-table entry from acl row in backend
+     * @param {char} userType u for user, g for group
+     * @param {*} entity ACL entity from DB
      * @returns a new data-table entry
      */
-    makeEntry(type, entry) {
-        return {
-            id: entry.id,
-            type: type,
-            name: entry.name,
-            read: entry.permission.contains("READ"),
-            write: entry.permission.contains("WRITE"),
-            execute: entry.permission.contains("EXECUTE"),
-            add: entry.permission.contains("ADD"),
-            delete: entry.permission.contains("DELETE")
+    makeEntry(userType, entity) {
+        let entry = {
+            type: userType,
+            name: entity.name,
+            read: entity.permission.contains("READ"),
+            write: entity.permission.contains("WRITE"),
+            execute: entity.permission.contains("EXECUTE"),
+            add: entity.permission.contains("ADD"),
+            delete: entity.permission.contains("DELETE")
         }
+        if (userType === "u") entry.id = entity.userId;
+        if (userType === "g") entry.id = entity.groupId;
+
+    }
+
+    /**
+     * Make db entity from a data-table entry
+    * @param {char} userType u for user, g for group
+    * @param {*} entry data-table entry data
+    * @param {*} fileId
+    * @param {*} entry
+     * @returns a new db acl entity
+     */
+    makeEntity(userType, entry, fileFolderId) {
+        let entity = {
+            permission: []
+        };
+        if (userType === "u") entity.userId = entry.userId;
+        if (userType === "g") entity.groupId = entry.groupId;
+        if (entry.read) entity.permission.push("READ");
+        if (entry.write) entity.permission.push("WRITE");
+        if (entry.execute) entity.permission.push("EXECUTE");
+        if (entry.add) entity.permission.push("ADD");
+        if (entry.delete) entity.permission.push("DELETE");
+        return entity;
     }
 
     /**
      * Transform ACL, users, and groups to a DataTable-friendly array
-     * @param {char} type F for folder, f for file. u (user) is unsupported
-     * @param {int} id id of file/folder to manage permission
-     * @param {string} name name of file/folder to manage permission
+     * @param {char} dataType F for folder, f for file. u (user) is unsupported
+     * @param {int} dataId id of file/folder to manage permission
+     * @param {string} dataName name of file/folder to manage permission
      * @param {*} acls ACL entries from server { user, group }
      * @param {*} users
      * @param {*} groups
      */
-    transform(type, id, name, acls, users, groups) {
+    transformToEntry(dataType, dataId, dataName, acls, users, groups) {
         // join users
         for (const acl of acls.user) {
             if (acl.userId) acl.name = users.find(u => u.id === acl.userId);
@@ -71,30 +101,59 @@ export class AclModal extends BaseModal {
         return entries;
     }
 
-    save() {
-        console.log("preparing data to save");
+    /**
+     * Transform ACL, users, and groups to a DataTable-friendly array
+     * @param {char} dataType F for folder, f for file. u (user) is unsupported
+     * @param {int} dataId id of file/folder to manage permission
+     * @param {string} dataName name of file/folder to manage permission
+     * @param {*} acls ACL entries from server { user, group }
+     * @param {*} users
+     * @param {*} groups
+     */
+    transformToEntity(dataType, dataId, dataName, entries) {
+        let users = entries.filter(e => e.type === "u").map(u => this.makeEntry(u));
+        let groups = entries.filter(e => e.type === "g").map(g => this.makeEntry(g));
+        let entities = {
+            users: users,
+            groups: groups
+        };
+        return entities;
+    }
 
+    /**
+     * Save the permission table to database
+     */
+    save(dataType, dataId, dataName) {
+        console.log("preparing data to save");
+        const entries = this.table.rows().data();
+        const entities = this.transformToEntity(dataType, dataId, dataName, entries);
+        if (dataType === "F") {
+            aclApi.saveFolder(dataId, entities.users, entities.groups);
+        }
+        else if (dataType === "f") {
+            aclApi.saveFile(dataId, entities.users, entities.groups);
+        }
     }
 
     /**
      * Fetch data from backends
-     * @param {char} type F for folder, f for file. u (user) is unsupported
-     * @param {int} id id of file/folder to manage permission
-     * @param {string} name name of file/folder to manage permission
+     * @param {char} dataType F for folder, f for file. u (user) is unsupported
+     * @param {int} dataId id of file/folder to manage permission
+     * @param {string} dataName name of file/folder to manage permission
      * @returns acls, users and groups
      */
-    async fetch(type, id, name) {
+    async fetch(dataType, dataId, dataName) {
         let acls = [];
-        if (type === "F") acls = await aclApi.folder(id);
-        else if (type === "f") acls = await aclApi.file(id);
+        if (dataType === "F") acls = await aclApi.folder(dataId);
+        else if (dataType === "f") acls = await aclApi.file(dataId);
         else {
             showModal("Error", "Permission for user is not supported.");
             return;
         }
 
         // find unique user ids and group ids
-        const userIds = [... new Set(acls.user.map(u => u.id))];
-        const groupIds = [... new Set(acls.grou.map(g => g.id))];
+        const userIds = [... new Set(acls.user.map(u => u.userId))];
+        const groupIds = [... new Set(acls.group.map(g => g.groupId))];
         const users = await userApi.many(userIds);
         const groups = await groupApi.many(groupIds);
 
@@ -107,13 +166,14 @@ export class AclModal extends BaseModal {
 
     /**
      * Render to the table
-     * @param {array}} results of image retrieval
-     * @param {array} files returned file info from folder.
+     * @param {char} dataType F for folder, f for file. u (user) is unsupported
+     * @param {int} dataId id of file/folder to manage permission
+     * @param {string} dataName name of file/folder to manage permission
+     * @param {string} entries normalized data-table entries to show onto UI
      */
-    render(type, id, name, entries) {
+    render(dataType, dataId, dataName, entries) {
         this.table = $(`<table id="acl-table" class="table hover stripe">`);
         this.body.empty().append(table);
-
         this.table.DataTable({
             data: entries,
             paging: false,
