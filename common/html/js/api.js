@@ -419,6 +419,18 @@ export class SearchApi extends Api {
     }
 }
 
+/**
+ * Specific API for Indexing and Retrieval management
+ */
+ export class AclApi extends Api {
+    constructor () {
+        super(getIrUrl(), "/api/acl")
+    }
+
+    async search(id) {
+        return await this.get(`/search/${id}`);
+    }
+}
 
 const userApi = new UserApi();
 const authApi = new AuthApi();
@@ -438,6 +450,7 @@ const ingestionApi = new IngestionApi();
 const ingestionTemplateApi = new IngestionTemplateApi();
 const searchApi = new SearchApi();
 const irApi = new IrApi();
+const aclApi = new AclApi();
 
 $("#userName").text(getUserName());
 
@@ -445,4 +458,4 @@ export { userApi, authApi, groupApi, objectApi, tableApi };
 export { logApi, compressApi, fileApi, folderApi };
 export { dashboardFileApi, dashboardFolderApi, dashboardObjectApi };
 export { extractApi, adminApi, ingestionApi, ingestionTemplateApi };
-export { searchApi, irApi };
+export { searchApi, irApi, aclApi };

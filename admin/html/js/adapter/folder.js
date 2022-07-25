@@ -59,12 +59,13 @@ export class FolderAdapter extends BaseAdapter {
         ret.action = (data, type, row) => {
             let html = "";
             html += `<a href="#" title="Rename" onclick="window.crud.renameClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-edit"></i></a>`
-            html += `<a href="#" title="Delete" onclick="window.crud.deleteClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
+            html += `&nbsp;<a href="#" title="Delete" onclick="window.crud.deleteClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-trash"></i></a>`
+            html += `&nbsp;<a href="#" title="Share" onclick="window.crud.shareClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-share-alt"></i></a>`
             if (this.zipMime.includes(row.mime)) {
-                html += `<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
+                html += `&nbsp;<a href="#" title="Extract" onclick="window.crud.extractClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-box-open"></i></a>`
             }
             if (row.mime && row.mime.startsWith("image/")) {
-                html += `<a href="#" title="Find" onclick="window.crud.findClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-search"></i></a>`
+                html += `&nbsp;<a href="#" title="Find" onclick="window.crud.findClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-search"></i></a>`
             }
             return html;
         };

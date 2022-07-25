@@ -15,7 +15,7 @@ window.login = async () => {
         setUserName(name);
         if (!getGroups().includes("Admin")) {
             showModal("Error", "Sorry, you are not an admin.");
-            setToken(null);
+            setTo;ken(null);
             return;
         }
         window.location = "/folders";

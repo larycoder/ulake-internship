@@ -91,6 +91,6 @@ public interface DashboardService {
     @GET
     @Path("/folder/stats")
     @Schema(description = "get folder statistics")
-    public LakeHttpResponse folderStats(
+    public LakeHttpResponse<Object> folderStats(
         @HeaderParam("Authorization") String bearer);
 }
