@@ -20,7 +20,7 @@ http {
 
     server {
         listen 80;
-        server_name ulake.sontg.net;
+        server_name ulake.usth.edu.vn;
         location / {
             root /opt/dashboard;
         }
@@ -28,7 +28,7 @@ http {
 
     server { # service user
         listen 80;
-        server_name user.ulake.sontg.net;
+        server_name user.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8785;
         }
@@ -37,7 +37,7 @@ http {
     server { # service dashboard
         listen 80;
         # db is for testing
-        server_name dashboard.ulake.sontg.net;
+        server_name dashboard.ulake.usth.edu.vn;
         client_max_body_size 2000M;
 
         location ~* ^/(api|apidoc|q/openapi) {
@@ -52,7 +52,7 @@ http {
 
     server { # service admin
         listen 80;
-        server_name admin.ulake.sontg.net;
+        server_name admin.ulake.usth.edu.vn;
         client_max_body_size 2000M;
 
         location ~* ^/(api|apidoc|q/openapi) {
@@ -67,7 +67,7 @@ http {
 
     server { # service common
         listen 80;
-        server_name common.ulake.sontg.net;
+        server_name common.ulake.usth.edu.vn;
         add_header Access-Control-Allow-Origin *;
         location / {
             root /opt/common;
@@ -78,7 +78,7 @@ http {
 
     server { # service table (for tabular data, to be imported to RDBMS)
         listen 80;
-        server_name table.ulake.sontg.net;
+        server_name table.ulake.usth.edu.vn;
         location ~* ^/(api|apidoc|q/openapi) {
             proxy_pass http://172.17.0.1:8788;
         }
@@ -91,7 +91,7 @@ http {
 
     server { # service search
         listen 80;
-        server_name search.ulake.sontg.net;
+        server_name search.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8787;
         }
@@ -99,7 +99,7 @@ http {
 
     server { # service folder
         listen 80;
-        server_name folder.ulake.sontg.net;
+        server_name folder.ulake.usth.edu.vn;
         client_max_body_size 2000M;
         location / {
             proxy_pass http://172.17.0.1:8786;
@@ -108,7 +108,7 @@ http {
 
     server { # service core
         listen 80;
-        server_name core.ulake.sontg.net;
+        server_name core.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8784;
         }
@@ -116,7 +116,7 @@ http {
 
     server { # service acl
         listen 80;
-        server_name acl.ulake.sontg.net;
+        server_name acl.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8783;
         }
@@ -124,7 +124,7 @@ http {
 
     server { # service ingestion
         listen 80;
-        server_name ingest.ulake.sontg.net;
+        server_name ingest.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8789;
         }
@@ -132,7 +132,7 @@ http {
 
     server { # service log
         listen 80;
-        server_name log.ulake.sontg.net;
+        server_name log.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8790;
         }
@@ -140,7 +140,7 @@ http {
 
     server { # service compression
         listen 80;
-        server_name compress.ulake.sontg.net;
+        server_name compress.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:8791;
         }
@@ -148,7 +148,7 @@ http {
 
     server { # phpmyadmin
         listen 80;
-        server_name pma.ulake.sontg.net;
+        server_name pma.ulake.usth.edu.vn;
         location / {
             proxy_pass http://172.17.0.1:80;
         }

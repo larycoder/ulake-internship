@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-token=`curl -s -X POST -H "Content-Type: application/json" -d '{"userName":"dx", "password":"1"}'  http://user.ulake.sontg.net/api/auth/login | grep -o "resp.*" | sed  's/.*":"//;s/"}$//'`
+token=`curl -s -X POST -H "Content-Type: application/json" -d '{"userName":"dx", "password":"1"}'  http://user.ulake.usth.edu.vn/api/auth/login | grep -o "resp.*" | sed  's/.*":"//;s/"}$//'`
 
 echo This script should be sourced to get JWT exported.
 echo $token
