@@ -19,6 +19,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
@@ -50,6 +52,9 @@ public class ImgFeatureExtraction {
   @Inject
   ImgFeatureRepo repo;
 
+  @Inject
+  JsonWebToken jwt;
+
   @GET
   @Path("/extract/{id}")
   @Operation(summary = "Extract uploaded img")
@@ -57,14 +62,19 @@ public class ImgFeatureExtraction {
   @Transactional
   public Response extractFeature(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
 
+    if (repo.find("fid", fileId) != null)
+      return response.build(409, "File Existed");
+
     InputStream inputFile;
+    Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+
     try {
       OutputStream outFile = Files.newOutputStream(Paths.get("/tmp/output.jpeg"));
       inputFile = coreService.objectDataByFileId(fileId, bearer);
       inputFile.transferTo(outFile);
 
     } catch (IOException e) {
-      return response.build(500, "Cannot get File", e.getMessage());
+      return response.build(500, "Cannot get File");
     }
 
     HistogramCal histogramCal = new HistogramCal();
@@ -73,12 +83,10 @@ public class ImgFeatureExtraction {
     var newImg = new ImgFeature();
     newImg.fid = fileId;
     newImg.featureValue = imgValue;
-
+    newImg.uid = jwtUserId;
     repo.persist(newImg);
     return response.build(200, "", newImg.id);
   }
-
-
 
   @GET
   @Path("/search/{id}")
@@ -89,31 +97,37 @@ public class ImgFeatureExtraction {
     List<Integer> iFeatureVal = new ArrayList<>();
     List<DistanceRes> resultList = new ArrayList<>();
 
+    Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+
     var mapper = new ObjectMapper();
     var typeRef = new TypeReference<List<Integer>>() {
     };
+
     try {
       ImgFeature input = repo.find("fid", fileId).firstResult();
 
-      if (input != null)
+      if (input != null) {
+        if (!input.uid.equals(jwtUserId))
+          return response.build(304);
         iFeatureVal = mapper.readValue(input.featureValue, typeRef);
-      else
+      } else
         return response.build(404);
-
     } catch (IOException e) {
       e.printStackTrace();
       return response.build(500, "file id not exist");
     }
-
+    
     try {
       for (ImgFeature i : repo.listAll()) {
         var newRes = new DistanceRes();
         double result = calculateDistance(mapper.readValue(i.featureValue, typeRef), iFeatureVal);
-
-        newRes.fid = i.fid;
-        newRes.distance = result;
-        resultList.add(newRes);
+        if (!i.fid.equals(fileId) && jwtUserId.equals(i.uid)) {
+          newRes.fid = i.fid;
+          newRes.distance = result;
+          resultList.add(newRes);
+        }
       }
+
       resultList.sort((o1, o2) -> Double.compare(o1.distance, o2.distance));
       resultList = resultList.subList(0, resultList.size() > 10 ? 10 : resultList.size());
 

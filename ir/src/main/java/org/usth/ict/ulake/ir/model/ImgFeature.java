@@ -18,6 +18,9 @@ public class ImgFeature {
   @Schema(description = "Extracted Image File Id")
   public Long fid;
 
+  @Schema(description = "Image Owner Id")
+  public Long uid;
+
   @Lob 
   @Schema(description = "Image extracted feature value")
   public String featureValue;
