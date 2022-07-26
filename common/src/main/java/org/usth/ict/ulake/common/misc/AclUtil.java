@@ -1,87 +1,56 @@
 package org.usth.ict.ulake.common.misc;
 
-import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.acl.Acl;
+import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.service.AclService;
 
+@ApplicationScoped
 public class AclUtil {
     private static final Logger log = LoggerFactory.getLogger(AclUtil.class);
 
-    public static enum Type {FILE, FOLDER};
+    @Inject
+    @RestClient
+    AclService svc;
 
-    public static Boolean verifyShareObject(
-        AclService aclSvc, JsonWebToken jwt,
-        Long objId, PermissionModel permit, Logger log, Type type) {
+    @Inject
+    JsonWebToken jwt;
 
+    public Boolean verify(FileType type, Long objId,
+                          Long owner, PermissionModel permit) {
+        return verify(type, objId, owner, permit, true);
+    }
+
+    public Boolean verify(FileType type, Long objId, Long owner,
+                          PermissionModel permit, Boolean checkShare) {
+        // admin and owner pre-check
+        if (jwt.getGroups().contains("Admin"))
+            return true;
+        else if (owner.equals(Long.parseLong(jwt.getName())))
+            return true;
+
+        if (checkShare != null && checkShare.equals(false)) // do not check share
+            return false;
+
+        // shared check
         Acl acl = new Acl();
         acl.objectId = objId;
         acl.userId = Long.parseLong(jwt.getName());
         acl.permission = permit;
-        try {
-            LakeHttpResponse resp;
-            if (type == Type.FILE)
-                resp = aclSvc.validateFile("bearer " + jwt.getRawToken(), acl);
-            else
-                resp = aclSvc.validateFolder("bearer " + jwt.getRawToken(), acl);
 
-            if (resp.getCode() == 200)
-                return (Boolean)resp.getResp();
-            else
-                return false;
+        try {
+            String bearer = "bearer " + jwt.getRawToken();
+            return svc.validate(bearer, type, acl).getResp();
         } catch (Exception e) {
             log.error("Acl validation fail", e);
             return false;
         }
-    }
-
-    public static Boolean verifyFileAcl(
-        AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long userId,
-        PermissionModel permit, Logger log) {
-        Set<String> groups = jwt.getGroups();
-        Long jwtId = Long.parseLong(jwt.getName());
-
-        if (groups.contains("Admin"))
-            return true;
-        else if (userId.equals(jwtId))
-            return true;
-        else
-            return verifyShareObject(
-                       aclSvc, jwt, objId, permit, log, Type.FILE);
-    }
-
-    public static Boolean verifyFileAcl(
-        AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long userId,
-        PermissionModel permit) {
-        return verifyFileAcl(aclSvc, jwt, objId, userId, permit, log);
-    }
-
-    public static Boolean verifyFolderAcl(
-        AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long userId,
-        PermissionModel permit, Logger log) {
-        Set<String> groups = jwt.getGroups();
-        Long jwtId = Long.parseLong(jwt.getName());
-
-        if (groups.contains("Admin"))
-            return true;
-        else if (userId.equals(jwtId))
-            return true;
-        else
-            return verifyShareObject(aclSvc, jwt, objId, permit, log, Type.FOLDER);
-    }
-
-    public static Boolean verifyFolderAcl(
-        AclService aclSvc, JsonWebToken jwt,
-        Long objId, Long userId,
-        PermissionModel permit) {
-        return verifyFileAcl(aclSvc, jwt, objId, userId, permit, log);
     }
 }
