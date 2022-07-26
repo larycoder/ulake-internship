@@ -62,11 +62,13 @@ public class ImgFeatureExtraction {
   @Transactional
   public Response extractFeature(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
 
-    if (repo.find("fid", fileId) != null)
+    Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+    var isFileExist = repo.find("fid = ?1 and uid = ?2", fileId, jwtUserId).list().size() >0;
+
+    if (isFileExist)
       return response.build(409, "File Existed");
 
     InputStream inputFile;
-    Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
 
     try {
       OutputStream outFile = Files.newOutputStream(Paths.get("/tmp/output.jpeg"));
@@ -116,7 +118,7 @@ public class ImgFeatureExtraction {
       e.printStackTrace();
       return response.build(500, "file id not exist");
     }
-    
+
     try {
       for (ImgFeature i : repo.listAll()) {
         var newRes = new DistanceRes();

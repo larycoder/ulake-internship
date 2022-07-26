@@ -23,7 +23,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -34,10 +33,10 @@ import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
 import org.usth.ict.ulake.common.model.log.LogModel;
-import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.folder.model.UserFile;
 import org.usth.ict.ulake.folder.persistence.FileRepository;
@@ -55,17 +54,13 @@ public class FileResource {
     FolderRepository folderRepo;
 
     @Inject
-    LakeHttpResponse<UserFile> respFile;
+    LakeHttpResponse<UserFile> resp;
 
     @Inject
     LakeHttpResponse<Object> respObject;
 
     @Inject
-    JsonWebToken jwt;
-
-    @Inject
-    @RestClient
-    AclService aclSvc;
+    AclUtil acl;
 
     @Inject
     @RestClient
@@ -76,7 +71,7 @@ public class FileResource {
     @Operation(summary = "List all files")
     public Response all(@HeaderParam("Authorization") String bearer) {
         logService.post(bearer, new LogModel("Query", "Get all files"));
-        return respFile.build(200, "", repo.listAll());
+        return resp.build(200, "", repo.listAll());
     }
 
     @GET
@@ -96,25 +91,25 @@ public class FileResource {
             var file = repo.findById(id);
 
             if (file == null)
-                return respFile.build(404, "File not found");
+                return resp.build(404, "File not found");
 
-            if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
-                return respFile.build(403);
+            if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
+                return resp.build(403);
 
             logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
-            return respFile.build(200, null, file);
+            return resp.build(200, null, file);
         } else {
             String idArr[] = ids.split(",");
             List<Long> idList = Arrays.asList(idArr).stream()
-                             .filter(idStr -> Utils.isNumeric(idStr))
-                             .mapToLong(Long::parseLong)
-                             .boxed()
-                             .collect(Collectors.toList());
+                                .filter(idStr -> Utils.isNumeric(idStr))
+                                .mapToLong(Long::parseLong)
+                                .boxed()
+                                .collect(Collectors.toList());
             UserFileSearchQuery query = new UserFileSearchQuery();
             query.ids = idList;
             logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
             var files = repo.search(query);
-            return respFile.build(200, null, files);
+            return resp.build(200, null, files);
         }
     }
 
@@ -129,10 +124,10 @@ public class FileResource {
         // TODO: allow normal user search
         var results = repo.search(query);
         if (results.isEmpty()) {
-            return respFile.build(404);
+            return resp.build(404);
         }
         logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
-        return respFile.build(200, null, results);
+        return resp.build(200, null, results);
     }
 
     @POST
@@ -145,10 +140,10 @@ public class FileResource {
         UserFileSearchQueryV2 query) {
         var results = repo.searchV2(query);
         if (results.isEmpty()) {
-            return respFile.build(404);
+            return resp.build(404);
         }
         logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
-        return respFile.build(200, null, results);
+        return resp.build(200, null, results);
     }
 
     @POST
@@ -160,23 +155,22 @@ public class FileResource {
         var permit = PermissionModel.WRITE;     // <-- permit
         var parentPermit = PermissionModel.ADD; // <-- permit
 
-        if (!AclUtil.verifyFileAcl(aclSvc, jwt, null, entity.ownerId, permit))
-            return respFile.build(403, "Create file not allowed");
+        if (!acl.verify(FileType.file, null, entity.ownerId, permit))
+            return resp.build(403, "Create file not allowed");
 
         if (entity.parent != null && entity.parent.id != null) {
             var parent = folderRepo.findById(entity.parent.id);
             if (parent == null)
-                return respFile.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
-            if (!AclUtil.verifyFolderAcl(
-                        aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
-                return respFile.build(403, "Add file not allowed");
+            if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
+                return resp.build(403, "Add file not allowed");
             entity.parent = parent;
         }
 
         repo.persist(entity);
         logService.post(bearer, new LogModel("Add", "Create file info for id " + entity.id + ", cid " + entity.cid + ", name " + entity.name));
-        return respFile.build(200, null, entity);
+        return resp.build(200, null, entity);
     }
 
     @PUT
@@ -196,10 +190,10 @@ public class FileResource {
         UserFile file = repo.findById(id);
 
         if (file == null)
-            return respFile.build(404, "File not found");
+            return resp.build(404, "File not found");
 
-        if (!AclUtil.verifyFileAcl(aclSvc, jwt, file.id, file.ownerId, permit))
-            return respFile.build(403, "Update file not allowed");
+        if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
+            return resp.build(403, "Update file not allowed");
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
             file.cid = data.cid;
@@ -215,16 +209,16 @@ public class FileResource {
         if (data.parent != null && data.parent.id != null) {
             var parent = folderRepo.findById(data.parent.id);
             if (parent == null)
-                return respFile.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
-            if (!AclUtil.verifyFolderAcl(aclSvc, jwt, parent.id, parent.ownerId, parentPermit))
-                return respFile.build(403, "Move file not allowed");
+            if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
+                return resp.build(403, "Move file not allowed");
             file.parent = parent;
         }
 
         repo.persist(file);
         logService.post(bearer, new LogModel("Update", "Update file info for id " + id));
-        return respFile.build(200, null, file);
+        return resp.build(200, null, file);
     }
 
     @DELETE
@@ -241,14 +235,14 @@ public class FileResource {
         var permit = PermissionModel.WRITE; // <-- permit
         UserFile entity = repo.findById(id);
         if (entity == null)
-            return respFile.build(404);
+            return resp.build(404);
 
-        if (!AclUtil.verifyFileAcl(aclSvc, jwt, entity.id, entity.ownerId, permit))
-            return respFile.build(403);
+        if (!acl.verify(FileType.file, entity.id, entity.ownerId, permit))
+            return resp.build(403);
 
         repo.delete(entity);
         logService.post(bearer, new LogModel("Delete", "Delete file info for id " + id));
-        return respFile.build(200);
+        return resp.build(200);
     }
 
     @GET
