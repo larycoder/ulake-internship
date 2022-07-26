@@ -23,6 +23,8 @@ public class AclUtil {
     @Inject
     JsonWebToken jwt;
 
+    public AclUtil() {}
+
     public Boolean verify(FileType type, Long objId,
                           Long owner, PermissionModel permit) {
         return verify(type, objId, owner, permit, true);

@@ -54,7 +54,7 @@ public class FileResource {
     FolderRepository folderRepo;
 
     @Inject
-    LakeHttpResponse<UserFile> respFile;
+    LakeHttpResponse<UserFile> resp;
 
     @Inject
     LakeHttpResponse<Object> respObject;
@@ -71,7 +71,7 @@ public class FileResource {
     @Operation(summary = "List all files")
     public Response all(@HeaderParam("Authorization") String bearer) {
         logService.post(bearer, new LogModel("Query", "Get all files"));
-        return respFile.build(200, "", repo.listAll());
+        return resp.build(200, "", repo.listAll());
     }
 
     @GET
@@ -91,13 +91,13 @@ public class FileResource {
             var file = repo.findById(id);
 
             if (file == null)
-                return respFile.build(404, "File not found");
+                return resp.build(404, "File not found");
 
             if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
-                return respFile.build(403);
+                return resp.build(403);
 
             logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
-            return respFile.build(200, null, file);
+            return resp.build(200, null, file);
         } else {
             String idArr[] = ids.split(",");
             List<Long> idList = Arrays.asList(idArr).stream()
@@ -109,7 +109,7 @@ public class FileResource {
             query.ids = idList;
             logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
             var files = repo.search(query);
-            return respFile.build(200, null, files);
+            return resp.build(200, null, files);
         }
     }
 
@@ -124,10 +124,10 @@ public class FileResource {
         // TODO: allow normal user search
         var results = repo.search(query);
         if (results.isEmpty()) {
-            return respFile.build(404);
+            return resp.build(404);
         }
         logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
-        return respFile.build(200, null, results);
+        return resp.build(200, null, results);
     }
 
     @POST
@@ -140,10 +140,10 @@ public class FileResource {
         UserFileSearchQueryV2 query) {
         var results = repo.searchV2(query);
         if (results.isEmpty()) {
-            return respFile.build(404);
+            return resp.build(404);
         }
         logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
-        return respFile.build(200, null, results);
+        return resp.build(200, null, results);
     }
 
     @POST
@@ -156,21 +156,21 @@ public class FileResource {
         var parentPermit = PermissionModel.ADD; // <-- permit
 
         if (!acl.verify(FileType.file, null, entity.ownerId, permit))
-            return respFile.build(403, "Create file not allowed");
+            return resp.build(403, "Create file not allowed");
 
         if (entity.parent != null && entity.parent.id != null) {
             var parent = folderRepo.findById(entity.parent.id);
             if (parent == null)
-                return respFile.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
             if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
-                return respFile.build(403, "Add file not allowed");
+                return resp.build(403, "Add file not allowed");
             entity.parent = parent;
         }
 
         repo.persist(entity);
         logService.post(bearer, new LogModel("Add", "Create file info for id " + entity.id + ", cid " + entity.cid + ", name " + entity.name));
-        return respFile.build(200, null, entity);
+        return resp.build(200, null, entity);
     }
 
     @PUT
@@ -190,10 +190,10 @@ public class FileResource {
         UserFile file = repo.findById(id);
 
         if (file == null)
-            return respFile.build(404, "File not found");
+            return resp.build(404, "File not found");
 
         if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
-            return respFile.build(403, "Update file not allowed");
+            return resp.build(403, "Update file not allowed");
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
             file.cid = data.cid;
@@ -209,16 +209,16 @@ public class FileResource {
         if (data.parent != null && data.parent.id != null) {
             var parent = folderRepo.findById(data.parent.id);
             if (parent == null)
-                return respFile.build(403, "Parent folder is not existed");
+                return resp.build(403, "Parent folder is not existed");
 
             if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
-                return respFile.build(403, "Move file not allowed");
+                return resp.build(403, "Move file not allowed");
             file.parent = parent;
         }
 
         repo.persist(file);
         logService.post(bearer, new LogModel("Update", "Update file info for id " + id));
-        return respFile.build(200, null, file);
+        return resp.build(200, null, file);
     }
 
     @DELETE
@@ -235,14 +235,14 @@ public class FileResource {
         var permit = PermissionModel.WRITE; // <-- permit
         UserFile entity = repo.findById(id);
         if (entity == null)
-            return respFile.build(404);
+            return resp.build(404);
 
         if (!acl.verify(FileType.file, entity.id, entity.ownerId, permit))
-            return respFile.build(403);
+            return resp.build(403);
 
         repo.delete(entity);
         logService.post(bearer, new LogModel("Delete", "Delete file info for id " + id));
-        return respFile.build(200);
+        return resp.build(200);
     }
 
     @GET
