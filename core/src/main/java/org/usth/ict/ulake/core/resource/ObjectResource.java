@@ -21,6 +21,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -34,9 +37,9 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.AclUtil;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
+import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.log.LogModel;
-import org.usth.ict.ulake.common.service.AclService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
@@ -47,9 +50,6 @@ import org.usth.ict.ulake.core.model.LakeObjectMetadata;
 import org.usth.ict.ulake.core.model.LakeObjectSearchQuery;
 import org.usth.ict.ulake.core.persistence.GroupRepository;
 import org.usth.ict.ulake.core.persistence.ObjectRepository;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Path("/object")
 @Tag(name = "Object Storage")
@@ -82,8 +82,7 @@ public class ObjectResource {
     FileService fileSvc;
 
     @Inject
-    @RestClient
-    AclService aclSvc;
+    AclUtil acl;
 
     @Inject
     @RestClient
@@ -134,8 +133,7 @@ public class ObjectResource {
 
             var file = mapper.convertValue(
                            fileResp.getResp(), FileModel.class);
-            if (!AclUtil.verifyFileAcl(
-                        aclSvc, jwt, file.id, file.ownerId, filePermit))
+            if (!acl.verify(FileType.file, file.id, file.ownerId, filePermit))
                 return resp.build(403);
 
             cid = file.cid;
