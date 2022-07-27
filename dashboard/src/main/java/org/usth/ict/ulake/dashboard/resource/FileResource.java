@@ -166,7 +166,7 @@ public class FileResource {
         }
 
         // check mime and perform feature extraction
-        if (fileResp.mime.startsWith("image/")) {
+        if (fileResp.mime != null && fileResp.mime.startsWith("image/")) {
             try {
                 irTask.start(bearer, fileResp.id, IrFeatureExtractJob.class);
             } catch (SchedulerException e) {
