@@ -252,7 +252,6 @@ public class Interpreter {
         // TODO: extend more type than Map type
         while (!myList.isEmpty()) {
             var data = myList.remove(0);
-            System.out.println("ITS HERE: " + node.token.stringValue + " " + data.getClass());
             if (data instanceof Map) {
                 var map = mapper.convertValue(data, Map.class);
                 stack.TEMP_STACK.add(map.get(node.token.stringValue));
