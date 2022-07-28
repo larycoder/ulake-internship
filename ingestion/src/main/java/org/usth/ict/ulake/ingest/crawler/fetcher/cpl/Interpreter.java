@@ -154,8 +154,12 @@ public class Interpreter {
                 // if could not convert to Map then save raw String
                 var holder = new HashMap<String, Object>();
                 try {
-                    var respMap = mapper.readValue(respBody, Map.class);
-                    holder.put("data", respMap);
+                    Object respObj;
+                    if (respBody.startsWith("["))
+                        respObj = mapper.readValue(respBody, List.class);
+                    else
+                        respObj = mapper.readValue(respBody, Map.class);
+                    holder.put("data", respObj);
                 } catch (JsonProcessingException e) {
                     holder.put("data", respBody);
                 }
@@ -248,6 +252,7 @@ public class Interpreter {
         // TODO: extend more type than Map type
         while (!myList.isEmpty()) {
             var data = myList.remove(0);
+            System.out.println("ITS HERE: " + node.token.stringValue + " " + data.getClass());
             if (data instanceof Map) {
                 var map = mapper.convertValue(data, Map.class);
                 stack.TEMP_STACK.add(map.get(node.token.stringValue));
