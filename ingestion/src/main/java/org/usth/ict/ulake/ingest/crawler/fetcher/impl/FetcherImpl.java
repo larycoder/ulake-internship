@@ -111,7 +111,7 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             // attachment; filename=Hello_world.txt
             filename = cd.get(0).split("=")[1].strip();
         } else { // filename from URI
-            String[] uri = resp.uri.split("?")[0].strip().split("/");
+            String[] uri = resp.uri.split("\\?")[0].strip().split("/");
             filename = uri[uri.length - 1].strip();
         }
 
