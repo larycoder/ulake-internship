@@ -8,7 +8,9 @@ import { fileApi, userApi, groupApi, aclApi } from "http://common.dev.ulake.usth
 export class AclModal extends BaseModal {
     constructor(callback) {
         super(callback, "#acl-modal");
-        this.userModal = new UserModal();
+        this.userModal = new UserModal({
+            itemClick: "window.crud.aclModal.selectUser",
+        });
         this.footer.find(".btn-primary").off().on("click", () => {
             this.save(this.dataType, this.dataId, this.dataName);
         });
@@ -205,5 +207,11 @@ export class AclModal extends BaseModal {
             ],
             order: []
         });
+    }
+
+    selectUser(id) {
+        console.log(`selected user on click ${id}`);
+        this.userModal.dismiss();
+        super.show();
     }
 }
