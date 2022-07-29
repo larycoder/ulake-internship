@@ -3,22 +3,28 @@ package org.usth.ict.ulake.ingest.crawler.storage.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
+import org.usth.ict.ulake.ingest.model.CrawlRequest;
 import org.usth.ict.ulake.ingest.model.FileLog;
 import org.usth.ict.ulake.ingest.model.IngestLog;
-import org.usth.ict.ulake.ingest.model.CrawlRequest;
 import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
-import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
 import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
+import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
 
+@ApplicationScoped
 public class SqlLogStorageImpl implements Storage<IngestLog> {
-    private CrawlRequestRepo processLog;
-    private FileLogRepo fileLog;
 
-    public SqlLogStorageImpl(CrawlRequestRepo processLog, FileLogRepo fileLog) {
-        this.processLog = processLog;
-        this.fileLog = fileLog;
+    @Inject
+    public CrawlRequestRepo processLog;
+    public FileLogRepo fileLog;
+
+    public SqlLogStorageImpl() {
+        // TODO Empty
     }
 
     @Override
@@ -64,7 +70,8 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
         return ingestLog;
     }
 
-    private void updateProcess(CrawlRequest entry) {
+    @Transactional
+    public void updateProcess(CrawlRequest entry) {
         CrawlRequest log = processLog.findById(entry.id);
 
         if (entry.ownerId != null) log.ownerId = entry.ownerId;
@@ -79,7 +86,8 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
         processLog.persist(log);
     }
 
-    private void updateFile(FileLog entry) {
+    @Transactional
+    public void updateFile(FileLog entry) {
         FileLog log = fileLog.findById(entry.id);
 
         if (entry.fileId != null) log.fileId = entry.fileId;
@@ -88,7 +96,6 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
             log.uploadTime = entry.uploadTime;
         if (entry.process != null && entry.process.id != null)
             log.process = processLog.findById(entry.process.id);
-
         fileLog.persist(log);
     }
 }

@@ -21,12 +21,13 @@ import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.recorder.impl.ULakeCacheFileRecorderImpl;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.crawler.storage.impl.SqlLogStorageImpl;
+import org.usth.ict.ulake.ingest.model.CrawlRequest;
 import org.usth.ict.ulake.ingest.model.IngestLog;
 import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 import org.usth.ict.ulake.ingest.model.macro.Record;
-import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
 import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
+import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
 
 /**
  * Service to process crawl.
@@ -48,6 +49,9 @@ public class CrawlTask extends ScheduledTask {
     @Inject
     FileLogRepo fileRepo;
 
+    @Inject
+    SqlLogStorageImpl sqlLogStore;
+
     public class CrawlContext {
         public Policy policy;
         public FetchConfig mode;
@@ -60,7 +64,7 @@ public class CrawlTask extends ScheduledTask {
     }
 
     private void buildStore(CrawlContext context) {
-        context.storeObj = new SqlLogStorageImpl(processRepo, fileRepo);
+        context.storeObj = sqlLogStore;
     }
 
     /**
@@ -102,7 +106,6 @@ public class CrawlTask extends ScheduledTask {
     /**
      * Start crawl process.
      * */
-    @Transactional
     public void runCrawl(String bearer, Long processId) {
         var context = new CrawlContext();
         var processLog = processRepo.findById(processId);
@@ -123,6 +126,10 @@ public class CrawlTask extends ScheduledTask {
 
         log.info("Done crawl process, record to log...");
         processLog.endTime = new Date().getTime();
-        processRepo.persist(processLog);
+    }
+
+    @Transactional
+    public void persistCrawlRequest(CrawlRequest req) {
+        processRepo.persist(req);
     }
 }

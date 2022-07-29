@@ -83,8 +83,15 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             while (resultTable.rowSize() > 0) {
                 Map<String, String> param = resultTable.stackPopJson();
                 for (var request : engine.visitReturn(engine.ret, param)) {
-                    param.put(FetchConfig.STATUS.toString(),
-                              save(request, param).toString());
+                    Boolean status;
+                    try {
+                        Map<String, String> fileInfo = saveAsFile(request, param);
+                        status = logFile(fileInfo, param);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        status = logFile(null, param);
+                    }
+                    param.put(FetchConfig.STATUS.toString(), status.toString());
                     respTable.add(param);
                 }
             }
@@ -101,7 +108,9 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
      * Aware Behavior: filename in header must follow content-disposition syntax
      * Aware Behavior: file mime is retrieved from content-type
      * */
-    private Boolean save(HttpRawRequest request, Map<String, String> meta) {
+    private Map<String, String> saveAsFile(
+        HttpRawRequest request, Map<String, String> meta) {
+
         String filename;
         HttpRawResponse resp = LakeHttpClient.send(request);
 
@@ -125,19 +134,32 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
         myMeta.put(Record.FILE_MIME, contentType);
         consumer.record(resp.body, myMeta);
 
-        // store crawl file status to log database
-        Map<String, String> info = consumer.info();
+        return consumer.info();
+    }
+
+    /**
+     * Record crawled file status to database.
+     * */
+    private Boolean logFile(
+        Map<String, String> fileInfo, Map<String, String> meta) {
+
         var log = db.get(reqProcConf);
         log.file = new FileLog();
         log.file.process = log.process;
         log.file.uploadTime = new Date().getTime();
-        log.file.status = Boolean.parseBoolean(
-                              info.get(Record.STATUS.toString()));
 
-        // record object id only if successfully saved
-        if (log.file.status)
-            log.file.fileId = Long.parseLong(
-                                  info.get(Record.OBJECT_ID.toString()));
+        if (fileInfo == null) {
+            log.file.status = false;
+        } else {
+            String status = fileInfo.get(Record.STATUS.toString());
+            String fileId = fileInfo.get(Record.OBJECT_ID.toString());
+
+            log.file.status = Boolean.parseBoolean(status);
+
+            // record object id only if successfully saved
+            if (log.file.status)
+                log.file.fileId = Long.parseLong(fileId);
+        }
 
         try {
             log.file.setMeta(mapper.writeValueAsString(meta));
