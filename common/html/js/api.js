@@ -417,6 +417,11 @@ export class SearchApi extends Api {
     async search(id) {
         return await this.get(`/search/${id}`);
     }
+
+    async extract(id) {
+        return await this.get(`/extract/${id}`);
+    }
+
 }
 
 /**

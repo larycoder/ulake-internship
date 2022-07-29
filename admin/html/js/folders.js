@@ -370,9 +370,24 @@ class DataCRUD extends ListCRUD {
             showToast("Error", "Sorry, similarity search is only available to images!");
             return;
         }
-        const resp = await irApi.search(id);
+        var resp = await irApi.search(id);
         if (resp && resp.length) {
             this.irModal.show(resp);
+        }
+        else {
+            //showModal("Error", "Sorry, index was not performed on this file similarity search !");
+            // make a new indexing request to this file...
+            showToast("Re-indexing this file...");
+            resp = await irApi.extract(id);
+            // finished indexing, retry search
+            if (resp) {
+                showToast("Finished indexing. Searching for similar images...");
+                resp = await irApi.search(id);
+                if (resp && resp.length) {
+                    this.irModal.show(resp);
+                }
+            }
+
         }
     }
 
