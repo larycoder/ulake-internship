@@ -9,6 +9,8 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.ingest.crawler.fetcher.Fetcher;
 import org.usth.ict.ulake.ingest.crawler.fetcher.cpl.Interpreter;
@@ -27,6 +29,8 @@ import org.usth.ict.ulake.ingest.model.macro.StoreMacro;
 import org.usth.ict.ulake.ingest.utils.LakeHttpClient;
 
 public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
+    private static Logger sysLog = LoggerFactory.getLogger(FetcherImpl.class);
+
     private HttpRawRequest baseReq;
     private FetchConfig mode;
 
@@ -83,14 +87,7 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             while (resultTable.rowSize() > 0) {
                 Map<String, String> param = resultTable.stackPopJson();
                 for (var request : engine.visitReturn(engine.ret, param)) {
-                    Boolean status;
-                    try {
-                        Map<String, String> fileInfo = saveAsFile(request, param);
-                        status = logFile(fileInfo, param);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        status = logFile(null, param);
-                    }
+                    Boolean status = logFile(saveAsFile(request, param), param);
                     param.put(FetchConfig.STATUS.toString(), status.toString());
                     respTable.add(param);
                 }
@@ -110,9 +107,16 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
      * */
     private Map<String, String> saveAsFile(
         HttpRawRequest request, Map<String, String> meta) {
-
         String filename;
-        HttpRawResponse resp = LakeHttpClient.send(request);
+        HttpRawResponse resp;
+
+        try {
+            resp = LakeHttpClient.send(request);
+        } catch (Exception e) {
+            sysLog.error("Could not run request for meta {}.", meta);
+            e.printStackTrace();
+            return null;
+        }
 
         var cd = resp.headers.get("content-disposition");
         if (cd != null && cd.get(0).contains("filename")) { // filename in header
@@ -132,7 +136,16 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
         Map<Record, String> myMeta = new HashMap<>();
         myMeta.put(Record.FILE_NAME, filename);
         myMeta.put(Record.FILE_MIME, contentType);
-        consumer.record(resp.body, myMeta);
+
+        sysLog.info("Start upload file {} to lake...", filename);
+        try {
+            consumer.record(resp.body, myMeta);
+            sysLog.info("Done process for file {}.", filename);
+        } catch (Exception e) {
+            sysLog.error("Fail process for file {}.", filename);
+            e.printStackTrace();
+            return null;
+        }
 
         return consumer.info();
     }

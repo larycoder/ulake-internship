@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -21,13 +21,14 @@ import org.usth.ict.ulake.ingest.crawler.recorder.Recorder;
 import org.usth.ict.ulake.ingest.crawler.recorder.impl.ULakeCacheFileRecorderImpl;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;
 import org.usth.ict.ulake.ingest.crawler.storage.impl.SqlLogStorageImpl;
-import org.usth.ict.ulake.ingest.model.CrawlRequest;
 import org.usth.ict.ulake.ingest.model.IngestLog;
 import org.usth.ict.ulake.ingest.model.Policy;
 import org.usth.ict.ulake.ingest.model.macro.FetchConfig;
 import org.usth.ict.ulake.ingest.model.macro.Record;
 import org.usth.ict.ulake.ingest.persistence.CrawlRequestRepo;
 import org.usth.ict.ulake.ingest.persistence.FileLogRepo;
+
+import io.quarkus.narayana.jta.QuarkusTransaction;
 
 /**
  * Service to process crawl.
@@ -106,6 +107,7 @@ public class CrawlTask extends ScheduledTask {
     /**
      * Start crawl process.
      * */
+    @ActivateRequestContext
     public void runCrawl(String bearer, Long processId) {
         var context = new CrawlContext();
         var processLog = processRepo.findById(processId);
@@ -125,11 +127,12 @@ public class CrawlTask extends ScheduledTask {
         context.fetchObj.fetch(context.policy);
 
         log.info("Done crawl process, record to log...");
-        processLog.endTime = new Date().getTime();
-    }
+        QuarkusTransaction.begin();
 
-    @Transactional
-    public void persistCrawlRequest(CrawlRequest req) {
-        processRepo.persist(req);
+        processLog = processRepo.findById(processId);
+        processLog.endTime = new Date().getTime();
+        processRepo.persist(processLog);
+
+        QuarkusTransaction.commit();
     }
 }

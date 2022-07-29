@@ -21,6 +21,8 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
 
     @Inject
     public CrawlRequestRepo processLog;
+
+    @Inject
     public FileLogRepo fileLog;
 
     public SqlLogStorageImpl() {
@@ -33,6 +35,7 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
     }
 
     @Override
+    @Transactional
     public Map<String, String> store(
         IngestLog data, Map<StoreMacro, String> meta) {
         var result = new HashMap<String, String>();
@@ -56,7 +59,6 @@ public class SqlLogStorageImpl implements Storage<IngestLog> {
         return result;
     }
 
-    @Override
     public IngestLog get(Map<StoreMacro, String> meta) {
         var logType = StoreMacro.valueOf(meta.get(StoreMacro.LOG_TYPE));
         var id = Long.parseLong(meta.get(StoreMacro.LOG_ID));
