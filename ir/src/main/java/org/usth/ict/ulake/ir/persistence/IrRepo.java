@@ -7,6 +7,6 @@ import org.usth.ict.ulake.ir.model.ImgFeature;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 @ApplicationScoped
-public class ImgFeatureRepo implements PanacheRepository<ImgFeature> {
+public class IrRepo implements PanacheRepository<ImgFeature> {
   
 }
