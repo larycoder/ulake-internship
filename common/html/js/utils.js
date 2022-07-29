@@ -1,7 +1,7 @@
 function getBaseDomain() {
     let host = window.location.hostname;
     let parts = host.split(".");
-    if (parts.length <= 3) {
+    if (parts.length <= 3 || parts[0] === "ulake") {
         // level 3 domains, such as ulake.usth.edu.vn
         return host;
     }
