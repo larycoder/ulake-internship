@@ -29,6 +29,7 @@ async function ready() {
         listFieldRenderer: [
             { data: "fileId" },
             { data: "name", render: (data, type, row) => `<a href="#" ${row.data ? "onclick=\"downloadFile(${row.fileId}, '${data}')\"" : ""}>${data}</a>` },
+            { data: "size" },
             { data: "mime" },
             { data: "uploadTime", render: (data, type, row) => formatTime(data) },
             { data: "status", render: (data, type, row) => data ? "Done" : "Failed" }
