@@ -28,7 +28,8 @@ public class IrFeatureExtractTask extends ScheduledTask implements IrFeatureExtr
      * @param id
      */
     public void run(String bearer, Long id) {
-        irService.extract(bearer, id);
+        Long resp = irService.extract(bearer, id).getResp();
+        log.info("Extract task: irService returns {}", resp);
     }
 
     @Override
