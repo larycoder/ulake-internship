@@ -12,10 +12,11 @@ export class BaseModal {
     }
 
     startSpinner() {
-        this.body.empty().append(`<i class="fa fa-spinner fa-spin 2x"></i>`);
+        this.headerTitle = this.header.text();
+        this.header.text("").append($(`<i class="fa fa-spinner fa-spin 2x"></i>`));
     }
 
     stopSpinner() {
-        this.body.find(`i.fa-spinner.fa-spin`).remove();
+        this.header.text(this.headerTitle);
     }
 }

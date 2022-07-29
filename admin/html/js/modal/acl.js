@@ -14,22 +14,22 @@ export class AclModal extends BaseModal {
 
      /**
      * Show permission modal for a specific file or folder
-     * @param {char} datatype F for folder, f for file. u (user) is unsupported
+     * @param {char} dataType F for folder, f for file. u (user) is unsupported
      * @param {int} dataId id of file/folder to manage permission
      * @param {string} dataName name of file/folder to manage permission
      * @returns
      */
-    async show(datatype, dataId, dataName) {
+    async show(dataType, dataId, dataName) {
         this.startSpinner();
         // these fields are only for saving... We try to make this modal as stateless as we can
         this.dataType = dataType;
         this.dataId = dataId;
         this.dataName = dataName;
 
-        const data = await this.fetch(datatype, dataId, dataName);
-        const entries = this.transform(datatype, dataId, dataName, data.acls)
+        const data = await this.fetch(dataType, dataId, dataName);
+        const entries = this.transformToEntry(dataType, dataId, dataName, data.acls)
         this.stopSpinner();
-        this.render(datatype, dataId, dataName, entries);
+        this.render(dataType, dataId, dataName, entries);
         this.modal.modal("show");
     }
 
@@ -96,8 +96,8 @@ export class AclModal extends BaseModal {
         }
         // normalize fields
         let entries = [];
-        acls.users.forEach(u => entries.push(this.makeEntry("u", u)));
-        acls.groups.forEach(g => entries.push(this.makeEntry("g", g)));
+        acls.user.forEach(u => entries.push(this.makeEntry("u", u)));
+        acls.group.forEach(g => entries.push(this.makeEntry("g", g)));
         return entries;
     }
 
@@ -111,8 +111,12 @@ export class AclModal extends BaseModal {
      * @param {*} groups
      */
     transformToEntity(dataType, dataId, dataName, entries) {
-        let users = entries.filter(e => e.type === "u").map(u => this.makeEntry(u));
-        let groups = entries.filter(e => e.type === "g").map(g => this.makeEntry(g));
+        let users = [];
+        let groups = [];
+        if (entries.length > 0) {
+            users = entries.filter(e => e.type === "u").map(u => this.makeEntry(u));
+            groups = entries.filter(e => e.type === "g").map(g => this.makeEntry(g));
+        }
         let entities = {
             users: users,
             groups: groups
@@ -172,8 +176,7 @@ export class AclModal extends BaseModal {
      * @param {string} entries normalized data-table entries to show onto UI
      */
     render(dataType, dataId, dataName, entries) {
-        this.table = $(`<table id="acl-table" class="table hover stripe">`);
-        this.body.empty().append(table);
+        this.table = $(`#acl-table`);
         this.table.DataTable({
             data: entries,
             paging: false,
