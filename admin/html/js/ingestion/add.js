@@ -74,7 +74,7 @@ class AddIngestionRequest {
     }
 
     selectFolder() {
-        this.folderModal.modal.modal("show");
+        this.folderModal.show();
     }
 
     async folderSelected(id) {

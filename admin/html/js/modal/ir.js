@@ -22,7 +22,7 @@ export class IrModal extends BaseModal {
     async show(results) {
         const files = await this.fetchImageInfo(results);
         this.render(results, files);
-        this.modal.modal("show");
+        super.show();
     }
 
     /**

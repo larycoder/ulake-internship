@@ -19,4 +19,12 @@ export class BaseModal {
     stopSpinner() {
         this.header.text(this.headerTitle);
     }
+
+    show() {
+        this.modal.modal("show");
+    }
+
+    dismiss() {
+        this.modal.modal("hide");
+    }
 }

@@ -1,4 +1,5 @@
 import { BaseModal } from "./base.js";
+import { UserModal } from "./user.js";
 import { fileApi, userApi, groupApi, aclApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 /**
@@ -7,8 +8,13 @@ import { fileApi, userApi, groupApi, aclApi } from "http://common.dev.ulake.usth
 export class AclModal extends BaseModal {
     constructor(callback) {
         super(callback, "#acl-modal");
+        this.userModal = new UserModal();
         this.footer.find(".btn-primary").off().on("click", () => {
             this.save(this.dataType, this.dataId, this.dataName);
+        });
+        this.footer.find("#add-user").off().on("click", () => {
+            this.dismiss();
+            this.userModal.show();
         });
     }
 
@@ -30,7 +36,7 @@ export class AclModal extends BaseModal {
         const entries = this.transformToEntry(dataType, dataId, dataName, data.acls)
         this.stopSpinner();
         this.render(dataType, dataId, dataName, entries);
-        this.modal.modal("show");
+        super.show();
     }
 
     /**

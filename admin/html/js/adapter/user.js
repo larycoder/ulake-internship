@@ -23,7 +23,7 @@ export class UserAdapter extends BaseAdapter {
     getAllRenderers () {
         let ret = super.getAllRenderers();
         ret.name = (data, type, row) => {
-            const fullName = row.firstName || row.lastName ? ` (${row.firstName} ${row.lastName})` : "";
+            const fullName = row.firstName || row.lastName ? ` (${row.lastName} ${row.firstName})` : "";
             return `<a href="#" onclick="window.crud.click('u', '${row.id}', '${data}')">${data}${fullName}</a>`
         };
         ret.action = (data, type, row) => `<a href="/user/edit?id=${data}"><i class="fas fa-user-edit"></i></a>`;

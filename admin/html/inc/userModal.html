@@ -1,14 +1,14 @@
 <div class="modal fade" id="user-modal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="ir-title">Share...</h5>
+                <h5 class="modal-title">Select user...</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <table id="acl-table" class="table hover stripe">
+                <table id="user-table" class="table hover stripe w-100">
                     <thead>
                         <tr>
                             <th>id</th>
@@ -16,15 +16,11 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                         </tr>
-
                     </thead>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light text-black-50">Add User</button>
-                <button type="button" class="btn btn-light text-black-50 mr-auto">Add Group</button>
                 <button type="button" class="btn btn-light text-black-50" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
