@@ -12,9 +12,9 @@ class GroupListCRUD extends ListCRUD {
                 { data: "id" },
                 { data: "name", render: (data, type, row) => `<a href="/group/view?id=${row.id}">${data}</a>` },
                 { data: "id",
-                    render: (data, type, row) =>
+                    render: (data, type, row) => getGroups().includes("Admin") ?
                         `<a href="/group/edit?id=${data}"><i class="fas fa-user-cog"></i></a>
-                         <a href="#"><i class="fas fa-users-slash" onclick="window.crud.confirm(${data})"></i></a>`
+                         <a href="#"><i class="fas fa-users-slash" onclick="window.crud.confirm(${data})"></i></a>` : ""
                 }
             ]
         })
@@ -42,6 +42,7 @@ class GroupListCRUD extends ListCRUD {
     async ready() {
         // prepare modal events
         this.modal = new AddGroupModal(() => this.create());
+        if (!getGroups().includes("Admin")) $("a.btn-primary[data-toggle=modal]").addClass("disabled");
         await super.ready();
     }
 }

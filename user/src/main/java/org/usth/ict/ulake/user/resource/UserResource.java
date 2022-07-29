@@ -2,6 +2,7 @@ package org.usth.ict.ulake.user.resource;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -76,8 +78,14 @@ public class UserResource {
 
     @GET
     @Operation(summary = "List all users")
-    @RolesAllowed({ "Admin" })
+    @RolesAllowed({ "User", "Admin" })
     public Response all() {
+        if (!jwt.getGroups().contains("Admin")) {
+            Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+            List<User> users = new ArrayList<User>();
+            users.add(repo.findById(jwtUserId));
+            return resp.build(200, "", users);
+        }
         return resp.build(200, "", repo.listAll());
     }
 
@@ -100,7 +108,9 @@ public class UserResource {
             UserSearchQuery query = new UserSearchQuery();
             query.ids = ids;
             logService.post(bearer, new LogModel("Query", "Get many ids: " + ids));
-            return search(query);
+            var results = repo.search(query);
+            if (results.isEmpty()) return resp.build(404);
+            return resp.build(200, null, results);
         }
     }
 

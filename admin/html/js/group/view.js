@@ -57,6 +57,7 @@ class GroupViewCRUD extends ViewCRUD {
         this.modal = $("#add-modal");
         this.modal.on("show.bs.modal", () => this.showModal());
         this.modal.find(".btn-primary").on("click", () => this.confirm());
+        if (!getGroups().includes("Admin")) $("a.btn-primary[data-toggle=modal]").addClass("disabled");
         await super.ready();
         this.listUsers();
     }

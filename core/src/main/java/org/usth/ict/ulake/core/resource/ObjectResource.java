@@ -3,6 +3,7 @@ package org.usth.ict.ulake.core.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.StreamingOutput;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -89,11 +91,17 @@ public class ObjectResource {
     LogService logService;
 
     @GET
-    @RolesAllowed({ "Admin" })
+    @RolesAllowed({ "User", "Admin" })
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "List all objects")
     public Response all(@HeaderParam("Authorization") String bearer) {
         logService.post(bearer, new LogModel("Query", "List all objects"));
+        if (!jwt.getGroups().contains("Admin")) {
+            Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+            List<LakeObject> list = new ArrayList<LakeObject>();
+            list.add(repo.findById(jwtUserId));
+            return resp.build(200, "", list);
+        }
         return resp.build(200, null, repo.listAll());
     }
 

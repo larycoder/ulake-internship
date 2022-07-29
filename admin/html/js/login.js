@@ -13,11 +13,11 @@ window.login = async () => {
         setToken(data);
         const name = await userApi.getName(getUid());
         setUserName(name);
-        if (!getGroups().includes("Admin")) {
-            showModal("Error", "Sorry, you are not an admin.");
-            setTo;ken(null);
-            return;
-        }
+        // if (!getGroups().includes("Admin")) {
+        //     showModal("Error", "Sorry, you are not an admin.");
+        //     setToken(null);
+        //     return;
+        // }
         window.location = "/folders";
     }
     else {
