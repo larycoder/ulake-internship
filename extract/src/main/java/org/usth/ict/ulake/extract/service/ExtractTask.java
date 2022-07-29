@@ -3,6 +3,7 @@ package org.usth.ict.ulake.extract.service;
 import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -63,6 +64,7 @@ public class ExtractTask extends ScheduledTask implements ExtractCallback {
      * Performs the extract task in current thread
      * @param id
      */
+    @ActivateRequestContext
     @Transactional
     public void run(String bearer, Long id) {
         // prepare request files and result object

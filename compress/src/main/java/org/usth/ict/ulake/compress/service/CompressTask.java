@@ -7,21 +7,17 @@ import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.core.ObjectFormModel;
-import org.usth.ict.ulake.common.model.core.ObjectModel;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
-import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.DashboardService;
-import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.common.task.ScheduledTask;
 import org.usth.ict.ulake.compress.model.CompressRequest;
@@ -78,6 +74,7 @@ public class CompressTask extends ScheduledTask implements CompressCallback {
         repoReq.persist(persistReq);
     }
 
+    @ActivateRequestContext
     @Transactional
     public void run(String bearer, Long id) {
         // prepare request files and result object
