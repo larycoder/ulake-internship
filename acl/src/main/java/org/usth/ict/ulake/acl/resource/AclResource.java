@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.acl.resource;
 
+import java.util.ArrayList;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -72,9 +74,9 @@ public class AclResource {
 
         var oneAcl = repo.find(hql, id, type).firstResult();
         if (oneAcl == null)
-            return response.build(404, "Could not retrieve object permission");
-        Long ownerId = oneAcl.ownerId;
+            return response.build(200, null, new ArrayList<MultiAcl>());
 
+        Long ownerId = oneAcl.ownerId;
         if (!jwt.getGroups().contains("Admin") && userId != ownerId)
             return response.build(403, "Admin and owner only");
         else
