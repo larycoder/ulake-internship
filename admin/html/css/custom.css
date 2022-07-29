@@ -16,3 +16,7 @@
 tr.selected td > a {
     color: #e3e6f0;
 }
+
+#sidebar-admin {
+    display: none;
+}
