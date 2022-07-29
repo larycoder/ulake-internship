@@ -176,6 +176,7 @@ export class AclModal extends BaseModal {
      * @param {string} entries normalized data-table entries to show onto UI
      */
     render(dataType, dataId, dataName, entries) {
+        console.log("rendering", entries);
         this.table = $(`#acl-table`);
         this.table.DataTable({
             data: entries,
