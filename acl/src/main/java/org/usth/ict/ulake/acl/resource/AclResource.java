@@ -55,13 +55,10 @@ public class AclResource {
     @GET
     @Path("/all")
     @RolesAllowed({"User","Admin"})
-    @Operation(summary = "List all ACL with permission. Admin: list everyone. User: himself - multiacl.")
+    @Operation(summary = "List all ACL with permission for current user")
     public Response all() {
-        if (!jwt.getGroups().contains("Admin")) {
-            Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-            return getByActor(UserType.user, userId);
-        }
-        return response.build(200, null, repo.listAll());
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        return getByActor(UserType.user, userId);
     }
 
     @GET
@@ -96,6 +93,9 @@ public class AclResource {
         @PathParam("user") UserType actor,
         @PathParam("id") Long id) {
         // should we check for ownership here?
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        if (!jwt.getGroups().contains("Admin") && userId != id)
+            return response.build(403, "Admin and owner only");
         return response.build(200, null, repo.listActorMultiAcl(actor, id));
     }
 
