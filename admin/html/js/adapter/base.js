@@ -2,6 +2,7 @@
 /**
  * A generic adapter for data on the backend
  * For showing all entities in the same data table
+ * TODO: adapter should not fetch from server.
  */
 export class BaseAdapter {
     constructor (config) {

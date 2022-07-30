@@ -35,52 +35,53 @@ export class AclModal extends BaseModal {
         this.dataName = dataName;
 
         const data = await this.fetch(dataType, dataId, dataName);
-        const entries = this.transformToEntry(dataType, dataId, dataName, data.acls)
-        this.stopSpinner();
-        this.render(dataType, dataId, dataName, entries);
+        this.entries = this.transformToEntry(dataType, dataId, dataName, data.acls, data.users, data.groups);
+        this.stopSpinner()
+        this.render(dataType, dataId, dataName, this.entries);
         super.show();
     }
 
     /**
      * Make a new data-table entry from acl row in backend
-     * @param {char} userType u for user, g for group
+     * @param {char} actorType u for user, g for group
      * @param {*} entity ACL entity from DB
      * @returns a new data-table entry
      */
-    makeEntry(userType, entity) {
+    makeEntry(actorType, entity) {
         let entry = {
-            type: userType,
+            type: actorType,
             name: entity.name,
-            read: entity.permission.contains("READ"),
-            write: entity.permission.contains("WRITE"),
-            execute: entity.permission.contains("EXECUTE"),
-            add: entity.permission.contains("ADD"),
-            delete: entity.permission.contains("DELETE")
+            read: entity.permissions ? entity.permissions.includes("READ") : false,
+            write: entity.permissions ? entity.permissions.includes("WRITE") : false,
+            execute: entity.permissions ? entity.permissions.includes("EXECUTE") : false,
+            add: entity.permissions ? entity.permissions.includes("ADD") : false,
+            delete: entity.permissions ? entity.permissions.includes("DELETE") : false
         }
-        if (userType === "u") entry.id = entity.userId;
-        if (userType === "g") entry.id = entity.groupId;
-
+        if (actorType === "u") entry.actorId = entity.userId;
+        if (actorType === "g") entry.actorId = entity.groupId;
+        return entry;
     }
 
     /**
      * Make db entity from a data-table entry
-    * @param {char} userType u for user, g for group
+    * @param {char} actorType u for user, g for group
     * @param {*} entry data-table entry data
     * @param {*} fileId
     * @param {*} entry
      * @returns a new db acl entity
      */
-    makeEntity(userType, entry, fileFolderId) {
+    makeEntity(actorType, fileFolderId, entry) {
         let entity = {
-            permission: []
+            objectId: parseInt(fileFolderId),
+            permissions: []
         };
-        if (userType === "u") entity.userId = entry.userId;
-        if (userType === "g") entity.groupId = entry.groupId;
-        if (entry.read) entity.permission.push("READ");
-        if (entry.write) entity.permission.push("WRITE");
-        if (entry.execute) entity.permission.push("EXECUTE");
-        if (entry.add) entity.permission.push("ADD");
-        if (entry.delete) entity.permission.push("DELETE");
+        if (actorType === "u") entity.userId = parseInt(entry.actorId);
+        if (actorType === "g") entity.groupId = parseInt(entry.actorId);
+        if (entry.read) entity.permissions.push("READ");
+        if (entry.write) entity.permissions.push("WRITE");
+        if (entry.execute) entity.permissions.push("EXECUTE");
+        if (entry.add) entity.permissions.push("ADD");
+        if (entry.delete) entity.permissions.push("DELETE");
         return entity;
     }
 
@@ -96,11 +97,15 @@ export class AclModal extends BaseModal {
     transformToEntry(dataType, dataId, dataName, acls, users, groups) {
         // join users
         for (const acl of acls.user) {
-            if (acl.userId) acl.name = users.find(u => u.id === acl.userId);
+            if (acl.userId) {
+                const user = users.find(u => u.id === acl.userId);
+                if (user) acl.name = user.userName;
+            }
         }
         // join groups
         for (const acl of acls.group) {
-            if (acl.groupId) acl.name = groups.find(g => g.id === acl.groupId);
+            const group = groups.find(g => g.id === acl.groupId);
+            if (group) acl.name = group.name;
         }
         // normalize fields
         let entries = [];
@@ -122,8 +127,8 @@ export class AclModal extends BaseModal {
         let users = [];
         let groups = [];
         if (entries.length > 0) {
-            users = entries.filter(e => e.type === "u").map(u => this.makeEntry(u));
-            groups = entries.filter(e => e.type === "g").map(g => this.makeEntry(g));
+            users = entries.filter(e => e.type === "u").map(u => this.makeEntity("u", dataId, u));
+            groups = entries.filter(e => e.type === "g").map(g => this.makeEntity("g", dataId, g));
         }
         let entities = {
             users: users,
@@ -135,16 +140,22 @@ export class AclModal extends BaseModal {
     /**
      * Save the permission table to database
      */
-    save(dataType, dataId, dataName) {
-        console.log("preparing data to save");
-        const entries = this.table.rows().data();
+    async save(dataType, dataId, dataName) {
+        const entries = this.table.rows().data().toArray();
         const entities = this.transformToEntity(dataType, dataId, dataName, entries);
-        if (dataType === "F") {
-            aclApi.saveFolder(dataId, entities.users, entities.groups);
+        const dt = dataType === "F" ?  "folder" : "file";
+        // TODO: should have a single API endpoint to save permissions for many users
+        const failed = [];
+        for (const perm of entities.users) {
+            const resp = await aclApi.sync("user", dt, perm);
+            if (!resp || !resp.objectId) {
+                failed.push(perm);
+            }
         }
-        else if (dataType === "f") {
-            aclApi.saveFile(dataId, entities.users, entities.groups);
+        if (failed.length) {
+            showModal("Error", `Unable to save permissions for ${failed.map(f => f.userId).join(', ')}`);
         }
+        this.dismiss();
     }
 
     /**
@@ -166,8 +177,11 @@ export class AclModal extends BaseModal {
         // find unique user ids and group ids
         const userIds = [... new Set(acls.user.map(u => u.userId))];
         const groupIds = [... new Set(acls.group.map(g => g.groupId))];
-        const users = await userApi.many(userIds);
-        const groups = await groupApi.many(groupIds);
+        let users = await userApi.many(userIds);
+        let groups = await groupApi.many(groupIds);
+
+        if (!Array.isArray(users)) users = [ users ];
+        if (!Array.isArray(groups)) users = [ groups ];
 
         return {
             acls: acls,
@@ -185,33 +199,52 @@ export class AclModal extends BaseModal {
      */
     render(dataType, dataId, dataName, entries) {
         console.log("rendering", entries);
-        this.table = $(`#acl-table`);
-        this.table.DataTable({
-            data: entries,
-            paging: false,
-            searching: false,
-            info: false,
-            columns: [
-                { data: "id" },
-                { data: "type", render: (data, type, row) => `<i class="fas fa-${data === "u" ? "user" : "group"}"></i>`},
-                { data: "name" },
-                { data: "read", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
-                { data: "write", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
-                { data: "execute", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
-                { data: "add", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
-                { data: "delete", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""}>` },
-                { data: "id",
-                    render: (data, type, row) =>
-                        `<a href="#"><i class="fas fa-trash" onclick="window.crud.aclModal.delete("${row.type}", "${data}", "${row.name}")"></i></a>`
-                }
-            ],
-            order: []
-        });
+        if (!this.table) {
+            const checkChange = (perm) => `const row = $(this).parent().parent(); const data = window.crud.aclModal.table.row(row).data(); data.${perm} = this.checked;`;
+            this.table = $(`#acl-table`).DataTable({
+                data: entries,
+                paging: false,
+                searching: false,
+                info: false,
+                columns: [
+                    { data: "actorId" },
+                    { data: "type", render: (data, type, row) => `<i class="fas fa-${data === "u" ? "user" : "group"}"></i>`},
+                    { data: "name" },
+                    { data: "read", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("read")}">` },
+                    { data: "write", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("write")}">` },
+                    { data: "execute", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("execute")}">` },
+                    { data: "add", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("add")}">` },
+                    { data: "delete", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("delete")}">` },
+                    { data: "id",
+                        render: (data, type, row) =>
+                            `<a href="#"><i class="fas fa-trash" onclick="window.crud.aclModal.delete("${row.type}", "${data}", "${row.name}")"></i></a>`
+                    }
+                ],
+                order: []
+            });
+        }
+        else {
+            this.table.clear().draw();
+            this.table.rows.add(entries);
+            this.table.columns.adjust().draw();
+        }
     }
 
-    selectUser(id) {
-        console.log(`selected user on click ${id}`);
+    /**
+     *
+     * @param {string} type u for user
+     * @param {integer} id id of the selected user
+     * @param {string} name name of the selected user
+     */
+    selectUser(type, id, name) {
+        console.log(`selected user on click ${id}, ${name}`);
+        const entry = {
+            userId: id,
+            name: name
+        }
+        this.entries.push(this.makeEntry('u', entry));
         this.userModal.dismiss();
-        super.show();
+        super.show();   // this.show() does a lot of things...
+        this.render(this.dataType, this.dataId, this.dataName, this.entries);
     }
 }

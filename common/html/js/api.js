@@ -444,16 +444,15 @@ export class SearchApi extends Api {
         return { user: userFileAcl, group: groupFileAcl };
     }
 
-    async saveFolder(folderId, aclUsers, aclGroups) {
-        const ret1 = await this.post(`/user/folder/${folderId}`, aclUsers, { "Content-Type": "application/json; charset=utf-8" });
-        const ret2 = await this.post(`/group/folder/${folderId}`, aclGroups, { "Content-Type": "application/json; charset=utf-8" });
-        return { userResp: ret1, groupResp: ret2 };
-    }
-
-    async saveFile(fileId, aclUsers, aclGroups) {
-        const ret1 = await this.post(`/user/file/${fileId}`, aclUsers, { "Content-Type": "application/json; charset=utf-8" });
-        const ret2 = await this.post(`/group/file/${fileId}`, aclGroups, { "Content-Type": "application/json; charset=utf-8" });
-        return { userResp: ret1, groupResp: ret2 };
+    /**
+     *
+     * @param {string} actorType user/group
+     * @param {string} dataType file/folder
+     * @param {int} id id of the object(file/folder)
+     * @param {*} permissions ["READ", "WRITE", "ADD", "EXECUTE", "DELETE"]
+     */
+    async sync(actorType, dataType, body) {
+        return await this.post(`/${actorType}/${dataType}/${body.objectId}`, body, { "Content-Type": "application/json; charset=utf-8" })
     }
 }
 
