@@ -1,5 +1,6 @@
 import { BaseModal } from "./base.js";
 import { UserModal } from "./user.js";
+import { GroupModal } from "./group.js";
 import { fileApi, userApi, groupApi, aclApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 /**
@@ -11,12 +12,19 @@ export class AclModal extends BaseModal {
         this.userModal = new UserModal({
             itemClick: "window.crud.aclModal.selectUser",
         });
+        this.groupModal = new GroupModal({
+            itemClick: "window.crud.aclModal.selectGroup",
+        });
         this.footer.find(".btn-primary").off().on("click", () => {
             this.save(this.dataType, this.dataId, this.dataName);
         });
         this.footer.find("#add-user").off().on("click", () => {
             this.dismiss();
             this.userModal.show();
+        });
+        this.footer.find("#add-group").off().on("click", () => {
+            this.dismiss();
+            this.groupModal.show();
         });
     }
 
@@ -57,8 +65,10 @@ export class AclModal extends BaseModal {
             add: entity.permissions ? entity.permissions.includes("ADD") : false,
             delete: entity.permissions ? entity.permissions.includes("DELETE") : false
         }
-        if (actorType === "u") entry.actorId = entity.userId;
-        if (actorType === "g") entry.actorId = entity.groupId;
+        // TODO: should be like this in the backend instewad
+        // if (actorType === "u") entry.actorId = entity.userId;
+        // if (actorType === "g") entry.actorId = entity.groupId;
+        entry.actorId = entity.userId;
         return entry;
     }
 
@@ -75,8 +85,10 @@ export class AclModal extends BaseModal {
             objectId: parseInt(fileFolderId),
             permissions: []
         };
-        if (actorType === "u") entity.userId = parseInt(entry.actorId);
-        if (actorType === "g") entity.groupId = parseInt(entry.actorId);
+        // TODO: should be like this in the backend instewad
+        // if (actorType === "u") entity.userId = parseInt(entry.actorId);
+        // if (actorType === "g") entity.groupId = parseInt(entry.actorId);
+        entity.userId = parseInt(entry.actorId);
         if (entry.read) entity.permissions.push("READ");
         if (entry.write) entity.permissions.push("WRITE");
         if (entry.execute) entity.permissions.push("EXECUTE");
@@ -104,8 +116,12 @@ export class AclModal extends BaseModal {
         }
         // join groups
         for (const acl of acls.group) {
-            const group = groups.find(g => g.id === acl.groupId);
-            if (group) acl.name = group.name;
+            if (acl.userId) {
+                // this should be like .groupId at the backend instead
+                // const group = groups.find(g => g.id === acl.groupId);
+                const group = groups.find(g => g.id === acl.userId);
+                if (group) acl.name = group.name;
+            }
         }
         // normalize fields
         let entries = [];
@@ -148,6 +164,12 @@ export class AclModal extends BaseModal {
         const failed = [];
         for (const perm of entities.users) {
             const resp = await aclApi.sync("user", dt, perm);
+            if (!resp || !resp.objectId) {
+                failed.push(perm);
+            }
+        }
+        for (const perm of entities.groups) {
+            const resp = await aclApi.sync("group", dt, perm);
             if (!resp || !resp.objectId) {
                 failed.push(perm);
             }
@@ -198,7 +220,6 @@ export class AclModal extends BaseModal {
      * @param {string} entries normalized data-table entries to show onto UI
      */
     render(dataType, dataId, dataName, entries) {
-        console.log("rendering", entries);
         if (!this.table) {
             const checkChange = (perm) => `const row = $(this).parent().parent(); const data = window.crud.aclModal.table.row(row).data(); data.${perm} = this.checked;`;
             this.table = $(`#acl-table`).DataTable({
@@ -208,7 +229,7 @@ export class AclModal extends BaseModal {
                 info: false,
                 columns: [
                     { data: "actorId" },
-                    { data: "type", render: (data, type, row) => `<i class="fas fa-${data === "u" ? "user" : "group"}"></i>`},
+                    { data: "type", render: (data, type, row) => `<i class="fas fa-${data === "u" ? "user" : "users"}"></i>`},
                     { data: "name" },
                     { data: "read", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("read")}">` },
                     { data: "write", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("write")}">` },
@@ -253,8 +274,37 @@ export class AclModal extends BaseModal {
             userId: id,
             name: name
         }
-        this.entries.push(this.makeEntry('u', entry));
+        this.entries.push(this.makeEntry(type, entry));
         this.userModal.dismiss();
+        super.show();   // this.show() does a lot of things...
+        this.render(this.dataType, this.dataId, this.dataName, this.entries);
+    }
+
+    /**
+     *
+     * @param {string} type g for group
+     * @param {integer} id id of the selected group
+     * @param {string} name name of the selected group
+     */
+    selectGroup(type, id, name) {
+        console.log(`selected group on click ${id}, ${name}`);
+        // check if exist
+        const entries = this.table.rows().data().toArray();
+        const entities = this.transformToEntity(this.dataType, this.dataId, this.dataName, entries);
+        const exist = entities.groups.map(g => g.groupId).find(gid => gid === parseInt(id));
+        if (exist) {
+            this.groupModal.dismiss();
+            super.show();   // this.show() does a lot of things...
+            showToast("Info", `Group ${name} is already selected in the list`);
+            return;
+        }
+
+        const entry = {
+            groupId: id,
+            name: name
+        }
+        this.entries.push(this.makeEntry(type, entry));
+        this.groupModal.dismiss();
         super.show();   // this.show() does a lot of things...
         this.render(this.dataType, this.dataId, this.dataName, this.entries);
     }

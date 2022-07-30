@@ -7,7 +7,7 @@
 export class BaseAdapter {
     constructor (config) {
         this.api = config.api;
-        if (config.itemClick) this.itemClick = config.itemClick;
+        this.itemClick = config.itemClick || "window.crud.click";
     }
 
     /**
