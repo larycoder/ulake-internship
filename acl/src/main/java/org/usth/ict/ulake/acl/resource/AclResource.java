@@ -46,19 +46,19 @@ public class AclResource {
     JsonWebToken jwt;
 
     @GET
-    @RolesAllowed({"Admin"})
-    @Operation(summary = "list all ACL without permission")
+    @RolesAllowed({"User","Admin"})
+    @Operation(summary = "List all ACL with permission for current user")
     public Response list() {
-        return response.build(200, null, repo.listAcl());
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+        return getByActor(UserType.user, userId);
     }
 
     @GET
     @Path("/all")
-    @RolesAllowed({"User","Admin"})
-    @Operation(summary = "List all ACL with permission for current user")
+    @RolesAllowed({"Admin"})
+    @Operation(summary = "list all ACL without permission")
     public Response all() {
-        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-        return getByActor(UserType.user, userId);
+        return response.build(200, null, repo.listAcl());
     }
 
     @GET
