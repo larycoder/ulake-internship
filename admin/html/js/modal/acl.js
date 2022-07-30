@@ -221,7 +221,6 @@ export class AclModal extends BaseModal {
      */
     render(dataType, dataId, dataName, entries) {
         if (!this.table) {
-            const checkChange = (perm) => `const row = $(this).parent().parent(); const data = window.crud.aclModal.table.row(row).data(); data.${perm} = this.checked;`;
             this.table = $(`#acl-table`).DataTable({
                 data: entries,
                 paging: false,
@@ -231,14 +230,14 @@ export class AclModal extends BaseModal {
                     { data: "actorId" },
                     { data: "type", render: (data, type, row) => `<i class="fas fa-${data === "u" ? "user" : "users"}"></i>`},
                     { data: "name" },
-                    { data: "read", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("read")}">` },
-                    { data: "write", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("write")}">` },
-                    { data: "execute", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("execute")}">` },
-                    { data: "add", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("add")}">` },
-                    { data: "delete", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} onchange="${checkChange("delete")}">` },
+                    { data: "read", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="read" onchange="window.crud.aclModal.checkChange('${row.type}', '${data}', '${row.name}', this)">` },
+                    { data: "write", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="write" onchange="window.crud.aclModal.checkChange('${row.type}', '${data}', '${row.name}', this)">` },
+                    { data: "execute", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="execute" onchange="window.crud.aclModal.checkChange('${row.type}', '${data}', '${row.name}', this)">` },
+                    { data: "add", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="add" onchange="window.crud.aclModal.checkChange('${row.type}', '${data}', '${row.name}', this)">` },
+                    { data: "delete", render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="delete" onchange="window.crud.aclModal.checkChange('${row.type}', '${data}', '${row.name}', this)">` },
                     { data: "id",
                         render: (data, type, row) =>
-                            `<a href="#"><i class="fas fa-trash" onclick="window.crud.aclModal.delete("${row.type}", "${data}", "${row.name}")"></i></a>`
+                            `<a href="#"><i class="fas fa-trash" onclick="window.crud.aclModal.delete('${row.type}', '${data}', '${row.name}', this)"></i></a>`
                     }
                 ],
                 order: []
@@ -252,7 +251,7 @@ export class AclModal extends BaseModal {
     }
 
     /**
-     *
+     * Callback when a user is selected to be added into this popup
      * @param {string} type u for user
      * @param {integer} id id of the selected user
      * @param {string} name name of the selected user
@@ -281,7 +280,7 @@ export class AclModal extends BaseModal {
     }
 
     /**
-     *
+     * Callback when a group is selected to be added into this popup
      * @param {string} type g for group
      * @param {integer} id id of the selected group
      * @param {string} name name of the selected group
@@ -300,12 +299,49 @@ export class AclModal extends BaseModal {
         }
 
         const entry = {
-            groupId: id,
+            // should have been like this
+            // groupId: id,
+            userId: id,
             name: name
         }
         this.entries.push(this.makeEntry(type, entry));
         this.groupModal.dismiss();
         super.show();   // this.show() does a lot of things...
         this.render(this.dataType, this.dataId, this.dataName, this.entries);
+    }
+
+    /**
+     * Callback when user click on a delete button
+     * @param {string} type u for user, g for group
+     * @param {integer} id id of the selected group/user
+     * @param {string} name name of the selected group/user
+     * @param {DOM} button button element of the clicked row
+     */
+    delete(type, id, name, button) {
+        // delete both from UI and from data
+        const row = $(button).parents("tr");
+        const data = this.table.row(row).data();
+        data.read = false;
+        data.write = false;
+        data.execute = false;
+        data.add = false;
+        data.delete = false;
+        row.find("input[type=checkbox]").prop("checked", false);
+    }
+
+    /**
+     * Callback when user changes permission on a group/user
+     * @param {string} type u for user, g for group
+     * @param {integer} id id of the selected group/user
+     * @param {string} name name of the selected group/user
+     * @param {DOM} button button element of the clicked row
+     */
+     checkChange(type, id, name, button) {
+        var $button = $(button);
+        const row = $button.parents("tr");
+        const data = this.table.row(row).data();
+        const field = $button.attr("data-field");
+        data[field] = $button.prop("checked");
+        console.log(data);
     }
 }
