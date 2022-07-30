@@ -5,7 +5,6 @@ window.crud = new ListCRUD({
     api: aclApi,
     name: "Data",
     listFieldRenderer: [
-        { mData: "id" },
         { mData: "userId", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },
         { mData: "objectId" },
         { mData: "type", render: (data, type, row) => `<input type="checkbox" ${data === "file"? "checked" : ""} disabled >` },
