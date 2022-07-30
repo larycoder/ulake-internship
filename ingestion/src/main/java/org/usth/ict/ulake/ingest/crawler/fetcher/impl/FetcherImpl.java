@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
@@ -138,14 +139,8 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
         myMeta.put(Record.FILE_MIME, contentType);
 
         sysLog.info("Start upload file {} to lake...", filename);
-        try {
-            consumer.record(resp.body, myMeta);
-            sysLog.info("Done process for file {}.", filename);
-        } catch (Exception e) {
-            sysLog.error("Fail process for file {}.", filename);
-            e.printStackTrace();
-            return null;
-        }
+        consumer.record(resp.body, myMeta);
+        sysLog.info("Done process for file {}.", filename);
 
         return consumer.info();
     }
@@ -166,11 +161,12 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
         } else {
             String status = fileInfo.get(Record.STATUS.toString());
             String fileId = fileInfo.get(Record.OBJECT_ID.toString());
+            String size = fileInfo.get(Record.FILE_SIZE.toString());
 
             log.file.status = Boolean.parseBoolean(status);
-
-            // record object id only if successfully saved
-            if (log.file.status)
+            if (!Utils.isEmpty(size))
+                log.file.size = Long.parseLong(size);
+            if (!Utils.isEmpty(fileId))
                 log.file.fileId = Long.parseLong(fileId);
         }
 

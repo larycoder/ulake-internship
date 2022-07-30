@@ -35,40 +35,46 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
 
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
-        try {
-            // modify filename to avoid duplicate in temp folder
-            String filename = meta.get(Record.FILE_NAME);
-            meta.put(Record.FILE_NAME, filename + "_" + UUID.randomUUID());
+        log.clear();
 
+        // modify filename to avoid duplicate in temp folder
+        String filename = meta.get(Record.FILE_NAME);
+        meta.put(Record.FILE_NAME, filename + "_" + UUID.randomUUID());
+
+        try {
             file.record(data, meta);
             sysLog.debug("Loaded file to temporary local...");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.put(Record.STATUS.toString(), Boolean.valueOf(false).toString());
+            return;
+        }
 
-            // prepare lake meta information
-            var ulakeMeta = new HashMap<Record, String>();
+        // prepare lake meta information
+        var ulakeMeta = new HashMap<Record, String>();
+        ulakeMeta.putAll(meta);
+        for (var e : file.info().entrySet())
+            ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
+        ulakeMeta.put(Record.FILE_NAME, filename);
 
-            ulakeMeta.putAll(meta);
-            for (var e : file.info().entrySet())
-                ulakeMeta.put(Record.valueOf(e.getKey()), e.getValue());
-            ulakeMeta.put(Record.FILE_NAME, filename);
-
+        String pathFile = ulakeMeta.get(Record.FILE_PATH);
+        try {
             // stream data to lake storage
-            String pathFile = ulakeMeta.get(Record.FILE_PATH);
             InputStream is = TransferUtil.streamFromFile(pathFile);
             ulake.record(is, ulakeMeta);
-
-            sysLog.debug("Pushed local to lake storage...");
-
-            log.putAll(ulake.info());
-
-            // clean temporary file
             if (is != null) is.close();
-            new File(pathFile).delete();
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            log.put(Record.STATUS.toString(),
-                    Boolean.valueOf(false).toString());
+            for (var entry : ulakeMeta.entrySet())
+                log.put(entry.getKey().toString(), entry.getValue());
+            return;
+        } finally {
+            // close stream and delete temp
+            new File(pathFile).delete();
         }
+
+        sysLog.debug("Pushed local to lake storage...");
+        log.putAll(ulake.info());
     }
 
     @Override

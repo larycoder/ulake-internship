@@ -19,6 +19,9 @@ public class FileLog {
     @Schema(description = "File id in lake storage")
     public Long fileId;
 
+    @Schema(description = "File size")
+    public Long size;
+
     @Schema(description = "Start time of uploading file to storage")
     public Long uploadTime;
 
