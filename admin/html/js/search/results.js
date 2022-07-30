@@ -4,6 +4,7 @@ function renderUser(data) {
     $('#user-table').DataTable(  {
         data: data,
         paging: false,
+        searching: false,
         columns: [
             { data: "id" },
             { data: "userName", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },
@@ -20,6 +21,7 @@ function renderFile(data) {
     $('#file-table').DataTable(  {
         data: data,
         paging: false,
+        searching: false,
         columns: [
             { data: "id" },
             { data: "name", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },
@@ -49,14 +51,14 @@ async function resultReady() {
         }
     });
     console.log(userResult);
-    // const fileResult = await fetchFile({
-    //     "file.keywords": {
-    //         values: query,
-    //         fields: [ "name", "mime" ]
-    //     }
-    // });
+    const fileResult = await fetchFile({
+        "file.keywords": {
+            values: query,
+            fields: [ "name", "mime" ]
+        }
+    });
     renderUser(userResult);
-    // renderFile(fileResult);
+    renderFile(fileResult);
 
     $("i.fa-spin").remove();
 }
