@@ -18,6 +18,8 @@ import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.acl.persistence.AclRepo;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.acl.MultiAcl;
@@ -32,6 +34,8 @@ import org.usth.ict.ulake.common.service.exception.LakeServiceNotFoundException;
 @Path("/acl")
 @Produces(MediaType.APPLICATION_JSON)
 public class AclResource {
+    private static final Logger log = LoggerFactory.getLogger(AclResource.class);
+
     @Inject
     LakeHttpResponse<Object> response;
 
@@ -79,7 +83,7 @@ public class AclResource {
             return response.build(200, null, new ArrayList<MultiAcl>());
 
         Long ownerId = oneAcl.ownerId;
-        if (!jwt.getGroups().contains("Admin") && userId != ownerId)
+        if (!jwt.getGroups().contains("Admin") && userId.longValue() != ownerId.longValue())
             return response.build(403, "Admin and owner only");
         else
             return response.build(200, null, repo.listMultiAcl(type, id));
@@ -94,7 +98,7 @@ public class AclResource {
         @PathParam("id") Long id) {
         // should we check for ownership here?
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
-        if (!jwt.getGroups().contains("Admin") && userId != id)
+        if (!jwt.getGroups().contains("Admin") && userId.longValue() != id.longValue())
             return response.build(403, "Admin and owner only");
         return response.build(200, null, repo.listActorMultiAcl(actor, id));
     }
@@ -129,7 +133,7 @@ public class AclResource {
         }
 
         acl.objectId = id;
-        if (!jwt.getGroups().contains("Admin") && userId != ownerId)
+        if (!jwt.getGroups().contains("Admin") && userId.longValue() != ownerId.longValue())
             return response.build(403, "Admin and owner only");
         else
             return response.build(200, null, repo.sync(type, ownerId, acl));
