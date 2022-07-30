@@ -394,15 +394,11 @@ export class SearchApi extends Api {
     }
 
     async file(query) {
-        return await this.post("/file", query, { "Content-Type": "application/json; charset=utf-8" });
+        return await this.post("/file/v2", query, { "Content-Type": "application/json; charset=utf-8" });
     }
 
     async user(query) {
-        return await this.post("/user", query, { "Content-Type": "application/json; charset=utf-8" });
-    }
-
-    async all() {
-        return await this.user(this.query);
+        return await this.post("/user/v2", query, { "Content-Type": "application/json; charset=utf-8" });
     }
 }
 
