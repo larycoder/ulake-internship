@@ -49,3 +49,5 @@ Document version: 0.2.0
 9. Services will run on docker build from dockerfile and mount volume to outside
 10. Services, Hadoop and Mysql will share same network
 11. Sensu is monitor platform for docker, it is mounted to docker volume "ulake-sensu-*"
+12. Deploying HDFS as cluster service should be avoid due to its unstable IP.
+13. Instead HDFS should be deployed manually for each node for static IP.
