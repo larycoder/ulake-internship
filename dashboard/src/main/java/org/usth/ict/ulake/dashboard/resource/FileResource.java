@@ -69,7 +69,7 @@ public class FileResource {
     IrFeatureExtractTask irTask;
 
     @Inject
-    LakeHttpResponse resp;
+    LakeHttpResponse<Object> resp;
 
     @Inject
     JsonWebToken jwt;
@@ -99,7 +99,7 @@ public class FileResource {
                 files = filterSvc.filter(files, filter);
             }
         } catch (QueryException e) {
-            resp.build(400, e.toString());
+            resp.build(400, "Query exception", e.getMessage());
         }
 
         return resp.build(200, null, files);
@@ -152,7 +152,7 @@ public class FileResource {
             obj = mapper.convertValue(objJson, ObjectModel.class);
         } catch (Exception e) {
             log.error("Fail to create new object", e);
-            return resp.build(500, e.toString());
+            return resp.build(500, "Fail to create new object", e.getMessage());
         }
 
         FileModel fileResp;
