@@ -45,7 +45,7 @@ export class Api {
             else req.body = JSON.stringify(body);
         }
         const data = await this.ajax(req);
-        console.log(data);
+        console.log(req.url, data);
         if (this.expectJson) {
             if (data && data.code === 200) return data.resp;
             return {};
