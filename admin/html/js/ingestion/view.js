@@ -29,10 +29,10 @@ async function ready() {
         listFieldRenderer: [
             { data: "fileId" },
             { data: "name", render: (data, type, row) => `<a href="#" ${row.data ? "onclick=\"downloadFile(${row.fileId}, '${data}')\"" : ""}>${data}</a>` },
-            { data: "size" },
+            { data: "size", render: (data, type, row) => data? humanFileSize(data) : 0 },
             { data: "mime" },
             { data: "uploadTime", render: (data, type, row) => formatTime(data) },
-            { data: "status", render: (data, type, row) => data ? "Done" : "Failed" }
+            { data: "status", render: (data, type, row) => data ? "Done" : "<span class='text-danger'>Failed</span>" }
         ],
         joins: {
             apiMethod: a => fileApi.many(a),
