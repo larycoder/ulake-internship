@@ -17,6 +17,7 @@ import org.usth.ict.ulake.common.model.acl.Acl;
 import org.usth.ict.ulake.common.model.acl.MultiAcl;
 import org.usth.ict.ulake.common.model.acl.macro.AclType;
 import org.usth.ict.ulake.common.model.acl.macro.FileType;
+import org.usth.ict.ulake.common.model.acl.macro.UserType;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
@@ -61,6 +62,29 @@ public class AclRepo implements PanacheRepository<AclModel> {
         return result;
     }
 
+    public List<MultiAcl> listActorMultiAcl(UserType actor, Long actorId) {
+        AclType folderType = AclType.valueOf(actor.label + "d");
+        AclType fileType = AclType.valueOf(actor.label + "f");
+        String hql = "(type = ?1 or type= ?2) and (userId = ?3)";
+        List<AclModel> acls = list(hql, folderType, fileType, actorId);
+
+        // TODO: add function for merging permissions for better code reuse
+        Map<Long, MultiAcl> aclByObject = new HashMap<>();
+        for (var acl : acls) {
+            if (aclByObject.get(acl.objectId) == null) {
+                var multi = new MultiAcl();
+                multi.objectId = acl.objectId;
+                multi.userId = acl.userId;
+                if (acl.type == AclType.gd || acl.type == AclType.ud) multi.type = FileType.folder;
+                if (acl.type == AclType.gf || acl.type == AclType.uf) multi.type = FileType.file;
+                multi.permissions = new ArrayList<>();
+                aclByObject.put(acl.objectId, multi);
+            }
+            aclByObject.get(acl.objectId).permissions.add(acl.permission);
+        }
+        return new ArrayList<MultiAcl>(aclByObject.values());
+    }
+
     public List<MultiAcl> listMultiAcl(AclType type, Long objectId) {
         String hql = "(objectId = ?1) AND (type = ?2)";
         List<AclModel> acls = find(hql, objectId, type).list();
@@ -71,6 +95,8 @@ public class AclRepo implements PanacheRepository<AclModel> {
                 var multi = new MultiAcl();
                 multi.objectId = acl.objectId;
                 multi.userId = acl.userId;
+                if (acl.type == AclType.gd || acl.type == AclType.ud) multi.type = FileType.folder;
+                if (acl.type == AclType.gf || acl.type == AclType.uf) multi.type = FileType.file;
                 multi.permissions = new ArrayList<>();
                 myAcls.put(acl.userId, multi);
             }
@@ -78,6 +104,7 @@ public class AclRepo implements PanacheRepository<AclModel> {
         }
         return new ArrayList<MultiAcl>(myAcls.values());
     }
+
 
     public MultiAcl sync(AclType type, Long fileOwner, MultiAcl acl) {
         String hql = "type = ?1 and objectId = ?2 and userId = ?3";

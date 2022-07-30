@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -53,9 +54,13 @@ public class AclResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed({"Admin"})
-    @Operation(summary = "list all ACL with permission")
+    @RolesAllowed({"User","Admin"})
+    @Operation(summary = "List all ACL with permission. Admin: list everyone. User: himself - multiacl.")
     public Response all() {
+        if (!jwt.getGroups().contains("Admin")) {
+            Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
+            return getByActor(UserType.user, userId);
+        }
         return response.build(200, null, repo.listAll());
     }
 
@@ -82,6 +87,18 @@ public class AclResource {
         else
             return response.build(200, null, repo.listMultiAcl(type, id));
     }
+
+    @GET
+    @Path("/{user}/{id}")
+    @RolesAllowed({"User", "Admin"})
+    @Operation(summary = "List acl of an user/group")
+    public Response getByActor(
+        @PathParam("user") UserType actor,
+        @PathParam("id") Long id) {
+        // should we check for ownership here?
+        return response.build(200, null, repo.listActorMultiAcl(actor, id));
+    }
+
 
     @POST
     @Path("/{user}/{file}/{id}")
