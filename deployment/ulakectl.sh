@@ -8,7 +8,7 @@ ROOT_DIR=$(readlink -f $BASE_DIR/../);
 
 
 help() {
-    echo "Usage: service.sh <start/restart/kill> [service-name] [options]"
+    echo "Usage: service.sh <start/restart/stop> [service-name] [options]"
 }
 
 # Start service docker with proper configuration and installation
