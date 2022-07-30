@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!--# include virtual="/inc/css.html" -->
+    <title>ULake Shared Data</title>
+
+<!--# if expr="$host=/dev./" -->
+        <!--#set var="common" value="common.dev.ulake.usth.edu.vn" -->
+<!--# else -->
+        <!--#set var="common" value="common.ulake.usth.edu.vn" -->
+<!--# endif -->
+    <link href="http://<!--#echo var = 'common' -->/vendor/flex-gallery/flex-gallery.min.css" rel="stylesheet" type="text/css">
+</head>
+
+<body id="page-top">
+
+    <!--# include virtual="/inc/tokencheck.html" -->
+    <div id="wrapper">
+
+        <!--# include virtual="/inc/main/sidebar.html" -->
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!--# include virtual="/inc/main/topbar.html" -->
+
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Shared Data</h1>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-7">
+                            <div class="card shadow mb-7">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Users</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table id="table" class="table hover stripe">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>userId</th>
+                                                <th>objectId</th>
+                                                <th>type</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--# include virtual="/inc/copyright.html" -->
+        </div>
+    </div>
+
+        <!--# include virtual="/inc/confirmModal.html" -->
+    <!--# include virtual="/inc/logoutModal.html" -->
+    <!--# include virtual="/inc/toast.html" -->
+    <!--# include virtual="/inc/scripts.html" -->
+    <script src="js/shared.js" type="module"></script>
+</body>
+
+</html>
