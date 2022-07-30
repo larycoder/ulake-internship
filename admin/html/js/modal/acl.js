@@ -238,6 +238,17 @@ export class AclModal extends BaseModal {
      */
     selectUser(type, id, name) {
         console.log(`selected user on click ${id}, ${name}`);
+        // check if exist
+        const entries = this.table.rows().data().toArray();
+        const entities = this.transformToEntity(this.dataType, this.dataId, this.dataName, entries);
+        const exist = entities.users.map(u => u.userId).find(uid => uid === parseInt(id));
+        if (exist) {
+            this.userModal.dismiss();
+            super.show();   // this.show() does a lot of things...
+            showToast("Info", `User ${name} is already selected in the list`);
+            return;
+        }
+
         const entry = {
             userId: id,
             name: name
