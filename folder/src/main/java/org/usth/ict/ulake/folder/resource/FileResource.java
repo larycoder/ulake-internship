@@ -142,7 +142,7 @@ public class FileResource {
         if (results.isEmpty()) {
             return resp.build(404);
         }
-        logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keyword));
+        logService.post(bearer, new LogModel("Query", "Search file info with keyword " + query.keywords));
         return resp.build(200, null, results);
     }
 

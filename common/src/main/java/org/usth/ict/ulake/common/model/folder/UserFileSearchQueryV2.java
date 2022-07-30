@@ -20,7 +20,7 @@ public class UserFileSearchQueryV2 implements Queryable {
     public NumberOpt<Long> ownerIds;
 
     @Schema(description = "A keyword that responded filenames must contain.")
-    public KeywordOpt keyword;
+    public KeywordOpt keywords;
 
     @Schema(description = "Size of file.")
     public NumberOpt<Long> size;
@@ -48,8 +48,8 @@ public class UserFileSearchQueryV2 implements Queryable {
             params.putAll(hr.params);
         }
 
-        if (keyword != null) {
-            hr = keyword.getHQL("keyword");
+        if (keywords != null) {
+            hr = keywords.getHQL("keyword");
             hql.add("(" + hr.hql + ")");
             params.putAll(hr.params);
         }
