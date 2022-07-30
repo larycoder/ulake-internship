@@ -67,6 +67,7 @@ public class ULakeCacheFileRecorderImpl implements Recorder<InputStream> {
             e.printStackTrace();
             for (var entry : ulakeMeta.entrySet())
                 log.put(entry.getKey().toString(), entry.getValue());
+            log.put(Record.STATUS.toString(), Boolean.valueOf(false).toString());
             return;
         } finally {
             // close stream and delete temp

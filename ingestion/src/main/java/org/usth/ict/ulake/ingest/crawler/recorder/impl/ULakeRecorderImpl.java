@@ -39,6 +39,7 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
     @Override
     public void record(InputStream data, Map<Record, String> meta) {
         try {
+            fileInfo.id = null;
             fileInfo.name = meta.get(Record.FILE_NAME);
             fileInfo.mime = meta.get(Record.FILE_MIME);
             fileInfo.size = Long.parseLong(meta.get(Record.FILE_SIZE));
@@ -51,6 +52,7 @@ public class ULakeRecorderImpl implements Recorder<InputStream> {
 
             var resp = dashboardSvc.newFile(tokenAuth, file).getResp();
             log.put(Record.OBJECT_ID.toString(), resp.id.toString());
+            log.put(Record.FILE_SIZE.toString(), resp.size.toString());
             log.put(Record.STATUS.toString(), Boolean.valueOf(true).toString());
         } catch (Exception e) {
             e.printStackTrace();
