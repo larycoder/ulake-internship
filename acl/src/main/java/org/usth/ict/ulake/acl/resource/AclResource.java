@@ -75,7 +75,7 @@ public class AclResource {
         @PathParam("id") Long id) {
 
         AclType type = AclType.valueOf(user.label + file.label);
-        Long userId = Long.parseLong(jwt.getName());
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
         String hql = "objectId = ?1 and type = ?2";
 
         var oneAcl = repo.find(hql, id, type).firstResult();
@@ -117,7 +117,7 @@ public class AclResource {
         MultiAcl acl) {
 
         AclType type = AclType.valueOf(user.label + file.label);
-        Long userId = Long.parseLong(jwt.getName());
+        Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
 
         Long ownerId;
         try {
