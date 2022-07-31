@@ -14,6 +14,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -59,7 +60,7 @@ public class CrawlResource {
         @RequestBody(description = "instruction of crawl") Policy policy) {
 
         var processLog = new CrawlRequest();
-        processLog.ownerId = Long.parseLong(jwt.getName());
+        processLog.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
         processLog.query = policy;
         processLog.folderId = folderId;
         processLog.description = desc;
