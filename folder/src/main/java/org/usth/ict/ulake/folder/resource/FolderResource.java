@@ -3,7 +3,10 @@ package org.usth.ict.ulake.folder.resource;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,6 +36,7 @@ import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.PermissionModel;
 import org.usth.ict.ulake.common.model.acl.macro.FileType;
+import org.usth.ict.ulake.common.model.folder.UserFolderSearchQuery;
 import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.folder.model.UserFolder;
@@ -77,21 +81,40 @@ public class FolderResource {
     @GET
     @Path("/{id}")
     @RolesAllowed({ "User", "Admin" })
-    @Operation(summary = "Get one folder")
+    @Operation(summary = "Get one or many folders")
     public Response one(
         @HeaderParam("Authorization") String bearer,
         @PathParam("id")
-        @Parameter(description = "Folder id to search") Long id) {
+        @Parameter(description = "Folder id(s) to search") String ids) {
+
         var permit = PermissionModel.READ; // <-- permit
-        var folder = repo.findById(id);
 
-        if (folder == null)
-            return resp.build(404, "Folder not found");
+        log.info("getting file info for {}", ids);
+        if (Utils.isNumeric(ids)) {
 
-        if (!acl.verify(FileType.folder, folder.id, folder.ownerId, permit))
-            return resp.build(403);
-        logService.post(bearer, new LogModel("Query", "Get folder info for id " + id));
-        return resp.build(200, null, folder);
+            Long id = Long.parseLong(ids);
+            var folder = repo.findById(id);
+
+            if (folder == null)
+                return resp.build(404, "Folder not found");
+
+            if (!acl.verify(FileType.folder, folder.id, folder.ownerId, permit))
+                return resp.build(403);
+            logService.post(bearer, new LogModel("Query", "Get folder info for id " + id));
+            return resp.build(200, null, folder);
+        } else {
+            String idArr[] = ids.split(",");
+            List<Long> idList = Arrays.asList(idArr).stream()
+                                .filter(idStr -> Utils.isNumeric(idStr))
+                                .mapToLong(Long::parseLong)
+                                .boxed()
+                                .collect(Collectors.toList());
+            UserFolderSearchQuery query = new UserFolderSearchQuery();
+            query.ids = idList;
+            logService.post(bearer, new LogModel("Query", "Get many folder ids: " + ids));
+            var files = repo.search(query);
+            return resp.build(200, null, files);
+        }
     }
 
     @GET
