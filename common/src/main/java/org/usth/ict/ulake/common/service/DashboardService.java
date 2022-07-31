@@ -56,10 +56,10 @@ public interface DashboardService {
 
     @GET
     @Path("/folder/{id}")
-    @Schema(description = "get folder info")
+    @Schema(description = "get one or many folder info")
     public LakeHttpResponse<FolderModel> folderInfo(
         @HeaderParam("Authorization") String bearer,
-        @PathParam("id") Long id);
+        @PathParam("id") String ids);
 
     @GET
     @Path("/folder/root")
