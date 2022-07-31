@@ -26,6 +26,7 @@ export class ListCRUD extends CRUD {
                     entry => joinOptions.fkMapper(entry) :  // use provided foreign key mapper
                     entry => entry[joinOptions.fkField])    // nah, map using fkField by default
             .filter((value, index, self) => self.indexOf(value) === index && value);
+        console.log("uniq keys", uniqKeys);
         let others = await joinOptions.apiMethod(uniqKeys);
         if (!Array.isArray(others)) others = [ others ];
 
@@ -40,10 +41,11 @@ export class ListCRUD extends CRUD {
                 if (other && other.length && other[0][f]) {
                     entry[f] = other[0][f];
                 }
-                else entry[f]="";
+                else entry[f]=entry[f] || "";
             }
             return entry;
         });
+        console.log("joined: ", JSON.parse(JSON.stringify(data)));
         return data;
     }
 
