@@ -4,6 +4,7 @@ window.login = async () => {
     const uid = document.querySelector("#uid").value,
           pwd = document.querySelector("#pwd").value;
 
+
     console.log(`Logging in as ${uid}, ${pwd}, domain ${getBaseDomain()}`);
     const button = $("form button");
     button.text("").append($(`<i class="fas fa-spinner fa-spin"></i>`));
@@ -25,3 +26,14 @@ window.login = async () => {
         button.text("Login")
     }
 }
+
+
+window.addEventListener('load', () => {
+    const pwd = document.querySelector("#pwd");
+    pwd.addEventListener('keypress', function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            window.login();
+        }
+    });
+})
