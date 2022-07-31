@@ -11,7 +11,7 @@ window.crud = new ListCRUD({
     listFieldRenderer: [
         { data: "userId", render: (data, type, row) => `<a href="/user/view?id=${data}">${data}</a>` },
         { data: "type", render: (data, type, row) => `<i class="fa ${data === "folder"? "fa-folder" : mimeAwesome(row.mime)}"></i>` },
-        { data: "name", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` }
+        { data: "name", render: (data, type, row) => `<a href="#" onclick="window.crud.click('${row.type === "Folder"? "F" : "f"}', '${row.objectId}', '${data}')">${data}</a>` }
     ],
     joins: [
         {   // join files
@@ -47,5 +47,8 @@ window.crud = new ListCRUD({
     ]
 });
 
+window.crud.click = function (type, id, name) {
+    downloadFile(id, name);
+}
 
 $(document).ready(() => window.crud.ready());
