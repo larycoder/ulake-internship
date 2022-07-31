@@ -160,7 +160,7 @@ public class ObjectResource {
         String mime = "text/html";
         String fileName = "data.html";
         try {
-            FileModel fileInfo = fileSvc.fileInfo(fileId, bearer).getResp();
+            FileModel fileInfo = (FileModel) fileSvc.fileInfo(fileId.toString(), bearer).getResp();
             if (!Utils.isEmpty(fileInfo.mime)) mime = fileInfo.mime;
             if (!Utils.isEmpty(fileInfo.name)) fileName = fileInfo.name;
         } catch (LakeServiceNotFoundException e) {

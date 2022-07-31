@@ -26,6 +26,7 @@ import org.usth.ict.ulake.common.model.acl.MultiAcl;
 import org.usth.ict.ulake.common.model.acl.macro.AclType;
 import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.model.acl.macro.UserType;
+import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
@@ -122,7 +123,7 @@ public class AclResource {
         Long ownerId;
         try {
             if (file == FileType.file)
-                ownerId = svc.fileInfo(id, bearer).getResp().ownerId;
+                ownerId = ((FileModel) svc.fileInfo(id.toString(), bearer).getResp()).ownerId;
             else
                 ownerId = ((FolderModel) svc.folderInfo(bearer, id.toString()).getResp()).ownerId;
         } catch (LakeServiceForbiddenException e) {

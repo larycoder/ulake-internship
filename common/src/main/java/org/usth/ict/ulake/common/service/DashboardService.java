@@ -34,10 +34,9 @@ public interface DashboardService {
 
     @GET
     @Path("/file/{fileId}")
-    @Schema(description = "get file information")
-    public LakeHttpResponse<FileModel> fileInfo(
-        // TODO: HiepLNC refactors ASAP.
-        @PathParam("fileId") Long fileId,
+    @Schema(description = "get one or more file information")
+    public LakeHttpResponse fileInfo(
+        @PathParam("fileId") String fileIds,
         @HeaderParam("Authorization") String bearer);
 
     @POST

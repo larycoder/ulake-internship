@@ -35,9 +35,9 @@ public interface FileService {
 
     @GET
     @Path("/file/{fileId}")
-    @Schema(description = "get file information")
-    public LakeHttpResponse<FileModel> fileInfo(
-        @PathParam("fileId") Long fileId,
+    @Schema(description = "get or more file information")
+    public LakeHttpResponse fileInfo(
+        @PathParam("fileId") String fileIds,
         @HeaderParam("Authorization") String bearer);
 
     @PUT

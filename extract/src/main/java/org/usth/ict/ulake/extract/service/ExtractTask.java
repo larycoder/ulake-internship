@@ -73,7 +73,7 @@ public class ExtractTask extends ScheduledTask implements ExtractCallback {
         // make a new folder for the request
         Long destFolderId = 0L;
         try {
-            FileModel file = dashboardService.fileInfo(req.fileId, bearer).getResp();
+            FileModel file = (FileModel) dashboardService.fileInfo(req.fileId.toString(), bearer).getResp();
 
             String extractDirName = file.name;
             if (extractDirName.contains(".")) {
