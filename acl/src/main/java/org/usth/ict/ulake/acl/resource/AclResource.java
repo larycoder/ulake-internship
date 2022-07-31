@@ -26,6 +26,7 @@ import org.usth.ict.ulake.common.model.acl.MultiAcl;
 import org.usth.ict.ulake.common.model.acl.macro.AclType;
 import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.model.acl.macro.UserType;
+import org.usth.ict.ulake.common.model.folder.FolderModel;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
 import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
@@ -96,7 +97,6 @@ public class AclResource {
     public Response getByActor(
         @PathParam("user") UserType actor,
         @PathParam("id") Long id) {
-        // should we check for ownership here?
         Long userId = Long.parseLong(jwt.getClaim(Claims.sub));
         if (!jwt.getGroups().contains("Admin") && userId.longValue() != id.longValue())
             return response.build(403, "Admin and owner only");
@@ -124,7 +124,7 @@ public class AclResource {
             if (file == FileType.file)
                 ownerId = svc.fileInfo(id, bearer).getResp().ownerId;
             else
-                ownerId = svc.folderInfo(bearer, id).getResp().ownerId;
+                ownerId = ((FolderModel) svc.folderInfo(bearer, id.toString()).getResp()).ownerId;
         } catch (LakeServiceForbiddenException e) {
             return response.build(403, "File info retrieval is forbidden");
         } catch (LakeServiceNotFoundException e) {
