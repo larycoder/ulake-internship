@@ -135,7 +135,7 @@ public class ObjectResource {
         /* Validate and retrieve cid from file */
         try {
             var fileResp = fileSvc.fileInfo(
-                               fileId, "bearer " + jwt.getRawToken());
+                               fileId.toString(), "bearer " + jwt.getRawToken());
             if (fileResp == null || fileResp.getResp() == null)
                 return resp.build(404, "File not found");
 
