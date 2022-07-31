@@ -121,8 +121,10 @@ public class AclResource {
 
         Long ownerId;
         try {
-            // TODO: check folderInfo() as well
-            ownerId = svc.fileInfo(id, bearer).getResp().ownerId;
+            if (file == FileType.file)
+                ownerId = svc.fileInfo(id, bearer).getResp().ownerId;
+            else
+                ownerId = svc.folderInfo(bearer, id).getResp().ownerId;
         } catch (LakeServiceForbiddenException e) {
             return response.build(403, "File info retrieval is forbidden");
         } catch (LakeServiceNotFoundException e) {
