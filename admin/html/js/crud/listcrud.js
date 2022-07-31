@@ -7,7 +7,7 @@ export class ListCRUD extends CRUD {
     /**
      *
      * @param {string} listFieldRenderer Renderer for fields in the list. Ref <a href="https://legacy.datatables.net/usage/columns">DataTable aoColumns</a>
-     * @param {*} joins [optional] joining options, can be an array for multiple joins. apiMethod, fkField, targetId, targetField.
+     * @param {*} joins [optional] joining options, can be an array for multiple joins. apiMethod, fkField/fkMapper, targetId, targetField.
      */
     constructor (config) {
         super(config);
@@ -22,9 +22,11 @@ export class ListCRUD extends CRUD {
      */
      async joinOne(joinOptions, data) {
         // extract unique foreign keys from data
-        const uniqIds = data.map(entry => entry[joinOptions.fkField])
+        const uniqKeys = data.map(joinOptions.fkMapper ?
+                    entry => joinOptions.fkMapper(entry) :  // use provided foreign key mapper
+                    entry => entry[joinOptions.fkField])    // nah, map using fkField by default
             .filter((value, index, self) => self.indexOf(value) === index && value);
-        let others = await joinOptions.apiMethod(uniqIds);
+        let others = await joinOptions.apiMethod(uniqKeys);
         if (!Array.isArray(others)) others = [ others ];
 
         // join on client side
@@ -52,12 +54,10 @@ export class ListCRUD extends CRUD {
      */
     async join(data) {
         if (this.joins)  {
-            if (Array.isArray(this.joins)) {
-                for (const joinOptions of this.joins) {
-                    data = await this.joinOne(joinOptions, data);
-                }
+            if (!Array.isArray(this.joins)) this.joins = [ this.joins ];
+            for (const joinOptions of this.joins) {
+                data = await this.joinOne(joinOptions, data);
             }
-            else data = await this.joinOne(this.joins, data);
         }
         return data;
     }
