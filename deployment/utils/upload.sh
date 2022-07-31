@@ -21,6 +21,7 @@ login() { # <username> <password> -> <token_string>
 
 mkFolder() { # <parent_id> <folder_name> -> <subfolder_id>
     RET=$(curl -X 'POST' \
+        -s \
         'http://dashboard.ulake.usth.edu.vn/api/folder' \
         -H 'accept: */*' \
         -H "Authorization: Bearer $JWT" \
@@ -28,7 +29,7 @@ mkFolder() { # <parent_id> <folder_name> -> <subfolder_id>
         -d "{
           \"name\": \"$2\",
           \"parent\": {\"id\": $1 }
-      }")
+      }" )
     echo $(jq -r ".resp.id" <<< $RET)
 }
 
@@ -48,6 +49,8 @@ pushFile() { # <mime> <name> <size> <parent_id>
                 \"parent\": { \"id\": $4 }
           };type=application/json" \
         -F "file=@$2;type=application/octet-stream" > /dev/null
+    # clear prev curl progress line
+    tput cuu1;tput el
     set +x
     count=$(( $count + 1 ))
 }
