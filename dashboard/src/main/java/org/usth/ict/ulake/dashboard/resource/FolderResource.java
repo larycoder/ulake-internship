@@ -128,12 +128,13 @@ public class FolderResource {
     @Path("/{folderId}")
     @RolesAllowed({"User", "Admin"})
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "get one or more folders detail")
+    @Operation(summary = "get folder detail")
     public Response info(
-        @PathParam("folderId") String folderIds) {
+        @PathParam("folderId") Long folderId) {
         String bearer = "bearer " + jwt.getRawToken();
-        var folder = fileSvc.folderInfo(bearer, folderIds).getResp();
-        return resp.build(200, null, folder);
+        var folder = fileSvc.folderInfo(bearer, folderId).getResp();
+        var folderInfo = mapper.convertValue(folder, FolderInfo.class);
+        return resp.build(200, null, folderInfo);
     }
 
     @GET
@@ -145,7 +146,7 @@ public class FolderResource {
         @PathParam("folderId") Long folderId,
         @QueryParam("filter") List<String> filterStr) {
         String bearer = "bearer " + jwt.getRawToken();
-        var folderResp = fileSvc.folderInfo(bearer, folderId.toString()).getResp();
+        var folderResp = fileSvc.folderInfo(bearer, folderId).getResp();
         var folder = mapper.convertValue(folderResp, FolderEntry.class);
 
         try {
@@ -206,7 +207,7 @@ public class FolderResource {
 
     private FolderModel getFolderEntry(String bearer, Long folderId) {
         log.info("Looking for folder {} from folder service", folderId);
-        return (FolderModel) fileSvc.folderInfo(bearer, folderId.toString()).getResp();
+        return fileSvc.folderInfo(bearer, folderId).getResp();
     }
 
     private boolean deleteFolderRecursively(String bearer, FolderModel parent) {
