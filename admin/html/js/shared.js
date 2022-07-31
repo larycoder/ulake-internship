@@ -3,14 +3,14 @@ import { fileApi, folderApi, aclApi } from "http://common.dev.ulake.usth.edu.vn/
 
 function uniq(value, index, self) {
     return self.indexOf(value) === index;
-  }
+}
 
 window.crud = new ListCRUD({
     api: aclApi,
     name: "Data",
     listFieldRenderer: [
         { data: "userId", render: (data, type, row) => `<a href="/user/view?id=${data}">${data}</a>` },
-        { data: "type", render: (data, type, row) => `<input type="checkbox" ${data === "file"? "checked" : ""} disabled >` },
+        { data: "type", render: (data, type, row) => `<i class="fa ${data === "folder"? "fa-folder" : mimeAwesome(row.mime)}"></i>` },
         { data: "name", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` }
     ],
     joins: [
@@ -27,7 +27,7 @@ window.crud = new ListCRUD({
             fkMapper: (e) => { return {id : e.objectId, type : e.type} },   // fk is a combination of (type,id)
             fkField: "objectId",
             targetId: "id",
-            targetField: "name"
+            targetField: ["name", "mime"]
         },
         {   // join folders
             apiMethod: async (keys) => {

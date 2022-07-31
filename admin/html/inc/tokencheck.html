@@ -1,4 +1,9 @@
-<script src="http://common.ulake.usth.edu.vn/js/utils.js"></script>
+<!--# if expr="$host=/dev./" -->
+        <!--#set var="common" value="common.dev.ulake.usth.edu.vn" -->
+<!--# else -->
+        <!--#set var="common" value="common.ulake.usth.edu.vn" -->
+<!--# endif -->
+<script src="http://<!--#echo var = 'common' -->/js/utils.js"></script>
 <script type="application/javascript">
     if (getToken() === null) {
         window.location = "/login";
