@@ -3,6 +3,7 @@ package org.usth.ict.ulake.common.misc;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class AclUtil {
         // admin and owner pre-check
         if (jwt.getGroups().contains("Admin"))
             return true;
-        else if (owner.equals(Long.parseLong(jwt.getName())))
+        else if (owner.equals(Long.parseLong(jwt.getClaim(Claims.sub))))
             return true;
 
         if (checkShare != null && checkShare.equals(false)) // do not check share
@@ -44,7 +45,7 @@ public class AclUtil {
         // shared check
         Acl acl = new Acl();
         acl.objectId = objId;
-        acl.userId = Long.parseLong(jwt.getName());
+        acl.userId = Long.parseLong(jwt.getClaim(Claims.sub));
         acl.permission = permit;
 
         try {
