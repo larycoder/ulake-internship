@@ -67,7 +67,7 @@ public class ZipCompressor extends Compressor {
     private boolean addFileToZip(String bearer, CompressRequestFile file, ZipOutputStream zipOut, CompressCallback callback, CompressResult result) {
         // get file info from FileResource
         try {
-            FileModel fileModel = (FileModel) fileService.fileInfo(file.fileId.toString(), bearer).getResp();
+            FileModel fileModel = fileService.fileInfo(file.fileId, bearer).getResp();
             log.info("   + File cid {}, name {}", fileModel.cid, fileModel.name);
             boolean success = addObjectToZip(bearer, fileModel.id, fileModel.name, zipOut);
             callback.callback(file, success, result);

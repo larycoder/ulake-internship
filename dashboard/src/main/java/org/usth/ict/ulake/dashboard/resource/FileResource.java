@@ -111,9 +111,9 @@ public class FileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "get file detail")
     public Response fileInfo(
-        @PathParam("fileId") String fileIds) {
+        @PathParam("fileId") Long fileId) {
         String bearer = "bearer " + jwt.getRawToken();
-        var file = fileSvc.fileInfo(fileIds, bearer).getResp();
+        var file = fileSvc.fileInfo(fileId, bearer).getResp();
         return resp.build(200, null, file);
     }
 

@@ -28,7 +28,7 @@ public class ZipExtractor extends Extractor {
     @Override
     public void extract(String bearer, ExtractRequest request, ExtractResult result, ExtractCallback callback) {
         log.info("{} starting extract for id {}", this.getClass().getName(), request.id);
-        FileModel fileModel = (FileModel) dashboardService.fileInfo(request.fileId.toString(), bearer).getResp();
+        FileModel fileModel = dashboardService.fileInfo(request.fileId, bearer).getResp();
         FolderModel parent = dashboardService.folderInfo(bearer, request.folderId.toString()).getResp();
 
         // everything is done on streams, so no local file
