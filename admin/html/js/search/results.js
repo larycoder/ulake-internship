@@ -1,6 +1,7 @@
 import { searchApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
 function renderUser(data) {
+    console.log("rendering users");
     $('#user-table').DataTable(  {
         data: data,
         paging: false,
@@ -18,13 +19,14 @@ function renderUser(data) {
 }
 
 function renderFile(data) {
+    console.log("rendering files");
     $('#file-table').DataTable(  {
         data: data,
         paging: false,
         searching: false,
         columns: [
             { data: "id" },
-            { data: "name", render: (data, type, row) => `<a href="/user/view?id=${row.id}">${data}</a>` },
+            { data: "name", render: (data, type, row) => `<a href="#">${data}</a>` },
             { data: "mime" },
             { data: "size" }
         ],
