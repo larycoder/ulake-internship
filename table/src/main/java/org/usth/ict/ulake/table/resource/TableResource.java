@@ -270,7 +270,7 @@ public class TableResource {
         meta.format = getExtension(fileModel.name);
 
         TableModel table = new TableModel();
-        Long now = new Date().getTime()/1000;
+        Long now = new Date().getTime();
         table.name = meta.name;
         table.format = meta.format;
         table.creationTime = now.longValue();
