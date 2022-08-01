@@ -17,9 +17,10 @@ function drawTable(resp) {
     console.log(rows);
     $.fn.dataTable.ext.errMode = 'none';
     $('#table').DataTable({
-         bProcessing: true,
-         paging: true,
-         data: rows
+        bProcessing: true,
+        paging: true,
+        ordering: false,
+        data: rows
     });
 }
 

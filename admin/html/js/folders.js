@@ -398,7 +398,7 @@ class DataCRUD extends ListCRUD {
     async convertClick(type, id, name) {
         console.log("Converting file", id);
         const resp = await tableApi.convert(id);
-        if (resp && resp.id) {
+        if (resp && resp.model) {
             showToast("Info", "Converted to table successfuly.");
         }
         else {
