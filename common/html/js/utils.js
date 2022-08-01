@@ -274,6 +274,7 @@ function mimeAwesome(mimeType) {
         "application/vnd.oasis.opendocument.presentation": "fa-file-powerpoint",
         "text/plain": "fa-file-text",
         "text/html": "fa-file-code",
+        "text/csv": "fa-file-csv",
         "application/json": "fa-file-code",
         // Archives
         "application/gzip": "fa-file-archive",

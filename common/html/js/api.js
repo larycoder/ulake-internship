@@ -168,6 +168,10 @@ class GroupApi extends Api {
     constructor () {
         super(getTableUrl(), "/api/table")
     }
+
+    async convert(id) {
+        return await this.post(`/${id}/convert`, { }, { "Content-Type": "application/json; charset=utf-8" } );
+    }
 }
 
 /**

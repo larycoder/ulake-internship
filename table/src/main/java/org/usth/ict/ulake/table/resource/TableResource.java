@@ -50,6 +50,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
+import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.DashboardService;
 
 
@@ -82,6 +83,10 @@ public class TableResource {
     @Inject
     @RestClient
     DashboardService dashboardService;
+
+    @Inject
+    @RestClient
+    CoreService coreService;
 
     @GET
     @Operation(summary = "List all tables")
@@ -229,6 +234,65 @@ public class TableResource {
             log.info("Pushing to core {}, format {}, size {}", meta.name, meta.format, model.fileInfo.size);
 
             dashboardService.newFile(bearer, model);
+            return response.build(200, null, tableData);
+        }
+        else {
+            return response.build(415, "Only CSV/XLSX files are supported");
+        }
+    }
+
+    private String getExtension(String fileName) {
+        if (fileName.indexOf(".") > 0)
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+            return fileName;
+    }
+
+    private String removeExtension(String fileName) {
+        if (fileName.contains(".")) return fileName.substring(0, fileName.lastIndexOf('.'));
+        return fileName;
+    }
+
+    @POST
+    @Transactional
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Convert an existing CSV/XLS file to a table")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/convert")
+    public Response convert(@HeaderParam("Authorization") String bearer, @PathParam("id") @Parameter(description = "File id to convert") Long id) throws IOException {
+        FileModel fileModel = dashboardService.fileInfo(id, bearer).getResp();
+        InputStream is = coreService.objectDataByFileId(id, bearer);
+        CountingInputStream cis = new CountingInputStream(is);
+
+        // save a new table meta info
+        TableMetadata meta = new TableMetadata();
+        meta.name = removeExtension(fileModel.name);
+        meta.format = getExtension(fileModel.name);
+
+        TableModel table = new TableModel();
+        Long now = new Date().getTime()/1000;
+        table.name = meta.name;
+        table.format = meta.format;
+        table.creationTime = now.longValue();
+        table.ownerId = Long.parseLong(jwt.getClaim(Claims.sub));
+        repo.persist(table);
+
+        // parse input stream
+        Parser parser = null;
+        Table tableData = null;
+        log.info("Parsing uploaded format {}", meta.format);
+        if (meta.format.equals("csv")) {
+            parser = new Csv();
+        }
+        else if (meta.format.equals("xlsx")) {
+            parser = new Xlsx();
+        }
+
+        if (parser != null) {
+            tableData = parser.parse(repo, repoRow, repoColumn, repoCell, cis, table, meta);
+        }
+
+        if (tableData != null) {
             return response.build(200, null, tableData);
         }
         else {

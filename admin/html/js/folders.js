@@ -1,7 +1,7 @@
 import { ListCRUD } from "./crud/listcrud.js";
 import { UserAdapter } from "./adapter/user.js";
 import { FolderAdapter } from "./adapter/folder.js";
-import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
+import { userApi, dashboardObjectApi, dashboardFileApi, dashboardFolderApi, extractApi, compressApi, irApi, tableApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { AddFolderFileModal } from "./folders/add.js";
 import { RenameModal } from "./folders/rename.js";
@@ -393,6 +393,17 @@ class DataCRUD extends ListCRUD {
 
     shareClick(type, id, name) {
         this.aclModal.show(type, id, name);
+    }
+
+    async convertClick(type, id, name) {
+        console.log("Converting file", id);
+        const resp = await tableApi.convert(id);
+        if (resp && resp.id) {
+            showToast("Info", "Converted to table successfuly.");
+        }
+        else {
+            showToast("Error", "Converted to table ERROR");
+        }
     }
 }
 

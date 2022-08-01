@@ -26,7 +26,7 @@ export class FolderAdapter extends BaseAdapter {
             id: `${f.id}`,
             name: f.name,
             size: f.size,
-            type: `File (${f.mime})`,
+            type: `File <i class="fa ${mimeAwesome(f.mime)}"></i> (${f.mime})`,
             mime: f.mime,
             action: f.id
         }});
@@ -66,6 +66,9 @@ export class FolderAdapter extends BaseAdapter {
             }
             if (row.mime && row.mime.startsWith("image/")) {
                 html += `&nbsp;<a href="#" title="Find" onclick="window.crud.findClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-search"></i></a>`
+            }
+            if (row.name && (row.name.endsWith("csv") || row.name.endsWith("xlsx"))) {
+                html += `&nbsp;<a href="#" title="Convert to table" onclick="window.crud.convertClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-table"></i></a>`
             }
             return html;
         };
