@@ -13,6 +13,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -298,6 +299,20 @@ public class TableResource {
         else {
             return response.build(415, "Only CSV/XLSX files are supported");
         }
+    }
+
+    @DELETE
+    @Transactional
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Delete an existing table")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    public Response delete(@HeaderParam("Authorization") String bearer, @PathParam("id") @Parameter(description = "File id to delete") Long id) throws IOException {
+        long cellDeleted = repoCell.delete("table.id", id);
+        long rowDeleted = repoRow.delete("table.id", id);
+        long columnDeleted = repoColumn.delete("table.id", id);
+        boolean tableDeleted = repo.deleteById(id);
+        return response.build(200);
     }
 
     @GET
