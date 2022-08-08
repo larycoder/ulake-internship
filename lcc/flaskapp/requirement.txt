@@ -1,0 +1,15 @@
+tensorflow-gpu = 1.13.1
+keras-gpu = 2.3.1
+opencv
+
+keras_retinanet = 0.5.1
+python = 3.6.2
+numpy = 1.19.2
+icu = 58
+pandas
+keras_maskrcnn
+uwsgi
+flask
+pandas
+scikit-image = 0.17.2
+h5py = 2.10.0
