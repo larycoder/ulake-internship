@@ -1,5 +1,3 @@
-tensorflow==2.4.3
-tensorflow-gpu==2.4.3
 keras-resnet==0.2.0
 keras-retinanet==0.5.1
 keras-maskrcnn==0.2.2
@@ -9,5 +7,5 @@ pandas==1.1.5
 scikit-image==0.17.2
 h5py==2.10.0
 flask==2.0.3
-protobuf==3.20.1
+protobuf==3.17.2
 autopep8==1.7.0

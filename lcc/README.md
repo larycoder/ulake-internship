@@ -23,8 +23,12 @@ conda activate ulake
 For installation in first time:
 
 ```
-conda install -c conda-forge python=3.7.13
-conda install -c conda-forge uwsgi=2.0.20
+conda install -c anaconda python=3.6 \
+    tensorflow=1.13.1 tensorflow-gpu=1.13.1 \
+    keras-base=2.3.1
+
+conda install -c conda-forge uwsgi=2.0.19.1
+
 pip install -r requirement.txt
 ```
 
