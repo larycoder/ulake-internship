@@ -23,7 +23,7 @@ conda activate ulake
 For installation in first time:
 
 ```
-conda install -c anaconda python=3.7
+conda install -c conda-forge python=3.7.13
 conda install -c conda-forge uwsgi=2.0.20
 pip install -r requirement.txt
 ```
