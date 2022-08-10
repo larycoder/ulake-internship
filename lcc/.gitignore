@@ -2,3 +2,4 @@
 ._.DS_Store
 venv
 flaskapp/data
+*__pycache__*
