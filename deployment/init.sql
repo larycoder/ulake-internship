@@ -13,6 +13,7 @@ CREATE DATABASE IF NOT EXISTS `ulake-ir`;
 CREATE DATABASE IF NOT EXISTS `ulake-extract`;
 CREATE DATABASE IF NOT EXISTS `ulake-compress`;
 CREATE DATABASE IF NOT EXISTS `ulake-ingestion`;
+CREATE DATABASE IF NOT EXISTS `ulake-lcc`;
 
 # frontend services  databases
 CREATE DATABASE IF NOT EXISTS `ulake-admin`;

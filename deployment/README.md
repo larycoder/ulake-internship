@@ -23,6 +23,7 @@ Document version: 0.2.0
 10. Compression Service (API)                  port: 8791
 11. Indexing and Retrieval Service (API)       port: 8792
 12. Extraction (API)                           port: 8793
+13. Lung Cancer Care - LCC (API)               port: 8794
 
 ### Storage
 
