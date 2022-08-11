@@ -1,39 +1,16 @@
 # Lung Cancel Care
 
-Sub-project serving as the utility of ULake system.
+Sub-project serving as the utility of ULake system. Project is built up on top
+of 2 systems: internal system (flaskapp) with main role of loading and processing
+lung cancer image, another is quarkus system acting as wrapper of flaskapp and
+serving as main interface allowing user to interact with system including features:
 
-## Requirement
+- Crawl necessary files from lake storage to local serving flaskapp process requirement.
+- Call flaskapp with properly arguments to process lung cancer image then retrieve result.
+- Provide REST API as main interface to work with external user.
 
-1. Miniconda (4.13.0)
+## Setup
 
-## Manually Setup
-
-Environment:
-
-```
-conda create -n ulake
-```
-
-Activate environment:
-
-```
-conda activate ulake
-```
-
-For installation in first time:
-
-```
-conda install -c anaconda python=3.6 \
-    tensorflow=1.13.1 tensorflow-gpu=1.13.1 \
-    keras-base=2.3.1
-
-conda install -c conda-forge uwsgi=2.0.19.1
-
-pip install -r requirement.txt
-```
-
-Clean:
-
-```
-conda env remove -n ulake
-```
+For bootup this sub-project system. Firstly, flaskapp need to be boot up properly
+( see on flaskapp directory ). Then quarkus app should be started with right configuration
+to link to communicate to flaskapp ( detail implementation coming soon ).
