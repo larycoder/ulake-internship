@@ -106,6 +106,14 @@ http {
         }
     }
 
+    server { # service lcc
+        listen 80;
+        server_name lcc.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://172.17.0.1:8794;
+        }
+    }
+
     server { # service core
         listen 80;
         server_name core.ulake.usth.edu.vn;
