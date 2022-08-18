@@ -312,7 +312,7 @@ public class TableResource {
         long rowDeleted = repoRow.delete("table.id", id);
         long columnDeleted = repoColumn.delete("table.id", id);
         boolean tableDeleted = repo.deleteById(id);
-        return response.build(200);
+        return response.build(200, null, cellDeleted + rowDeleted + columnDeleted + (tableDeleted ? 1 : 0));
     }
 
     @GET
