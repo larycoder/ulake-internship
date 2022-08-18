@@ -12,7 +12,7 @@ window.crud = new ListCRUD({
         { data: "format" },
         { data: "creationTime", render: (data, type, row) => formatTime(data) },
         { data: "id",
-            render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.listDeleteItem(${data})"></i></a>`
+            render: (data, type, row) => `<a href="#"><i class="fas fa-trash" onclick="window.crud.confirm(${data})"></i></a>`
         }
     ],
     joins: {
