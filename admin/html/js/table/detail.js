@@ -12,7 +12,8 @@ function drawTable(resp) {
     // post process each row
     let rows = [];
     for (const rid in resp.rows) {
-         rows.push(resp.rows[rid]);
+        resp.rows[rid] = resp.rows[rid].map(cell => (`<input type="text" class="form-control form-control-sm" value="${cell}">`));
+        rows.push(resp.rows[rid]);
     }
     console.log(rows);
     $.fn.dataTable.ext.errMode = 'none';
