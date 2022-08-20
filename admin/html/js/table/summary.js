@@ -104,9 +104,10 @@ class SummaryCRUD {
         return tableRows;
     }
 
-    drawTable(resp) {
+    // draw tables
+    drawTable(resp, tableRows) {
         const header = $("thead tr")
-        $("#name-detail").html(`Summary for environmental table "${resp.name}"`);
+        $("#name-detail").html(`Summary for table "${resp.name}"`);
 
         // make columns
         resp.columns.forEach(col => {
@@ -114,8 +115,6 @@ class SummaryCRUD {
             th.html(col.columnName);
             header.append(th);
         });
-
-        const tableRows = this.genSummaryRows(resp.rows, resp.columns);
 
         // post process each row
         $.fn.dataTable.ext.errMode = 'none';
@@ -131,20 +130,24 @@ class SummaryCRUD {
     }
 
     genSelects(summary) {
-
+        for (const key in summary) {
+            const item = $(`<a class="dropdown-item" href="#">${key}</a>`)
+            item.click(function() {
+                const btnId = $(this).parents(".dropdown-menu").attr("aria-labelledby");
+                $("#" + btnId).html($(this).text()+' <span class="caret"></span>');
+            });
+            $("#groupDropdownList").append(item);
+        }
     }
 
     async ready() {
         const params = parseParam("id", "/tables");
         const id = parseInt(params.id);
-        const data = await tableApi.data(id);
-        $(".dropdown-menu li a").click(function(){
-            $(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
-        });
-        this.drawTable(data);
+        const data = await tableApi.data(id);        ;
+        const tableRows = this.genSummaryRows(data.rows, data.columns);
+        this.drawTable(data, tableRows);
         this.genSelects(this.summary);
     }
-
 }
 
 window.crud = new SummaryCRUD();
