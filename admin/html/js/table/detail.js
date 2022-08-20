@@ -50,4 +50,10 @@ window.save = function() {
     console.log("Saving things right now!!");
 }
 
+window.stats = function () {
+    const params = parseParam("id", "/tables");
+    const id = parseInt(params.id);
+    window.location = `summary?id=${id}`
+}
+
 $(document).ready(() => ready());
