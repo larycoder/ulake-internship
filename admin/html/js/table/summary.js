@@ -108,14 +108,16 @@ function drawTable(resp) {
 
     // post process each row
     $.fn.dataTable.ext.errMode = 'none';
-    $('#table').DataTable({
+    const table = $('#table').DataTable({
         scrollX: true,
         bProcessing: true,
         searching: false,
         paging: false,
         ordering: false,
+        buttons: [ 'csv' ],
         data: tableRows
     });
+    window.crud = { table: table };
 }
 
 async function ready() {
