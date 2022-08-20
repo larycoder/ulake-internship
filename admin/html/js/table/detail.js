@@ -8,7 +8,7 @@ function drawTable(resp) {
     resp.columns.push("Actions");
     resp.columns.forEach(col => {
         const th = $("<th></th>");
-        th.html(col);
+        th.html(col.columnName);
         header.append(th);
     });
     // post process each row
