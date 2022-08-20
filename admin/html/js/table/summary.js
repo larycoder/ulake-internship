@@ -8,64 +8,78 @@ function getCombineGroupCol(row, groupColIndices) {
 }
 
 // TODO : refactor this function
-
-// perform summary for a location
-function summary(rows, cols) {
-    let tableRows = [];
-    let groups = {};     // will be in structure { groupedItem: [rows] }
-    let groupColIndices = [];
+function getGroupColIndices(cols) {
+    let ret = [];
     for (let i = 0; i < cols.length; i++) {
         if (!!cols[i].groupBy) {
-            groupColIndices.push(i);
+            ret.push(i);
         }
     }
-    if (groupColIndices.length) {
-        // group rows into groups, as indicated by groupColIndices
-        for (const rid in rows) {
-            const key = getCombineGroupCol(rows[rid], groupColIndices);
-            if (!groups.hasOwnProperty(key)) {
-                groups[key] = [];
-            }
-            groups[key].push(rows[rid]);
-        }
-        // for each group, we perform average, min, and max
-        let stats = {};
-        for (const groupName in groups) {
-            let statsKey = {min: [], max: [], avg: [], sum: []};
-            for (const row of groups[groupName]) {
-                for (let i = 0; i < row.length; i++) {
-                    if (isNumeric(row[i])) {
-                        const float = parseFloat(row[i]);
-                        if (!statsKey.sum[i]) statsKey.sum[i] = 0;
-                        if (!statsKey.min[i]) statsKey.min[i] = float;
-                        if (!statsKey.max[i]) statsKey.max[i] = float;
+    return ret;
+}
 
-                        if (statsKey.min[i] < float) statsKey.min[i] = float;
-                        if (statsKey.max[i] > float) statsKey.max[i] = float;
-                        statsKey.sum[i] += float;
-                    }
+// group rows into groups, as indicated by groupColIndices
+function groupRows(rows, groupColIndices) {
+    let ret = {};     // will be in structure { groupedItem: [rows] }
+    for (const rid in rows) {
+        const key = getCombineGroupCol(rows[rid], groupColIndices);
+        if (!ret.hasOwnProperty(key)) {
+            ret[key] = [];
+        }
+        ret[key].push(rows[rid]);
+    }
+    return ret;
+}
+
+// for each group, we perform average, min, and max
+function calcStats(groups) {
+    let ret = {};
+    for (const groupName in groups) {
+        let statsKey = {min: [], max: [], avg: [], sum: []};
+        for (const row of groups[groupName]) {
+            for (let i = 0; i < row.length; i++) {
+                if (isNumeric(row[i])) {
+                    const float = parseFloat(row[i]);
+                    if (!statsKey.sum[i]) statsKey.sum[i] = 0;
+                    if (!statsKey.min[i]) statsKey.min[i] = float;
+                    if (!statsKey.max[i]) statsKey.max[i] = float;
+
+                    if (statsKey.min[i] < float) statsKey.min[i] = float;
+                    if (statsKey.max[i] > float) statsKey.max[i] = float;
+                    statsKey.sum[i] += float;
                 }
             }
-            statsKey.min = statsKey.min.map(i => i ? +i.toFixed(2) : "");
-            statsKey.max = statsKey.max.map(i => i ? +i.toFixed(2) : "");
-            statsKey.avg = statsKey.sum.map(i => i ? +(i/groups[groupName].length).toFixed(2) : "");
-            delete statsKey.sum;
-            stats[groupName] = statsKey;
         }
-        // console.log(stats);
+        statsKey.min = statsKey.min.map(i => i ? +i.toFixed(2) : "");
+        statsKey.max = statsKey.max.map(i => i ? +i.toFixed(2) : "");
+        statsKey.avg = statsKey.sum.map(i => i ? +(i/groups[groupName].length).toFixed(2) : "");
+        delete statsKey.sum;
+        ret[groupName] = statsKey;
+    }
+    return ret;
+}
 
-        // generate summary
-        let summary = {};
-        for (const groupName in stats) {
-            // a row for one group
-            const groupStats = stats[groupName];
-            for (const statKey in groupStats)    // min, max, avg
-                groupStats[statKey][groupColIndices[0]] = `${groupName}: ${statKey}`;
-        }
-        console.log(stats);
+// generate summary from stats
+function summarize(stats) {
+    for (const groupName in stats) {
+        // a row for one group
+        const groupStats = stats[groupName];
+        for (const statKey in groupStats)    // min, max, avg
+            groupStats[statKey][groupColIndices[0]] = `${groupName}: ${statKey}`;
+    }
+    return stats;
+}
 
+// perform summary for a location
+function getSummaryRows(rows, cols) {
+    let tableRows = [];
+    const groupColIndices = getGroupColIndices(cols);
+    if (groupColIndices.length) {
+        const groups = groupRows(rows, groupColIndices);
+        const stats = calcStats(groups);
+        const summary = summarize(stats);
         // convert this into table row
-        for (const groupName in stats) {
+        for (const groupName in summary) {
             const groupStats = stats[groupName];
             for (const row in groupStats)
                 tableRows.push(groupStats[row]);
@@ -75,7 +89,7 @@ function summary(rows, cols) {
         // show all by default
         tableRows.push(resp.rows[rid]);
     }
-    console.log(tableRows);
+    // console.log(tableRows);
     return tableRows;
 }
 
@@ -90,11 +104,12 @@ function drawTable(resp) {
         header.append(th);
     });
 
-    const tableRows = summary(resp.rows, resp.columns);
+    const tableRows = getSummaryRows(resp.rows, resp.columns);
 
     // post process each row
     $.fn.dataTable.ext.errMode = 'none';
     $('#table').DataTable({
+        scrollX: true,
         bProcessing: true,
         searching: false,
         paging: false,
@@ -109,7 +124,5 @@ async function ready() {
     const data = await tableApi.data(id);
     drawTable(data);
 }
-
-
 
 $(document).ready(() => ready());
