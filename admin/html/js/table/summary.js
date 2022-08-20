@@ -1,5 +1,10 @@
 import { tableApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
+function dropdownClicked() {
+    const btnId = $(this).parents(".dropdown-menu").attr("aria-labelledby");
+    $("#" + btnId).html($(this).text()+' <span class="caret"></span>');
+}
+
 class SummaryCRUD {
     // get group names. should be multiple columns but only one group for now.
     getCombineGroupCol(row, groupColIndices) {
@@ -129,15 +134,19 @@ class SummaryCRUD {
         });
     }
 
-    genSelects(summary) {
+    genSelects(resp, summary) {
         for (const key in summary) {
             const item = $(`<a class="dropdown-item" href="#">${key}</a>`)
-            item.click(function() {
-                const btnId = $(this).parents(".dropdown-menu").attr("aria-labelledby");
-                $("#" + btnId).html($(this).text()+' <span class="caret"></span>');
-            });
+            item.click(dropdownClicked);
             $("#groupDropdownList").append(item);
         }
+
+        // make field column
+        resp.columns.forEach(col => {
+            const item = $(`<a class="dropdown-item" href="#">${col.columnName}</a>`)
+            item.click(dropdownClicked);
+            $("#fieldDropdownList").append(item);
+        });
     }
 
     async ready() {
@@ -146,7 +155,7 @@ class SummaryCRUD {
         const data = await tableApi.data(id);        ;
         const tableRows = this.genSummaryRows(data.rows, data.columns);
         this.drawTable(data, tableRows);
-        this.genSelects(this.summary);
+        this.genSelects(data, this.summary);
     }
 }
 
