@@ -35,6 +35,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.table.model.Table;
+import org.usth.ict.ulake.table.model.TableColumnModel;
 import org.usth.ict.ulake.table.model.TableMetadata;
 import org.usth.ict.ulake.table.model.TableModel;
 import org.usth.ict.ulake.table.parser.Csv;
@@ -138,12 +139,8 @@ public class TableResource {
         ret.put("ownerId", table.ownerId);
 
         // columns
-        ArrayList<String> colInfo = new ArrayList<>();
-        var cols = repoColumn.find("table.id", id);
-        for (var col: cols.list()) {
-            colInfo.add(col.columnName);
-        }
-        ret.put("columns", colInfo);
+        var cols = repoColumn.list("table.id", id);
+        ret.put("columns", cols);
 
         // cells
         var cells = repoCell.find("table.id", id);

@@ -17,6 +17,9 @@ public class TableColumnModel {
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long id;
 
+    @Schema(description = "Indicates if this column is used for grouping")
+    public Boolean groupBy;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn
