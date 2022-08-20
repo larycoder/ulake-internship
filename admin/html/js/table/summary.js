@@ -60,7 +60,7 @@ function calcStats(groups) {
 }
 
 // generate summary from stats
-function summarize(stats) {
+function summarize(stats, groupColIndices) {
     for (const groupName in stats) {
         // a row for one group
         const groupStats = stats[groupName];
@@ -71,13 +71,13 @@ function summarize(stats) {
 }
 
 // perform summary for a location
-function getSummaryRows(rows, cols) {
+function genSummaryRows(rows, cols) {
     let tableRows = [];
     const groupColIndices = getGroupColIndices(cols);
     if (groupColIndices.length) {
         const groups = groupRows(rows, groupColIndices);
         const stats = calcStats(groups);
-        const summary = summarize(stats);
+        const summary = summarize(stats, groupColIndices);
         // convert this into table row
         for (const groupName in summary) {
             const groupStats = stats[groupName];
@@ -104,7 +104,7 @@ function drawTable(resp) {
         header.append(th);
     });
 
-    const tableRows = getSummaryRows(resp.rows, resp.columns);
+    const tableRows = genSummaryRows(resp.rows, resp.columns);
 
     // post process each row
     $.fn.dataTable.ext.errMode = 'none';
