@@ -18,15 +18,25 @@ function getGroupColIndices(cols) {
     return ret;
 }
 
+// remove empty rows
+function countTotalLength(row) {
+    return row.reduce((prev, curr) => {
+        if (typeof prev === 'string' || prev instanceof String) prev = prev.length;
+        return prev + curr.length;
+    });
+}
+
 // group rows into groups, as indicated by groupColIndices
 function groupRows(rows, groupColIndices) {
     let ret = {};     // will be in structure { groupedItem: [rows] }
     for (const rid in rows) {
-        const key = getCombineGroupCol(rows[rid], groupColIndices);
-        if (!ret.hasOwnProperty(key)) {
-            ret[key] = [];
+        if (countTotalLength(rows[rid]) > 0) {
+            const key = getCombineGroupCol(rows[rid], groupColIndices);
+            if (!ret.hasOwnProperty(key)) {
+                ret[key] = [];
+            }
+            ret[key].push(rows[rid]);
         }
-        ret[key].push(rows[rid]);
     }
     return ret;
 }
