@@ -1,8 +1,8 @@
 import { tableApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
 
-function dropdownClicked() {
-    const btnId = $(this).parents(".dropdown-menu").attr("aria-labelledby");
-    $("#" + btnId).html($(this).text()+' <span class="caret"></span>');
+function dropdownClicked(a) {
+    const btnId = $(a).parents(".dropdown-menu").attr("aria-labelledby");
+    $("#" + btnId).html($(a).text()+' <span class="caret"></span>');
 }
 
 class SummaryCRUD {
@@ -134,17 +134,31 @@ class SummaryCRUD {
         });
     }
 
+    drawChart() {
+        const group = $("#groupDropdownButton").text().trim();
+        const field = $("#fieldDropdownButton").text().trim();
+        console.log(`Draw chart for group ${group}, and field ${field}`);
+        if (group === "Group" || field === "Field") return;
+        const groupColIdx = this.getGroupColIndices(this.data.columns);
+        let rows = [];
+        for (const rid in this.data.rows) {
+            if (this.data.rows[rid][groupColIdx] === group)
+                rows.push(this.data.rows[rid]);
+        }
+        console.log(rows);
+    }
+
     genSelects(resp, summary) {
         for (const key in summary) {
             const item = $(`<a class="dropdown-item" href="#">${key}</a>`)
-            item.click(dropdownClicked);
+            item.click(function () { dropdownClicked(this); window.crud.drawChart();});
             $("#groupDropdownList").append(item);
         }
 
         // make field column
         resp.columns.forEach(col => {
             const item = $(`<a class="dropdown-item" href="#">${col.columnName}</a>`)
-            item.click(dropdownClicked);
+            item.click(function () { dropdownClicked(this); window.crud.drawChart();});
             $("#fieldDropdownList").append(item);
         });
     }
@@ -152,10 +166,10 @@ class SummaryCRUD {
     async ready() {
         const params = parseParam("id", "/tables");
         const id = parseInt(params.id);
-        const data = await tableApi.data(id);        ;
-        const tableRows = this.genSummaryRows(data.rows, data.columns);
-        this.drawTable(data, tableRows);
-        this.genSelects(data, this.summary);
+        this.data = await tableApi.data(id);        ;
+        const tableRows = this.genSummaryRows(this.data.rows, this.data.columns);
+        this.drawTable(this.data, tableRows);
+        this.genSelects(this.data, this.summary);
     }
 }
 
