@@ -1,4 +1,5 @@
 import { tableApi } from "http://common.dev.ulake.usth.edu.vn/js/api.js";
+import { defaultLineChartSettings } from "../chartsettings.js";
 
 function dropdownClicked(a) {
     const btnId = $(a).parents(".dropdown-menu").attr("aria-labelledby");
@@ -6,6 +7,8 @@ function dropdownClicked(a) {
 }
 
 class SummaryCRUD {
+    xaxis = ["time", "date", "datetime", "timestamp", "thời gian", "ngày", "ngày giờ"];
+
     // get group names. should be multiple columns but only one group for now.
     getCombineGroupCol(row, groupColIndices) {
         return groupColIndices
@@ -137,15 +140,35 @@ class SummaryCRUD {
     drawChart() {
         const group = $("#groupDropdownButton").text().trim();
         const field = $("#fieldDropdownButton").text().trim();
-        console.log(`Draw chart for group ${group}, and field ${field}`);
+        // console.log(`Draw chart for group ${group}, and field ${field}`);
         if (group === "Group" || field === "Field") return;
         const groupColIdx = this.getGroupColIndices(this.data.columns);
         let rows = [];
+
+        // flatten object keys in selected group into array
         for (const rid in this.data.rows) {
             if (this.data.rows[rid][groupColIdx] === group)
                 rows.push(this.data.rows[rid]);
         }
-        console.log(rows);
+
+        // find time/date/date time/timestamp column for labelss
+        const timeColIndex = this.data.columns
+                    .map(c => c.columnName.toLowerCase())
+                    .findIndex(c => this.xaxis.includes(c));
+        // console.log("time col idx", timeColIndex);
+        if (timeColIndex < 0) timeColIndex = 0; // default first column
+
+        const dataColIndex = this.data.columns.findIndex(c => c.columnName === field);
+        if (dataColIndex < 0) dataColIndex = 0; // default first column
+
+        const ctx = $("#graph");
+        const chart = structuredClone(defaultLineChartSettings);
+        chart.data.labels = rows.map(r => r[timeColIndex]);
+        chart.data.datasets[0].data = rows.map(r => r[dataColIndex]);
+        chart.data.datasets[0].label = field;
+        new Chart(ctx, chart);
+
+        // console.log(rows);
     }
 
     genSelects(resp, summary) {
