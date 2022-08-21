@@ -1,6 +1,8 @@
 import base64
 from io import BytesIO
 import os
+import sys
+import time
 
 from PIL import Image
 import cv2
@@ -8,52 +10,73 @@ from flask import Flask, jsonify
 from keras_retinanet.utils.image import preprocess_image, read_image_bgr
 from keras_retinanet.utils.visualization import draw_box
 import numpy as np
-import pandas
+import tensorflow as tf
 
 from keras_maskrcnn import models
 from utils import calculateNoduleSize, nms
 
 application = Flask(__name__)
-base = "data"
 
-# TODO: using lake model
-model_path = os.path.join(base, 'model/resnet50_csv_07.h5')
+base = os.environ["LCC_BASE"]
+if base is None:
+    print("Could not detect lcc base")
+    sys.exit(1)
 
-if os.path.exists(model_path):
-    print(model_path)
-else:
-    print("No model exist")
+# Preserve variable for holding model
+class Model:
+    _model = None
+    _flag = "idle"
 
-# load retinanet model
-print(model_path)
-model = models.load_model(model_path, backbone_name='resnet50')
+    @staticmethod
+    def get_instance():
+        while Model._flag in ["in-load", "in-shutdown"]:
+            time.sleep(5)
+        return Model._model
 
 
-@application.route('/detect/<string:patient_id>/')
-def detect(patient_id):
-    print("Detecting")
+@application.route('/health')
+def health_check():
+    return jsonify({
+        "code": 200,
+        "base": base,
+        "model": str(Model.get_instance()),
+        "flag": Model._flag
+    })
 
-    # TODO: do sth in this path
-    df_node = pandas.read_csv(base + "/csv/patients3cm.csv")
-    df_patient = df_node[df_node["Patient_ID"] == patient_id]
-    patient_name = df_patient["Patient_Name"].to_string(index=False)
 
-    if patient_name.startswith(" "):
-        patient_name = patient_name.strip()
-        patient_name = patient_name.replace(" ", "_")
-        print(patient_name)
+@application.route('/reset')
+def reset_model():
+    if Model.get_instance() is not None:
+        Model._flag = "in-shutdown"
+        tf.keras.backend.clear_session()
+        Model._model = None
+        Model._flag = "idle"
+    return jsonify({"code": 200})
 
-    # TODO: do something with this path
-    k1_prep_result_path = base + '/k_data/K_output_1/'
-    k2_prep_result_path = base + '/k_data/K_output_2/'
-    if (os.path.isfile(k1_prep_result_path + patient_name + '_clean.npy')):
-        image_path = k1_prep_result_path + patient_name + '_clean.npy'
-    elif (os.path.isfile(k2_prep_result_path + patient_name + '_clean.npy')):
-        image_path = k2_prep_result_path + patient_name + '_clean.npy'
+
+@application.route('/setup/<string:model_file_id>')
+def setup_model(model_file_id):
+    # load retinanet model
+    model_path = os.path.join(base, model_file_id)
+    Model.get_instance() # wait for another process finish
+    Model._flag = "in-load"
+    Model._model = models.load_model(model_path, backbone_name="resnet50")
+    Model._flag = "running"
+    return jsonify({"code": 200})
+
+
+@application.route('/detect/<string:patient_file_id>')
+def detect(patient_file_id):
+    global model
+    if Model.get_instance() is None:
+        return jsonify({"code": 404, "msg": "Model is not setup"})
     else:
-        print("Not found image file", patient_name)
+        model = Model.get_instance()
 
+    print("Detecting...")
+    image_path = os.path.join(base, patient_file_id)
     img_array = np.load(image_path)
+
     print("image shape: ", img_array.shape)
     labels_to_names = {0: 'nodule'}
     threshold = 0.5
@@ -104,7 +127,7 @@ def detect(patient_id):
         img_str = str(base64.b64encode(buff.getvalue()), 'utf-8')
         pre_results.append([slice_index, nodule_pbb, img_str])
 
-    return jsonify({'pre_results': pre_results})
+    return jsonify({"pre_results": pre_results, "code": 200})
 
 
 if __name__ == "__main__":
