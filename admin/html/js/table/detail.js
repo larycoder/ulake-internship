@@ -22,44 +22,76 @@ class TableDetailCRUD {
             rows.push(resp.rows[rid]);
         }
         $.fn.dataTable.ext.errMode = 'none';
-        $('#table').DataTable({
+        this.table = $('#table').DataTable({
             bProcessing: true,
             paging: true,
             scrollX: true,
             ordering: false,
             data: rows
         });
+
+        this.columnTable = $('#column-table').DataTable({
+            bProcessing: false,
+            paging: false,
+            ordering: false,
+            searching: false,
+            data: resp.columns.filter(c => !isString(c)),
+            columns: [
+                { data: "id" },
+                { data: "columnName" },
+                { data: "dataType",
+                    render: (data, type, row) => `<div class="form-group"><select class="form-control" value="${data}">
+                                                    <option value="number" ${data === "number" ? "selected" : ""}>number</option>
+                                                    <option value="date" ${data === "date" ? "selected" : ""}>date</option>
+                                                    <option value="string" ${data === "string" ? "selected" : ""}>string</option>
+                                                 </select></div>`
+                },
+                { data: "groupBy",
+                    render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="read" onchange="window.crud.columnCheckChange(this)">`
+                }
+            ]
+        });
+        console.log(resp.columns);
     }
 
     async ready() {
         const params = parseParam("id", "/tables");
         const id = parseInt(params.id);
-        const data = await tableApi.data(id);
-        this.drawTable(data);
+        this.data = await tableApi.data(id);
+        this.drawTable(this.data);
     }
 
     deleteRow(i) {
-        const table = $('#table').DataTable();
-        table.row($(i).parents('tr')).remove().draw();
+        this.table.row($(i).parents('tr')).remove().draw();
     }
 
     addRow(i) {
-        const table = $('#table').DataTable();
-        table.row.add([]).draw();
+        this.table.row.add([]).draw();
     }
 
     save() {
-        console.log("Saving things right now!!");
+        // TODO: console.log("Saving things right now!!");
+        showToast("Info", "Saved table data");
     }
 
     saveColumn() {
-        console.log("Saving things right now!!");
+        // TODO
+        console.log("Saving things right now!!", this.data.columns.filter(c => !isString(c)));
+        showToast("Info", "Saved column types");
+        console.log();
+    }
+
+    columnCheckChange(button) {
+        var $button = $(button);
+        const row = $button.parents("tr");
+        const data = this.columnTable.row(row).data();
+        data.groupBy = $button.prop("checked");
     }
 
     stats() {
         const params = parseParam("id", "/tables");
         const id = parseInt(params.id);
-        window.location = `summary?id=${id}`
+        window.location = `summary?id=${id}`;
     }
 }
 
