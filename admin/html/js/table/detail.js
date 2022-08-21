@@ -82,7 +82,6 @@ class TableDetailCRUD {
         console.log("Saving things right now!!", columns);
         tableApi.saveColumn(columns);
         showToast("Info", "Saved columns");
-
     }
 
     columnCheckChange(button) {
@@ -112,6 +111,21 @@ class TableDetailCRUD {
         var MM = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         var yyyy = today.getFullYear();
         this.lastInput.value = `${yyyy}-${MM}-${dd} ${hh}:${mm}`;
+    }
+
+    fillLattitude() {
+        if (!this.lastInput) return;
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+                console.log("getCurrentPosition ok", pos)
+            }, function (err) {
+                console.warn(`ERROR(${err.code}): ${err.message}`);
+            }, options);
     }
 
     stats() {
