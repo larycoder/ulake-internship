@@ -40,7 +40,7 @@ class TableDetailCRUD {
                 { data: "id" },
                 { data: "columnName" },
                 { data: "dataType",
-                    render: (data, type, row) => `<div class="form-group"><select class="form-control" value="${data}">
+                    render: (data, type, row) => `<div class="form-group"><select class="form-control" value="${data}" onchange="window.crud.columnSelectChange(this)">
                                                     <option value="number" ${data === "number" ? "selected" : ""}>number</option>
                                                     <option value="date" ${data === "date" ? "selected" : ""}>date</option>
                                                     <option value="string" ${data === "string" ? "selected" : ""}>string</option>
@@ -76,9 +76,11 @@ class TableDetailCRUD {
 
     saveColumn() {
         // TODO
-        console.log("Saving things right now!!", this.data.columns.filter(c => !isString(c)));
-        showToast("Info", "Saved column types");
-        console.log();
+        const columns = this.data.columns.filter(c => !isString(c));
+        console.log("Saving things right now!!", columns);
+        tableApi.saveColumn(columns);
+        showToast("Info", "Saved columns");
+
     }
 
     columnCheckChange(button) {
@@ -86,6 +88,13 @@ class TableDetailCRUD {
         const row = $button.parents("tr");
         const data = this.columnTable.row(row).data();
         data.groupBy = $button.prop("checked");
+    }
+
+    columnSelectChange(button) {
+        var $button = $(button);
+        const row = $button.parents("tr");
+        const data = this.columnTable.row(row).data();
+        data.dataType = $button.val();
     }
 
     stats() {

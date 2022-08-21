@@ -172,6 +172,10 @@ class GroupApi extends Api {
     async convert(id) {
         return await this.post(`/${id}/convert`, { }, { "Content-Type": "application/json; charset=utf-8" } );
     }
+
+    async saveColumn(cols) {
+        return await this.put(`/columns`, cols, { "Content-Type": "application/json; charset=utf-8" } );
+    }
 }
 
 /**
