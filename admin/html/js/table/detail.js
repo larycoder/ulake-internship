@@ -40,11 +40,11 @@ class TableDetailCRUD {
                 { data: "id" },
                 { data: "columnName" },
                 { data: "dataType",
-                    render: (data, type, row) => `<div class="form-group"><select class="form-control" value="${data}" onchange="window.crud.columnSelectChange(this)">
+                    render: (data, type, row) => `<select class="form-control" value="${data}" onchange="window.crud.columnSelectChange(this)">
                                                     <option value="number" ${data === "number" ? "selected" : ""}>number</option>
                                                     <option value="date" ${data === "date" ? "selected" : ""}>date</option>
                                                     <option value="string" ${data === "string" ? "selected" : ""}>string</option>
-                                                 </select></div>`
+                                                 </select>`
                 },
                 { data: "groupBy",
                     render: (data, type, row) => `<input type="checkbox" ${data === true? "checked" : ""} data-field="read" onchange="window.crud.columnCheckChange(this)">`
