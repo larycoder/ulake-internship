@@ -142,9 +142,9 @@ class SummaryCRUD {
     normalizeDateTime(rows, timeColIndex) {
         const normalizers = {
             "^(\\d{4})-(\\d{1,2})-(\\d{1,2}) (\\d{1,2}):(\\d{1,2})$": "$1-$2-$3 $4:$5",
-            "^(\\d{4})$": "$1-01-01 00:00",                             // yyyy
-            "^(\\d{1,2})[-/](\\d{4})$": "$2-$1-01 00:00",               // mm/yyyy
-            "^(\\d{1,2})[-/](\\d{1,2})[-/](\\d{4})$": "$3-$1-$2 00:00", // mm/dd/yyyy
+            "^(\\d{4})$": "$1-01-01",                             // yyyy
+            "^(\\d{1,2})[-/](\\d{4})$": "$2-$1-01",               // mm/yyyy
+            "^(\\d{1,2})[-/](\\d{1,2})[-/](\\d{4})$": "$3-$1-$2", // mm/dd/yyyy
         };
         rows.forEach(row => {
             let label = row[timeColIndex];
@@ -155,7 +155,7 @@ class SummaryCRUD {
                     // post processing: pad with zeros
                     label = label.replace(/\d+/g, m => "0".substr(m.length - 1) + m);
                     row[timeColIndex] = label;
-                    console.log(`matched: ${label} with ${norm}, replace to ${row[timeColIndex]}`);
+                    // console.log(`matched: ${label} with ${norm}, replace to ${row[timeColIndex]}`);
                     break;
                 }
             }
@@ -173,9 +173,12 @@ class SummaryCRUD {
             if (a[timeColIndex] > b[timeColIndex]) return 1;
             return 0;
         });
-        console.log(rows);
+        // console.log(rows);
         return rows;
+    }
 
+    removeEmptyRowValues(rows, dataColIndex) {
+        return rows.filter(row => !isEmpty(row[dataColIndex]));
     }
 
     drawChart() {
@@ -202,8 +205,9 @@ class SummaryCRUD {
         const dataColIndex = this.data.columns.findIndex(c => c.columnName === field);
         if (dataColIndex < 0) dataColIndex = 0; // default first column
 
-
         rows = this.sort(rows, timeColIndex);
+        rows = this.removeEmptyRowValues(rows, dataColIndex);
+        //console.log(rows);
 
         const ctx = $("#graph");
         const chart = structuredClone(defaultLineChartSettings);
