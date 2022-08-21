@@ -137,6 +137,47 @@ class SummaryCRUD {
         });
     }
 
+    // standardize year, month, day format
+    // output: yyyy-MM-dd hh:mm
+    normalizeDateTime(rows, timeColIndex) {
+        const normalizers = {
+            "^(\\d{4})-(\\d{1,2})-(\\d{1,2}) (\\d{1,2}):(\\d{1,2})$": "$1-$2-$3 $4:$5",
+            "^(\\d{4})$": "$1-01-01 00:00",                             // yyyy
+            "^(\\d{1,2})[-/](\\d{4})$": "$2-$1-01 00:00",               // mm/yyyy
+            "^(\\d{1,2})[-/](\\d{1,2})[-/](\\d{4})$": "$3-$1-$2 00:00", // mm/dd/yyyy
+        };
+        rows.forEach(row => {
+            let label = row[timeColIndex];
+            for (const [norm, value] of Object.entries(normalizers)) {
+                const re = new RegExp(norm);
+                if (label.match(re)) {
+                    label = label.replace(re, value);
+                    // post processing: pad with zeros
+                    label = label.replace(/\d+/g, m => "0".substr(m.length - 1) + m);
+                    row[timeColIndex] = label;
+                    console.log(`matched: ${label} with ${norm}, replace to ${row[timeColIndex]}`);
+                    break;
+                }
+            }
+        });
+        return rows;
+    }
+
+    // sort rows by time column
+    sort(rows, timeColIndex) {
+        const labels = rows.map(r => r[timeColIndex]);
+        rows = this.normalizeDateTime(rows, timeColIndex);
+        rows = rows.sort((a, b) => {
+            //console.log(`comparing ${a[timeColIndex]} and ${b[timeColIndex]}`);
+            if (a[timeColIndex] < b[timeColIndex]) return -1;
+            if (a[timeColIndex] > b[timeColIndex]) return 1;
+            return 0;
+        });
+        console.log(rows);
+        return rows;
+
+    }
+
     drawChart() {
         const group = $("#groupDropdownButton").text().trim();
         const field = $("#fieldDropdownButton").text().trim();
@@ -160,6 +201,9 @@ class SummaryCRUD {
 
         const dataColIndex = this.data.columns.findIndex(c => c.columnName === field);
         if (dataColIndex < 0) dataColIndex = 0; // default first column
+
+
+        rows = this.sort(rows, timeColIndex);
 
         const ctx = $("#graph");
         const chart = structuredClone(defaultLineChartSettings);
