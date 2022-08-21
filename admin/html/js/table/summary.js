@@ -63,8 +63,8 @@ class SummaryCRUD {
                         if (!statsKey.min[i]) statsKey.min[i] = float;
                         if (!statsKey.max[i]) statsKey.max[i] = float;
 
-                        if (statsKey.min[i] < float) statsKey.min[i] = float;
-                        if (statsKey.max[i] > float) statsKey.max[i] = float;
+                        if (statsKey.min[i] > float) statsKey.min[i] = float;
+                        if (statsKey.max[i] < float) statsKey.max[i] = float;
                         statsKey.sum[i] += float;
                     }
                 }
@@ -207,13 +207,15 @@ class SummaryCRUD {
 
         rows = this.sort(rows, timeColIndex);
         rows = this.removeEmptyRowValues(rows, dataColIndex);
-        //console.log(rows);
+        const min = this.summary[group].min[dataColIndex];
+        const max = this.summary[group].max[dataColIndex];
+        const average = this.summary[group].avg[dataColIndex];
 
         const ctx = $("#graph");
         const chart = structuredClone(defaultLineChartSettings);
         chart.data.labels = rows.map(r => r[timeColIndex]);
         chart.data.datasets[0].data = rows.map(r => r[dataColIndex]);
-        chart.data.datasets[0].label = field;
+        chart.data.datasets[0].label = `${field}. Min: ${min}, Max: ${max}, Average: ${average}.`;
         if (this.chart) this.chart.destroy();
         this.chart = new Chart(ctx, chart);
         // console.log(rows);
