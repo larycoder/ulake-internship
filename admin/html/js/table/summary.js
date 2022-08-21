@@ -109,7 +109,7 @@ class SummaryCRUD {
         return tableRows;
     }
 
-    // draw tables
+    // draw table from prepared rows
     drawTable(resp, tableRows) {
         const header = $("thead tr")
         $("#name-detail").html(`Summary for table "${resp.name}"`);
