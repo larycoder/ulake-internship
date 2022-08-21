@@ -166,8 +166,8 @@ class SummaryCRUD {
         chart.data.labels = rows.map(r => r[timeColIndex]);
         chart.data.datasets[0].data = rows.map(r => r[dataColIndex]);
         chart.data.datasets[0].label = field;
-        new Chart(ctx, chart);
-
+        if (this.chart) this.chart.destroy();
+        this.chart = new Chart(ctx, chart);
         // console.log(rows);
     }
 
