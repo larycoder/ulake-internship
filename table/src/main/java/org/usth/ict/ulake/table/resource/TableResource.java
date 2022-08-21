@@ -17,6 +17,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -49,6 +50,7 @@ import org.usth.ict.ulake.table.persistence.TableRowRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
@@ -116,13 +118,36 @@ public class TableResource {
     @Path("/{id}/columns")
     @RolesAllowed({ "User", "Admin" })
     @Operation(summary = "Get table columns")
-    public Response column(@PathParam("id") @Parameter(description = "User id to search") Long id) {
+    public Response column(@PathParam("id") @Parameter(description = "Table id to search") Long id) {
         HashMap<String, String> colInfo = new HashMap<>();
         var cols = repoColumn.find("table.id", id);
         for (var col: cols.list()) {
             colInfo.put(col.columnName, col.dataType);
         }
         return response.build(200, null, colInfo);
+    }
+
+    @PUT
+    @Path("/columns")
+    @RolesAllowed({ "User", "Admin" })
+    @Operation(summary = "Update table columns")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response saveColumn(@RequestBody(description = "Columns to be updated") List<TableColumnModel> cols) {
+        int updated = 0;
+        for (var col: cols) {
+            TableColumnModel entity = repoColumn.findById(col.id);
+            if (entity == null) {
+                continue;   // ignore
+            }
+            if (!Utils.isEmpty(col.columnName)) entity.columnName = col.columnName;
+            if (!Utils.isEmpty(col.dataType)) entity.dataType = col.dataType;
+            if (col.groupBy != null) entity.groupBy = col.groupBy;
+            log.info("data type of id {} will be {}. entity dataType is {}", col.id, col.dataType, entity.dataType);
+            repoColumn.persist(entity);
+            updated++;
+        }
+        return response.build(200, null, updated);
     }
 
     @GET
