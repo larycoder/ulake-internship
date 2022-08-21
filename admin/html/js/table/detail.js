@@ -24,6 +24,7 @@ function drawTable(resp) {
     $('#table').DataTable({
         bProcessing: true,
         paging: true,
+        scrollX: true,
         ordering: false,
         data: rows
     });
