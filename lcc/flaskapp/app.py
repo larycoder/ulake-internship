@@ -10,7 +10,7 @@ from flask import Flask, jsonify
 from keras_retinanet.utils.image import preprocess_image, read_image_bgr
 from keras_retinanet.utils.visualization import draw_box
 import numpy as np
-import tensorflow as tf
+from keras import backend as K
 
 from keras_maskrcnn import models
 from utils import calculateNoduleSize, nms
@@ -44,11 +44,12 @@ def health_check():
     })
 
 
+# TODO: model will not be clear after reset ( its basically useless function )
 @application.route('/reset')
 def reset_model():
     if Model.get_instance() is not None:
         Model._flag = "in-shutdown"
-        tf.keras.backend.clear_session()
+        K.clear_session()
         Model._model = None
         Model._flag = "idle"
     return jsonify({"code": 200})
@@ -67,13 +68,11 @@ def setup_model(model_file_id):
 
 @application.route('/detect/<string:patient_file_id>')
 def detect(patient_file_id):
-    global model
     if Model.get_instance() is None:
         return jsonify({"code": 404, "msg": "Model is not setup"})
-    else:
-        model = Model.get_instance()
 
     print("Detecting...")
+    model = Model.get_instance()
     image_path = os.path.join(base, patient_file_id)
     img_array = np.load(image_path)
 
