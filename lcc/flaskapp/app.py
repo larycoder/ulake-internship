@@ -10,7 +10,6 @@ from flask import Flask, jsonify
 from keras_retinanet.utils.image import preprocess_image, read_image_bgr
 from keras_retinanet.utils.visualization import draw_box
 import numpy as np
-from keras import backend as K
 
 from keras_maskrcnn import models
 from utils import calculateNoduleSize, nms
@@ -18,8 +17,12 @@ from utils import calculateNoduleSize, nms
 application = Flask(__name__)
 
 base = os.environ["LCC_BASE"]
+data = os.environ["LCC_DATA"]
 if base is None:
     print("Could not detect lcc base")
+    sys.exit(1)
+elif data is None:
+    print("Could not detect lcc data")
     sys.exit(1)
 
 # Preserve variable for holding model
@@ -34,46 +37,30 @@ class Model:
         return Model._model
 
 
-@application.route('/health')
-def health_check():
-    return jsonify({
-        "code": 200,
-        "base": base,
-        "model": str(Model.get_instance()),
-        "flag": Model._flag
-    })
+class Resp:
+    @staticmethod
+    def build(code, mesg = None, resp = None):
+        return jsonify({"code": code, "mesg": mesg, "resp": resp})
 
 
-# TODO: model will not be clear after reset ( its basically useless function )
-@application.route('/reset')
-def reset_model():
-    if Model.get_instance() is not None:
-        Model._flag = "in-shutdown"
-        K.clear_session()
-        Model._model = None
-        Model._flag = "idle"
-    return jsonify({"code": 200})
-
-
-@application.route('/setup/<string:model_file_id>')
-def setup_model(model_file_id):
+def setup_model(path):
     # load retinanet model
-    model_path = os.path.join(base, model_file_id)
+    model_path = os.path.join(base, path)
     Model.get_instance() # wait for another process finish
     Model._flag = "in-load"
     Model._model = models.load_model(model_path, backbone_name="resnet50")
     Model._flag = "running"
-    return jsonify({"code": 200})
+    return Resp.build(200)
 
 
 @application.route('/detect/<string:patient_file_id>')
 def detect(patient_file_id):
     if Model.get_instance() is None:
-        return jsonify({"code": 404, "msg": "Model is not setup"})
+        return Resp.build(404, "Model is not setup")
 
     print("Detecting...")
     model = Model.get_instance()
-    image_path = os.path.join(base, patient_file_id)
+    image_path = os.path.join(data, patient_file_id)
     img_array = np.load(image_path)
 
     print("image shape: ", img_array.shape)
@@ -126,8 +113,9 @@ def detect(patient_file_id):
         img_str = str(base64.b64encode(buff.getvalue()), 'utf-8')
         pre_results.append([slice_index, nodule_pbb, img_str])
 
-    return jsonify({"pre_results": pre_results, "code": 200})
+    return Resp.build(200, "", pre_results);
 
 
 if __name__ == "__main__":
+    setup_model("/model/resnet50_csv_07.h5")
     application.run(host='0.0.0.0')
