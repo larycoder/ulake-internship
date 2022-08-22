@@ -106,7 +106,7 @@ class SummaryCRUD {
         }
         else {
             // show all by default
-            tableRows.push(resp.rows[rid]);
+            tableRows.push(rows);
         }
         // console.log(tableRows);
         return tableRows;
