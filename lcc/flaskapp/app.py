@@ -52,7 +52,6 @@ def setup_model(path):
     Model._flag = "in-load"
     Model._model = models.load_model(model_path, backbone_name="resnet50")
     Model._flag = "running"
-    return Resp.build(200)
 
 
 @application.route('/detect/<string:patient_file_id>')
@@ -119,5 +118,5 @@ def detect(patient_file_id):
 
 
 if __name__ == "__main__":
-    setup_model("/model/resnet50_csv_07.h5")
+    setup_model("model/resnet50_csv_07.h5")
     application.run(host='0.0.0.0')
