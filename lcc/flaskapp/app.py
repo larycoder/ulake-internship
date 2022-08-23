@@ -1,8 +1,8 @@
 import base64
 from io import BytesIO
+import io
 import os
 import sys
-import time
 
 from PIL import Image
 import cv2
@@ -10,9 +10,12 @@ from flask import Flask, jsonify
 from keras_retinanet.utils.image import preprocess_image, read_image_bgr
 from keras_retinanet.utils.visualization import draw_box
 import numpy as np
+import tensorflow as tf
+from tensorflow.python.keras.backend import set_session
 
 from keras_maskrcnn import models
-from utils import calculateNoduleSize, nms
+from utils import calculateNoduleSize, nms, resize_image
+
 
 application = Flask(__name__)
 
@@ -26,17 +29,9 @@ elif data is None:
     sys.exit(1)
 
 # Preserve variable for holding model
-
-
-class Model:
-    _model = None
-    _flag = "idle"
-
-    @staticmethod
-    def get_instance():
-        while Model._flag in ["in-load", "in-shutdown"]:
-            time.sleep(5)
-        return Model._model
+model = None
+graph = None
+sess = tf.Session()
 
 
 class Resp:
@@ -47,20 +42,22 @@ class Resp:
 
 def setup_model(path):
     # load retinanet model
+    global model, graph, sess
+
+    set_session(sess)
     model_path = os.path.join(base, path)
-    Model.get_instance()  # wait for another process finish
-    Model._flag = "in-load"
-    Model._model = models.load_model(model_path, backbone_name="resnet50")
-    Model._flag = "running"
+    model = models.load_model(model_path, backbone_name="resnet50")
+    graph = tf.get_default_graph()
 
 
 @application.route('/detect/<string:patient_file_id>')
 def detect(patient_file_id):
-    if Model.get_instance() is None:
+    global model, graph, sess
+
+    if model is None:
         return Resp.build(404, "Model is not setup")
 
     print("Detecting...")
-    model = Model.get_instance()
     image_path = os.path.join(data, patient_file_id)
     img_array = np.load(image_path)
 
@@ -68,16 +65,21 @@ def detect(patient_file_id):
     labels_to_names = {0: 'nodule'}
     threshold = 0.5
 
-    test_dir = base + "/test"
     predict_list = []
     for i in range(img_array.shape[0]):
         # pre-process image for network
-        cv2.imwrite(test_dir + "/" + str(i) + ".jpg", img_array[i])
-        image = read_image_bgr(test_dir + "/" + str(i) + ".jpg")
+        _, buff = cv2.imencode(".jpg", img_array[i])
+        io_buff = io.BytesIO(buff)
+
+        image = read_image_bgr(io_buff)
         pre_image = preprocess_image(image)
         pre_image, scale = resize_image(pre_image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        outputs = model.predict_on_batch(np.expand_dims(pre_image, axis=0))
+
+        set_session(sess)
+        with graph.as_default():
+            outputs = model.predict_on_batch(np.expand_dims(pre_image, axis=0))
+
         boxes = outputs[-4][0]
         scores = outputs[-3][0]
         labels = outputs[-2][0]
