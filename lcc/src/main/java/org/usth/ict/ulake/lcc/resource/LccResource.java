@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.lcc.resource;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -28,6 +29,8 @@ import org.usth.ict.ulake.lcc.model.Patient;
 import org.usth.ict.ulake.lcc.persistence.PatientRepository;
 import org.usth.ict.ulake.lcc.service.LccJob;
 import org.usth.ict.ulake.lcc.service.LccTask;
+
+import io.quarkus.narayana.jta.QuarkusTransaction;
 
 @Path("/lcc")
 @Produces(MediaType.APPLICATION_JSON)
@@ -75,7 +78,6 @@ public class LccResource {
     @GET
     @Path("/{patientId}/detection")
     @RolesAllowed({ "Admin", "User" })
-    @Transactional
     @Operation(summary = "Lcc detection for patient image")
     public Response predict(
         @HeaderParam("Authorization") String bearer,
@@ -83,15 +85,19 @@ public class LccResource {
         Patient patient = repo.findById(patientId);
         if (patient == null)
             return resp.build(404, "Could not find out patient");
-        else if (patient.startTime != null && patient.endTime == null) {
+        else if (patient.creationTime != null && patient.endTime == null) {
             return resp.build(409, "Task is already run");
         }
 
-        patient.startTime = null;
-        patient.endTime = null;
-        patient.status = null;
-        patient.message = null;
-        repo.persist(patient);
+        QuarkusTransaction.begin();
+        Patient myPatient = repo.findById(patientId);
+        myPatient.creationTime = new Date().getTime();
+        myPatient.startTime = null;
+        myPatient.endTime = null;
+        myPatient.status = null;
+        myPatient.message = null;
+        repo.persist(myPatient);
+        QuarkusTransaction.commit();
 
         try {
             task.start(bearer, patientId, LccJob.class);

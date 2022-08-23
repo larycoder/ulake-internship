@@ -32,6 +32,9 @@ public class Patient {
     @Schema(description = "Patient study date")
     public Long studyDate;
 
+    @Schema(description = "Detection process creation job time")
+    public Long creationTime;
+
     @Schema(description = "Detection process start time")
     public Long startTime;
 
