@@ -26,6 +26,8 @@ elif data is None:
     sys.exit(1)
 
 # Preserve variable for holding model
+
+
 class Model:
     _model = None
     _flag = "idle"
@@ -39,14 +41,14 @@ class Model:
 
 class Resp:
     @staticmethod
-    def build(code, mesg = None, resp = None):
-        return jsonify({"code": code, "mesg": mesg, "resp": resp})
+    def build(code, msg=None, resp=None):
+        return jsonify({"code": code, "msg": msg, "resp": resp})
 
 
 def setup_model(path):
     # load retinanet model
     model_path = os.path.join(base, path)
-    Model.get_instance() # wait for another process finish
+    Model.get_instance()  # wait for another process finish
     Model._flag = "in-load"
     Model._model = models.load_model(model_path, backbone_name="resnet50")
     Model._flag = "running"
@@ -113,7 +115,7 @@ def detect(patient_file_id):
         img_str = str(base64.b64encode(buff.getvalue()), 'utf-8')
         pre_results.append([slice_index, nodule_pbb, img_str])
 
-    return Resp.build(200, "", pre_results);
+    return Resp.build(200, "", pre_results)
 
 
 if __name__ == "__main__":
