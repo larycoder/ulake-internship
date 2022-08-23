@@ -13,7 +13,7 @@ import org.usth.ict.ulake.common.service.LakeServiceExceptionMapper;
 @RegisterProvider(value = LakeServiceExceptionMapper.class)
 public interface FlaskAppService {
     @GET
-    @Path("/predict/{patientFile}")
+    @Path("/detect/{patientFile}")
     public LakeHttpResponse<Object> predict(
         @PathParam("patientFile") String patientFile);
 }
