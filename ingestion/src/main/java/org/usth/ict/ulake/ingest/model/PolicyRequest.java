@@ -11,6 +11,9 @@ public class PolicyRequest {
     public PolicyPattern path;
 
     @JsonInclude(Include.NON_NULL)
+    public List<Map.Entry<String, PolicyPattern>> vhead;
+
+    @JsonInclude(Include.NON_NULL)
     public Map<String, List<String>> head;
 
     @JsonInclude(Include.NON_NULL)

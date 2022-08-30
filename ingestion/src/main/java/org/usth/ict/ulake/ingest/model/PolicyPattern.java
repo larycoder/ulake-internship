@@ -11,4 +11,5 @@ public class PolicyPattern {
 
     @JsonInclude(Include.NON_NULL)
     public Map<String, List<String>> var;
+
 }

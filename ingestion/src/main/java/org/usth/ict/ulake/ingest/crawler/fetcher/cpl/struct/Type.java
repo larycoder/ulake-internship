@@ -9,7 +9,7 @@ public enum Type {
     REQ, METHOD,
     PATH,
     BODY,
-    HEAD,
+    HEAD, V_HEAD,
     MAP,
     RETURN,
     EOF

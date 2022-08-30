@@ -178,6 +178,7 @@ public class Interpreter {
         List<HttpRawRequest> req = new ArrayList<>();
         List<String> path = new ArrayList<>();
         List<String> body = new ArrayList<>();
+        Map<String, List<String>> header = new HashMap<>();
         HttpRawRequest client = this.client.clone();
 
         // collect request parameter
@@ -193,7 +194,17 @@ public class Interpreter {
                 while (!stack.TEMP_STACK.isEmpty())
                     body.add(stack.TEMP_STACK.remove(0).toString());
             } else if (child.type == Type.HEAD) {
-                client.headers.putAll(visitHead(child));
+                header.putAll(visitHead(child));
+            } else if (child.type == Type.V_HEAD) {
+                // Serving single header request only ( no cross-join )
+                String headerKey = child.token.stringValue;
+                parseReqStringPattern(child.getChild(0));
+                if (header.get(headerKey) == null) {
+                    header.put(headerKey, new ArrayList<String>());
+                }
+                while (!stack.TEMP_STACK.isEmpty())
+                    header.get(headerKey).add(
+                        stack.TEMP_STACK.remove(0).toString());
             }
         }
 
@@ -206,6 +217,7 @@ public class Interpreter {
             Map<String, String> param = reqParam.queuePopJson();
             var request = client.clone();
             request.addPath(param.get("path"));
+            request.headers.putAll(header);
             request.body = param.get("body");
             req.add(request);
         }

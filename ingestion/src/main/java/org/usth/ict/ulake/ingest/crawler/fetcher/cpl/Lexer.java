@@ -103,6 +103,10 @@ public class Lexer {
         if (policyReq.path != null)
             path(policyReq.path);
 
+        if (policyReq.vhead != null)
+            for (var varHead : policyReq.vhead)
+                vhead(varHead);
+
         if (policyReq.head != null)
             head(policyReq.head);
 
@@ -131,6 +135,12 @@ public class Lexer {
                 addToken(Type.VAR, entry);
             }
 
+        addToken(Type.END, "");
+    }
+
+    private void vhead(Map.Entry<String, PolicyPattern> entry) {
+        addToken(Type.V_HEAD, entry.getKey());
+        pattern(entry.getValue());
         addToken(Type.END, "");
     }
 

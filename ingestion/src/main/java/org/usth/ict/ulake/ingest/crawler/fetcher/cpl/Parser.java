@@ -86,6 +86,8 @@ public class Parser {
         eat(Type.METHOD);
 
         node.child.add(pathSymbol());
+        while (current_token.type == Type.V_HEAD)
+            node.child.add(vheadSymbol());
         if (current_token.type == Type.HEAD)
             node.child.add(headSymbol());
         if (current_token.type == Type.BODY)
@@ -112,6 +114,14 @@ public class Parser {
         if (current_token.type == Type.VAR)
             varSymbol(node);
 
+        eat(Type.END);
+        return node;
+    }
+
+    private ASTNode vheadSymbol() {
+        var node = new ASTNode(current_token);
+        eat(Type.V_HEAD);
+        node.child.add(patternSymbol());
         eat(Type.END);
         return node;
     }
