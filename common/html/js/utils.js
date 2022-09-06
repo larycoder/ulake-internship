@@ -283,7 +283,7 @@ function mimeAwesome(mimeType) {
 
     for (var key in classes) {
         if (classes.hasOwnProperty(key)) {
-            if (mimeType.search(key) === 0) {
+            if (!!mimeType && mimeType.search(key) === 0) {
                 return classes[key];
             }
         } else {
