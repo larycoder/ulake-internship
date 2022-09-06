@@ -28,4 +28,4 @@
 <map> ::= "MAP"
 
 # end of query
-<return> ::= "RETURN" "METHOD" <path> [ <head> ] [ <body> ] "END"    # RETURN "method_string" <path> <head> <body> END
+<return> ::= "RETURN" "METHOD" <path> [ <var_head>* ] [ <head> ] [ <body> ] "END"

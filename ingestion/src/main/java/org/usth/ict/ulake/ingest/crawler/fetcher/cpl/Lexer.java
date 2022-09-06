@@ -164,6 +164,10 @@ public class Lexer {
         if (policyReturn.path != null)
             path(policyReturn.path);
 
+        if (policyReturn.vhead != null)
+            for (var varHead : policyReturn.vhead)
+                vhead(varHead);
+
         if (policyReturn.head != null)
             head(policyReturn.head);
 

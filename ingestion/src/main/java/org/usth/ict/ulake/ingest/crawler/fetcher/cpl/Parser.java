@@ -166,6 +166,8 @@ public class Parser {
         eat(Type.METHOD);
 
         node.child.add(pathSymbol());
+        while (current_token.type == Type.V_HEAD)
+            node.child.add(vheadSymbol());
         if (current_token.type == Type.HEAD)
             node.child.add(headSymbol());
         if (current_token.type == Type.BODY)
