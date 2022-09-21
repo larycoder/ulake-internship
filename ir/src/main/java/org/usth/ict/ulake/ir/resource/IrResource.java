@@ -29,6 +29,7 @@ import org.usth.ict.ulake.common.service.CoreService;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.ir.model.ImgFeature;
 import org.usth.ict.ulake.ir.persistence.IrRepo;
+import org.usth.ict.ulake.ir.service.GLCM;
 import org.usth.ict.ulake.ir.service.Histogram;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -80,29 +81,33 @@ public class IrResource {
         }
 
         Histogram histo = new Histogram();
-        String imgValue = histo.calc("/tmp/output.jpeg").toString();
+        String imgHistValue = histo.calc("/tmp/output.jpeg").toString();
+
+        GLCM glcm = new GLCM();
+        String imgGlcmValue = glcm.extract("/tmp/output.jpeg").toString();
 
         var newImg = new ImgFeature();
         newImg.fid = fileId;
-        newImg.featureValue = imgValue;
+        newImg.featureValueHist = imgHistValue;
+        newImg.featureValueGLCM = imgGlcmValue;
         newImg.uid = jwtUserId;
         repo.persist(newImg);
         return response.build(200, "", newImg.id);
     }
 
     @GET
-    @Path("/search/{id}")
-    @Operation(summary = "Search for images similar to a given one")
+    @Path("/search/{id}/hist")
+    @Operation(summary = "Search for images similar to a given one using hist")
     @RolesAllowed({ "User", "Admin" })
     @Transactional
-    public Response search(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
-        List<Integer> iFeatureVal = new ArrayList<>();
+    public Response searchHist(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
+        List<Double> iFeatureVal = new ArrayList<>();
         List<DistanceRes> resultList = new ArrayList<>();
 
         Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
 
         var mapper = new ObjectMapper();
-        var typeRef = new TypeReference<List<Integer>>() {
+        var typeRef = new TypeReference<List<Double>>() {
         };
 
         try {
@@ -111,7 +116,7 @@ public class IrResource {
             if (input != null) {
                 if (!input.uid.equals(jwtUserId))
                     return response.build(304);
-                iFeatureVal = mapper.readValue(input.featureValue, typeRef);
+                iFeatureVal = mapper.readValue(input.featureValueHist, typeRef);
             } else
                 return response.build(404);
         } catch (IOException e) {
@@ -122,7 +127,7 @@ public class IrResource {
         try {
             for (ImgFeature i : repo.listAll()) {
                 var newRes = new DistanceRes();
-                double result = calculateDistance(mapper.readValue(i.featureValue, typeRef), iFeatureVal);
+                double result = calculateDistance(mapper.readValue(i.featureValueHist, typeRef), iFeatureVal);
                 if (!i.fid.equals(fileId) && jwtUserId.equals(i.uid)) {
                     newRes.fid = i.fid;
                     newRes.distance = result;
@@ -141,7 +146,59 @@ public class IrResource {
         return response.build(200, "", resultList);
     }
 
-    private double calculateDistance(List<Integer> array1, List<Integer> array2) {
+
+    @GET
+    @Path("/search/{id}/glcm")
+    @Operation(summary = "Search for images similar to a given one using glcm")
+    @RolesAllowed({ "User", "Admin" })
+    @Transactional
+    public Response searchGlcm(@HeaderParam("Authorization") String bearer, @PathParam("id") Long fileId) {
+        List<Double> iFeatureVal = new ArrayList<>();
+        List<DistanceRes> resultList = new ArrayList<>();
+
+        Long jwtUserId = Long.parseLong(jwt.getClaim(Claims.sub));
+
+        var mapper = new ObjectMapper();
+        var typeRef = new TypeReference<List<Double>>() {
+        };
+
+        try {
+            ImgFeature input = repo.find("fid", fileId).firstResult();
+
+            if (input != null) {
+                if (!input.uid.equals(jwtUserId))
+                    return response.build(304);
+                iFeatureVal = mapper.readValue(input.featureValueGLCM, typeRef);
+            } else
+                return response.build(404);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return response.build(500, "file id not exist");
+        }
+
+        try {
+            for (ImgFeature i : repo.listAll()) {
+                var newRes = new DistanceRes();
+                double result = calculateDistance(mapper.readValue(i.featureValueGLCM, typeRef), iFeatureVal);
+                if (!i.fid.equals(fileId) && jwtUserId.equals(i.uid)) {
+                    newRes.fid = i.fid;
+                    newRes.distance = result;
+                    resultList.add(newRes);
+                }
+            }
+
+            resultList.sort((o1, o2) -> Double.compare(o1.distance, o2.distance));
+            resultList = resultList.subList(0, resultList.size() > 10 ? 10 : resultList.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return response.build(500, "Cannot get result list");
+        }
+
+        return response.build(200, "", resultList);
+    }
+
+    private double calculateDistance(List<Double> array1, List<Double> array2) {
         double Sum = 0.0;
         for (int i = 0; i < array1.size(); i++) {
             Sum = Sum + Math.pow((array1.get(i) - array2.get(i)), 2.0);

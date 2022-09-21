@@ -21,7 +21,12 @@ public class ImgFeature {
   public Long uid;
 
   @Lob 
-  @Schema(description = "Image extracted feature value")
-  public String featureValue;
+  @Schema(description = "Image extracted feature value using Hist")
+  public String featureValueHist;
 
+  @Lob 
+  @Schema(description = "Image extracted feature value using GLCM")
+  public String featureValueGLCM;
+
+  
 }
