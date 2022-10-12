@@ -89,7 +89,7 @@ public class FolderResource {
 
         var permit = PermissionModel.READ; // <-- permit
 
-        log.info("getting file info for {}", ids);
+        log.info("getting folder info for {}", ids);
         if (Utils.isNumeric(ids)) {
 
             Long id = Long.parseLong(ids);
@@ -99,8 +99,16 @@ public class FolderResource {
                 return resp.build(404, "Folder not found");
 
             if (!acl.verify(FileType.folder, folder.id, folder.ownerId, permit))
+
                 return resp.build(403);
             logService.post(bearer, new LogModel("Query", "Get folder info for id " + id));
+            // don't go too deep.
+            if (folder.subFolders != null) {
+                for (var subFolder : folder.subFolders) {
+                    subFolder.subFolders = null;
+                    subFolder.files = null;
+                }
+            }
             return resp.build(200, null, folder);
         } else {
             String idArr[] = ids.split(",");
