@@ -70,6 +70,9 @@ export class FolderAdapter extends BaseAdapter {
             if (row.name && (row.name.endsWith("csv") || row.name.endsWith("xlsx"))) {
                 html += `&nbsp;<a href="#" title="Convert to table" onclick="window.crud.convertClick('${row.type === "Folder"? "F" : "f"}', '${row.id}', '${row.name}')"><i class="fas fa-table"></i></a>`
             }
+            if (row.name && row.name.endsWith(".npy")) {
+                html += `&nbsp;<a href="#" title="Add to patient list" onclick="window.crud.patientClick('f', '${row.id}', '${row.name}')"><i class="fas fa-user-md"></i></a>`
+            }
             return html;
         };
         return ret;
