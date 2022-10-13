@@ -20,13 +20,17 @@ public class ImgFeature {
   @Schema(description = "Image Owner Id")
   public Long uid;
 
-  @Lob 
+  @Lob
   @Schema(description = "Image extracted feature value using Hist")
   public String featureValueHist;
 
-  @Lob 
+  @Lob
+  @Schema(description = "Image extracted feature value using Hist - fallback column")
+  public String featureValue;
+
+  @Lob
   @Schema(description = "Image extracted feature value using GLCM")
   public String featureValueGLCM;
 
-  
+
 }

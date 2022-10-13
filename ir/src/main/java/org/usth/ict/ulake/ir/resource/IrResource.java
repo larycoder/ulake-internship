@@ -23,6 +23,8 @@ import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
 import org.usth.ict.ulake.common.model.ir.DistanceRes;
 import org.usth.ict.ulake.common.service.CoreService;
@@ -38,6 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Path("/ir")
 @Produces(MediaType.APPLICATION_JSON)
 public class IrResource {
+    private static final Logger log = LoggerFactory.getLogger(IrResource.class);
 
     @Inject
     LakeHttpResponse<Object> response;
@@ -116,6 +119,7 @@ public class IrResource {
             if (input != null) {
                 if (!input.uid.equals(jwtUserId))
                     return response.build(304);
+
                 iFeatureVal = mapper.readValue(input.featureValueHist, typeRef);
             } else
                 return response.build(404);
@@ -127,7 +131,10 @@ public class IrResource {
         try {
             for (ImgFeature i : repo.listAll()) {
                 var newRes = new DistanceRes();
-                double result = calculateDistance(mapper.readValue(i.featureValueHist, typeRef), iFeatureVal);
+                String feature = i.featureValueHist;
+                if (feature == null) feature = i.featureValue;
+                if (feature == null) continue;
+                double result = calculateDistance(mapper.readValue(feature, typeRef), iFeatureVal);
                 if (!i.fid.equals(fileId) && jwtUserId.equals(i.uid)) {
                     newRes.fid = i.fid;
                     newRes.distance = result;
