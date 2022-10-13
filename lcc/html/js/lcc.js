@@ -88,10 +88,13 @@ function detectReady() {
 	const detectPos = hrefs.indexOf("detect");
 	if (detectPos >= 0 && detectPos < hrefs.length - 1) {
 		var id = hrefs[detectPos + 1];
-		id = id.replace(".20", ".17");
-		id = id.replace(".21", ".18");
+		// id = id.replace(".20", ".17");
+		// id = id.replace(".21", ".18");
 		$.ajax({
-			url: `/service/detect/${id}`,
+			url: `/api/lcc/${id}/images`,
+			headers: {
+				"Authorization": "Bearer " + getToken()
+			},
 			success: (data) => detectResultReady(data, id)
 		});
 	}
@@ -99,12 +102,12 @@ function detectReady() {
 
 function detectResultReady(data, id) {
 	if (typeof data === "string") data = JSON.parse(data);
-	if (!data.pre_results || !Array.isArray(data.pre_results)) return;
+	if (!data.resp || !Array.isArray(data.resp)) return;
 	const result = document.querySelector("#result");
 	while (result.firstChild) result.removeChild(result.firstChild);
 	$("i.fa-spinner").remove();
 	let idx = 0;
-	data.pre_results.forEach(candidate => {
+	data.resp.forEach(candidate => {
 		let c = {
 		    idx: ++idx,
 		    slice: candidate[0],
@@ -117,7 +120,7 @@ function detectResultReady(data, id) {
 	const summary = $("#summary");
 	summary.removeClass("invisible");
     $("span[data-bind=name]").text(id);
-	$("span[data-bind=count]").text(data.pre_results.length);
+	$("span[data-bind=count]").text(data.resp.length);
 	$("a.btn-primary").removeClass("disabled");
 }
 
