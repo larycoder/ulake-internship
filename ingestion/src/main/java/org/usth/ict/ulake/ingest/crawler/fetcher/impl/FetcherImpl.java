@@ -129,6 +129,10 @@ public class FetcherImpl implements Fetcher<IngestLog, InputStream> {
             filename = uri[uri.length - 1].strip();
         }
 
+        // remove quote at start and end of name
+        filename = filename.replaceAll("^\"|\"$", "");
+        filename = filename.replaceAll("^'|'$", "");
+
         String contentType = null;
         var contentTypeList = resp.headers.get("content-type");
         if (!Utils.isEmpty(contentTypeList))
