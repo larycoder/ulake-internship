@@ -46,7 +46,7 @@ function patientReady() {
 		$.ajax({
 			url: "/data/patients3cm",
 			success: data => {
-				const patients = $.csv.toObjects(data.replace(/^\s*[\r\n]/gm, ""));
+				const patients = $.csv.toObjects(data);
 				if (Array.isArray(patients) && patients.length > 0) {
 					const t = document.querySelector("tbody");
 					while (t.firstChild) t.removeChild(t.firstChild);

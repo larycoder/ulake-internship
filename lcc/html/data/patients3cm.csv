@@ -1,2 +1,158 @@
 ID,Patient_Name,Modality,Sex,StudyDate
-1,Vu Van Lu,CT,Nam,2/28/21
+3,Vu Van Hoc,CT,Nam,10/13/20
+4,Vu Thi Mong,CT,Nu,3/16/21
+5,Tran Van Nghi,CT,Nam,10/24/20
+6,Nguyen Van Van,CT,Nam,5/31/21
+7,Man Van Su,CT,Nam,5/20/21
+8,Nguyen Van Tuan,CT,Nam,04/10/2021
+9,Duong Van Hoai,CT,Nam,1/29/21
+10,Nguyen Dinh Nguyen,CT,Nam,7/16/21
+11,Bui Viet Dung,CT,Nam,01/03/2021
+12,Doan The Dang,CT,Nam,10/06/2020
+13,Tran Van Lich,CT,Nam,5/31/21
+14,Nguyen Van Co,CT,Nam,04/06/2021
+15,Bui Thuy Lieu,CT,Nu,6/14/21
+16,Pham Thi Luong,CT,Nu,9/26/20
+17,Nguyen Cong Thuan,CT,Nam,9/21/20
+18,Doan Manh Hien,CT,Nam,10/20/20
+19,Hoang Van Luc,CT,Nam,3/20/21
+20,Vi Van Bang,CT,Nam,04/12/2021
+21,Nguyen Thi Huyen,CT,Nu,03/08/2021
+22,Bui Thi Phuong,CT,Nu,6/25/21
+23,Nguyen Thi Ngung,CT,Nu,2/26/21
+24,Tong Thi Nhuong,CT,Nu,1/29/21
+25,Nguyen Thi Loi,CT,Nu,3/14/21
+26,Bui Quang Muon 2,CT,Nam,2/28/21
+27,Tran Duyen Quyen,CT,Nam,9/20/20
+28,Le Thi Nhan,CT,Nu,10/25/21
+29,Nguyen Thi Hoa,CT,Nu,02/09/2021
+30,Nguyen Van Khanh,CT,Nam,10/20/20
+31,Vu Van Hoan,CT,Nam,4/20/21
+32,Nguyen Cong Hoan,CT,Nam,12/26/20
+33,Do Van Hanh,CT,Nam,6/14/21
+34,Bui Manh Hung,CT,Nam,8/30/21
+35,Nguyen Tien Sy,CT,Nam,6/26/21
+36,Vu The Vinh,CT,Nam,1/29/21
+37,Vu Van Lu,CT,Nam,2/28/21
+38,Tran The Hoa,CT,Nu,1/15/21
+39,Ho Thi Lieu,CT,Nu,8/15/21
+40,Do Van Dat,CT,Nam,2/28/21
+41,Nguyen Thi Huong,CT,Nu,3/27/21
+42,Mai Xuan Toan,CT,Nam,10/02/2020
+43,Vu Van Thanh,CT,Nam,6/27/21
+44,Bui Thi Muon,CT,Nu,10/26/20
+45,Nong Hoang Mo,CT,Nam,5/20/21
+46,Lo Van Panh,CT,Nam,5/14/21
+47,Luong Ngoc Van,CT,Nam,5/15/21
+48,Nguyen Thi Canh,CT,Nu,10/21/21
+49,Dao Van Canh,CT,Nam,4/16/21
+50,Nguyen Van Hoan,CT,Nam,11/23/20
+51,Nguyen Huy Hung,CT,Nam,2/21/21
+52,Nguyen Ngoc Thuong,CT,Nam,3/23/21
+53,Bui Thi Hoang Yen,CT,Nu,9/29/20
+54,Le Tran Tung,CT,Nam,1/30/21
+55,Nguyen Van Hai,CT,Nam,8/14/21
+56,Hoang Van Nang 2,CT,Nam,1/24/21
+57,Nguyen Thi Nhi,CT,Nu,2/27/21
+58,Pham Xuan Teo,CT,Nam,03/06/2021
+59,Pham Thi Tang,CT,Nu,7/19/21
+60,Do Duy Thang,CT,Nam,6/21/21
+61,Nguyen Xuan Nham,CT,Nam,01/05/2021
+62,Nguyen Manh Cuong,CT,Nam,10/16/20
+63,Luu Do Trong,CT,Nam,10/23/20
+64,Nguyen Van Thuy,CT,Nam,03/06/2021
+65,Vu Van Hoan 2,CT,Nam,1/30/21
+66,Nguyen Dinh Duc,CT,Nam,6/29/21
+67,Nguyen Xuan Hoan,CT,Nam,11/21/20
+68,Vu Thi Thuy,CT,Nu,10/10/2020
+69,Bui Quang Muon,CT,Nam,01/05/2021
+70,Hoang Van Nang,CT,Nam,03/02/2021
+71,Nguyen Thi Le,CT,Nu,7/21/21
+72,Nguyen Thi Chu,CT,Nu,10/16/20
+73,Pham Van Thu,CT,Nam,9/28/20
+74,Nguyen Thi Que,CT,Nu,3/21/21
+75,Tran Van Hoi,CT,Nam,3/28/21
+76,Nguyen Van Binh,CT,Nam,8/23/21
+77,Nguyen Thi Sua,CT,Nu,1/26/21
+78,Nguyen Dang Duc,CT,Nam,12/20/20
+79,Hoang Duc Doan,CT,Nam,9/25/20
+80,Duong Van Dai,CT,Nam,5/14/21
+81,Nguyen Van Duc,CT,Nam,12/10/2021
+82,Vo Cong Tang  58,CT,Nam,4/27/21
+83,Tran Van Phong,CT,Nam,10/24/21
+84,Nguyen Duc Dien,CT,Nam,12/27/21
+85,Bui Thi Nguyen,CT,Nu,1/15/19
+86,Nguyen Van Luu 62,CT,Nam,1/22/21
+87,Vu Dinh Manh 48,CT,Nam,06/06/2019
+88,Nguyen Thi Tan 45T,CT,Nu,05/03/2021
+89,Dinh Van Hanh,CT,Nam,8/31/21
+90,Nguyen Huu Thang 64,CT,Nam,1/22/21
+91,Tran Thi Vui 60,CT,Nu,5/15/21
+92,Nguyen Van Y,CT,Nam,11/26/21
+93,Nguyen Tien Thuoc 74,CT,Nam,05/10/2021
+94,Nguyen Van Von,CT,Nam,10/22/21
+95,Tran Thi Loan,CT,Nu,09/06/2021
+96,Nguyen Ba Sinh,CT,Nam,11/22/21
+97,Nguyen Van Long 49T,CT,Nam,5/21/21
+98,Nguyen Dinh Duoc,CT,Nam,11/15/21
+99,Nguyen Van Tue,CT,Nam,10/10/2021
+100,Nguyen Van Do 60T,CT,Nam,05/04/2021
+101,Truong Thi Sau 67,CT,Nu,4/26/21
+102,Nguyen Doan Hoan 69,CT,Nam,05/09/2021
+103,Ha Van Luc,CT,Nam,09/07/2021
+104,Phan Thi Tram,CT,Nu,12/03/2021
+105,Chu Minh Yem 59T,CT,Nam,04/05/2021
+106,Trinh Thi Da 65T,CT,Nu,3/20/21
+107,Tran Van Phong,CT,Nam,10/24/21
+108,Luu Dat Thiet,CT,Nam,11/14/21
+109,Nguyen Van Phuong,CT,Nam,10/03/2021
+110,Do Van Nam,CT,Nam,11/27/21
+111,Hoang Van  Thanh,CT,Nam,11/28/21
+112,Nguyen Thi Nam,CT,Nu,11/29/21
+113,Phan Thi Tao,CT,Nu,12/27/21
+114,Nguyen Ngoc Hung,CT,Nam,12/12/2021
+115,Le Ngoc Cung,CT,Nam,10/02/2021
+116,Vu Tien Hung,CT,Nam,10/08/2021
+117,Nguyen Quoc Binh,CT,Nam,10/23/21
+118,Le Thi Hong,CT,Nu,12/28/21
+119,Tran Duy Hung,CT,Nam,12/13/21
+120,Dinh Thi  Canh,CT,Nu,10/15/21
+121,Nguyen Chi Dung,CT,Nam,11/13/21
+122,Trinh Thi Diem,CT,Nu,12/11/2021
+123,Pham Dinh  But,CT,Nam,11/16/21
+124,Nguyen Van Khoi,CT,Nam,11/20/21
+125,Ngo Thi Phu,CT,Nu,11/23/21
+126,Kim Quy Duong,CT,Nam,11/19/21
+127,Nguyen Cao  Cuong,CT,Nam,10/21/21
+128,Nguyen Tien Duong,CT,Nam,11/13/21
+129,Bui Van Son,CT,Nam,10/15/21
+130,Pham Thi Chieu,CT,Nu,10/30/21
+131,Bui Van Pheu,CT,Nam,11/05/2021
+132,Nguyen Hoa Sang,CT,Nam,11/09/2021
+133,Vu Van Loi,CT,Nam,10/16/21
+134,Phan Thanh Ha,CT,Nam,12/26/21
+135,Chu  Van Duong,CT,Nam,12/12/2021
+136,Luu Thi The,CT,Nu,12/20/21
+137,Dinh Thi Tu Phuong,CT,Nu,11/01/2021
+138,Le Quang Vuong,CT,Nam,10/26/21
+139,Pham Thi Tu,CT,Nu,10/13/21
+140,Chu Van Nam,CT,Nam,10/31/21
+141,Phung Thi Nen,CT,Nu,10/16/21
+142,Nguyen Thi Phich,CT,Nu,10/22/21
+143,Tran Thi Nhoan,CT,Nu,11/08/2021
+144,Ha Thi Linh,CT,Nu,12/13/21
+145,Nguyen Van Dong,CT,Nam,11/23/21
+146,Pham Dac Viet,CT,Nam,12/25/21
+147,Trinh Tien Dung,CT,Nam,10/22/21
+148,Nguyen Thi Ngoc,CT,Nam,10/25/21
+149,Cao Dinh Hoan,CT,Nam,11/09/2021
+150,Bui Duc Tuan,CT,Nam,11/08/2021
+151,Nguyen Thi Hoe,CT,Nu,11/06/2021
+152,Nguyen Van Tiem,CT,Nam,10/08/2021
+153,Bui Thi  Tham,CT,Nu,11/12/2021
+154,Pham Van Linh,CT,Nam,10/24/21
+155,Nguyen Van  Thanh,CT,Nam,10/21/21
+156,Le Van Thang,CT,Nam,11/05/2021
+157,Ha Thi Luong,CT,Nu,11/07/2021
+158,Vu Dinh  Manh,CT,Nam,12/07/2021
+159,Vu Hong Lam,CT,Nam,11/21/21
