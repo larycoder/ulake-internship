@@ -96,7 +96,7 @@ public class IrResource {
     }
 
     @GET
-    @Path("/search/{id}/hist")
+    @Path("/search/{id}")
     @Operation(summary = "Search for images similar to a given one using hist")
     @RolesAllowed({ "User", "Admin" })
     @Transactional
