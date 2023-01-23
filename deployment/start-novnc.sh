@@ -1,5 +1,6 @@
 #!/bin/bash
 
+/home/vscode/bin/oauth2-proxy/oauth2-proxy --config=/workspaces/ulake/deployment/oauth2-proxy/oauth2-proxy.cfg
 
 vncserver
 
