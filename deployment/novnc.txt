@@ -1,0 +1,3 @@
+vnc: https://code.sontg.net/proxy/6080/vnc.html
+basic auth: pn7
+vnc auth: d...
