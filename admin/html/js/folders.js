@@ -247,7 +247,7 @@ class DataCRUD extends ListCRUD {
             fileInfo.parent = { id: this.id };
         }
         const ret = await dashboardFileApi.upload(fileInfo, file);
-        if (ret && ret.id) {
+            if (ret && ret.id) {
             // good upload, refresh
             await this.fetch();
             this.recreateTable();
