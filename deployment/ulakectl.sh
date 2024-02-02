@@ -34,6 +34,11 @@ start() {
             --entrypoint $TARGET_RUNNER \
             registry.access.redhat.com/ubi8/ubi-minimal:8.6
     else
+        # link container data volume to disk
+        if [[ "$QUARKUS_SERVICE" == "core" ]]; then
+            EXT="-v /home/hieplnc/Desktop/ulake/deployment/data/localfs:/home/data"
+        fi
+
         # check if jar build is available
         JAR_DIR="$ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app"
         if [[ -d "$JAR_DIR" ]]; then
@@ -43,6 +48,7 @@ start() {
                 --network $NET \
                 --rm \
                 -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
+                $EXT \
                 registry.access.redhat.com/ubi8/openjdk-11
         else
             # nah, let's use the default dev build
@@ -54,6 +60,7 @@ start() {
                 -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
                 --network $NET \
                 --rm \
+                $EXT \
                 -d ulake/service:1.0.0-SNAPSHOT
         fi
     fi

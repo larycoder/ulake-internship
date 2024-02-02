@@ -1,0 +1,89 @@
+worker_processes auto;
+worker_rlimit_nofile 8192;
+
+events {
+    worker_connections 4096;
+}
+
+http {
+    index    index.html index.htm index.php;
+    ssi on;
+
+    default_type application/octet-stream;
+    log_format   main '$remote_addr - $remote_user [$time_local]  $status '
+        '"$request" $body_bytes_sent "$http_referer" '
+        '"$http_user_agent" "$http_x_forwarded_for"';
+    sendfile     on;
+    tcp_nopush   on;
+    server_names_hash_bucket_size 128;
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 80;
+        server_name ulake.usth.edu.vn www.ulake.usth.edu.vn;
+        location / {
+            root /opt/admin;
+            try_files $uri $uri/ $uri.html =404;
+        }
+    }
+
+    server { # service log
+        listen 80;
+        server_name log.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-log:8790;
+        }
+    }
+
+    server { # service user
+        listen 80;
+        server_name user.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-user:8785;
+        }
+    }
+
+    server { # service common
+        listen 80;
+        server_name common.ulake.usth.edu.vn;
+        add_header Access-Control-Allow-Origin *;
+        location / {
+            root /opt/common;
+            ssi_types application/javascript;
+            try_files $uri $uri/ $uri.html =404;
+        }
+    }
+
+    server { # service folder
+        listen 80;
+        server_name folder.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-folder:8786;
+        }
+    }
+
+    server { # service core
+        listen 80;
+        server_name core.ulake.usth.edu.vn;
+        client_max_body_size 20000M;
+        location / {
+            proxy_pass http://ulake-service-core:8784;
+        }
+    }
+
+    server { # service acl
+        listen 80;
+        server_name acl.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-acl:8783;
+        }
+    }
+
+    server { # phpmyadmin
+        listen 80;
+        server_name pma.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-phpmyadmin:80;
+        }
+    }
+}

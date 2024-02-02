@@ -45,7 +45,7 @@ import org.usth.ict.ulake.common.model.log.LogModel;
 import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.common.service.LogService;
 import org.usth.ict.ulake.common.service.exception.LakeServiceForbiddenException;
-import org.usth.ict.ulake.core.backend.impl.Hdfs;
+import org.usth.ict.ulake.core.backend.impl.Localfs;
 import org.usth.ict.ulake.core.model.LakeGroup;
 import org.usth.ict.ulake.core.model.LakeObject;
 import org.usth.ict.ulake.core.model.LakeObjectMetadata;
@@ -62,7 +62,7 @@ public class ObjectResource {
     ObjectMapper mapper;
 
     @Inject
-    Hdfs fs;
+    Localfs fs;
 
     @Inject
     ObjectRepository repo;
