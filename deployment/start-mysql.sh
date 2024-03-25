@@ -19,4 +19,4 @@ docker run --detach --name $HOST \
     --network $NET \
     -p $PORT:3306 mariadb:latest && \
     sleep $TIME && \
-    docker exec -i $HOST mysql -u root < $SQL;
+    docker exec -i $HOST mariadb -u root --password='root' < $SQL;
