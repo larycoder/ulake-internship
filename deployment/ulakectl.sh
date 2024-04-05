@@ -35,8 +35,8 @@ start() {
             registry.access.redhat.com/ubi8/ubi-minimal:8.6
     else
         # link container data volume to disk
-        if [[ "$QUARKUS_SERVICE" == "core" ]]; then
-            EXT="-v /home/hieplnc/Desktop/ulake/deployment/data/localfs:/home/data"
+        if [[ "$QUARKUS_SERVICE" == "core" ]]; then 
+	        EXT="-v $ROOT_DIR/deployment/data/localfs:/home/data"
         fi
 
         # check if jar build is available
