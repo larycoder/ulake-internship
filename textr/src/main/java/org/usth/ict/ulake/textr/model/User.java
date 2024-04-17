@@ -3,7 +3,6 @@ package org.usth.ict.ulake.textr.model;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 public class User extends PanacheEntityBase {

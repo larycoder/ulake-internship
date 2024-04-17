@@ -84,7 +84,7 @@ public class Lucene extends RootEngine{
     }
 
     public HashMap<String, Float> search(String queryString) throws IOException {
-        HashMap<String, Float> filesMap = new HashMap<String, Float>();
+        HashMap<String, Float> filesMap = new HashMap<>();
 
 //        Setup searcher
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
