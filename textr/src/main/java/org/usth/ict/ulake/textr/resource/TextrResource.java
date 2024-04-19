@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.textr.resource;
 
+import io.vertx.core.json.JsonObject;
 import org.jboss.logging.Logger;
 import org.usth.ict.ulake.textr.engine.IndexSearchEngine;
 import org.usth.ict.ulake.textr.engine.Lucene;
@@ -12,7 +13,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -113,13 +113,13 @@ public class TextrResource {
     @GET
     @Path("/search/{content}")
     @Transactional
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response search(@PathParam("content") String content) throws IOException {
 //        Initialize search engine
-        HashMap<String, Float> filesMap = indexSearchEngine.search(lucene, content);
+        JsonObject filesObject = indexSearchEngine.search(lucene, content);
 
-        if (filesMap.isEmpty())
+        if (filesObject.isEmpty())
             return Response.status(404).entity("No document found").build();
-        return Response.status(200).entity(filesMap.toString()).build();
+        return Response.status(200).entity(filesObject.toString()).build();
     }
 }

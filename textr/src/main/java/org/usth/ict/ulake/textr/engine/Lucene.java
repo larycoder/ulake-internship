@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.textr.engine;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -21,7 +23,6 @@ import javax.enterprise.context.Dependent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 
 // Format supported by Lucene
 //- TXT;
@@ -79,12 +80,13 @@ public class Lucene extends RootEngine{
     }
 
     @Override
-    public HashMap<String, Float> search(RootEngine engine, String term) throws IOException{
+    public JsonObject search(RootEngine engine, String term) throws IOException{
         return engine.search(term);
     }
 
-    public HashMap<String, Float> search(String queryString) throws IOException {
-        HashMap<String, Float> filesMap = new HashMap<>();
+    public JsonObject search(String queryString) throws IOException {
+        JsonObject filesObject = new JsonObject();
+        JsonArray filesArray = new JsonArray();
 
 //        Setup searcher
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
@@ -103,10 +105,17 @@ public class Lucene extends RootEngine{
             String filename = doc.get("filename");
             LOG.info("Searching in: " + filename);
 
-//            Parse into Hashmap
-            filesMap.put(filename, scoreDoc.score);
-        }
+//            Parse into JSONObject
+            JsonObject items = new JsonObject(); //Temp object each loops
 
-        return filesMap;
+            items.put("name", filename);
+            items.put("path", dataDirectory);
+            items.put("score", scoreDoc.score);
+
+            filesArray.add(items);
+        }
+        filesObject.put("doc", filesArray);
+
+        return filesObject;
     }
 }
