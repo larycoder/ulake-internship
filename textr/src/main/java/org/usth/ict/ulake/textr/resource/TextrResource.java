@@ -37,7 +37,7 @@ public class TextrResource {
 
 //    Return all users from database in JSON format
     @GET
-    @Path("/listAll")
+    @Path("/user")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
         List<User> users = User.listAll();
@@ -47,7 +47,7 @@ public class TextrResource {
 
 //    Return 1 user from database in JSON format
     @GET
-    @Path("/listByID/{id}")
+    @Path("/user/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") Long id) {
         User user = entityManager.find(User.class, id);
@@ -60,7 +60,7 @@ public class TextrResource {
 //    Create new user
     @POST
     @Transactional
-    @Path("/createUser/{name}")
+    @Path("/user/{name}")
     @Produces(MediaType.TEXT_PLAIN)
     public Response createUser(@PathParam("name") String name) {
         User user = new User();
@@ -71,7 +71,7 @@ public class TextrResource {
 
 //    Delete 1 user with id
     @DELETE
-    @Path("/deleteUser/{id}")
+    @Path("/user/{id}")
     @Transactional
     @Produces(MediaType.TEXT_PLAIN)
     public Response deleteUser(@PathParam("id") Long id) {
@@ -85,7 +85,7 @@ public class TextrResource {
 
 //    Update username with id
     @PUT
-    @Path("/updateUser/{id}/{name}")
+    @Path("/user/{id}/{name}")
     @Transactional
     @Produces(MediaType.TEXT_PLAIN)
     public Response updateUser(@PathParam("id") Long id, @PathParam("name") String name) {
