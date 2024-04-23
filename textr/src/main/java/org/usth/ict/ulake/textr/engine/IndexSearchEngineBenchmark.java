@@ -16,12 +16,12 @@ import java.util.logging.SimpleFormatter;
 public class IndexSearchEngineBenchmark {
     private static final Logger LOG = Logger.getLogger(String.valueOf(IndexSearchEngineBenchmark.class));
     FileHandler fileHandler;
-    private final RootEngine engine;
+    private final Root engine;
 
     private final File indexPath;
     private final File dataPath;
 
-    public IndexSearchEngineBenchmark(RootEngine engine) throws IOException {
+    public IndexSearchEngineBenchmark(Root engine) throws IOException {
         this.engine = engine;
         this.indexPath = new File(engine.getIndexDir());
         this.dataPath = new File(engine.getDataDir());

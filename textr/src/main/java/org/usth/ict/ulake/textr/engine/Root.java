@@ -4,7 +4,7 @@ import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 
-public abstract class RootEngine implements IndexSearchEngine{
+public abstract class Root implements IndexSearchEngine{
     JsonObject index() throws IOException {
         return null;
     }

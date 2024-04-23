@@ -32,7 +32,7 @@ import java.io.IOException;
 //- PDF.
 
 @Dependent
-public class Lucene extends RootEngine{
+public class Lucene extends Root {
     private final String dataDir = "/home/malenquillaa/tmp/data";
     private final String indexDir = "/home/malenquillaa/tmp/index";
 
@@ -59,7 +59,7 @@ public class Lucene extends RootEngine{
     }
 
     @Override
-    public JsonObject index(RootEngine engine) throws IOException {
+    public JsonObject index(Root engine) throws IOException {
         return engine.index();
     }
 
@@ -96,7 +96,7 @@ public class Lucene extends RootEngine{
     }
 
     @Override
-    public JsonObject search(RootEngine engine, String term) throws IOException {
+    public JsonObject search(Root engine, String term) throws IOException {
         return engine.search(term);
     }
 
