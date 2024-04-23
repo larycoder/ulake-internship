@@ -27,7 +27,7 @@ public class IndexSearchEngineBenchmark {
         this.dataPath = new File(engine.getDataDir());
 
 //        Init LOGs
-        fileHandler = new FileHandler( dataPath + "_LOGs/LOG.json");
+        fileHandler = new FileHandler( dataPath + "_LOGs/LOG.txt");
         LOG.addHandler(fileHandler);
 
     }
