@@ -19,6 +19,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.QueryBuilder;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import java.io.File;
 import java.io.FileReader;
@@ -31,7 +32,7 @@ import java.io.IOException;
 //- DOCX (Office Open XML – the binary DOC format is not supported);
 //- PDF.
 
-@Dependent
+@ApplicationScoped
 public class Lucene extends Root {
     private final String dataDir = "/home/malenquillaa/tmp/data";
     private final String indexDir = "/home/malenquillaa/tmp/index";
