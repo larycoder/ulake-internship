@@ -3,6 +3,7 @@ package org.usth.ict.ulake.textr.resource;
 import io.vertx.core.json.JsonObject;
 import org.jboss.logging.Logger;
 import org.usth.ict.ulake.textr.engine.IndexSearchEngine;
+import org.usth.ict.ulake.textr.engine.IndexSearchEngineBenchmark;
 import org.usth.ict.ulake.textr.engine.Lucene;
 import org.usth.ict.ulake.textr.model.User;
 
@@ -80,7 +81,7 @@ public class TextrResource {
             return Response.status(404).entity("User not found").build();
         }
         entityManager.remove(user);
-        return Response.status(200, "Deleted user " + id + " successfully from database").build();
+        return Response.status(200).entity("Deleted user " + id + " successfully from database").build();
     }
 
 //    Update username with id
@@ -102,12 +103,14 @@ public class TextrResource {
     @GET
     @Path("/index")
     @Transactional
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response index() throws IOException {
 //        Initialize index engine
-        int numIndexed = indexSearchEngine.index(lucene);
+        JsonObject out = indexSearchEngine.index(lucene);
 
-        return Response.status(200).entity("Indexed " + numIndexed + " documents").build();
+        if (out.isEmpty())
+            return Response.status(404).entity("No document found").build();
+        return Response.status(200).entity(out).build();
     }
 
     @GET
@@ -116,10 +119,24 @@ public class TextrResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response search(@PathParam("content") String content) throws IOException {
 //        Initialize search engine
-        JsonObject filesObject = indexSearchEngine.search(lucene, content);
+        JsonObject out = indexSearchEngine.search(lucene, content);
 
-        if (filesObject.isEmpty())
+        if (out.isEmpty())
             return Response.status(404).entity("No document found").build();
-        return Response.status(200).entity(filesObject.toString()).build();
+        return Response.status(200).entity(out.toString()).build();
+    }
+
+    @GET
+    @Path("/benchmark/{iteration}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response benchmark(@PathParam("iteration") long iteration) throws IOException {
+//        Init benchmark-initiator
+        IndexSearchEngineBenchmark indexSearchEngineBenchmarks = new IndexSearchEngineBenchmark(lucene);
+
+        JsonObject out = indexSearchEngineBenchmarks.startBenchmark(iteration);
+
+        if (out.isEmpty())
+            return Response.status(404).build();
+        return Response.status(200).entity(out).build();
     }
 }

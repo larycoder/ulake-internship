@@ -33,6 +33,9 @@ import java.io.IOException;
 
 @Dependent
 public class Lucene extends RootEngine{
+    private final String dataDir = "/home/malenquillaa/tmp/data";
+    private final String indexDir = "/home/malenquillaa/tmp/index";
+
     private final Directory indexDirectory;
     private final File dataDirectory;
 
@@ -41,18 +44,27 @@ public class Lucene extends RootEngine{
 //    Constructor
     public Lucene() throws IOException {
 //        Setup path
-        String dataDir = "/home/malenquillaa/tmp/data";
-        String indexDir = "/home/malenquillaa/tmp/index";
         this.indexDirectory = FSDirectory.open(new File(indexDir).toPath());
         this.dataDirectory = new File(dataDir);
     }
 
     @Override
-    public int index(RootEngine engine) throws IOException {
+    public String getIndexDir() {
+        return indexDir;
+    }
+
+    @Override
+    public String getDataDir() {
+        return dataDir;
+    }
+
+    @Override
+    public JsonObject index(RootEngine engine) throws IOException {
         return engine.index();
     }
 
-    public int index() throws IOException {
+    @Override
+    public JsonObject index() throws IOException {
 //        Setup indexer
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         IndexWriter indexWriter = new IndexWriter(indexDirectory, config);
@@ -76,17 +88,27 @@ public class Lucene extends RootEngine{
         indexWriter.commit();
         indexWriter.close();
 
-        return numIndexed;
+//        Init response
+        JsonObject output = new JsonObject();
+        output.put("indexed", numIndexed);
+
+        return output;
     }
 
     @Override
-    public JsonObject search(RootEngine engine, String term) throws IOException{
+    public JsonObject search(RootEngine engine, String term) throws IOException {
         return engine.search(term);
     }
 
+    @Override
     public JsonObject search(String queryString) throws IOException {
-        JsonObject filesObject = new JsonObject();
+//        Init response
+        JsonObject output = new JsonObject();
         JsonArray filesArray = new JsonArray();
+
+//        Index if indexDirectory is empty
+        if (indexDirectory.listAll().length == 0)
+            output.put("indexed", this.index().getInteger("indexed", 0));
 
 //        Setup searcher
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
@@ -114,8 +136,8 @@ public class Lucene extends RootEngine{
 
             filesArray.add(items);
         }
-        filesObject.put("doc", filesArray);
+        output.put("docs", filesArray);
 
-        return filesObject;
+        return output;
     }
 }

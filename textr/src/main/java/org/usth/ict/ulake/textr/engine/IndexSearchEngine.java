@@ -8,8 +8,10 @@ import java.io.IOException;
 
 
 public interface IndexSearchEngine {
-    Logger LOG = Logger.getLogger(TextrResource.class);
+    Logger LOG = Logger.getLogger(IndexSearchEngine.class);
 
-    int index(RootEngine engine) throws IOException;
+    JsonObject index(RootEngine engine) throws IOException;
     JsonObject search(RootEngine engine, String term) throws IOException;
+    String getIndexDir();
+    String getDataDir();
 }
