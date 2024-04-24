@@ -32,10 +32,7 @@ import java.io.IOException;
 //- PDF.
 
 @ApplicationScoped
-public class Lucene extends Root {
-    private final String dataDir = "/home/malenquillaa/tmp/data";
-    private final String indexDir = "/home/malenquillaa/tmp/index";
-
+public class Lucene implements IndexSearchEngine {
     private final Directory indexDirectory;
     private final File dataDirectory;
 
@@ -46,21 +43,6 @@ public class Lucene extends Root {
 //        Setup path
         this.indexDirectory = FSDirectory.open(new File(indexDir).toPath());
         this.dataDirectory = new File(dataDir);
-    }
-
-    @Override
-    public String getIndexDir() {
-        return indexDir;
-    }
-
-    @Override
-    public String getDataDir() {
-        return dataDir;
-    }
-
-    @Override
-    public JsonObject index(Root engine) throws IOException {
-        return engine.index();
     }
 
     @Override
@@ -93,11 +75,6 @@ public class Lucene extends Root {
         output.put("indexed", numIndexed);
 
         return output;
-    }
-
-    @Override
-    public JsonObject search(Root engine, String term) throws IOException {
-        return engine.search(term);
     }
 
     @Override
