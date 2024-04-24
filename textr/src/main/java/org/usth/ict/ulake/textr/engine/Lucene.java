@@ -20,7 +20,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.QueryBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -137,6 +136,7 @@ public class Lucene extends Root {
 
             filesArray.add(items);
         }
+//        output.put("precision", topDocs.totalHits.value * 100 / Objects.requireNonNull(dataDirectory.listFiles()).length);
         output.put("docs", filesArray);
 
         return output;

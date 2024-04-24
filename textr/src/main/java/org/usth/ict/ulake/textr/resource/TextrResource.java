@@ -130,6 +130,9 @@ public class TextrResource {
     @Path("/benchmark/{iteration}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response benchmark(@PathParam("iteration") long iteration) throws IOException {
+        if (iteration <= 0)
+            return Response.status(404).build();
+
 //        Init benchmark-initiator
         IndexSearchEngineBenchmark indexSearchEngineBenchmarks = new IndexSearchEngineBenchmark(lucene);
 

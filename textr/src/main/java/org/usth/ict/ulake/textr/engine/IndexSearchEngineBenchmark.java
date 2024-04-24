@@ -105,10 +105,11 @@ public class IndexSearchEngineBenchmark {
                     pickedLine = line;
             }
 
-            if (pickedLine != null && !pickedLine.isEmpty()) {
-//                Pick random sentence from picked line
-                String[] words = pickedLine.split("\\s+");
-                StringBuilder sentence = new StringBuilder();
+//            Pick random sentence from picked line
+            String[] words = pickedLine.split("\\s+");
+            StringBuilder sentence = new StringBuilder();
+
+            if (words.length > 1) {
 //                Select random sentence
                 int startIndex = randomizer.nextInt(words.length); // Random from 0 to length - 1
                 int lastIndex = randomizer.nextInt(words.length - startIndex) + startIndex; // Random from start index to length - 1
