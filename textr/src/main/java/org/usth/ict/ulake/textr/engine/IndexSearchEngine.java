@@ -13,14 +13,8 @@ public interface IndexSearchEngine {
     String indexDir = "/home/malenquillaa/tmp/index";
 
     JsonObject index() throws IOException;
-    default JsonObject index(IndexSearchEngine engine) throws IOException {
-        return engine.index();
-    }
 
     JsonObject search(String term) throws IOException;
-    default JsonObject search(IndexSearchEngine engine, String term) throws IOException {
-        return engine.search(term);
-    }
 
     default String getIndexDir() {
         return this.indexDir;

@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.io.FileUtils;
 
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +15,20 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+@ApplicationScoped
 public class IndexSearchEngineBenchmark {
     private static final Logger LOG = Logger.getLogger(String.valueOf(IndexSearchEngineBenchmark.class));
     FileHandler fileHandler;
-    private final IndexSearchEngine engine;
+
+    @Inject
+    IndexSearchEngine indexSearchEngine;
 
     private final File indexPath;
     private final File dataPath;
 
-    public IndexSearchEngineBenchmark(IndexSearchEngine engine) throws IOException {
-        this.engine = engine;
-        this.indexPath = new File(engine.getIndexDir());
-        this.dataPath = new File(engine.getDataDir());
+    public IndexSearchEngineBenchmark() throws IOException {
+        this.indexPath = new File(indexSearchEngine.getIndexDir());
+        this.dataPath = new File(indexSearchEngine.getDataDir());
 
 //        Init LOGs
         fileHandler = new FileHandler( dataPath + "_LOGs/LOG.txt");
@@ -40,10 +44,10 @@ public class IndexSearchEngineBenchmark {
 
         if (isIndexing) {
 //            Start indexing
-            output = engine.index();
+            output = indexSearchEngine.index();
         } else {
 //            Start searching
-            output = engine.search(query);
+            output = indexSearchEngine.search(query);
         }
 
 //        Time calculate

@@ -4,7 +4,6 @@ import io.vertx.core.json.JsonObject;
 import org.jboss.logging.Logger;
 import org.usth.ict.ulake.textr.engine.IndexSearchEngine;
 import org.usth.ict.ulake.textr.engine.IndexSearchEngineBenchmark;
-import org.usth.ict.ulake.textr.engine.Lucene;
 import org.usth.ict.ulake.textr.model.User;
 
 import javax.inject.Inject;
@@ -23,17 +22,17 @@ public class TextrResource {
 
     private static final Logger LOG = Logger.getLogger(TextrResource.class);
 
-    private final Lucene lucene;
-
     @Inject
     IndexSearchEngine indexSearchEngine;
+
+    @Inject
+    IndexSearchEngineBenchmark indexSearchEngineBenchmark;
 
     @Inject
     EntityManager entityManager;
 
 //    Constructor
-    public TextrResource() throws IOException {
-        lucene = new Lucene();
+    public TextrResource() {
     }
 
 //    Return all users from database in JSON format
@@ -106,7 +105,7 @@ public class TextrResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response index() throws IOException {
 //        Initialize index engine
-        JsonObject out = indexSearchEngine.index(lucene);
+        JsonObject out = indexSearchEngine.index();
 
         if (out.isEmpty())
             return Response.status(404).entity("No document found").build();
@@ -119,7 +118,7 @@ public class TextrResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response search(@PathParam("content") String content) throws IOException {
 //        Initialize search engine
-        JsonObject out = indexSearchEngine.search(lucene, content);
+        JsonObject out = indexSearchEngine.search(content);
 
         if (out.isEmpty())
             return Response.status(404).entity("No document found").build();
@@ -134,9 +133,9 @@ public class TextrResource {
             return Response.status(404).build();
 
 //        Init benchmark-initiator
-        IndexSearchEngineBenchmark indexSearchEngineBenchmarks = new IndexSearchEngineBenchmark(lucene);
+        indexSearchEngineBenchmark = new IndexSearchEngineBenchmark();
 
-        JsonObject out = indexSearchEngineBenchmarks.startBenchmark(iteration);
+        JsonObject out = indexSearchEngineBenchmark.startBenchmark(iteration);
 
         if (out.isEmpty())
             return Response.status(404).build();
