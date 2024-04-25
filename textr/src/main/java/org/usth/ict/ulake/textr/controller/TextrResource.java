@@ -1,9 +1,9 @@
-package org.usth.ict.ulake.textr.resource;
+package org.usth.ict.ulake.textr.controller;
 
 import io.vertx.core.json.JsonObject;
 import org.jboss.logging.Logger;
-import org.usth.ict.ulake.textr.engine.IndexSearchEngine;
-import org.usth.ict.ulake.textr.engine.IndexSearchEngineBenchmark;
+import org.usth.ict.ulake.textr.service.engine.IndexSearchEngine;
+import org.usth.ict.ulake.textr.service.engine.IndexSearchEngineBenchmark;
 import org.usth.ict.ulake.textr.model.User;
 
 import javax.inject.Inject;
@@ -133,7 +133,7 @@ public class TextrResource {
             return Response.status(404).build();
 
 //        Init benchmark-initiator
-        indexSearchEngineBenchmark = new IndexSearchEngineBenchmark();
+        indexSearchEngineBenchmark = new IndexSearchEngineBenchmark(indexSearchEngine);
 
         JsonObject out = indexSearchEngineBenchmark.startBenchmark(iteration);
 

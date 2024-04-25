@@ -1,11 +1,10 @@
-package org.usth.ict.ulake.textr.engine;
+package org.usth.ict.ulake.textr.service.engine;
 
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.io.FileUtils;
 
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +19,13 @@ public class IndexSearchEngineBenchmark {
     private static final Logger LOG = Logger.getLogger(String.valueOf(IndexSearchEngineBenchmark.class));
     FileHandler fileHandler;
 
-    @Inject
-    IndexSearchEngine indexSearchEngine;
+    private final IndexSearchEngine indexSearchEngine;
 
     private final File indexPath;
     private final File dataPath;
 
-    public IndexSearchEngineBenchmark() throws IOException {
+    public IndexSearchEngineBenchmark(IndexSearchEngine engine) throws IOException {
+        this.indexSearchEngine = engine;
         this.indexPath = new File(indexSearchEngine.getIndexDir());
         this.dataPath = new File(indexSearchEngine.getDataDir());
 

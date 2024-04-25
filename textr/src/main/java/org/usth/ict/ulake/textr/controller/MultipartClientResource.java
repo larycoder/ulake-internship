@@ -1,4 +1,4 @@
-package org.usth.ict.ulake.textr.resource;
+package org.usth.ict.ulake.textr.controller;
 
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.usth.ict.ulake.textr.model.MultipartBody;
