@@ -3,7 +3,7 @@ package org.usth.ict.ulake.core.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(indexes = @Index(columnList = "cid"))

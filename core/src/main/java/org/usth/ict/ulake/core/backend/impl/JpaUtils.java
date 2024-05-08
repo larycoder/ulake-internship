@@ -2,10 +2,10 @@ package org.usth.ict.ulake.core.backend.impl;
 
 import org.usth.ict.ulake.common.misc.Utils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Map;
 

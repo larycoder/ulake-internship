@@ -2,10 +2,10 @@ package org.usth.ict.ulake.core.persistence;
 
 import org.usth.ict.ulake.common.misc.Utils;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.util.List;
 
 /**

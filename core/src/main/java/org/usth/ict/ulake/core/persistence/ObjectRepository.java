@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.core.model.LakeObject;
