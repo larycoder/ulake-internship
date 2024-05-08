@@ -32,10 +32,16 @@ dependencies {
     implementation 'io.quarkus:quarkus-mailer'
     implementation 'io.quarkus:quarkus-resteasy-qute'
 
+    implementation 'io.quarkus:quarkus-grpc'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 
     implementation project(':common')
+
+    implementation 'org.mapstruct:mapstruct:1.3.1.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
 }
 
 test {
