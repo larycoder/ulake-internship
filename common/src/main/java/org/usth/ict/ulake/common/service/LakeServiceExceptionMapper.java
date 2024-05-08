@@ -1,6 +1,6 @@
 package org.usth.ict.ulake.common.service;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
