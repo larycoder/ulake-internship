@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.service.exception.LakeServiceException;
