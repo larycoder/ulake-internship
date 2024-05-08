@@ -30,7 +30,6 @@ start() {
         docker run -d --name $HOST \
             -v $RUNNER:$TARGET_RUNNER \
             --network $NET \
-            --rm \
             --entrypoint $TARGET_RUNNER \
             registry.access.redhat.com/ubi8/ubi-minimal:8.6
     else
@@ -41,15 +40,14 @@ start() {
 
         # check if jar build is available
         JAR_DIR="$ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app"
-        if [[ -d "$JAR_DIR" ]]; then
+        if [[ -d "$JAR_DIR" && "$QUARKUS_SERVICE" != "dashboard" ]]; then
             echo "+ Using jar build at $JAR_DIR"
             docker run -d --name $HOST \
                 -v $JAR_DIR:/home/$QUARKUS_SERVICE \
                 --network $NET \
-                --rm \
                 -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
                 $EXT \
-                registry.access.redhat.com/ubi8/openjdk-11
+                registry.access.redhat.com/ubi8/
         else
             # nah, let's use the default dev build
             DEV_DIR="$ROOT_DIR/$QUARKUS_SERVICE"
@@ -59,7 +57,6 @@ start() {
                 -v $DEV_DIR:/home/$QUARKUS_SERVICE \
                 -e QUARKUS_SERVICE=$QUARKUS_SERVICE \
                 --network $NET \
-                --rm \
                 $EXT \
                 -d ulake/service:1.0.0-SNAPSHOT
         fi
