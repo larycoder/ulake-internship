@@ -2,7 +2,7 @@ package org.usth.ict.ulake.ingest.persistence;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.usth.ict.ulake.ingest.model.FileLog;
 

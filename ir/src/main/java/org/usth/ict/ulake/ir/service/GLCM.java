@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
+import jakarta.imageio.ImageIO;
 
 
 public class GLCM {
