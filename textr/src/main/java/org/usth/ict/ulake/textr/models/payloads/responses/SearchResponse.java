@@ -1,6 +1,5 @@
 package org.usth.ict.ulake.textr.models.payloads.responses;
 
-import io.vertx.core.json.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

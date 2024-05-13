@@ -2,7 +2,6 @@ package org.usth.ict.ulake.textr.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import io.quarkus.scheduler.ScheduledExecution;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
