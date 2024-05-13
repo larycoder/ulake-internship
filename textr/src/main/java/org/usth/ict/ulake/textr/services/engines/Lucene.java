@@ -1,7 +1,5 @@
-package org.usth.ict.ulake.textr.service.engine;
+package org.usth.ict.ulake.textr.services.engines;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -18,11 +16,16 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.QueryBuilder;
+import org.usth.ict.ulake.textr.models.payloads.responses.DocumentResponse;
+import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
+import org.usth.ict.ulake.textr.models.payloads.responses.SearchResponse;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 // Format supported by Lucene
 //- TXT;
@@ -31,6 +34,7 @@ import java.io.IOException;
 //- DOCX (Office Open XML – the binary DOC format is not supported);
 //- PDF.
 
+@Deprecated
 @ApplicationScoped
 public class Lucene implements IndexSearchEngine {
     private final Directory indexDirectory;
@@ -38,7 +42,6 @@ public class Lucene implements IndexSearchEngine {
 
     private final Analyzer analyzer = new StandardAnalyzer();
 
-//    Constructor
     public Lucene() throws IOException {
 //        Setup path
         this.indexDirectory = FSDirectory.open(new File(indexDir).toPath());
@@ -46,7 +49,7 @@ public class Lucene implements IndexSearchEngine {
     }
 
     @Override
-    public JsonObject index() throws IOException {
+    public IndexResponse index() throws IOException {
 //        Setup indexer
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         IndexWriter indexWriter = new IndexWriter(indexDirectory, config);
@@ -70,22 +73,18 @@ public class Lucene implements IndexSearchEngine {
         indexWriter.commit();
         indexWriter.close();
 
-//        Init response
-        JsonObject output = new JsonObject();
-        output.put("indexed", numIndexed);
-
-        return output;
+        return new IndexResponse(numIndexed);
     }
 
     @Override
-    public JsonObject search(String queryString) throws IOException {
+    public SearchResponse search(String queryString) throws IOException {
 //        Init response
-        JsonObject output = new JsonObject();
-        JsonArray filesArray = new JsonArray();
+        SearchResponse searchResponse = new SearchResponse();
+        List<DocumentResponse> docs = new ArrayList<>();
 
 //        Index if indexDirectory is empty
         if (indexDirectory.listAll().length == 0)
-            output.put("indexed", this.index().getInteger("indexed", 0));
+            searchResponse.setIndexed(this.index().getIndexed());
 
 //        Setup searcher
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
@@ -96,26 +95,19 @@ public class Lucene implements IndexSearchEngine {
         Query query = queryBuilder.createPhraseQuery("content", queryString);
 
 //        Search process
-        TopDocs topDocs = indexSearcher.search(query, 100);
+        TopDocs topDocs = indexSearcher.search(query, 40);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
-        for (ScoreDoc scoreDoc : scoreDocs) {
+        for (int i = 0; i < scoreDocs.length; i++) {
+            ScoreDoc scoreDoc = scoreDocs[i];
             Document doc = indexSearcher.doc(scoreDoc.doc);
             String filename = doc.get("filename");
             LOG.info("Searching in: " + filename);
 
-//            Parse into JSONObject
-            JsonObject items = new JsonObject(); //Temp object each loops
-
-            items.put("name", filename);
-            items.put("path", dataDirectory);
-            items.put("score", scoreDoc.score);
-
-            filesArray.add(items);
+            docs.add(new DocumentResponse(i + 1, filename, dataDir, scoreDoc.score));
         }
-//        output.put("precision", topDocs.totalHits.value * 100 / Objects.requireNonNull(dataDirectory.listFiles()).length);
-        output.put("docs", filesArray);
+        searchResponse.setDocs(docs);
 
-        return output;
+        return searchResponse;
     }
 }
