@@ -10,7 +10,7 @@ import java.util.Date;
 @Entity
 @NoArgsConstructor
 @Data
-@Table(name = "DelScheduledDocs")
+@Table(name = "del_scheduled_docs")
 public class ScheduledDocuments {
 
     @Id
