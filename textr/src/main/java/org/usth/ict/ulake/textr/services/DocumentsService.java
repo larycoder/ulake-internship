@@ -63,7 +63,7 @@ public class DocumentsService {
             Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
         } catch (Exception e) {
-            return new MessageResponse(500, "File upload failed" + e.getMessage());
+            return new MessageResponse(500, "File upload failed: " + e.getMessage());
         }
         return new MessageResponse(200, indexResponse.getIndexed() + " new files indexed in database");
     }
@@ -84,30 +84,52 @@ public class DocumentsService {
             return new MessageResponse(404, "No document found");
 
         if(doc.getStatus() == status)
-            return new MessageResponse(400, "Document status already set");
+            return new MessageResponse(400, "Document status already set: " + status.name());
 
         if (status == EDocStatus.STATUS_DELETED) {
             try {
-                ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
-                scheduledDocumentsRepository.save(scheduledDocuments);
-
-                indexSearchEngine.deleteDoc(doc.getName());
-            } catch (IOException e) {
-                return new MessageResponse(500, "Delete index failed: " + e.getMessage());
+                setDeleted(doc);
+            } catch (Exception e) {
+                return new MessageResponse(500, "File deletion failed: " + e.getMessage());
             }
         } else {
             try {
-                scheduledDocumentsRepository.deleteByDocId(doc.getId());
-
-                File file = new File(dataDir + doc.getName());
-                Document restoredDoc = indexSearchEngine.getDocument(file.getName(), file);
-                indexSearchEngine.indexDoc(restoredDoc);
+                setRestored(doc);
             } catch (Exception e) {
-                return new MessageResponse(500, "File restored failed: " + e.getMessage());
+                return new MessageResponse(500, "File restoration failed: " + e.getMessage());
             }
         }
         documentsRepository.updateStatusByDocument(doc, status);
 
-        return new MessageResponse(200, "Document status updated");
+        return new MessageResponse(200, "Document status updated: " + status.name());
+    }
+
+    private void setDeleted(Documents doc) throws Exception {
+        String docName = doc.getName();
+
+        File file = new File(dataDir + docName);
+
+        if (!file.renameTo(new File(dataDir + "deleted/" + docName)))
+            throw new RuntimeException("File rename failed");
+
+        ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
+        scheduledDocumentsRepository.save(scheduledDocuments);
+
+        indexSearchEngine.deleteDoc(docName);
+    }
+
+    private void setRestored(Documents doc) throws Exception {
+        String docName = doc.getName();
+
+        File file = new File(dataDir + "deleted/" + docName);
+
+        if(!file.renameTo(new File(dataDir + docName)))
+            throw new RuntimeException("File rename failed");
+
+        scheduledDocumentsRepository.deleteByDocId(doc.getId());
+
+        File newFile = new File(dataDir + docName);
+        Document restoredDoc = indexSearchEngine.getDocument(newFile.getName(), newFile);
+        indexSearchEngine.indexDoc(restoredDoc);
     }
 }

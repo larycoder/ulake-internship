@@ -42,7 +42,7 @@ public class PermanentDeleteService {
             if (isPermanentDelete(sd)) {
                 Documents doc = sd.getDoc();
 
-                File file = new File(dataDir + doc.getName());
+                File file = new File(dataDir + "deleted/" + doc.getName());
 
                 if (doc.getStatus().equals(EDocStatus.STATUS_DELETED) && file.delete()) {
                     scheduledDocumentsRepository.delete(sd);
