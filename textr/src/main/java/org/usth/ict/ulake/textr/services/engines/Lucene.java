@@ -81,32 +81,32 @@ public class Lucene implements IndexSearchEngine {
 //        Init response
         SearchResponse searchResponse = new SearchResponse();
         List<DocumentResponse> docs = new ArrayList<>();
-
-//        Index if indexDirectory is empty
-        if (indexDirectory.listAll().length == 0)
-            searchResponse.setIndexed(this.index().getIndexed());
-
-//        Setup searcher
-        IndexReader indexReader = DirectoryReader.open(indexDirectory);
-        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-
-//        Setup query
-        QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-        Query query = queryBuilder.createPhraseQuery("content", queryString);
-
-//        Search process
-        TopDocs topDocs = indexSearcher.search(query, 40);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-
-        for (int i = 0; i < scoreDocs.length; i++) {
-            ScoreDoc scoreDoc = scoreDocs[i];
-            Document doc = indexSearcher.doc(scoreDoc.doc);
-            String filename = doc.get("filename");
-            LOG.info("Searching in: " + filename);
-
-            docs.add(new DocumentResponse(i + 1, filename, dataDir, scoreDoc.score));
-        }
-        searchResponse.setDocs(docs);
+//
+////        Index if indexDirectory is empty
+//        if (indexDirectory.listAll().length == 0)
+//            searchResponse.setIndexed(this.index().getIndexed());
+//
+////        Setup searcher
+//        IndexReader indexReader = DirectoryReader.open(indexDirectory);
+//        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+//
+////        Setup query
+//        QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+//        Query query = queryBuilder.createPhraseQuery("content", queryString);
+//
+////        Search process
+//        TopDocs topDocs = indexSearcher.search(query, 40);
+//        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+//
+//        for (int i = 0; i < scoreDocs.length; i++) {
+//            ScoreDoc scoreDoc = scoreDocs[i];
+//            Document doc = indexSearcher.doc(scoreDoc.doc);
+//            String filename = doc.get("filename");
+//            LOG.info("Searching in: " + filename);
+//
+//            docs.add(new DocumentResponse(i + 1, filename, dataDir, scoreDoc.score));
+//        }
+//        searchResponse.setDocs(docs);
 
         return searchResponse;
     }

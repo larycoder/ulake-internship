@@ -6,48 +6,61 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.QueryBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.usth.ict.ulake.textr.models.Documents;
+import org.usth.ict.ulake.textr.models.EDocStatus;
+import org.usth.ict.ulake.textr.models.payloads.responses.DocumentResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
+import org.usth.ict.ulake.textr.models.payloads.responses.SearchResponse;
+import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
-public class LuceneV2 implements IndexSearchEngineV2{
+public class LuceneV2 implements IndexSearchEngineV2 {
 
     @ConfigProperty(name = "textr.documents.indexDir")
     String indexDir;
 
+    private Directory indexDirectory;
+
+    @Autowired
+    DocumentsRepository documentsRepository;
+
     private final Analyzer analyzer = new StandardAnalyzer();
 
-    private IndexWriter indexWriter;
-
     @PostConstruct
-    protected void initIndexWriter() throws IOException {
+    protected void init() throws IOException {
+        this.indexDirectory = FSDirectory.open(new File(indexDir).toPath());
+    }
+
+    private IndexWriter getIndexWriter() throws IOException {
         IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
         indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         indexWriterConfig.setSimilarity(new BM25Similarity());
-
-        assert indexDir != null;
-        Directory indexDirectory = FSDirectory.open(new File(indexDir).toPath());
-
-        this.indexWriter =  new IndexWriter(indexDirectory, indexWriterConfig);
+        return new IndexWriter(indexDirectory, indexWriterConfig);
     }
 
-    @PreDestroy
-    protected void closeIndexWriter() throws IOException {
-        this.indexWriter.close();
+    private IndexSearcher getIndexSearcher() throws IOException {
+        IndexReader indexReader = DirectoryReader.open(indexDirectory);
+        return new IndexSearcher(indexReader);
     }
 
     @Override
@@ -72,17 +85,45 @@ public class LuceneV2 implements IndexSearchEngineV2{
 
     @Override
     public IndexResponse indexDoc(Document doc) throws IOException {
+        IndexWriter indexWriter = getIndexWriter();
         indexWriter.addDocument(doc);
 
         int numIndexed = indexWriter.getDocStats().maxDoc;
         indexWriter.commit();
+        indexWriter.close();
 
         return new IndexResponse(numIndexed);
     }
 
+    @Override
     public void deleteDoc(String name) throws IOException {
+        IndexWriter indexWriter = getIndexWriter();
         indexWriter.deleteDocuments(new Term("name", name));
 
         indexWriter.commit();
+        indexWriter.close();
+    }
+
+    @Override
+    public SearchResponse searchDoc(String queryString) throws IOException {
+        IndexSearcher indexSearcher = getIndexSearcher();
+        List<DocumentResponse> documents = new ArrayList<>();
+
+        QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+        Query query = queryBuilder.createBooleanQuery("contents", queryString);
+
+        TopDocs topDocs = indexSearcher.search(query, 40);
+        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
+        for (ScoreDoc scoreDoc : scoreDocs) {
+            Document doc = indexSearcher.doc(scoreDoc.doc);
+            String filename = doc.get("name");
+
+            Documents document = documentsRepository.findByNameAndStatus(filename, EDocStatus.STATUS_STORED)
+                    .orElse(null);
+
+            documents.add(new DocumentResponse(document, scoreDoc.score));
+        }
+        return new SearchResponse(documents);
     }
 }

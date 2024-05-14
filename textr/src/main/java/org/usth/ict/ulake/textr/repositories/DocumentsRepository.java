@@ -15,6 +15,8 @@ public interface DocumentsRepository extends JpaRepository<Documents, Long> {
 
     boolean existsByNameAndStatus(String name, EDocStatus status);
 
+    Optional<Documents> findByNameAndStatus(String name, EDocStatus status);
+
     List<Documents> findAllByStatus(EDocStatus status);
 
     Optional<Documents> findById(Long id);

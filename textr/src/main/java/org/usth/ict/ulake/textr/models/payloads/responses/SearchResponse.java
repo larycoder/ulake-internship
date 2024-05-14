@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.usth.ict.ulake.textr.models.Documents;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
@@ -13,9 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchResponse {
-
-    @NotNull
-    private int indexed;
 
     @NotNull
     private List<DocumentResponse> docs;
