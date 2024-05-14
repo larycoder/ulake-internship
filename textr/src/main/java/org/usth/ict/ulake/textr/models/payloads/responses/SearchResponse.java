@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.usth.ict.ulake.textr.models.Documents;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
 
 @Getter
