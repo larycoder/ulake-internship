@@ -59,7 +59,8 @@ public class DocumentsService {
             Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
         } catch (Exception e) {
-            return new MessageResponse(500, "File upload failed: " + e.getMessage());
+            return new MessageResponse(500, "File upload failed: " + e.getMessage()
+                    + "\nRollback status: " + file.delete());
         }
         return new MessageResponse(200, indexResponse.getIndexed() + " file uploaded and indexed in database");
     }
@@ -100,32 +101,43 @@ public class DocumentsService {
         return new MessageResponse(200, "Document status updated: " + status.name());
     }
 
-    private void setDeleted(Documents doc) throws Exception {
+    private void setDeleted(Documents doc) throws RuntimeException {
         String docName = doc.getName();
 
         File file = new File(dataDir + docName);
+        File targetFile = new File(dataDir + "deleted/" + docName);
 
-        if (!file.renameTo(new File(dataDir + "deleted/" + docName)))
-            throw new RuntimeException("File rename failed");
+        if (!file.renameTo(targetFile))
+            throw new RuntimeException("Unable to move file");
 
-        ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
-        scheduledDocumentsRepository.save(scheduledDocuments);
+        try {
+            ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
+            scheduledDocumentsRepository.save(scheduledDocuments);
 
-        indexSearchEngine.deleteDoc(docName);
+            indexSearchEngine.deleteDoc(docName);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage()
+                    + "\nRollback status: " + targetFile.renameTo(file));
+        }
     }
 
-    private void setRestored(Documents doc) throws Exception {
+    private void setRestored(Documents doc) throws RuntimeException {
         String docName = doc.getName();
 
         File file = new File(dataDir + "deleted/" + docName);
+        File targetFile = new File(dataDir + docName);
 
-        if(!file.renameTo(new File(dataDir + docName)))
-            throw new RuntimeException("File rename failed");
+        if(!file.renameTo(targetFile))
+            throw new RuntimeException("Unable to move file");
 
-        scheduledDocumentsRepository.deleteByDocId(doc.getId());
+        try {
+            scheduledDocumentsRepository.deleteByDocId(doc.getId());
 
-        File newFile = new File(dataDir + docName);
-        Document restoredDoc = indexSearchEngine.getDocument(newFile.getName(), newFile);
-        indexSearchEngine.indexDoc(restoredDoc);
+            Document restoredDoc = indexSearchEngine.getDocument(targetFile.getName(), targetFile);
+            indexSearchEngine.indexDoc(restoredDoc);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage()
+                    + "\nRollback status: " + targetFile.renameTo(file));
+        }
     }
 }
