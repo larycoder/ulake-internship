@@ -60,7 +60,7 @@ public class DocumentsService {
             documentsRepository.save(documents);
         } catch (Exception e) {
             return new MessageResponse(500, "File upload failed: " + e.getMessage()
-                    + "\nRollback status: " + file.delete());
+                    + ". Rollback status: " + file.delete());
         }
         return new MessageResponse(200, indexResponse.getIndexed() + " file uploaded and indexed in database");
     }
@@ -117,7 +117,7 @@ public class DocumentsService {
             scheduledDocumentsRepository.save(scheduledDocuments);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
-                    + "\nRollback status: " + targetFile.renameTo(file));
+                    + ". Rollback status: " + targetFile.renameTo(file));
         }
     }
 
@@ -137,7 +137,7 @@ public class DocumentsService {
             scheduledDocumentsRepository.deleteByDocId(doc.getId());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
-                    + "\nRollback status: " + targetFile.renameTo(file));
+                    + ". Rollback status: " + targetFile.renameTo(file));
         }
     }
 }
