@@ -47,6 +47,9 @@ public class DocumentsService {
 
         File file = new File(dataDir + multipartBody.getFilename());
         try {
+            Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
+            documentsRepository.save(documents);
+
             InputStream inputStream = multipartBody.getFile();
             OutputStream outputStream = new FileOutputStream(file, false);
             inputStream.transferTo(outputStream);
@@ -55,9 +58,6 @@ public class DocumentsService {
 
             Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), content);
             indexResponse = indexSearchEngine.indexDoc(doc);
-
-            Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
-            documentsRepository.save(documents);
         } catch (Exception e) {
             return new MessageResponse(500, "File upload failed: " + e.getMessage()
                     + ". Rollback status: " + file.delete());
@@ -111,10 +111,10 @@ public class DocumentsService {
             throw new RuntimeException("Unable to move file");
 
         try {
-            indexSearchEngine.deleteDoc(docName);
-
             ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
             scheduledDocumentsRepository.save(scheduledDocuments);
+
+            indexSearchEngine.deleteDoc(docName);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
                     + ". Rollback status: " + targetFile.renameTo(file));
@@ -131,10 +131,10 @@ public class DocumentsService {
             throw new RuntimeException("Unable to move file");
 
         try {
+            scheduledDocumentsRepository.deleteByDocId(doc.getId());
+
             Document restoredDoc = indexSearchEngine.getDocument(targetFile.getName(), targetFile);
             indexSearchEngine.indexDoc(restoredDoc);
-
-            scheduledDocumentsRepository.deleteByDocId(doc.getId());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
                     + ". Rollback status: " + targetFile.renameTo(file));
