@@ -111,10 +111,10 @@ public class DocumentsService {
             throw new RuntimeException("Unable to move file");
 
         try {
+            indexSearchEngine.deleteDoc(docName);
+
             ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
             scheduledDocumentsRepository.save(scheduledDocuments);
-
-            indexSearchEngine.deleteDoc(docName);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
                     + "\nRollback status: " + targetFile.renameTo(file));
@@ -131,10 +131,10 @@ public class DocumentsService {
             throw new RuntimeException("Unable to move file");
 
         try {
-            scheduledDocumentsRepository.deleteByDocId(doc.getId());
-
             Document restoredDoc = indexSearchEngine.getDocument(targetFile.getName(), targetFile);
             indexSearchEngine.indexDoc(restoredDoc);
+
+            scheduledDocumentsRepository.deleteByDocId(doc.getId());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()
                     + "\nRollback status: " + targetFile.renameTo(file));
