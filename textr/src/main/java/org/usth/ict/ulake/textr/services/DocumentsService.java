@@ -12,13 +12,12 @@ import org.usth.ict.ulake.textr.models.payloads.responses.MessageResponse;
 import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
 import org.usth.ict.ulake.textr.repositories.ScheduledDocumentsRepository;
 import org.usth.ict.ulake.textr.services.engines.IndexSearchEngineV2;
+import org.usth.ict.ulake.textr.services.engines.TikaExtractor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 @ApplicationScoped
@@ -30,6 +29,9 @@ public class DocumentsService {
 
     @Inject
     IndexSearchEngineV2 indexSearchEngine;
+
+    @Inject
+    TikaExtractor tikaExtractor;
 
     @Autowired
     DocumentsRepository documentsRepository;
@@ -43,29 +45,23 @@ public class DocumentsService {
 
         IndexResponse indexResponse;
 
+        File file = new File(dataDir + multipartBody.getFilename());
         try {
-            BufferedReader contents = new BufferedReader(new InputStreamReader(multipartBody.getFile()));
-            StringBuilder contentBuilder = new StringBuilder();
-            String line;
-            while ((line = contents.readLine()) != null) {
-                contentBuilder.append(line).append("\n");
-            }
-            String fileContents = contentBuilder.toString();
+            InputStream inputStream = multipartBody.getFile();
+            OutputStream outputStream = new FileOutputStream(file, false);
+            inputStream.transferTo(outputStream);
 
-            Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), fileContents);
+            String content = tikaExtractor.extractText(file);
+
+            Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), content);
             indexResponse = indexSearchEngine.indexDoc(doc);
-
-            try (BufferedWriter writer = Files.newBufferedWriter(
-                    Paths.get(dataDir + multipartBody.getFilename()))) {
-                writer.write(fileContents);
-            }
 
             Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
         } catch (Exception e) {
             return new MessageResponse(500, "File upload failed: " + e.getMessage());
         }
-        return new MessageResponse(200, indexResponse.getIndexed() + " new files indexed in database");
+        return new MessageResponse(200, indexResponse.getIndexed() + " file uploaded and indexed in database");
     }
 
     public List<Documents> listAllByStatus(EDocStatus status) throws RuntimeException {

@@ -112,17 +112,16 @@ public class LuceneV2 implements IndexSearchEngineV2 {
         QueryBuilder queryBuilder = new QueryBuilder(analyzer);
         Query query = queryBuilder.createBooleanQuery("contents", queryString);
 
-        TopDocs topDocs = indexSearcher.search(query, 40);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-
-        for (ScoreDoc scoreDoc : scoreDocs) {
-            Document doc = indexSearcher.doc(scoreDoc.doc);
+        TopDocs hits = indexSearcher.search(query, 40);
+        StoredFields storedFields = indexSearcher.storedFields();
+        for (ScoreDoc hit : hits.scoreDocs) {
+            Document doc = storedFields.document(hit.doc);
             String filename = doc.get("name");
 
             Documents document = documentsRepository.findByNameAndStatus(filename, EDocStatus.STATUS_STORED)
                     .orElse(null);
 
-            documents.add(new DocumentResponse(document, scoreDoc.score));
+            documents.add(new DocumentResponse(document, hit.score));
         }
         return new SearchResponse(documents);
     }
