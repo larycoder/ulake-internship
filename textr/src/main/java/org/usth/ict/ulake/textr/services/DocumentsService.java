@@ -12,7 +12,6 @@ import org.usth.ict.ulake.textr.models.payloads.responses.MessageResponse;
 import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
 import org.usth.ict.ulake.textr.repositories.ScheduledDocumentsRepository;
 import org.usth.ict.ulake.textr.services.engines.IndexSearchEngineV2;
-import org.usth.ict.ulake.textr.services.engines.TikaExtractor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,9 +28,6 @@ public class DocumentsService {
 
     @Inject
     IndexSearchEngineV2 indexSearchEngine;
-
-    @Inject
-    TikaExtractor tikaExtractor;
 
     @Autowired
     DocumentsRepository documentsRepository;
@@ -50,19 +46,18 @@ public class DocumentsService {
             InputStream inputStream = multipartBody.getFile();
             OutputStream outputStream = new FileOutputStream(file, false);
             inputStream.transferTo(outputStream);
+            inputStream.close();
 
-            String content = tikaExtractor.extractText(file);
-
-            Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), content);
+            Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), file);
             indexResponse = indexSearchEngine.indexDoc(doc);
 
-            Documents documents = new Documents(multipartBody.getFilename(), EDocStatus.STATUS_STORED);
+            Documents documents = new Documents(multipartBody.getFilename(), dataDir, EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
         } catch (Exception e) {
             return new MessageResponse(500, "File upload failed: " + e.getMessage()
                     + ". Rollback status: " + file.delete());
         }
-        return new MessageResponse(200, indexResponse.getIndexed() + " file uploaded and indexed in database");
+        return new MessageResponse(200, indexResponse.getIndexed() + " files uploaded and indexed in database");
     }
 
     public List<Documents> listAllByStatus(EDocStatus status) throws RuntimeException {

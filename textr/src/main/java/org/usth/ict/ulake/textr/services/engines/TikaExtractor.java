@@ -6,6 +6,7 @@ import org.apache.tika.exception.TikaException;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @ApplicationScoped
 public class TikaExtractor {
@@ -14,5 +15,9 @@ public class TikaExtractor {
 
     public String extractText(File file) throws TikaException, IOException {
         return tika.parseToString(file);
+    }
+
+    public String extractTextFromStream(InputStream stream) throws TikaException, IOException {
+        return tika.parseToString(stream);
     }
 }

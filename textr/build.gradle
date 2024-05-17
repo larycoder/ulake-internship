@@ -13,6 +13,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     implementation 'org.apache.lucene:lucene-core:9.10.0'
     implementation 'org.apache.lucene:lucene-analyzers-common:8.11.3'
+    implementation 'org.apache.lucene:lucene-highlighter:9.10.0'
     implementation platform("org.apache.tika:tika-bom:2.9.0")
     implementation 'org.apache.tika:tika-core'
     implementation 'org.apache.tika:tika-async-cli'

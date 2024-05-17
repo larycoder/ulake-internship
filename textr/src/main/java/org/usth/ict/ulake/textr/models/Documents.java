@@ -23,12 +23,17 @@ public class Documents {
     private String name;
 
     @NotNull
+    @Column(name = "path")
+    private String path;
+
+    @NotNull
     @JsonIgnore
     @Column(name = "status")
     private EDocStatus status;
 
-    public Documents(String name, EDocStatus status) {
+    public Documents(String name, String path, EDocStatus status) {
         this.name = name;
         this.status = status;
+        this.path = path;
     }
 }

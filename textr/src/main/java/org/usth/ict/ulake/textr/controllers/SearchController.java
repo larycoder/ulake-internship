@@ -23,7 +23,7 @@ public class SearchController {
     public Response search(@PathParam("term") String term) {
         try {
             SearchResponse searchResponse = searchService.search(term);
-            return Response.ok(searchResponse).build();
+            return Response.ok(searchResponse.getDocs()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new MessageResponse(500, e.getMessage())).build();

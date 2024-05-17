@@ -8,22 +8,31 @@ import org.usth.ict.ulake.textr.models.EDocStatus;
 import org.usth.ict.ulake.textr.models.ScheduledDocuments;
 import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
 import org.usth.ict.ulake.textr.repositories.ScheduledDocumentsRepository;
+import org.usth.ict.ulake.textr.services.engines.LuceneManager;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.REQUIRED)
 public class PermanentDeleteService {
+
+    Logger logger = Logger.getLogger(PermanentDeleteService.class.getName());
 
     @ConfigProperty(name = "textr.scheduled.permanentDelDays")
     int permanentDelDays;
 
     @ConfigProperty(name = "textr.documents.dataDir")
     String dataDir;
+
+    @Inject
+    LuceneManager luceneManager;
 
     @Autowired
     ScheduledDocumentsRepository scheduledDocumentsRepository;
@@ -33,6 +42,13 @@ public class PermanentDeleteService {
 
     @Scheduled(cron = "{textr.scheduled.time}")
     void permanentDelete() {
+        try {
+            luceneManager.maybeMerge();
+            luceneManager.close();
+        } catch (IOException e) {
+            logger.warning(e.getMessage());
+        }
+
         List<ScheduledDocuments> scheduledDocuments = scheduledDocumentsRepository.findAll();
 
         if (scheduledDocuments.isEmpty())
@@ -49,6 +65,16 @@ public class PermanentDeleteService {
                     documentsRepository.delete(doc);
                 }
             }
+        }
+    }
+
+    @Scheduled(cron = "{textr.scheduled.monthly}")
+    void permanentDeleteMonthly() {
+        try {
+            luceneManager.forceMerge();
+            luceneManager.close();
+        } catch (IOException e) {
+            logger.warning(e.getMessage());
         }
     }
 

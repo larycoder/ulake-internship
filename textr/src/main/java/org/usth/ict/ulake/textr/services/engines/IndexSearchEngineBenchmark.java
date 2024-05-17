@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 public class IndexSearchEngineBenchmark {
     private static final Logger LOG = Logger.getLogger(String.valueOf(IndexSearchEngineBenchmark.class));
     FileHandler fileHandler;
-
-    @Inject
-    IndexSearchEngine indexSearchEngine;
+//
+//    @Inject
+//    IndexSearchEngine indexSearchEngine;
 
     private File indexPath;
     private File dataPath;

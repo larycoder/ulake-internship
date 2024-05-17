@@ -11,8 +11,11 @@ import javax.validation.constraints.NotNull;
 public class DocumentResponse {
 
     @NotNull
-    private Documents documents;
+    private Documents document;
 
     @NotNull
     private Float score;
+
+    @NotNull
+    private String[] highlightContents;
 }
