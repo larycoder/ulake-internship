@@ -40,6 +40,7 @@ public class DocumentsService {
             return new MessageResponse(400, "File already uploaded");
 
         IndexResponse indexResponse;
+        Documents documents = null;
 
         File file = new File(dataDir + multipartBody.getFilename());
         try {
@@ -48,14 +49,17 @@ public class DocumentsService {
             inputStream.transferTo(outputStream);
             inputStream.close();
 
-            Document doc = indexSearchEngine.getDocument(multipartBody.getFilename(), file);
-            indexResponse = indexSearchEngine.indexDoc(doc);
-
-            Documents documents = new Documents(multipartBody.getFilename(), dataDir, EDocStatus.STATUS_STORED);
+            documents = new Documents(multipartBody.getFilename(), dataDir, EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
+
+            Document doc = indexSearchEngine.getDocument(documents.getId(), file);
+            indexResponse = indexSearchEngine.indexDoc(doc);
+            indexSearchEngine.commit();
         } catch (Exception e) {
+            if (file.delete())
+                documentsRepository.delete(documents);
             return new MessageResponse(500, "File upload failed: " + e.getMessage()
-                    + ". Rollback status: " + file.delete());
+                    + ". Rolled-back");
         }
         return new MessageResponse(200, indexResponse.getIndexed() + " files uploaded and indexed in database");
     }
@@ -105,15 +109,8 @@ public class DocumentsService {
         if (!file.renameTo(targetFile))
             throw new RuntimeException("Unable to move file");
 
-        try {
-            indexSearchEngine.deleteDoc(docName);
-
-            ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
-            scheduledDocumentsRepository.save(scheduledDocuments);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage()
-                    + ". Rollback status: " + targetFile.renameTo(file));
-        }
+        ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
+        scheduledDocumentsRepository.save(scheduledDocuments);
     }
 
     private void setRestored(Documents doc) throws RuntimeException {
@@ -125,14 +122,6 @@ public class DocumentsService {
         if(!file.renameTo(targetFile))
             throw new RuntimeException("Unable to move file");
 
-        try {
-            Document restoredDoc = indexSearchEngine.getDocument(targetFile.getName(), targetFile);
-            indexSearchEngine.indexDoc(restoredDoc);
-
-            scheduledDocumentsRepository.deleteByDocId(doc.getId());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage()
-                    + ". Rollback status: " + targetFile.renameTo(file));
-        }
+        scheduledDocumentsRepository.deleteByDocId(doc.getId());
     }
 }

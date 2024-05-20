@@ -8,6 +8,7 @@ import org.usth.ict.ulake.textr.models.EDocStatus;
 import org.usth.ict.ulake.textr.models.ScheduledDocuments;
 import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
 import org.usth.ict.ulake.textr.repositories.ScheduledDocumentsRepository;
+import org.usth.ict.ulake.textr.services.engines.IndexSearchEngineV2;
 import org.usth.ict.ulake.textr.services.engines.LuceneManager;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -34,6 +35,9 @@ public class PermanentDeleteService {
     @Inject
     LuceneManager luceneManager;
 
+    @Inject
+    IndexSearchEngineV2 indexSearchEngine;
+
     @Autowired
     ScheduledDocumentsRepository scheduledDocumentsRepository;
 
@@ -42,13 +46,6 @@ public class PermanentDeleteService {
 
     @Scheduled(cron = "{textr.scheduled.time}")
     void permanentDelete() {
-        try {
-            luceneManager.maybeMerge();
-            luceneManager.close();
-        } catch (IOException e) {
-            logger.warning(e.getMessage());
-        }
-
         List<ScheduledDocuments> scheduledDocuments = scheduledDocumentsRepository.findAll();
 
         if (scheduledDocuments.isEmpty())
@@ -61,8 +58,16 @@ public class PermanentDeleteService {
                 File file = new File(dataDir + "deleted/" + doc.getName());
 
                 if (doc.getStatus().equals(EDocStatus.STATUS_DELETED) && file.delete()) {
-                    scheduledDocumentsRepository.delete(sd);
-                    documentsRepository.delete(doc);
+                    try {
+                        scheduledDocumentsRepository.delete(sd);
+                        documentsRepository.delete(doc);
+
+                        indexSearchEngine.deleteDoc(doc.getId());
+                        luceneManager.maybeMerge();
+                        luceneManager.commit();
+                    } catch (IOException e) {
+                        logger.warning(e.getMessage());
+                    }
                 }
             }
         }
@@ -72,7 +77,7 @@ public class PermanentDeleteService {
     void permanentDeleteMonthly() {
         try {
             luceneManager.forceMerge();
-            luceneManager.close();
+            luceneManager.commit();
         } catch (IOException e) {
             logger.warning(e.getMessage());
         }
