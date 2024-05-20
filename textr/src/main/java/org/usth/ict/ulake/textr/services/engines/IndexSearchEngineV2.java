@@ -11,13 +11,15 @@ import java.io.IOException;
 
 public interface IndexSearchEngineV2 {
 
-    Document getDocument(String name, File file) throws IOException, TikaException;
+    Document getDocument(Long id, File file) throws IOException, TikaException;
 
-    Document getDocument(String name, String contents);
+    Document getDocument(Long id, String contents);
 
     IndexResponse indexDoc(Document doc) throws IOException;
 
-    void deleteDoc(String name) throws IOException;
+    void deleteDoc(Long id) throws IOException;
 
     SearchResponse searchDoc(String query) throws IOException, InvalidTokenOffsetsException;
+
+    void commit() throws IOException;
 }

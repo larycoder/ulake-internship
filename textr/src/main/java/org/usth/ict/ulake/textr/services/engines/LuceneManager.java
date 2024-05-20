@@ -24,7 +24,7 @@ public class LuceneManager {
     @Getter
     private final Analyzer analyzer = new StandardAnalyzer();
 
-    @Getter @Singleton
+    @Singleton
     private IndexWriter indexWriter;
 
     private SearcherManager searcherManager;
@@ -37,7 +37,6 @@ public class LuceneManager {
     @PostConstruct
     protected void init() throws IOException {
         Directory dir = FSDirectory.open(Paths.get(indexPath));
-
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         config.setSimilarity(new BM25Similarity());
@@ -49,11 +48,26 @@ public class LuceneManager {
         nrtReopenThread.start();
     }
 
+    private void ensureWritable() throws IOException {
+        if (!indexWriter.isOpen()) {
+            searcherManager.close();
+            nrtReopenThread.close();
+            this.init();
+        }
+    }
+
+    public IndexWriter getIndexWriter() throws IOException {
+        this.ensureWritable();
+        return indexWriter;
+    }
+
     public void maybeMerge() throws IOException {
+        this.ensureWritable();
         indexWriter.maybeMerge();
     }
 
     public void forceMerge() throws IOException {
+        this.ensureWritable();
         indexWriter.forceMergeDeletes();
     }
 
@@ -66,6 +80,7 @@ public class LuceneManager {
     }
 
     public void commit() throws IOException {
+        this.ensureWritable();
         indexWriter.commit();
         searcherManager.maybeRefresh();
     }

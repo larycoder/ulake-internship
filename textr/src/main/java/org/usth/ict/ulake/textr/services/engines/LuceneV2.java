@@ -10,7 +10,6 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.util.QueryBuilder;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.usth.ict.ulake.textr.models.Documents;
 import org.usth.ict.ulake.textr.models.EDocStatus;
 import org.usth.ict.ulake.textr.models.payloads.responses.DocumentResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
@@ -43,14 +42,14 @@ public class LuceneV2 implements IndexSearchEngineV2 {
     }
 
     @Override
-    public Document getDocument(String name, File file) throws IOException, TikaException {
+    public Document getDocument(Long id, File file) throws IOException, TikaException {
         String contents = tikaExtractor.extractText(file);
 
-        return getDocument(name, contents);
+        return getDocument(id, contents);
     }
 
     @Override
-    public Document getDocument(String name, String contents) {
+    public Document getDocument(Long id, String contents) {
         Document doc = new Document();
 
         FieldType contentFieldType = new FieldType();
@@ -61,14 +60,14 @@ public class LuceneV2 implements IndexSearchEngineV2 {
         contentFieldType.setStoreTermVectorOffsets(true);
         contentFieldType.freeze();
 
-        FieldType nameFieldType = new FieldType();
-        nameFieldType.setStored(true);
-        nameFieldType.setIndexOptions(IndexOptions.DOCS);
-        nameFieldType.setTokenized(false);
-        nameFieldType.setOmitNorms(false);
-        nameFieldType.freeze();
+        FieldType idFieldType = new FieldType();
+        idFieldType.setStored(true);
+        idFieldType.setIndexOptions(IndexOptions.DOCS);
+        idFieldType.setTokenized(false);
+        idFieldType.setOmitNorms(false);
+        idFieldType.freeze();
 
-        doc.add(new Field(LuceneConstants.FILE_NAME, name, nameFieldType));
+        doc.add(new Field(LuceneConstants.ID, String.valueOf(id), idFieldType));
         doc.add(new Field(LuceneConstants.CONTENTS, contents, contentFieldType));
 
         return doc;
@@ -80,17 +79,19 @@ public class LuceneV2 implements IndexSearchEngineV2 {
         indexWriter.addDocument(doc);
 
         int numIndexed = indexWriter.getDocStats().numDocs;
-        luceneManager.commit();
 
         return new IndexResponse(numIndexed);
     }
 
     @Override
-    public void deleteDoc(String name) throws IOException {
+    public void deleteDoc(Long id) throws IOException {
         IndexWriter indexWriter = luceneManager.getIndexWriter();
 
-        indexWriter.deleteDocuments(new Term(LuceneConstants.FILE_NAME, name));
+        indexWriter.deleteDocuments(new Term(LuceneConstants.ID, String.valueOf(id)));
+    }
 
+    @Override
+    public void commit() throws IOException {
         luceneManager.commit();
     }
 
@@ -114,19 +115,16 @@ public class LuceneV2 implements IndexSearchEngineV2 {
                 QueryScorer scorer = new QueryScorer(query);
                 Highlighter highlighter = new Highlighter(scorer);
                 String[] highlightContents = highlighter
-                        .getBestFragments(analyzer, LuceneConstants.CONTENTS, doc.get(LuceneConstants.CONTENTS), 2);
+                        .getBestFragments(analyzer, LuceneConstants.CONTENTS, doc.get(LuceneConstants.CONTENTS), 4);
 
-                String filename = doc.get(LuceneConstants.FILE_NAME);
+                Long id = Long.valueOf(doc.get(LuceneConstants.ID));
 
-                Documents document = documentsRepository.findByNameAndStatus(filename, EDocStatus.STATUS_STORED)
-                        .orElse(null);
-
-                documents.add(new DocumentResponse(document, hit.score, highlightContents));
+                documentsRepository.findByIdAndStatus(id, EDocStatus.STATUS_STORED)
+                        .ifPresent(document -> documents.add(new DocumentResponse(document, hit.score, highlightContents)));
             }
         } finally {
             luceneManager.releaseIndexSearcher(indexSearcher);
         }
-
         return new SearchResponse(documents);
     }
 }
