@@ -26,6 +26,9 @@ public class DocumentsService {
     @ConfigProperty(name = "textr.documents.dataDir")
     String dataDir;
 
+    @ConfigProperty(name = "textr.scheduled.permanentDelDays")
+    int permanentDelDays;
+
     @Inject
     IndexSearchEngineV2 indexSearchEngine;
 
@@ -109,7 +112,7 @@ public class DocumentsService {
         if (!file.renameTo(targetFile))
             throw new RuntimeException("Unable to move file");
 
-        ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc);
+        ScheduledDocuments scheduledDocuments = new ScheduledDocuments(doc, permanentDelDays);
         scheduledDocumentsRepository.save(scheduledDocuments);
     }
 

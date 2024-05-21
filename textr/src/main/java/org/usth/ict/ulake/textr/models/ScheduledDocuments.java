@@ -21,11 +21,15 @@ public class ScheduledDocuments {
     @Column(name = "deleted_date")
     private Date deletedDate = new Date();
 
+    @Column(name = "permanent_days")
+    private Integer permanentDelDays;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doc_id", referencedColumnName = "id", unique = true)
     private Documents doc;
 
-    public ScheduledDocuments(Documents doc) {
+    public ScheduledDocuments(Documents doc, Integer permanentDelDays) {
         this.doc = doc;
+        this.permanentDelDays = permanentDelDays;
     }
 }
