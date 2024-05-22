@@ -1,8 +1,13 @@
 package org.usth.ict.ulake.textr.services.engines;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.StoredFields;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
@@ -115,7 +120,9 @@ public class LuceneV2 implements IndexSearchEngineV2 {
 
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query queryContents = queryBuilder.createBooleanQuery(LuceneConstants.CONTENTS, queryString);
-            Query queryName = queryBuilder.createBooleanQuery(LuceneConstants.NAME, queryString);
+            Query queryName = queryBuilder
+                    .createBooleanQuery(LuceneConstants.NAME, queryString
+                            .replace(".", " "));
 
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
             builder.add(queryContents, BooleanClause.Occur.SHOULD);

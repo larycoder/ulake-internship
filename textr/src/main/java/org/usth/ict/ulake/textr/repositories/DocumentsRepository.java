@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface DocumentsRepository extends JpaRepository<Documents, Long> {
 
-    boolean existsByNameAndStatus(String name, EDocStatus status);
+    boolean existsByName(String name);
 
     Optional<Documents> findByIdAndStatus(Long id, EDocStatus status);
 
@@ -24,5 +24,8 @@ public interface DocumentsRepository extends JpaRepository<Documents, Long> {
     @Modifying
     @Query("update Documents d set d.status = :status where d = :doc")
     void updateStatusByDocument(Documents doc, EDocStatus status);
+
+    @Query("select d.name from Documents d where name like concat(:docName, '%')")
+    List<String> findNamesByDocName(String docName);
 }
 
