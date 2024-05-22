@@ -5,8 +5,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.usth.ict.ulake.textr.models.Documents;
 import org.usth.ict.ulake.textr.models.EDocStatus;
-import org.usth.ict.ulake.textr.models.payloads.requests.MultipartBody;
 import org.usth.ict.ulake.textr.models.ScheduledDocuments;
+import org.usth.ict.ulake.textr.models.payloads.requests.MultipartBody;
 import org.usth.ict.ulake.textr.models.payloads.responses.FileResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.MessageResponse;
@@ -20,7 +20,9 @@ import javax.transaction.Transactional;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.REQUIRED)
@@ -41,24 +43,53 @@ public class DocumentsService {
     @Autowired
     ScheduledDocumentsRepository scheduledDocumentsRepository;
 
+    private String getNewName(String filename) {
+        String docName = filename.split("\\.")[0];
+        String mime = "." + filename.split("\\.")[1];
+        List<String> filenames = documentsRepository.findNamesByDocName(docName);
+
+        List<String> fileIndices = new ArrayList<>();
+        for (String fName : filenames) {
+            fName = fName.replaceAll(docName, "")
+                    .replaceAll(mime, "")
+                    .replaceAll("[()]", "");
+            fileIndices.add(fName);
+        }
+        long idx = 1;
+        while (isInIndices(idx, fileIndices))
+            idx++;
+
+        return docName + "(" + idx + ")" + mime;
+    }
+
+    private boolean isInIndices(long idx, List<String> indices) {
+        for (String index : indices) {
+            if (Objects.equals(index, String.valueOf(idx)))
+                return true;
+        }
+        return false;
+    }
+
     public MessageResponse upload(MultipartBody multipartBody) {
-        if (documentsRepository.existsByNameAndStatus(multipartBody.getFilename(), EDocStatus.STATUS_STORED))
-            return new MessageResponse(400, "File already uploaded");
+        String filename = multipartBody.getFilename();
+        if (documentsRepository.existsByName(filename)) {
+            filename = getNewName(filename);
+        }
 
         IndexResponse indexResponse;
         Documents documents = null;
 
-        File file = new File(dataDir + multipartBody.getFilename());
+        File file = new File(dataDir + filename);
         try {
             InputStream inputStream = multipartBody.getFile();
             OutputStream outputStream = new FileOutputStream(file, false);
             inputStream.transferTo(outputStream);
             inputStream.close();
 
-            documents = new Documents(multipartBody.getFilename(), dataDir, EDocStatus.STATUS_STORED);
+            documents = new Documents(filename, dataDir, EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
 
-            Document doc = indexSearchEngine.getDocument(documents.getId(), multipartBody.getFilename(), file);
+            Document doc = indexSearchEngine.getDocument(documents.getId(), filename, file);
             indexResponse = indexSearchEngine.indexDoc(doc);
             indexSearchEngine.commit();
         } catch (Exception e) {
