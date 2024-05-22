@@ -58,7 +58,7 @@ public class DocumentsService {
             documents = new Documents(multipartBody.getFilename(), dataDir, EDocStatus.STATUS_STORED);
             documentsRepository.save(documents);
 
-            Document doc = indexSearchEngine.getDocument(documents.getId(), file);
+            Document doc = indexSearchEngine.getDocument(documents.getId(), multipartBody.getFilename(), file);
             indexResponse = indexSearchEngine.indexDoc(doc);
             indexSearchEngine.commit();
         } catch (Exception e) {

@@ -42,14 +42,16 @@ public class LuceneV2 implements IndexSearchEngineV2 {
     }
 
     @Override
-    public Document getDocument(Long id, File file) throws IOException, TikaException {
+    public Document getDocument(Long id, String filename, File file) throws IOException, TikaException {
         String contents = tikaExtractor.extractText(file);
 
-        return getDocument(id, contents);
+        return getDocument(id, filename, contents);
     }
 
     @Override
-    public Document getDocument(Long id, String contents) {
+    public Document getDocument(Long id, String filename, String contents) {
+        filename = filename.replace(".", " ");
+
         Document doc = new Document();
 
         FieldType contentFieldType = new FieldType();
@@ -67,7 +69,14 @@ public class LuceneV2 implements IndexSearchEngineV2 {
         idFieldType.setOmitNorms(false);
         idFieldType.freeze();
 
+        FieldType filenameFieldType = new FieldType();
+        filenameFieldType.setStored(true);
+        filenameFieldType.setIndexOptions(IndexOptions.DOCS);
+        filenameFieldType.setTokenized(true);
+        filenameFieldType.freeze();
+
         doc.add(new Field(LuceneConstants.ID, String.valueOf(id), idFieldType));
+        doc.add(new Field(LuceneConstants.NAME, filename, filenameFieldType));
         doc.add(new Field(LuceneConstants.CONTENTS, contents, contentFieldType));
 
         return doc;
@@ -105,7 +114,13 @@ public class LuceneV2 implements IndexSearchEngineV2 {
             Analyzer analyzer = luceneManager.getAnalyzer();
 
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-            Query query = queryBuilder.createBooleanQuery(LuceneConstants.CONTENTS, queryString);
+            Query queryContents = queryBuilder.createBooleanQuery(LuceneConstants.CONTENTS, queryString);
+            Query queryName = queryBuilder.createBooleanQuery(LuceneConstants.NAME, queryString);
+
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
+            builder.add(queryContents, BooleanClause.Occur.SHOULD);
+            builder.add(queryName, BooleanClause.Occur.SHOULD);
+            BooleanQuery query = builder.build();
 
             TopDocs hits = indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
             StoredFields storedFields = indexSearcher.storedFields();

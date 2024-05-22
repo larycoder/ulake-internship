@@ -11,9 +11,9 @@ import java.io.IOException;
 
 public interface IndexSearchEngineV2 {
 
-    Document getDocument(Long id, File file) throws IOException, TikaException;
+    Document getDocument(Long id, String filename, File file) throws IOException, TikaException;
 
-    Document getDocument(Long id, String contents);
+    Document getDocument(Long id, String filename, String contents);
 
     IndexResponse indexDoc(Document doc) throws IOException;
 
