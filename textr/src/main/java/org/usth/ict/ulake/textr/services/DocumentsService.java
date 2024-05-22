@@ -7,6 +7,7 @@ import org.usth.ict.ulake.textr.models.Documents;
 import org.usth.ict.ulake.textr.models.EDocStatus;
 import org.usth.ict.ulake.textr.models.payloads.requests.MultipartBody;
 import org.usth.ict.ulake.textr.models.ScheduledDocuments;
+import org.usth.ict.ulake.textr.models.payloads.responses.FileResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.MessageResponse;
 import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
@@ -17,6 +18,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ApplicationScoped
@@ -82,7 +85,7 @@ public class DocumentsService {
         if (doc == null)
             return new MessageResponse(404, "No document found");
 
-        if(doc.getStatus() == status)
+        if (doc.getStatus() == status)
             return new MessageResponse(400, "Document status already set: " + status.name());
 
         if (status == EDocStatus.STATUS_DELETED) {
@@ -122,9 +125,29 @@ public class DocumentsService {
         File file = new File(dataDir + "deleted/" + docName);
         File targetFile = new File(dataDir + docName);
 
-        if(!file.renameTo(targetFile))
+        if (!file.renameTo(targetFile))
             throw new RuntimeException("Unable to move file");
 
         scheduledDocumentsRepository.deleteByDocId(doc.getId());
+    }
+
+    public FileResponse getFileById(Long id) {
+        Documents doc = documentsRepository.findById(id).orElse(null);
+
+        if (doc == null)
+            return null;
+
+        String docName = doc.getName();
+        String encodedFilename;
+
+        InputStream inputStream;
+        try {
+            inputStream = new FileInputStream(dataDir + docName);
+
+            encodedFilename = URLEncoder.encode(docName, StandardCharsets.UTF_8).replace("+", "%20");
+        } catch (Exception e) {
+            return null;
+        }
+        return new FileResponse(encodedFilename, inputStream::transferTo);
     }
 }

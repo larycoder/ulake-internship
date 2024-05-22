@@ -4,6 +4,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.usth.ict.ulake.textr.models.Documents;
 import org.usth.ict.ulake.textr.models.EDocStatus;
 import org.usth.ict.ulake.textr.models.payloads.requests.MultipartBody;
+import org.usth.ict.ulake.textr.models.payloads.responses.FileResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.MessageResponse;
 import org.usth.ict.ulake.textr.services.DocumentsService;
 
@@ -75,5 +76,20 @@ public class DocumentsController {
         MessageResponse messageResponse = documentsService.updateStatusById(id, EDocStatus.STATUS_STORED);
 
         return Response.status(messageResponse.getStatus()).entity(messageResponse).build();
+    }
+
+    @GET
+    @Path("/download/{id}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response download(@PathParam("id") Long id) {
+        FileResponse fileResponse = documentsService.getFileById(id);
+
+        if (fileResponse == null)
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new MessageResponse(404, "File not found")).build();
+
+        return Response.ok(fileResponse.getFileStream())
+                .header("Content-Disposition", "attachment; filename=\"" + fileResponse.getFileName() + "\"")
+                .build();
     }
 }
