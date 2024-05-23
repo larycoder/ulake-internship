@@ -41,4 +41,36 @@ http {
             proxy_pass http://ulake-phpmyadmin;
         }
     }
+
+    server { # service dashboard
+        listen 80;
+        server_name dashboard.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-dashboard:8782;
+        }
+    }
+
+    server { # service core
+        listen 80;
+        server_name core.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-core:8784;
+        }
+    }
+
+    server { # service folder
+        listen 80;
+        server_name folder.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-folder:8786;
+        }
+    }
+
+    server { # service acl
+        listen 80;
+        server_name acl.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-acl:8783;
+        }
+    }
 }
