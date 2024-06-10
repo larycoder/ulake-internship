@@ -95,7 +95,7 @@ public class SchedulerService {
                         logger.info("Index file {} successfully. Total indexed: {} files", cid,
                                     indexResponse.getIndexed());
                     } else logger.info("File {} is already indexed", cid);
-                    indexFilesRepo.updateStatusByCoreId(cid, IndexingStatus.STATUS_INDEXED);
+                    indexFilesRepo.updateStatusById(sf.getId(), IndexingStatus.STATUS_INDEXED);
                 } catch (Exception e) {
                     logger.error("Index file failed at cid {}: ", cid, e);
                 }
@@ -120,7 +120,7 @@ public class SchedulerService {
                 String cid = sf.getCoreId();
                 try {
                     if (indexSearchEngine.notIndexed(cid)) {
-                        indexFilesRepo.updateStatusByCoreId(cid, IndexingStatus.STATUS_SCHEDULED);
+                        indexFilesRepo.updateStatusById(sf.getId(), IndexingStatus.STATUS_SCHEDULED);
                         logger.info("Schedule file {} successfully.", cid);
                     }
                 } catch (Exception e) {
