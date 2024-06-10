@@ -2,22 +2,21 @@ package org.usth.ict.ulake.textr.services.engines;
 
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 @ApplicationScoped
 public class TikaExtractor {
-
-    private final Tika tika = new Tika();
-
-    public String extractText(File file) throws TikaException, IOException {
-        return tika.parseToString(file);
-    }
-
-    public String extractTextFromStream(InputStream stream) throws TikaException, IOException {
+    
+    private static final Logger log = LoggerFactory.getLogger(TikaExtractor.class);
+    private static final Tika tika = new Tika();
+    
+    public String extractText(InputStream stream) throws IOException, TikaException {
+        log.info("Extracting text from {}", stream);
         return tika.parseToString(stream);
     }
 }

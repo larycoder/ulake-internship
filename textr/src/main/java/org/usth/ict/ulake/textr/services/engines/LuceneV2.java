@@ -15,50 +15,45 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.util.QueryBuilder;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.usth.ict.ulake.textr.models.EDocStatus;
+import org.usth.ict.ulake.textr.models.IndexFiles;
+import org.usth.ict.ulake.textr.models.IndexingStatus;
 import org.usth.ict.ulake.textr.models.payloads.responses.DocumentResponse;
 import org.usth.ict.ulake.textr.models.payloads.responses.IndexResponse;
-import org.usth.ict.ulake.textr.models.payloads.responses.SearchResponse;
-import org.usth.ict.ulake.textr.repositories.DocumentsRepository;
+import org.usth.ict.ulake.textr.repositories.IndexFilesRepository;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class LuceneV2 implements IndexSearchEngineV2 {
-
+    
     @Inject
     TikaExtractor tikaExtractor;
-
+    
     @Inject
     LuceneManager luceneManager;
-
+    
     @Autowired
-    DocumentsRepository documentsRepository;
-
+    IndexFilesRepository indexFilesRepo;
+    
     @PreDestroy
     protected void preDestroy() throws IOException {
         luceneManager.close();
     }
-
+    
     @Override
-    public Document getDocument(Long id, String filename, File file) throws IOException, TikaException {
-        String contents = tikaExtractor.extractText(file);
-
-        return getDocument(id, filename, contents);
+    public Document getDocument(String cid, InputStream stream) throws IOException, TikaException {
+        String contents = tikaExtractor.extractText(stream);
+        return getDocument(cid, contents);
     }
-
+    
     @Override
-    public Document getDocument(Long id, String filename, String contents) {
-        filename = filename.replace(".", " ");
-
-        Document doc = new Document();
-
+    public Document getDocument(String cid, String contents) {
         FieldType contentFieldType = new FieldType();
         contentFieldType.setStored(true);
         contentFieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
@@ -66,87 +61,116 @@ public class LuceneV2 implements IndexSearchEngineV2 {
         contentFieldType.setStoreTermVectorPositions(true);
         contentFieldType.setStoreTermVectorOffsets(true);
         contentFieldType.freeze();
-
-        FieldType idFieldType = new FieldType();
-        idFieldType.setStored(true);
-        idFieldType.setIndexOptions(IndexOptions.DOCS);
-        idFieldType.setTokenized(false);
-        idFieldType.setOmitNorms(false);
-        idFieldType.freeze();
-
-        FieldType filenameFieldType = new FieldType();
-        filenameFieldType.setStored(true);
-        filenameFieldType.setIndexOptions(IndexOptions.DOCS);
-        filenameFieldType.setTokenized(true);
-        filenameFieldType.freeze();
-
-        doc.add(new Field(LuceneConstants.ID, String.valueOf(id), idFieldType));
-        doc.add(new Field(LuceneConstants.NAME, filename, filenameFieldType));
+        
+        FieldType cidFieldType = new FieldType();
+        cidFieldType.setStored(true);
+        cidFieldType.setIndexOptions(IndexOptions.DOCS);
+        cidFieldType.setTokenized(false);
+        cidFieldType.setOmitNorms(false);
+        cidFieldType.freeze();
+        
+        FieldType metadataFieldType = new FieldType();
+        metadataFieldType.setStored(true);
+        metadataFieldType.setIndexOptions(IndexOptions.DOCS);
+        metadataFieldType.setTokenized(false);
+        metadataFieldType.setOmitNorms(false);
+        metadataFieldType.freeze();
+        
+        Document doc = new Document();
+        doc.add(new Field(LuceneConstants.CID, cid, cidFieldType));
+        // doc.add(new Field(LuceneConstants.NAME, filename, metadataFieldType));
         doc.add(new Field(LuceneConstants.CONTENTS, contents, contentFieldType));
-
+        
         return doc;
     }
-
+    
     @Override
     public IndexResponse indexDoc(Document doc) throws IOException {
         IndexWriter indexWriter = luceneManager.getIndexWriter();
         indexWriter.addDocument(doc);
-
+        
         int numIndexed = indexWriter.getDocStats().numDocs;
-
+        
         return new IndexResponse(numIndexed);
     }
-
+    
     @Override
-    public void deleteDoc(Long id) throws IOException {
+    public void deleteDoc(String cid) throws IOException {
         IndexWriter indexWriter = luceneManager.getIndexWriter();
-
-        indexWriter.deleteDocuments(new Term(LuceneConstants.ID, String.valueOf(id)));
+        
+        indexWriter.deleteDocuments(new Term(LuceneConstants.CID, cid));
+        
+        luceneManager.maybeMerge();
     }
-
+    
     @Override
-    public void commit() throws IOException {
-        luceneManager.commit();
-    }
-
-    @Override
-    public SearchResponse searchDoc(String queryString) throws IOException, InvalidTokenOffsetsException {
+    public List<DocumentResponse> searchDoc(String queryString) throws IOException {
         IndexSearcher indexSearcher = luceneManager.getIndexSearcher();
-
+        
         List<DocumentResponse> documents = new ArrayList<>();
-
+        
         try {
             Analyzer analyzer = luceneManager.getAnalyzer();
-
+            
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-            Query queryContents = queryBuilder.createBooleanQuery(LuceneConstants.CONTENTS, queryString);
-            Query queryName = queryBuilder
-                    .createBooleanQuery(LuceneConstants.NAME, queryString
-                            .replace(".", " "));
-
+            Query contentsQuery = queryBuilder.createBooleanQuery(LuceneConstants.CONTENTS, queryString);
+            // Query nameQuery = queryBuilder
+            //         .createBooleanQuery(LuceneConstants.NAME, queryString
+            //                 .replace(".", " "));
+            
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.add(queryContents, BooleanClause.Occur.SHOULD);
-            builder.add(queryName, BooleanClause.Occur.SHOULD);
+            builder.add(contentsQuery, BooleanClause.Occur.SHOULD);
+            // builder.add(nameQuery, BooleanClause.Occur.SHOULD);
             BooleanQuery query = builder.build();
-
+            
             TopDocs hits = indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
             StoredFields storedFields = indexSearcher.storedFields();
             for (ScoreDoc hit : hits.scoreDocs) {
                 Document doc = storedFields.document(hit.doc);
-
-                QueryScorer scorer = new QueryScorer(query);
-                Highlighter highlighter = new Highlighter(scorer);
-                String[] highlightContents = highlighter
-                        .getBestFragments(analyzer, LuceneConstants.CONTENTS, doc.get(LuceneConstants.CONTENTS), 4);
-
-                Long id = Long.valueOf(doc.get(LuceneConstants.ID));
-
-                documentsRepository.findByIdAndStatus(id, EDocStatus.STATUS_STORED)
-                        .ifPresent(document -> documents.add(new DocumentResponse(document, hit.score, highlightContents)));
+                
+                String cid = doc.get(LuceneConstants.CID);
+                
+                IndexFiles indexFile = indexFilesRepo.findByCoreIdAndStatus(cid, IndexingStatus.STATUS_INDEXED)
+                                                     .orElse(null);
+                
+                if (indexFile != null) {
+                    QueryScorer scorer = new QueryScorer(query);
+                    Highlighter highlighter = new Highlighter(scorer);
+                    
+                    String[] highlightContents = highlighter.getBestFragments(analyzer, LuceneConstants.CONTENTS,
+                                                                              doc.get(LuceneConstants.CONTENTS),
+                                                                              LuceneConstants.MAX_HIGHLIGHT);
+                    documents.add(new DocumentResponse(indexFile, hit.score, highlightContents));
+                }
+            }
+        } catch (InvalidTokenOffsetsException e) {
+            log.error("Query best fragments failed: ", e);
+        } finally {
+            luceneManager.releaseIndexSearcher(indexSearcher);
+        }
+        return documents;
+    }
+    
+    @Override
+    public boolean notIndexed(String cid) throws IOException {
+        IndexSearcher indexSearcher = luceneManager.getIndexSearcher();
+        
+        try {
+            Query cidQuery = new TermQuery(new Term(LuceneConstants.CID, cid));
+            
+            TopDocs hits = indexSearcher.search(cidQuery, 1);
+            
+            if (hits.scoreDocs.length == 0) {
+                return true;
             }
         } finally {
             luceneManager.releaseIndexSearcher(indexSearcher);
         }
-        return new SearchResponse(documents);
+        return false;
+    }
+    
+    @Override
+    public void commit() throws IOException {
+        luceneManager.commit();
     }
 }

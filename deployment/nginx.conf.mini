@@ -34,14 +34,6 @@ http {
         }
     }
 
-    server { # phpmyadmin
-        listen 80;
-        server_name pma.ulake.usth.edu.vn;
-        location / {
-            proxy_pass http://ulake-phpmyadmin;
-        }
-    }
-
     server { # service dashboard
         listen 80;
         server_name dashboard.ulake.usth.edu.vn;
@@ -73,4 +65,27 @@ http {
             proxy_pass http://ulake-service-acl:8783;
         }
     }
+
+    server { # service textr
+        listen 80;
+        server_name textr.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-textr:6969;
+        }
+    }
+
+#    server { # service admin
+#            listen 80;
+#            server_name admin.ulake.usth.edu.vn;
+#            client_max_body_size 2000M;
+#
+#            location ~* ^/(api|apidoc|q/openapi) {
+#                proxy_pass http://ulake-service-admin:8781;
+#            }
+#            location / {
+#                root /opt/admin;
+#                ssi_types application/javascript;
+#                try_files $uri $uri/ $uri.html =404;
+#            }
+#        }
 }
