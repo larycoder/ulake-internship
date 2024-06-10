@@ -29,32 +29,24 @@ import java.util.List;
 @Transactional(Transactional.TxType.REQUIRED)
 public class SchedulerService {
     
+    private static boolean isIndexing = false;
     Logger logger = LoggerFactory.getLogger(SchedulerService.class);
-    
     @Autowired
     IndexFilesRepository indexFilesRepo;
-    
     @Inject
     IndexSearchEngineV2 indexSearchEngine;
-    
     @Inject
     @RestClient
     CoreService coreService;
-    
     @Inject
     @RestClient
     UserService userService;
-    
     @ConfigProperty(name = "textr.scheduled.username")
     String username;
-    
     @ConfigProperty(name = "textr.scheduled.password")
     String password;
     
-    private static boolean isIndexing = false;
-    
-    // @Scheduled(cron = "{textr.scheduled.index}")
-    @Scheduled(every = "3s")
+    @Scheduled(cron = "{textr.scheduled.index}")
     void index() {
         if (isIndexing) {
             logger.info("A cron job is already indexing");
@@ -82,6 +74,11 @@ public class SchedulerService {
                         // Login as admin textrService and grant access to core service
                         AuthModel authModel = new AuthModel(username, password);
                         LakeHttpResponse<Object> response = userService.getToken(authModel);
+                        
+                        if (response.getCode() != 200)
+                            logger.error("Textr service has no permission access to Core service: {}, {}",
+                                         response.getMsg(),
+                                         response.getResp());
                         
                         String bearer = "bearer " + response.getResp();
                         
