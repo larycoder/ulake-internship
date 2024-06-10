@@ -41,7 +41,14 @@ http {
             proxy_pass http://ulake-service-dashboard:8782;
         }
     }
-
+    
+    server { # service dashboard
+        listen 80;
+        server_name dashboard.ulake.usth.edu.vn;
+        location / {
+            proxy_pass http://ulake-service-dashboard:8782;
+        }
+    }
     server { # service core
         listen 80;
         server_name core.ulake.usth.edu.vn;
@@ -65,7 +72,7 @@ http {
             proxy_pass http://ulake-service-acl:8783;
         }
     }
-
+    
     server { # service textr
         listen 80;
         server_name textr.ulake.usth.edu.vn;
