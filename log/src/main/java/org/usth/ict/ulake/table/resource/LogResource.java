@@ -3,6 +3,10 @@ package org.usth.ict.ulake.table.resource;
 import java.util.Date;
 import java.util.HashMap;
 
+import io.quarkus.example.LogGrpcService;
+import io.quarkus.example.LogGrpcServiceGrpc;
+import io.quarkus.example.LogResponse;
+import io.quarkus.grpc.GrpcClient;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -54,6 +58,21 @@ public class LogResource {
     @Inject
     @RestClient
     DashboardService dashboardService;
+
+    @Inject
+    @GrpcClient
+    LogGrpcServiceGrpc.LogGrpcServiceBlockingStub logGrpcService;
+
+    @GET
+    @Path("/grpc-log")
+    @Operation(summary = "List all log entries using grpc")
+    @RolesAllowed({ "Admin" })
+    public Response allGrpc() {
+        LogResponse logResp = logGrpcService.getLog(
+            io.quarkus.example.LogRequest.newBuilder().build()
+        );
+        return response.build(200, "", logResp.getOwnerId());
+    }
 
     @GET
     @Operation(summary = "List all log entries")

@@ -1,5 +1,8 @@
 package org.usth.ict.ulake.dashboard.resource;
 
+import io.quarkus.example.LoginRequest;
+import io.quarkus.example.UserGrpcServiceGrpc;
+import io.quarkus.grpc.GrpcClient;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;

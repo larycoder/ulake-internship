@@ -211,7 +211,7 @@ public class ObjectResource {
         object.setAccessTime(now);
         object.setParentId(0L);
         object.setGroup(group);
-        repo.persist(object);
+//        repo.persist(object);
         logService.post(bearer, new LogModel("Add", "Added a new file with name " + meta.getName()));
         return resp.build(200, null, object);
     }

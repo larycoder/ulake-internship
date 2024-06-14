@@ -19,7 +19,7 @@ http {
     include /etc/nginx/mime.types;
 
     server { # service user
-        listen 80;
+        listen 80 http2;
         server_name user.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-service-user:8785;
@@ -27,7 +27,7 @@ http {
     }
 
     server { # service log
-        listen 80;
+        listen 80 http2;
         server_name log.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-service-log:8790;
@@ -35,14 +35,14 @@ http {
     }
 
     server { # phpmyadmin
-        listen 80;
+        listen 80 http2;
         server_name pma.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-phpmyadmin;
         }
     }
     server { # service common
-        listen 80;
+        listen 80 http2;
         server_name common.ulake.usth.edu.vn;
         add_header Access-Control-Allow-Origin *;
         location / {
@@ -54,7 +54,7 @@ http {
 
 
     server { # service dashboard
-        listen 80;
+        listen 80 http2;
         # db is for testing
         server_name dashboard.ulake.usth.edu.vn;
         client_max_body_size 2000M;
@@ -70,7 +70,7 @@ http {
     }
 
     server { # service core
-        listen 80;
+        listen 80 http2;
         server_name core.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-service-core:8784;
@@ -78,7 +78,7 @@ http {
     }
 
     server { # service folder
-        listen 80;
+        listen 80 http2;
         server_name folder.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-service-folder:8786;
@@ -86,7 +86,7 @@ http {
     }
 
     server { # service acl
-        listen 80;
+        listen 80 http2;
         server_name acl.ulake.usth.edu.vn;
         location / {
             proxy_pass http://ulake-service-acl:8783;

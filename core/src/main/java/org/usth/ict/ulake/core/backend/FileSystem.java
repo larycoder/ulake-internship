@@ -1,5 +1,7 @@
 package org.usth.ict.ulake.core.backend;
 
+import com.google.protobuf.ByteString;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,10 @@ public interface FileSystem {
     // files
     String create(String rootDir, String name, long length, InputStream is);
     String create(String name, long length, InputStream is);
+
+    String create(String name, long length, ByteString is);
+    String create(String rootDir, String name, long length, ByteString is);
+
     boolean delete(String rootDir, String cid);
     boolean delete(String cid);
     InputStream get(String rootDir, String cid);

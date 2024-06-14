@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/protobuf/any.proto";
+
+option java_multiple_files = true;
+option java_package = "io.quarkus.example";
+option java_outer_classname = "FileProto";
+
+service FileGrpcService {
+  rpc Test (UploadFileRequest) returns (UploadFileResponse) {
+    option (google.api.http) = {
+      post: "/api/object/test-grpc-file"
+      body: "*"
+    };
+  }
+
+  rpc UploadFile (UploadFileRequest) returns (UploadFileResponse) {
+    option (google.api.http) = {
+      post: "/api/object/grpc-file"
+      body: "*"
+    };
+  }
+}
+
+message UploadFileRequest {
+  string bearer = 1;
+  FileModel output = 2;
+}
+
+message UploadFileResponse {
+  int32 code = 1;
+  string message = 2;
+  string token = 3;
+}
+
+message FileModel {
+  string cid = 1;
+  int64 id = 2; // Use int64 for representing longs
+  string mime = 3;
+  string name = 4;
+  int64 ownerId = 5;
+  int64 size = 6;
+  int64 creationTime = 7;
+  optional FolderModel parent = 8;
+}
+
+message FolderModel {
+  int64 id = 1;
+  string name = 2;
+  int64 ownerId = 3;
+  int64 creationTime = 4;
+
+  repeated FolderModel subFolders = 5;
+  repeated FileModel files = 6;
+
+  FolderModel parent = 7;
+}

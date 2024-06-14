@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package acl;
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+
+option java_multiple_files = true;
+option java_package = "io.quarkus.example";
+option java_outer_classname = "AclProto";
+
+// Enum for FileType
+enum FileType {
+  FILE = 0; // Corresponds to "f"
+  FOLDER = 1; // Corresponds to "d"
+}
+
+
+// Message for the validate request
+message ValidateRequest {
+  string bearer = 1;    // Authorization bearer token
+  FileType fileType = 2; // File type
+  AclGrpcModel file = 3;         // Acl file object
+}
+
+// Message representing Acl
+message AclGrpcModel {
+  int64 objectId = 1;   // Object ID from file management
+  int64 userId = 2;     // User for permission
+  repeated int64 groupIds = 3; // Group IDs for permission
+  PermissionModel permission = 4; // Permission of object for corresponding user
+}
+
+message ValidateResponse {
+  int32 code = 1;
+  string message = 2;
+  string token = 3;
+}
+
+enum PermissionModel {
+  READ = 0;
+  WRITE = 1;
+  EXECUTE = 2;
+  ADD = 3;
+  DELETE = 4;
+}
+
+service AclGrpcService {
+  rpc Validate(ValidateRequest) returns (ValidateResponse){
+    option (google.api.http) = {
+      post: "/acl/validation/{fileType}"
+      body: "*"
+    };
+  };
+}

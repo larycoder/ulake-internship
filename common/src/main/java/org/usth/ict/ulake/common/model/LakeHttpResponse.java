@@ -31,6 +31,7 @@ public class LakeHttpResponse<T> {
     int code;
     String msg;
     T resp;
+    Map.Entry<String, String> cookie;
 
     public LakeHttpResponse(int code, String msg, T resp) {
         this.code = code;
@@ -39,6 +40,13 @@ public class LakeHttpResponse<T> {
     }
 
     public LakeHttpResponse() { }
+
+    public LakeHttpResponse(int i, String s, String accessToken, Map.Entry<String, String> cookie) {
+        this.code = i;
+        this.msg = s;
+        this.resp = (T) accessToken;
+        this.cookie = cookie;
+    }
 
     public int getCode() {
         return code;

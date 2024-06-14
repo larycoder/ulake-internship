@@ -123,8 +123,8 @@ public class FileResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(summary = "upload new file")
     public Response post(
-        @RequestBody(description = "multipart information for upload file to lake")
-        @MultipartForm FileFormModel input) {
+            @RequestBody(description = "multipart information for upload file to lake")
+            @MultipartForm FileFormModel input) {
         String bearer = "bearer " + jwt.getRawToken();
 
         FileModel fileInfo = input.fileInfo;

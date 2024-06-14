@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.kordamp.gradle.jandex' version '0.13.0'
+    id 'org.kordamp.gradle.jandex' version '1.1.0'
     id 'io.quarkus'
 }
 
@@ -8,13 +8,16 @@ group = 'org.usth.ict.ulake'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
+
+def grpcVersion = '1.59.1'
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
@@ -33,6 +36,19 @@ dependencies {
 
     implementation 'org.mapstruct:mapstruct:1.3.1.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
+
+    implementation 'io.quarkus:quarkus-grpc'
+
+    implementation 'io.quarkus:quarkus-vertx-http'
+
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    implementation "io.grpc:grpc-netty:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: '3.12.2'
+    compileOnly group: "javax.annotation", name: "javax.annotation-api", version: "1.3.2"
+    compileOnly group: "org.jetbrains", name: "annotations", version: "13.0"
 }
 
 test {
@@ -46,4 +62,8 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+tasks.named('quarkusDependenciesBuild') {
+    dependsOn tasks.named('jandex')
 }

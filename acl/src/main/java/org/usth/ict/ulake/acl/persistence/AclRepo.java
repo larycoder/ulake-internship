@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.quarkus.example.AclGrpcModel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -50,6 +51,41 @@ public class AclRepo implements PanacheRepository<AclModel> {
 
         conditions.add("(permission = :permission)");
         params.put("permission", acl.permission);
+
+        String hql = String.join(" AND ", conditions);
+        return list(hql, params);
+    }
+
+    public List<AclModel> findAcl(io.quarkus.example.FileType type, AclGrpcModel acl) {
+        List<String> conditions = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+
+        // filter by user and list of user group
+        List<String> sub = new ArrayList<>();
+        if (type.name().equals("file")){
+            type = io.quarkus.example.FileType.valueOf("f");
+        }
+        else{
+            type = io.quarkus.example.FileType.valueOf("d");
+        }
+        if (acl.getUserId() != 0) {
+            sub.add("(userId = :uUserId AND type = :uType)");
+            params.put("uUserId", acl.getUserId());
+            params.put("uType", AclType.valueOf("u" + type.name()));
+        }
+        if (!Utils.isEmpty(acl.getGroupIdsList())) {
+            sub.add("(userId in :UUserId AND type = :gType)");
+            params.put("gUserId", acl.getUserId());
+            params.put("gType", AclType.valueOf("g" + type.name()));
+        }
+        if (!sub.isEmpty())
+            conditions.add("(" + String.join(" OR ", sub) + ")");
+
+        conditions.add("(objectId = :objectId)");
+        params.put("objectId", acl.getObjectId());
+
+        conditions.add("(permission = :permission)");
+        params.put("permission", acl.getPermission());
 
         String hql = String.join(" AND ", conditions);
         return list(hql, params);

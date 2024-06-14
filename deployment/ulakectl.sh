@@ -24,7 +24,7 @@ start() {
 
     # check native build
     RUNNER=`echo $ROOT_DIR/$QUARKUS_SERVICE/build/*-runner`
-    if [[ -f "$RUNNER" && "$QUARKUS_SERVICE" != "core" && "$QUARKUS_SERVICE" != "ingestion" && "$QUARKUS_SERVICE" != "dashboard"&& "$QUARKUS_SERVICE" != "ir" && "$QUARKUS_SERVICE" != "lcc" ]]; then
+    if [[ -f "$RUNNER" && "$QUARKUS_SERVICE" != "core" && "$QUARKUS_SERVICE" != "ingestion" && "$QUARKUS_SERVICE" != "dashboard"&& "$QUARKUS_SERVICE" != "ir" && "$QUARKUS_SERVICE" != "lcc" && "$QUARKUS_SERVICE" != "folder" ]]; then
         echo "+ Using native build at $RUNNER"
         TARGET_RUNNER="/home/ulake-service-$QUARKUS_SERVICE-runner"
         docker run -d --name $HOST \
@@ -40,14 +40,14 @@ start() {
 
         # check if jar build is available
         JAR_DIR="$ROOT_DIR/$QUARKUS_SERVICE/build/quarkus-app"
-        if [[ -d "$JAR_DIR" && "$QUARKUS_SERVICE" != "dashboard" ]]; then
+        if [[ -d "$JAR_DIR" && "$QUARKUS_SERVICE" != "dashboard" && "$QUARKUS_SERVICE" != "folder" ]]; then
             echo "+ Using jar build at $JAR_DIR"
             docker run -d --name $HOST \
                 -v $JAR_DIR:/home/$QUARKUS_SERVICE \
                 --network $NET \
                 -e JAVA_APP_JAR="/home/$QUARKUS_SERVICE/quarkus-run.jar" \
                 $EXT \
-                registry.access.redhat.com/ubi8/
+                registry.access.redhat.com/ubi8/openjdk-17
         else
             # nah, let's use the default dev build
             DEV_DIR="$ROOT_DIR/$QUARKUS_SERVICE"
@@ -120,4 +120,3 @@ case $1 in
         stop $@
         ;;
 esac
-

@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+
+option java_multiple_files = true;
+option java_package = "io.quarkus.example";
+option java_outer_classname = "CoreProto";
+
+// Upload
+message UploadCoreRequest {
+  string bearer = 1;
+  ObjectFormModel output = 2;
+}
+
+message UploadCoreResponse {
+  int32 code = 1;
+  string message = 2;
+  string token = 3;
+}
+
+message ObjectFormModel {
+  string metadata = 1;
+  bytes is = 2;
+}
+
+// Chunked upload
+message UploadCoreChunkRequest {
+  string bearer = 1;
+  ObjectFormModelChunk output = 2;
+}
+
+message ObjectFormModelChunk {
+  string metadata = 1;
+  bytes is = 2;
+  string fileID = 3;
+  int32 chunkIndex = 4;
+}
+
+// Service
+service CoreGrpcService {
+  rpc TestCoreConnect (UploadCoreRequest) returns (UploadCoreResponse) {
+    option (google.api.http) = {
+      post: "/api/object/test-grpc-core"
+      body: "*"
+    };
+  }
+
+  rpc UploadCore (stream UploadCoreRequest) returns (UploadCoreResponse) {
+    option (google.api.http) = {
+      post: "/api/object/grpc-file"
+      body: "*"
+    };
+  }
+
+  rpc UploadCoreChunk (stream UploadCoreChunkRequest) returns (UploadCoreResponse) {
+    option (google.api.http) = {
+      post: "/api/object/grpc-file-chunk"
+      body: "*"
+    };
+  }
+}
