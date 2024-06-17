@@ -3,9 +3,9 @@ package org.usth.ict.ulake.ingest.crawler.storage.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.ingest.crawler.storage.Storage;

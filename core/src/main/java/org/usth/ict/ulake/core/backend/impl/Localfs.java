@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import com.google.protobuf.ByteString;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -56,6 +57,33 @@ public class Localfs implements org.usth.ict.ulake.core.backend.FileSystem {
         }
         return uuid.toString();
     }
+
+    @Override
+    public String create(String name, long length, ByteString is) {
+        return create(rootDir, name, length, is);
+    }
+
+    @Override
+    public String create(String rootDir, String name, long length, ByteString is) {
+        UUID uuid = UUID.randomUUID();
+        Path path = Paths.get("/", rootDir, uuid.toString());
+        try {
+            OutputStream os = new FileOutputStream(path.toString());
+            try {
+                is.writeTo(os);
+            } catch (IOException e) {
+                log.error("Error to stream data to {}: {}", path, e);
+                return null;
+            } finally {
+                os.close();
+            }
+        } catch (IOException e) {
+            log.error("Fail to create new file {}: {}", path, e);
+            return null;
+        }
+        return uuid.toString();
+    }
+
 
     @Override
     public boolean delete (String rootDir, String cid) {

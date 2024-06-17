@@ -1,6 +1,6 @@
 package org.usth.ict.ulake.lcc.service;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

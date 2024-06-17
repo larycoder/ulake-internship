@@ -40,7 +40,7 @@ Document version: 0.2.0
 ## Note
 
 1. Update service resource to connect to proper docker host
-2. Prepare proper java-environment (openjdk-11)
+2. Prepare proper java-environment (openjdk-17)
 3. Setup port in application properties for each services
 4. Update start-phpmyadmin.sh port following start-mysql.sh
 5. Nginx in docker need to link to Machine host

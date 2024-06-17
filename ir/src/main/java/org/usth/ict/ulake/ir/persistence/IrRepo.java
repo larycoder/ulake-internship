@@ -1,6 +1,6 @@
 package org.usth.ict.ulake.ir.persistence;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.usth.ict.ulake.ir.model.ImgFeature;
 

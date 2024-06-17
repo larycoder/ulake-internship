@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +31,7 @@ public class LakeHttpResponse<T> {
     int code;
     String msg;
     T resp;
+    Map.Entry<String, String> cookie;
 
     public LakeHttpResponse(int code, String msg, T resp) {
         this.code = code;
@@ -39,6 +40,13 @@ public class LakeHttpResponse<T> {
     }
 
     public LakeHttpResponse() { }
+
+    public LakeHttpResponse(int i, String s, String accessToken, Map.Entry<String, String> cookie) {
+        this.code = i;
+        this.msg = s;
+        this.resp = (T) accessToken;
+        this.cookie = cookie;
+    }
 
     public int getCode() {
         return code;

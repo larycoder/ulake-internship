@@ -2,7 +2,7 @@ package org.usth.ict.ulake.common.task;
 
 import java.util.UUID;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.quartz.Job;
 import org.quartz.JobBuilder;

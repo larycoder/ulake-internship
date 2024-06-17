@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import com.google.protobuf.ByteString;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -60,6 +61,39 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     @Override
     public String create(String name, long length, InputStream is) {
         return create(rootDir, name, length, is);
+    }
+
+    @Override
+    public String create(String name, long length, ByteString is) {
+        return create(rootDir, name, length, is);
+    }
+
+    @Override
+    public String create(String rootDir, String name, long length, ByteString is) {
+        UUID uuid = UUID.randomUUID();
+        String pathFile = Paths.get(rootDir, uuid.toString()).toString();
+        Path fullPath = new Path(namenodeUri + Paths.get("/", pathFile).toString());
+        try {
+            OutputStream os = getClient().create(fullPath);
+            log.info("Create: target {}, prepare to putObject url={} length={}",
+                     namenodeUri, pathFile, length);
+            try {
+                is.writeTo(os);
+            } catch (IOException e) {
+                log.error("Error to stream data to {}: {}", fullPath, e);
+                return null;
+            } finally {
+                os.close();
+            }
+        } catch (IOException e) {
+            log.error("Fail to create new file {}: {}", fullPath, e);
+            return null;
+        }
+
+        // TODO extract file info from from hdfs
+        log.info("Created Hdfs object from stream. No file info yet");
+
+        return uuid.toString();
     }
 
     @Override

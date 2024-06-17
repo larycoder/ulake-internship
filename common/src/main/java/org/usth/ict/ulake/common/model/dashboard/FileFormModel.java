@@ -2,8 +2,8 @@ package org.usth.ict.ulake.common.model.dashboard;
 
 import java.io.InputStream;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 import org.usth.ict.ulake.common.model.folder.FileModel;

@@ -1,0 +1,92 @@
+package org.usth.ict.ulake.folder.persistence;
+
+import java.math.BigInteger;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.quarkus.example.FolderModel;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import org.usth.ict.ulake.common.misc.Utils;
+import org.usth.ict.ulake.common.model.StatsByDate;
+import org.usth.ict.ulake.common.model.folder.UserFolderSearchQuery;
+
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+
+@ApplicationScoped
+public class FolderGrpcRepository implements PanacheRepository<FolderModel> {
+    @Inject EntityManager em;
+
+    public List<FolderModel> load(List<FolderModel> detach) {
+        FolderModel attach;
+
+        if (detach == null || detach.isEmpty())
+            return null;
+
+        var result = new ArrayList<FolderModel>();
+        for (var file : detach) {
+            if (file.getId() != 0) {
+                attach = findById(file.getId());
+                if (attach != null) result.add(attach);
+            }
+        }
+
+        return result;
+    }
+
+    public List<FolderModel> listRoot(Long ownerId) {
+        return list("(parent = NULL) AND (ownerId = ?1)", ownerId);
+    }
+
+    public List<FolderModel> listRoot() {
+        return list("parent = NULL");
+    }
+
+    public List<StatsByDate> getNewFoldersByDate() {
+        List<Object[]> counts = em.createNativeQuery("SELECT count(name) as count, DATE(FROM_UNIXTIME(`creationTime`)) as date FROM UserFolder GROUP BY date;").getResultList();
+        List<StatsByDate> ret = new ArrayList<>();
+        for (var count: counts) {
+            StatsByDate stat = new StatsByDate((Date) count[1], ((BigInteger) count[0]).intValue());
+            ret.add(stat);
+        }
+        return ret;
+    }
+
+    public List<FolderModel> search(UserFolderSearchQuery query) {
+        ArrayList<String> conditions = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+
+        if (query.ids != null && !query.ids.isEmpty()) {
+            var ids = new ArrayList<Long>();
+            for (var id : query.ids) {
+                if (id >= 0) ids.add(id);
+            }
+            conditions.add("(id in (:ids))");
+            params.put("ids", ids);
+        }
+
+        if (query.ownerIds != null && !query.ownerIds.isEmpty()) {
+            var ownerIds = new ArrayList<Long>();
+            for (var ownerId : query.ownerIds) {
+                if (ownerId >= 0)
+                    ownerIds.add(ownerId);
+            }
+            conditions.add("(ownerId in (:ownerIds))");
+            params.put("ownerIds", ownerIds);
+        }
+
+        if (!Utils.isEmpty(query.keyword)) {
+            conditions.add("(name like :keyword)");
+            params.put("keyword", "%" + query.keyword + "%");
+        }
+
+        String hql = String.join(" and ", conditions);
+        return list(hql, params);
+    }
+
+}

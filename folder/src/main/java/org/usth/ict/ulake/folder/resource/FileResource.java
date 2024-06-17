@@ -8,20 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import io.quarkus.example.FileType;
+import io.quarkus.example.PermissionModel;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -30,10 +32,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.common.misc.AclUtil;
+import org.usth.ict.ulake.common.misc.GrpcAclUtil;
 import org.usth.ict.ulake.common.misc.Utils;
 import org.usth.ict.ulake.common.model.LakeHttpResponse;
-import org.usth.ict.ulake.common.model.PermissionModel;
-import org.usth.ict.ulake.common.model.acl.macro.FileType;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQuery;
 import org.usth.ict.ulake.common.model.folder.UserFileSearchQueryV2;
 import org.usth.ict.ulake.common.model.log.LogModel;
@@ -60,7 +61,7 @@ public class FileResource {
     LakeHttpResponse<Object> respObject;
 
     @Inject
-    AclUtil acl;
+    GrpcAclUtil acl;
 
     @Inject
     @RestClient
@@ -82,7 +83,7 @@ public class FileResource {
         @HeaderParam("Authorization") String bearer,
         @PathParam("id")
         @Parameter(description = "File id to search") String ids) {
-        var permit = PermissionModel.READ; // <-- permit
+        var permit = io.quarkus.example.PermissionModel.READ; // <-- permit
 
         log.info("getting file info for {}", ids);
         if (Utils.isNumeric(ids)) {
@@ -93,7 +94,7 @@ public class FileResource {
             if (file == null)
                 return resp.build(404, "File not found");
 
-            if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
+            if (!acl.verify(io.quarkus.example.FileType.FILE, file.id, file.ownerId, permit))
                 return resp.build(403);
 
             logService.post(bearer, new LogModel("Query", "Get file info for id " + id));
@@ -152,18 +153,18 @@ public class FileResource {
     @Operation(summary = "Create a new file info")
     @RolesAllowed({ "User", "Admin" })
     public Response post(@HeaderParam("Authorization") String bearer, UserFile entity) {
-        var permit = PermissionModel.WRITE;     // <-- permit
-        var parentPermit = PermissionModel.ADD; // <-- permit
+        var permit = io.quarkus.example.PermissionModel.WRITE;     // <-- permit
+        var parentPermit = io.quarkus.example.PermissionModel.ADD; // <-- permit
 
-        if (!acl.verify(FileType.file, null, entity.ownerId, permit))
-            return resp.build(403, "Create file not allowed");
+//        if (!acl.verify(io.quarkus.example.FileType.FILE, null, entity.ownerId, permit))
+//            return resp.build(403, "Create file not allowed");
 
         if (entity.parent != null && entity.parent.id != null) {
             var parent = folderRepo.findById(entity.parent.id);
             if (parent == null)
                 return resp.build(403, "Parent folder is not existed");
 
-            if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
+            if (!acl.verify(io.quarkus.example.FileType.FOLDER, parent.id, parent.ownerId, parentPermit))
                 return resp.build(403, "Add file not allowed");
             entity.parent = parent;
         }
@@ -184,15 +185,15 @@ public class FileResource {
         @PathParam("id")
         @Parameter(description = "File id to update") Long id,
         @RequestBody(description = "New file info to save") UserFile data) {
-        var permit = PermissionModel.WRITE;     // <-- permit
-        var parentPermit = PermissionModel.ADD; // <-- permit
+        var permit = io.quarkus.example.PermissionModel.WRITE;     // <-- permit
+        var parentPermit = io.quarkus.example.PermissionModel.ADD; // <-- permit
 
         UserFile file = repo.findById(id);
 
         if (file == null)
             return resp.build(404, "File not found");
 
-        if (!acl.verify(FileType.file, file.id, file.ownerId, permit))
+        if (!acl.verify(io.quarkus.example.FileType.FILE, file.id, file.ownerId, permit))
             return resp.build(403, "Update file not allowed");
 
         if (!Utils.isEmpty(data.cid) && data.size != null) {
@@ -211,7 +212,7 @@ public class FileResource {
             if (parent == null)
                 return resp.build(403, "Parent folder is not existed");
 
-            if (!acl.verify(FileType.folder, parent.id, parent.ownerId, parentPermit))
+            if (!acl.verify(io.quarkus.example.FileType.FOLDER, parent.id, parent.ownerId, parentPermit))
                 return resp.build(403, "Move file not allowed");
             file.parent = parent;
         }
@@ -237,7 +238,7 @@ public class FileResource {
         if (entity == null)
             return resp.build(404);
 
-        if (!acl.verify(FileType.file, entity.id, entity.ownerId, permit))
+        if (!acl.verify(FileType.FILE, entity.id, entity.ownerId, permit))
             return resp.build(403);
 
         repo.delete(entity);

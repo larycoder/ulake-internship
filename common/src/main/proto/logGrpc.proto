@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/protobuf/any.proto";
+
+option java_multiple_files = true;
+option java_package = "io.quarkus.example";
+option java_outer_classname = "LogProto";
+
+service LogGrpcService {
+  rpc GetLog (LogRequest) returns (LogResponse) {
+    option (google.api.http) = {
+      post: "/api/log/grpc-log"
+      body: "*"
+    };
+  }
+}
+
+message LogRequest {
+}
+
+message LogResponse {
+  int64 id = 1;
+  string content = 2;
+  int64 ownerId = 3;
+  string service = 4;
+  string tag = 5;
+  int64 timestamp = 6;
+}

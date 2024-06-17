@@ -1,5 +1,6 @@
 package org.usth.ict.ulake.core.backend.impl;
 
+import com.google.protobuf.ByteString;
 import io.openio.sds.Client;
 import io.openio.sds.ClientBuilder;
 import io.openio.sds.models.*;
@@ -8,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.FileSystem;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,21 @@ public class OpenIO implements FileSystem {
         ObjectInfo info = getClient().putObject(url, length, is);
         log.info("Created OpenIO object from stream. hash={}", info.hash());
         return uuid.toString();
+    }
+
+    @Override
+    public String create(String name, long length, ByteString is) {
+        UUID uuid = UUID.randomUUID();
+        OioUrl url = OioUrl.url(account, bucket, uuid.toString());
+        log.info("Create: target {}, prepare to putObject url={} length={}", endPointUrl, url, length);
+        ObjectInfo info = getClient().putObject(url, length, is.newInput());
+        log.info("Created OpenIO object from stream. hash={}", info.hash());
+        return uuid.toString();
+    }
+
+    @Override
+    public String create(String rootDir, String name, long length, ByteString is) {
+        return create(name, length, is);
     }
 
     @Override

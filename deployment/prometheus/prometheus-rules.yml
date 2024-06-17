@@ -1,0 +1,7 @@
+prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
+    enableFeatures:
+      - remote-write-receiver
+      - web.enable-remote-write-receiver
+      - enable-feature=native-histograms
