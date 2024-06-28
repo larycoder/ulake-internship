@@ -42,5 +42,6 @@ public
 ### customize ###
 dashboard/html/pages/commits/commits.html
 deployment/data
+performance-test
 
 .devcontainer

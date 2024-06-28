@@ -3,15 +3,9 @@ package org.usth.ict.ulake.dashboard.resource.grpcResouce;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Empty;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 import io.quarkus.example.*;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -20,13 +14,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -37,14 +29,10 @@ import org.usth.ict.ulake.common.model.core.ObjectFormModel;
 import org.usth.ict.ulake.common.model.core.ObjectModel;
 import org.usth.ict.ulake.common.model.folder.FileModel;
 import org.usth.ict.ulake.common.model.dashboard.FileFormModel;
-import org.usth.ict.ulake.common.service.CoreService;
-import org.usth.ict.ulake.common.service.FileService;
 import org.usth.ict.ulake.dashboard.model.ObjectMeta;
 import org.usth.ict.ulake.dashboard.service.IrFeatureExtractJob;
 import org.usth.ict.ulake.dashboard.service.IrFeatureExtractTask;
-import io.quarkus.example.MutinyCoreGrpcServiceGrpc.MutinyCoreGrpcServiceStub;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -61,7 +49,7 @@ public class GrpcFileChunkClientResource {
     IrFeatureExtractTask irTask;
 
     @GrpcClient
-    CoreGrpcService coreGrpcClient;
+    CoreGrpcService coreChunkGrpcClient;
 
     @GrpcClient
     FileGrpcServiceGrpc.FileGrpcServiceBlockingStub fileGrpcClient;
@@ -79,7 +67,7 @@ public class GrpcFileChunkClientResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(summary = "upload new file")
     public Response post(@RequestBody(description = "file form model")
-                         @MultipartForm FileFormModel input){
+                         @MultipartForm FileFormModel input) {
         String bearer = "Bearer " + jwt.getRawToken();
 
         FileModel fileInfo = input.fileInfo;
@@ -102,80 +90,69 @@ public class GrpcFileChunkClientResource {
         }
 
         ObjectModel obj = new ObjectModel();
+        var objJson = "";
+        obj.cid = "null";
         try {
-//            set chunk size to 4MB
-            byte[] chunk = new byte[4 * 1024 * 1024];
-            int byteRead;
-            int chunkIndex = 0;
-            while ((byteRead = input.is.read(chunk)) != -1) {
-                var objJson = coreGrpcClient.uploadCoreChunk(Multi.createFrom().item(UploadCoreChunkRequest.newBuilder()
+            byte[] bytes = new byte[1024*400];
+            int len;
+            while ((len = input.is.read(bytes)) != -1) {
+                ByteString byteString = ByteString.copyFrom(bytes, 0, len);
+                objJson = coreChunkGrpcClient.uploadCoreChunk(Multi.createFrom().item(UploadCoreChunkRequest.newBuilder()
                         .setBearer("Bearer " + jwt.getRawToken())
                         .setOutput(io.quarkus.example.ObjectFormModelChunk.newBuilder()
                                 .setMetadata(output.metadata)
-                                .setIs(ByteString.copyFrom(chunk))
+                                .setIs(byteString)
                                 .setFileID(obj.cid)
-                                .setChunkIndex(chunkIndex)
                                 .build())
                         .build())).onItem().transform(UploadCoreResponse::getToken).await().indefinitely();
                 obj.cid = objJson;
-                chunkIndex++;
             }
 
-//            var objJson = coreGrpcClient.uploadCore(Multi.createFrom().item(UploadCoreRequest.newBuilder()
-//                    .setBearer("Bearer " + jwt.getRawToken())
-//                    .setOutput(io.quarkus.example.ObjectFormModel.newBuilder()
-//                            .setMetadata(output.metadata)
-//                            .setIs(ByteString.copyFrom(IOUtils.toByteArray(input.is)))
-//                            .build())
-//                    .build())).onItem().transform(UploadCoreResponse::getToken).await().indefinitely();
-//            obj.cid = objJson;
-        } catch (Exception e) {
-            log.error("Fail to create new object", e);
-            return resp.build(500, "Fail to create new object", e.getMessage());
-        }
-
-        FileModel fileModel = new FileModel();
-        String fileResp;
-        try {
-            fileInfo.cid = obj.cid;
-            fileInfo.creationTime = new Date().getTime();
-            fileResp = fileGrpcClient.uploadFile(UploadFileRequest.newBuilder()
-                    .setBearer(bearer)
-                    .setOutput(io.quarkus.example.FileModel.newBuilder()
-                            .setName(fileInfo.name)
-                            .setOwnerId(fileInfo.ownerId)
-                            .setSize(fileInfo.size)
-                            .setMime(fileInfo.mime)
-                            .setCid(fileInfo.cid)
-                            .setCreationTime(fileInfo.creationTime)
-                            .build())
-                    .build()).getToken();
-
-        } catch (Exception e) {
-            log.error("Fail to create new file from object", e);
-            return resp.build(500, "Fail to create new file from object");
-        }
-
-        // check mime and perform feature extraction
-        if (fileModel.mime != null && fileModel.mime.startsWith("image/")) {
+            FileModel fileModel = new FileModel();
+            String fileResp;
             try {
-                irTask.start(bearer, fileModel.id, IrFeatureExtractJob.class);
-            } catch (SchedulerException e) {
-                e.printStackTrace();
+                fileInfo.cid = obj.cid;
+                fileInfo.creationTime = new Date().getTime();
+                fileResp = fileGrpcClient.uploadFile(UploadFileRequest.newBuilder()
+                        .setBearer(bearer)
+                        .setOutput(io.quarkus.example.FileModel.newBuilder()
+                                .setName(fileInfo.name)
+                                .setOwnerId(fileInfo.ownerId)
+                                .setSize(fileInfo.size)
+                                .setMime(fileInfo.mime)
+                                .setCid(fileInfo.cid)
+                                .setCreationTime(fileInfo.creationTime)
+                                .build())
+                        .build()).getToken();
+
+            } catch (Exception e) {
+                log.error("Fail to create new file from object", e);
+                return resp.build(500, "Fail to create new file from object");
             }
+
+            // check mime and perform feature extraction
+            if (fileModel.mime != null && fileModel.mime.startsWith("image/")) {
+                try {
+                    irTask.start(bearer, fileModel.id, IrFeatureExtractJob.class);
+                } catch (SchedulerException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            var jsonResp = fileResp.split(" ");
+            var fileRespJson = new FileModel();
+            fileRespJson.cid = jsonResp[0];
+            fileRespJson.id = Long.parseLong(jsonResp[1]);
+            fileRespJson.mime = jsonResp[2];
+            fileRespJson.name = jsonResp[3];
+            fileRespJson.ownerId = Long.parseLong(jsonResp[4]);
+            fileRespJson.size = Long.parseLong(jsonResp[5]);
+            fileRespJson.creationTime = Long.parseLong(jsonResp[6]);
+            fileRespJson.parent = null;
+
+            return resp.build(200, null, fileRespJson);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        var jsonResp = fileResp.split(" ");
-        var fileRespJson = new FileModel();
-        fileRespJson.cid = jsonResp[0];
-        fileRespJson.id = Long.parseLong(jsonResp[1]);
-        fileRespJson.mime = jsonResp[2];
-        fileRespJson.name = jsonResp[3];
-        fileRespJson.ownerId = Long.parseLong(jsonResp[4]);
-        fileRespJson.size = Long.parseLong(jsonResp[5]);
-        fileRespJson.creationTime = Long.parseLong(jsonResp[6]);
-        fileRespJson.parent = null;
-
-        return resp.build(200, null, fileRespJson);
     }
 }

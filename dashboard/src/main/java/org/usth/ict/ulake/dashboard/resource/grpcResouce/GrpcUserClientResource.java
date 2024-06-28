@@ -18,8 +18,6 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/grpc")
 public class GrpcUserClientResource {
-    @GrpcClient
-    UserGrpcServiceGrpc.UserGrpcServiceBlockingStub grpcClient;
 
     @Inject
     LakeHttpResponse resp;
@@ -36,13 +34,19 @@ public class GrpcUserClientResource {
         return resp.build(code, message, token);
     }
 
+    @GrpcClient
+    UserGrpcServiceGrpc.UserGrpcServiceBlockingStub grpcClient;
+
     @POST
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/grpc-login")
     public Response loginGrpc(AuthModel auth) {
-        var response = grpcClient.loginGrpc(LoginRequest.newBuilder().setUserName(auth.userName).setPassword(auth.password).build());
+        var response = grpcClient.loginGrpc(LoginRequest.newBuilder()
+                                            .setUserName(auth.userName)
+                                            .setPassword(auth.password)
+                                            .build());
         return resp.build(
                 response.getCode(),
                 response.getMessage(),

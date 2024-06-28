@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.usth.ict.ulake.core.backend.FileSystem;
 
 import jakarta.enterprise.context.ApplicationScoped;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +68,11 @@ public class OpenIO implements FileSystem {
     @Override
     public String create(String rootDir, String name, long length, ByteString is) {
         return create(name, length, is);
+    }
+
+    @Override
+    public boolean insertChunk(String cid, ByteString is) {
+        return false;
     }
 
     @Override

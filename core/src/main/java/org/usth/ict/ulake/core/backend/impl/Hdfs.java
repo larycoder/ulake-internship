@@ -97,6 +97,12 @@ public class Hdfs implements org.usth.ict.ulake.core.backend.FileSystem {
     }
 
     @Override
+    public boolean insertChunk(String cid, ByteString is) {
+        return false;
+    }
+
+
+    @Override
     public String create(String rootDir, String name, long length, InputStream is) {
         UUID uuid = UUID.randomUUID();
         String pathFile = Paths.get(rootDir, uuid.toString()).toString();

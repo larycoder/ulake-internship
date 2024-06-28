@@ -84,6 +84,26 @@ public class Localfs implements org.usth.ict.ulake.core.backend.FileSystem {
         return uuid.toString();
     }
 
+    //    append to file with given cid
+    @Override
+    public boolean insertChunk(String cid, ByteString is) {
+        Path path = Paths.get("/", rootDir, cid);
+        try {
+            OutputStream os = new FileOutputStream(path.toString(), true);
+            try {
+                is.writeTo(os);
+            } catch (IOException e) {
+                log.error("Error to stream data to {}: {}", path, e);
+                return false;
+            } finally {
+                os.close();
+            }
+        } catch (IOException e) {
+            log.error("Fail to append file {}: {}", path, e);
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public boolean delete (String rootDir, String cid) {

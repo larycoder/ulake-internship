@@ -28,3 +28,4 @@ message LogResponse {
   string tag = 5;
   int64 timestamp = 6;
 }
+

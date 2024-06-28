@@ -21,6 +21,9 @@ public interface FileSystem {
     String create(String name, long length, ByteString is);
     String create(String rootDir, String name, long length, ByteString is);
 
+    //    append to file with given cid
+    boolean insertChunk(String cid, ByteString is);
+
     boolean delete(String rootDir, String cid);
     boolean delete(String cid);
     InputStream get(String rootDir, String cid);

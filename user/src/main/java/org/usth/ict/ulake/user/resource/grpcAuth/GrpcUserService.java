@@ -111,6 +111,5 @@ public class GrpcUserService extends UserGrpcServiceGrpc.UserGrpcServiceImplBase
         Map.Entry<String, String> cookie = new AbstractMap.SimpleEntry<String, String>("Set-Cookie", "jwt=" + user.refreshToken + "; SameSite=strict");
         logService.post(user.accessToken, new LogModel("Auth", "Attempt to login " + cred.getUserName()));
         return new LakeHttpResponse<>(200, "", user.accessToken, cookie);
-
     }
 }
